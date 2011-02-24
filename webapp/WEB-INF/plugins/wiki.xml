@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<plug-in>
+    <name>wiki</name>
+    <class>fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation</class>
+    <version>1.0.1</version>
+    <documentation/>
+    <installation/>
+    <changes/>
+    <user-guide/>
+    <description>wiki.plugin.description</description>
+    <provider>wiki.plugin.provider</provider>
+    <provider-url>http://your.web.site.com</provider-url>
+    <icon-url>images/admin/skin/plugins/wiki/wiki.png</icon-url>
+    <copyright/>
+    <core-version-dependency>
+        <min-core-version>2.2.4</min-core-version>
+        <max-core-version/>
+    </core-version-dependency>
+    <db-pool-required>1</db-pool-required>
+    
+    
+       	<!-- Search Indexer Service -->
+    <search-indexers>
+        <search-indexer>
+            <search-indexer-class>
+				fr.paris.lutece.plugins.wiki.search.WikiIndexer
+            </search-indexer-class>
+        </search-indexer>
+    </search-indexers>
+	
+	    <!--  Specific plugin CSS stylesheet   --> 
+    <css-stylesheets>
+        <css-stylesheet>wiki/wiki.css</css-stylesheet>
+    </css-stylesheets>
+	
+    <!-- Admin features parameters -->
+ 
+  	<!-- XPages parameters -->
+    <applications>
+        <application>
+            <application-id>wiki</application-id>
+            <application-class>fr.paris.lutece.plugins.wiki.web.WikiApp</application-class>
+        </application>
+    </applications>
+	<!-- Portlet parameters -->
+    <portlets>
+    </portlets>
+</plug-in>

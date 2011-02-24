@@ -1,0 +1,44 @@
+<div id="wiki-content" class="span-22 prepend-1 append-1 append-bottom last">
+    <div id="wiki-menu">
+        <ul>
+            <div id="wiki-action" >
+                <li>
+                    <a href="jsp/site/Portal.jsp?page=wiki">
+                        #i18n{wiki.menu.home}
+                    </a>
+                </li>
+                <li class="selected">
+                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=Home&action=view">
+                        #i18n{wiki.menu.page}
+                    </a>
+                </li>
+                <li>
+                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=Home&action=modify">
+                        #i18n{wiki.menu.source}
+                    </a>
+                </li>
+                <li>
+                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=Home&action=view_history">
+                        #i18n{wiki.menu.history}
+                    </a>
+                </li>
+            </div>
+        </ul>
+    </div>
+
+
+    <div>
+        <h1 id="wiki-heading">${topic.pageName}</h1>
+        <hr>
+        <form method="post" action="jsp/site/Portal.jsp">
+
+            <input type="hidden" name="page" value="wiki" />
+            <input type="hidden" name="page_name" value="${topic.pageName}" />
+				${result}
+            <input type="hidden" name="action" value="modify" />
+
+
+            <input class="-lutece-input -lutece-border-radius-mini" type="submit" value="Modifier" />
+        </form>
+    </div>
+</div>

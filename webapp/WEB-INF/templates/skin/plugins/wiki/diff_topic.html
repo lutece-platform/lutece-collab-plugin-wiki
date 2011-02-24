@@ -1,0 +1,96 @@
+<div class="wiki-content">
+    <div id="wiki-menu">
+        <ul>
+            <div id="wiki-action" >
+                <li>
+                    <a href="jsp/site/Portal.jsp?page=wiki">
+                        #i18n{wiki.menu.home}
+                    </a>
+                </li>
+                <li>
+                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=Home&action=view">
+                        #i18n{wiki.menu.page}
+                    </a>
+                </li>
+                <li>
+                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=Home&action=modify">
+                        #i18n{wiki.menu.source}
+                    </a>
+                </li>
+                <li class="selected">
+                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=Home&action=view_history">
+                        #i18n{wiki.menu.history}
+                    </a>
+                </li>
+            </div>
+        </ul>
+    </div>
+    <div id="diff">
+
+        <#assign previousPosition = -10>
+
+        <#list listDiffs as diff>
+        <#if (diff.position>(previousPosition + 1))>
+        <div class="diff-line"><#if diff.line??>${diff.line}${diff.position + 1}</#if></div>
+        </#if>
+        <div class="diff-entry">
+            <#if diff.oldText?? && diff.change??>
+            <div class="diff-indicator">-</div>
+            <div class="diff-delete">
+                <#assign subDiffChange = false>
+                <#if diff.subDiffs??>
+                <#list diff.subDiffs as subDiff>
+                <#if !subDiffChange && subDiff.change>
+                <#assign subDiffChange = true>
+                <span class="diff-change">
+                    </#if>
+
+                    <#if subDiffChange && !subDiff.change>
+                    <#assign subDiffChange = false>
+                </span>
+                </#if>
+                <#if subDiff.oldText?? >
+
+										${subDiff.oldText}
+                </#if>
+                </#list>
+                </#if>
+                <#if subDiffChange = true></span>
+                &#160;
+            </div>
+            <#else>
+
+            <div class="diff-indicator">&#160;</div>
+            <div class="diff-unchanged">${diff.oldText}&#160;</div>
+            </#if>
+            <#elseif diff.newText?? && diff.change>
+            <#if  diff.newText?? && diff.change>
+            <div class="diff-indicator">+</div>
+            <div class="diff-add">
+                <#assign subDiffChange = false>
+                <#list diff.subDiffs as subDiff>
+                <#if subDiffChange && !subDiff.change>
+                <#assign subDiffChange = true>
+                <span class="diff-change"></#if>
+
+                    <#if subDiffChange && !subDiff.change>
+                    <#assign subDiffChange = false>
+                </span>
+                </#if>
+										${subDiff.newText}
+                </#list>
+                <#if subDiffChange==true></span></#if>
+                &#160;
+            </div>
+            <#else>
+            <div class="diff-indicator">&#160;</div>
+            <div class="diff-unchanged">${diff.oldText}&#160;</div>
+            </#if>
+            </#if>
+
+            <div class="clear"></div>
+        </div>
+        <#assign previousPosition = diff.position>
+        </#list>
+    </div>
+</div>

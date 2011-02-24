@@ -1,0 +1,60 @@
+<div id="wiki-content"  class="span-22 prepend-1 append-1 append-bottom last">
+    <div id="wiki-menu">
+        <ul>
+            <div id="wiki-action" >
+                <li>
+                    <a href="jsp/site/Portal.jsp?page=wiki">
+                        #i18n{wiki.menu.home}
+                    </a>
+                </li>
+                <li>
+                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=Home&action=view">
+                        #i18n{wiki.menu.page}
+                    </a>
+                </li>
+                <li class="selected">
+                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=Home&action=modify">
+                        #i18n{wiki.menu.source}
+                    </a>
+                </li>
+                <li>
+                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=Home&action=view_history">
+                        #i18n{wiki.menu.history}
+                    </a>
+                </li>
+            </div>
+        </ul>
+    </div>
+
+
+    <div>
+        <h1 id="wiki-heading">${topic.pageName}</h1>
+        <hr>
+        <img class="wiki_manual" src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/>
+
+        <form method="post" action="jsp/site/Portal.jsp">
+
+            <input type="hidden" name="page" value="wiki" />
+            <input type="hidden" name="page_name" value="${topic.pageName}" />
+            <textarea name="content" rows="20" cols="70">
+                <#if preview_content??>${preview_content}<#else>${lastVersion.wikiContent}</#if>
+            </textarea>
+
+
+            <input type="hidden" name="action" value="do_modify" />
+	    #i18n{wiki.modify_page.labelComment} :
+            <input type="text" name="modification_comment"/>
+	    #i18n{wiki.modify_page.labelPreview} :
+            <input name="preview" id="preview" value="preview" type="radio">
+
+            <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
+            <input type="hidden" name="topic_id" value="${topic.idTopic}" />
+
+            <div>
+
+                <input class="button" type="submit" value="#i18n{wiki.modify_page.buttonModify}" />
+            </div>
+
+        </form>
+    </div>
+</div>
