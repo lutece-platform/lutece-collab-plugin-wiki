@@ -67,6 +67,7 @@ public class WikiIndexer implements SearchIndexer
     private static final String PARAMETER_PAGE_NAME = "page_name";
     private static final String PARAMETER_ACTION_VIEW = "view";
     private static final String PLUGIN_NAME = "wiki";
+    public static final String PROPERTY_INDEX_TYPE_PAGE = "wiki";
     public static final String PROPERTY_INDEXER_NAME = "wiki.indexer.name";
     private static final String PROPERTY_PAGE_PATH_LABEL = "wiki.pagePathLabel";
     private static final String PROPERTY_INDEXER_DESCRIPTION = "wiki.indexer.description";
@@ -76,6 +77,7 @@ public class WikiIndexer implements SearchIndexer
     public static final String SHORT_NAME_TOPIC_CONTENT = "wic";
     private static final String ENABLE_VALUE_TRUE = "1";
     private static final String PARAMETER_ACTION = "action";
+    private static final String JSP_SEARCH_WIKI = "jsp/site/Portal.jsp?page=wiki&action=search";
 
     public String getDescription(  )
     {
@@ -210,9 +212,28 @@ public class WikiIndexer implements SearchIndexer
         // separately.
         doc.add( new Field( SearchItem.FIELD_TITLE, topic.getPageName(  ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 
-        doc.add( new Field( SearchItem.FIELD_TYPE, PLUGIN_NAME, Field.Store.YES, Field.Index.ANALYZED ) );
+        doc.add( new Field( SearchItem.FIELD_TYPE, PLUGIN_NAME, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 
         // return the document
         return doc;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+	public List<String> getListType(  )
+	{
+		List<String> listType = new ArrayList<String>(  );
+		listType.add( PROPERTY_INDEX_TYPE_PAGE );
+		
+		return listType;
+	}
+
+	/**
+     * {@inheritDoc}
+     */
+	public String getSpecificSearchAppUrl(  )
+	{
+		return JSP_SEARCH_WIKI;
+	}
 }

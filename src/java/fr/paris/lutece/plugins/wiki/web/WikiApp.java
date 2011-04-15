@@ -42,20 +42,26 @@ import fr.paris.lutece.plugins.wiki.utils.Constants;
 import fr.paris.lutece.plugins.wiki.service.WikiDiff;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceWikiParser;
 import fr.paris.lutece.plugins.wiki.utils.DiffUtils;
+import fr.paris.lutece.portal.service.content.XPageAppService;
 import fr.paris.lutece.portal.service.message.SiteMessage;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.message.SiteMessageService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
+import fr.paris.lutece.portal.service.search.SearchEngine;
+import fr.paris.lutece.portal.service.search.SearchResult;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.SecurityService;
 import fr.paris.lutece.portal.service.security.UserNotSignedException;
+import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.web.xpages.XPage;
 import fr.paris.lutece.portal.web.xpages.XPageApplication;
 import fr.paris.lutece.util.html.HtmlTemplate;
+import fr.paris.lutece.util.html.Paginator;
+import fr.paris.lutece.util.url.UrlItem;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -78,9 +84,12 @@ public class WikiApp implements XPageApplication
     private static final String PARAMETER_ACTION = "action";
     private static final String PARAMETER_CONTENT = "content";
     private static final String PARAMETER_PREVIEW = "preview";
+    private static final String PARAMETER_QUERY = "query";
+    private static final String PARAMETER_PAGE_INDEX = "page_index";
     private static final String PARAMETER_ACTION_DO_CREATE = "do_create";
     private static final String PARAMETER_ACTION_DO_MODIFY = "do_modify";
     private static final String PARAMETER_ACTION_VIEW_HISTORY = "view_history";
+    private static final String PARAMETER_ACTION_SEARCH = "search";
     private static final String TEMPLATE_MODIFY_WIKI = "skin/plugins/wiki/modify_page.html";
     private static final String TEMPLATE_CREATE_WIKI = "skin/plugins/wiki/create_page.html";
     private static final String TEMPLATE_VIEW_WIKI = "skin/plugins/wiki/view_page.html";
@@ -88,8 +97,11 @@ public class WikiApp implements XPageApplication
     private static final String TEMPLATE_VIEW_HISTORY_WIKI = "skin/plugins/wiki/history_page.html";
     private static final String TEMPLATE_VIEW_DIFF_TOPIC_WIKI = "skin/plugins/wiki/diff_topic.html";
     private static final String TEMPLATE_LIST_WIKI = "skin/plugins/wiki/list_wiki.html";
+    private static final String TEMPLATE_SEARCH_WIKI = "skin/plugins/wiki/search_wiki.html";
+    private static final String BEAN_SEARCH_ENGINE = "wiki.wikiSearchEngine";
     private static final String PROPERTY_PAGE_PATH = "wiki.pagePathLabel";
     private static final String PROPERTY_PAGE_TITLE = "wiki.pageTitle";
+    private static final String PROPERTY_DEFAULT_RESULT_PER_PAGE = "wiki.search_wiki.itemsPerPage";
     private static final String MESSAGE_ACCESS_CREATION_DENIED = "wiki.message.accessDenied.create.requiresAuthentification";
     private static final String MESSAGE_ACCESS_MODIFICATION_DENIED = "wiki.message.accessDenied.modify.requiresAuthentification";
     private static final String MESSAGE_PAGE_NOT_EXISTS = "wiki.message.accessDenied.pageNotExists";
@@ -110,6 +122,9 @@ public class WikiApp implements XPageApplication
     private static final String MARK_RESULT = "result";
     private static final String MARK_LIST_TOPIC_VERSION = "listTopicVersion";
     private static final String MARK_PREVIEW_CONTENT = "preview_content";
+    private static final String MARK_QUERY = "query";
+    private static final String MARK_PAGINATOR = "paginator";
+    private static final String MARK_NB_ITEMS_PER_PAGE = "nb_items_per_page";
     private static final int ACTION_NONE = 0;
     private static final int ACTION_VIEW = 1;
     private static final int ACTION_VIEW_HISTORY = 2;
@@ -118,10 +133,14 @@ public class WikiApp implements XPageApplication
     private static final int ACTION_MODIFY = 5;
     private static final int ACTION_DO_CREATE = 6;
     private static final int ACTION_DO_MODIFY = 7;
-
+    private static final int ACTION_SEARCH = 8;
+    
     // private fields
     private Plugin _plugin;
     private boolean _bInit;
+    private String _strCurrentPageIndex;
+    private int _nDefaultItemsPerPage;
+    private int _nItemsPerPage;
 
     /**
      * " Returns the content of the page wiki.
@@ -136,7 +155,8 @@ public class WikiApp implements XPageApplication
             throws SiteMessageException, UserNotSignedException
     {
         init( request );
-
+             
+        String strPluginName = plugin.getName(  );
         String strPageName = request.getParameter( PARAMETER_PAGE_NAME );
         String strContent = request.getParameter( PARAMETER_CONTENT );
         String strPreview = request.getParameter( PARAMETER_PREVIEW );
@@ -175,22 +195,56 @@ public class WikiApp implements XPageApplication
             case ACTION_DO_MODIFY:
                 doModify( page, request, strPageName, checkUser( request ), strContent );
                 break;
+            case ACTION_SEARCH:
+            	search( page, request, strPluginName );
+            	break;
         }
 
        return page;
     }
 
-    private LuteceUser checkUser(HttpServletRequest request ) throws UserNotSignedException
+    private void search(XPage page, HttpServletRequest request, String strPluginName )
+    {
+    	String strQuery = request.getParameter( PARAMETER_QUERY );
+    	String strPortalUrl = AppPathService.getPortalUrl(  );
+    	
+        UrlItem urlWikiXpage = new UrlItem( strPortalUrl );
+        urlWikiXpage.addParameter( XPageAppService.PARAM_XPAGE_APP, strPluginName );
+        urlWikiXpage.addParameter( PARAMETER_ACTION, PARAMETER_ACTION_SEARCH );
+
+    	_strCurrentPageIndex = Paginator.getPageIndex( request, Paginator.PARAMETER_PAGE_INDEX, _strCurrentPageIndex );
+    	_nDefaultItemsPerPage = AppPropertiesService.getPropertyInt( PROPERTY_DEFAULT_RESULT_PER_PAGE, 10 );
+    	_nItemsPerPage = Paginator.getItemsPerPage( request, Paginator.PARAMETER_ITEMS_PER_PAGE, _nItemsPerPage,
+                _nDefaultItemsPerPage );
+    	
+    	SearchEngine engine = (SearchEngine) SpringContextService.getPluginBean( strPluginName, BEAN_SEARCH_ENGINE );
+        List<SearchResult> listResults = engine.getSearchResults( strQuery, request );
+        
+        Paginator paginator = new Paginator( listResults, _nItemsPerPage, urlWikiXpage.getUrl(  ), PARAMETER_PAGE_INDEX,
+        		_strCurrentPageIndex );
+
+        HashMap<String, Object> model = new HashMap<String, Object>(  );
+        model.put( MARK_RESULT, paginator.getPageItems(  ) );
+        model.put( MARK_QUERY, strQuery );
+        model.put( MARK_PAGINATOR, paginator );
+        model.put( MARK_NB_ITEMS_PER_PAGE, "" + _nItemsPerPage );
+        
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_SEARCH_WIKI, Locale.getDefault(  ), model );
+        page.setContent( template.getHtml(  ) );
+		
+	}
+
+	private LuteceUser checkUser( HttpServletRequest request ) throws UserNotSignedException
     {
         LuteceUser luteceUser = null;
 
-        if ( SecurityService.isAuthenticationEnable() )
+        if ( SecurityService.isAuthenticationEnable(  ) )
         {
-            luteceUser = SecurityService.getInstance().getRemoteUser(request);
+            luteceUser = SecurityService.getInstance(  ).getRemoteUser( request );
         }
         else
         {
-            luteceUser = new WikiAnonymousUser();
+            luteceUser = new WikiAnonymousUser(  );
         }
         return luteceUser;
     }
@@ -229,6 +283,10 @@ public class WikiApp implements XPageApplication
             else if ( strAction.equals( PARAMETER_ACTION_DO_MODIFY ) )
             {
                 nAction = ACTION_DO_MODIFY;
+            }
+            else if ( strAction.equals( PARAMETER_ACTION_SEARCH ) )
+            {
+            	nAction = ACTION_SEARCH;
             }
         }
         return nAction;
