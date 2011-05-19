@@ -50,6 +50,7 @@
 #wiki-menu li.selected
 {
     font-weight: bold;
+    padding-left: 1em;
 }
 
 #wiki-heading 
