@@ -166,8 +166,20 @@ public class WikiIndexer implements SearchIndexer
         urlSubject.addParameter( PARAMETER_PAGE_NAME, topic.getPageName(  ) );
         urlSubject.addParameter( PARAMETER_ACTION, PARAMETER_ACTION_VIEW );
 
-        org.apache.lucene.document.Document docTopic = getDocument( topic, urlSubject.getUrl(  ), plugin );
-        IndexationService.write( docTopic );
+        org.apache.lucene.document.Document docTopic = null;
+        try
+        {
+        	docTopic = getDocument( topic, urlSubject.getUrl(  ), plugin );
+        }
+        catch ( Exception e )
+        {
+        	String strMessage = "Topic ID : " + topic.getIdTopic(  );
+        	IndexationService.error( this, e, strMessage );
+        }
+        if ( docTopic != null )
+        {
+        	IndexationService.write( docTopic );
+        }
     }
 
     /**
