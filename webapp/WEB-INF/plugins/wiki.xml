@@ -1,20 +1,19 @@
-<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
-<plug-in>
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?><plug-in>
     <name>wiki</name>
     <class>fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation</class>
     <version>1.0.1</version>
-    <documentation />
-    <installation />
-    <changes />
-    <user-guide />
+    <documentation/>
+    <installation/>
+    <changes/>
+    <user-guide/>
     <description>wiki.plugin.description</description>
     <provider>wiki.plugin.provider</provider>
     <provider-url>http://your.web.site.com</provider-url>
     <icon-url>images/admin/skin/plugins/wiki/wiki.png</icon-url>
-    <copyright />
+    <copyright/>
     <core-version-dependency>
         <min-core-version>2.2.4</min-core-version>
-        <max-core-version />
+        <max-core-version/>
     </core-version-dependency>
     <db-pool-required>1</db-pool-required>
 
