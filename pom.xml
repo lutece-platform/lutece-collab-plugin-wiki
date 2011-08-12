@@ -45,7 +45,7 @@
 
     <properties>
         <componentName>wiki</componentName>
-        <jiraProjectName>LUTECE</jiraProjectName>
+        <jiraProjectName>WIKI</jiraProjectName>
         <jiraComponentId>10361</jiraComponentId>
     </properties>
     <scm>
