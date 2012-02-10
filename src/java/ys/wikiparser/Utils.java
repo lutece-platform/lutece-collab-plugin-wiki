@@ -33,7 +33,7 @@ import java.util.*;
 public class Utils
 {
     private static HashMap<String, Character> entities = null;
-    private static final String translitTable = "àaábâvãgädåe¸eæzhçzèiéyêkëlìmínîoïpðrñsòtóuôfõhöts÷chøshùschüûyúýeþyuÿyaÀAÁBÂVÃGÄDÅE¨EÆZHÇZÈIÉYÊKËLÌMÍNÎOÏPÐRÑSÒTÓUÔFÕHÖTS×CHØSHÙSCHÜÛYÚÝEÞYUßYA";
+    private static final String translitTable = "Ã aÃ¡bÃ¢vÃ£gÃ¤dÃ¥eÂ¸eÃ¦zhÃ§zÃ¨iÃ©yÃªkÃ«lÃ¬mÃ­nÃ®oÃ¯pÃ°rÃ±sÃ²tÃ³uÃ´fÃµhÃ¶tsÃ·chÃ¸shÃ¹schÃ¼Ã»yÃºÃ½eÃ¾yuÃ¿yaÃ€AÃBÃ‚VÃƒGÃ„DÃ…EÂ¨EÃ†ZHÃ‡ZÃˆIÃ‰YÃŠKÃ‹LÃŒMÃNÃŽOÃPÃRÃ‘SÃ’TÃ“UÃ”FÃ•HÃ–TSÃ—CHÃ˜SHÃ™SCHÃœÃ›YÃšÃEÃžYUÃŸYA";
 
     public static boolean isUrlChar( char c )
     {
@@ -354,8 +354,8 @@ public class Utils
             char ch = s.charAt( i );
 
             //System.err.println("ch="+(int)ch);
-            if ( ( ( ch >= 'à' ) && ( ch <= 'ÿ' ) ) || ( ( ch >= 'À' ) && ( ch <= 'ß' ) ) || ( ch == '¸' ) ||
-                    ( ch == '¨' ) )
+            if ( ( ( ch >= 'Ã ' ) && ( ch <= 'Ã¿' ) ) || ( ( ch >= 'Ã€' ) && ( ch <= 'ÃŸ' ) ) || ( ch == 'Â¸' ) ||
+                    ( ch == 'Â¨' ) )
             {
                 int idx = translitTable.indexOf( ch );
                 char c;
@@ -366,8 +366,8 @@ public class Utils
                     {
                         c = translitTable.charAt( idx );
 
-                        if ( ( ( c >= 'à' ) && ( c <= 'ÿ' ) ) || ( ( c >= 'À' ) && ( c <= 'ß' ) ) || ( c == '¸' ) ||
-                                ( c == '¨' ) )
+                        if ( ( ( c >= 'Ã ' ) && ( c <= 'Ã¿' ) ) || ( ( c >= 'Ã€' ) && ( c <= 'ÃŸ' ) ) || ( c == 'Â¸' ) ||
+                                ( c == 'Â¨' ) )
                         {
                             break;
                         }
