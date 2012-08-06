@@ -37,7 +37,9 @@ package fr.paris.lutece.plugins.wiki.utils.auth;
 import fr.paris.lutece.portal.service.security.LoginRedirectException;
 import fr.paris.lutece.portal.service.security.LuteceAuthentication;
 import fr.paris.lutece.portal.service.security.LuteceUser;
+
 import java.util.Collection;
+
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -244,6 +246,26 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
     public String getPluginName()
     {
         return "";
+    }
+
+    /**
+     * 
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean findResetPassword( HttpServletRequest request, String strLogin )
+    {
+        return false;
+    }
+
+    /**
+     * 
+     * {@inheritDoc}
+     */
+    @Override
+    public String getResetPasswordPageUrl( HttpServletRequest request )
+    {
+        return null;
     }
 
 }
