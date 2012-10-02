@@ -268,4 +268,15 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
         return null;
     }
 
+	@Override
+	public String getLostLoginPageUrl( )
+	{
+		return null;
+	}
+
+	@Override
+	public void updateDateLastLogin( LuteceUser user, HttpServletRequest request )
+	{
+	}
+
 }
