@@ -1,23 +1,24 @@
-<div id="wiki-content"  class="span-22 prepend-1 append-1 append-bottom last">
-
-    <div>
-        <h1 id="wiki-heading">#i18n{wiki.list_wiki.title}</h1>
-        <hr>
+<div class="row-fluid">
+    <div class="span12">
+        
+        <h1>#i18n{wiki.list_wiki.title}</h1>
         <ul>
             <#list list_topic as topic>
-            <li><a
-                    href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=view">${topic.pageName}</a></li>
+            <li>
+                <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=view">${topic.pageName}</a>
+            </li>
             </#list>
         </ul>
         <br/>
         <br/>
-        <hr>
-        <form action="" method="post">
+        <div class="form-actions">
+        <form class="form-inline" action="" method="post">
             <input type="hidden" name="action" value="create" />
             #i18n{wiki.list_wiki.create} :
             <input type="text" name="page_name" />
-            <input class="button" type="submit" value="#i18n{portal.util.labelOk}" />
+            <input class="btn btn-primary" type="submit" value="#i18n{portal.util.labelOk}" />
         </form>
+        </div>
         <br/>
         <br/>
     </div>

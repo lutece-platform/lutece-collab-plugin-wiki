@@ -1,7 +1,8 @@
-<div class="wiki-content">
-    <div id="wiki-menu">
-        <ul>
-            <div id="wiki-action" >
+<div class="row-fluid">
+    <div class="span12">
+        <h1>#i18n{wiki.menu.history}</h1>
+        <div class="pull-right">
+            <ul class="nav nav-pills">
                 <li>
                     <a href="jsp/site/Portal.jsp?page=wiki">
                         #i18n{wiki.menu.home}
@@ -17,13 +18,8 @@
                         #i18n{wiki.menu.source}
                     </a>
                 </li>
-                <li class="selected">
-                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=Home&action=view_history">
-                        #i18n{wiki.menu.history}
-                    </a>
-                </li>
-            </div>
-        </ul>
+            </ul>
+        </div>
     </div>
     <div id="diff">
 
@@ -51,7 +47,7 @@
                 </#if>
                 <#if subDiff.oldText?? >
 
-										${subDiff.oldText}
+                ${subDiff.oldText}
                 </#if>
                 </#list>
                 </#if>
@@ -77,7 +73,7 @@
                     <#assign subDiffChange = false>
                 </span>
                 </#if>
-										${subDiff.newText}
+                ${subDiff.newText}
                 </#list>
                 <#if subDiffChange==true></span></#if>
                 &#160;

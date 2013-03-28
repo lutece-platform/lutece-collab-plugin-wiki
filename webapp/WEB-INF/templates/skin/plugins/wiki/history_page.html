@@ -1,7 +1,8 @@
-<div id="wiki-content"  class="span-22 prepend-1 append-1 append-bottom last">
-    <div id="wiki-menu">
-        <ul>
-            <div id="wiki-action" >
+<div class="row-fluid">
+    <div class="span12">
+        <h1>#i18n{wiki.menu.history}</h1>
+        <div class="pull-right">
+            <ul class="nav nav-pills">
                 <li>
                     <a href="jsp/site/Portal.jsp?page=wiki">
                         #i18n{wiki.menu.home}
@@ -17,40 +18,32 @@
                         #i18n{wiki.menu.source}
                     </a>
                 </li>
-                <li class="selected">
-                        #i18n{wiki.menu.history}
-                </li>
-            </div>
-        </ul>
-    </div>
-
-
-    <div>
-        <h1 id="wiki-heading">${topic.pageName}</h1>
-        <hr>
-        <form method="post" action="jsp/site/Portal.jsp?page=wiki&action=view_diff">
-            <input type="hidden" name="page_name" value="${topic.pageName}" />
-            <ul>
-
-                <#list listTopicVersion as lastVersion >
-                <li>
-                    <span>(<a href="" title="Main Page">cur</a>&nbsp;| <a href="lienversdifftopicversion" title="Main Page">prev</a>) </span>
-                    <input name="old_version" id="old_version" type="radio" value="${lastVersion.idTopicVersionPrevious}">
-                    <input name="new_version" id="new_version" type="radio" value="${lastVersion.idTopicVersion}">
-                    <a href="" title="Main Page">${lastVersion.dateEdition}</a>
-                    <span><a href="" title="User:Shubinator" class="mw-userlink">${lastVersion.luteceUserId}</a> </span>
-                    <span>${lastVersion.editComment} </span>
-                </li>
-                </#list>
-
             </ul>
+        </div>
 
-            <div>
-                <input class="-lutece-input -lutece-border-radius-mini" type="submit" value="Diff" />
-            </div>
-        </form>
+        <div>
+            <form method="post" action="jsp/site/Portal.jsp?page=wiki&action=view_diff">
+                <fieldset>
+                    <legend>${topic.pageName}</legend>
+                    <input type="hidden" name="page_name" value="${topic.pageName}" />
+                    <ul>
+                        <#list listTopicVersion as lastVersion >
+                        <li>
+                            <span>(<a href="" title="Main Page">cur</a>&nbsp;| <a href="lienversdifftopicversion" title="Main Page">prev</a>) </span>
+                            <input name="old_version" id="old_version" type="radio" value="${lastVersion.idTopicVersionPrevious}">
+                            <input name="new_version" id="new_version" type="radio" value="${lastVersion.idTopicVersion}">
+                            <a href="" title="Main Page">${lastVersion.dateEdition}</a>
+                            <span><a href="" title="User:Shubinator" class="mw-userlink">${lastVersion.luteceUserId}</a> </span>
+                            <span>${lastVersion.editComment} </span>
+                        </li>
+                        </#list>
+                    </ul>
 
-
-        </form>
+                    <div class="form-actions">
+                        <input class="btn btn-primary" type="submit" value="Diff" />
+                    </div>
+                </fieldset>
+            </form>
+        </div>
     </div>
 </div>

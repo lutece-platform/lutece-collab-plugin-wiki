@@ -1,7 +1,8 @@
-<div id="wiki-content"  class="span-22 prepend-1 append-1 append-bottom last">
-    <div id="wiki-menu" >
-        <ul>
-            <div id="wiki-action" >
+<div class="row-fluid">
+    <div class="span12">
+
+        <div class="pull-right">
+            <ul class="nav nav-pills">
                 <li>
                     <a href="jsp/site/Portal.jsp?page=wiki">
                         #i18n{wiki.menu.home}
@@ -12,37 +13,29 @@
                         #i18n{wiki.menu.page}
                     </a>
                 </li>
-                <li class="selected">
-                        #i18n{wiki.menu.source}
-                </li>
                 <li>
                     <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=view_history">
                         #i18n{wiki.menu.history}
                     </a>
                 </li>
-            </div>
-        </ul>
-    </div>
+           </ul>
+        </div>
 
+        <div class="span7">
+            <h1 id="wiki-heading">${topic.pageName}</h1>
+            <form method="post" action="jsp/site/Portal.jsp">
+                <input type="hidden" name="page" value="wiki" />
+                <input type="hidden" name="page_name" value="${topic.pageName}" />
+                <textarea class="x-large" name="content" rows="20" cols="120"></textarea>
+                <input type="hidden" name="action" value="do_create" />
+                <div class="form-actions">
+                    <input class="btn btn-primary" type="submit" value="#i18n{wiki.create_page.buttonCreate}" />
+                </div>
+            </form>
+        </div>
 
-    <div>
-
-        <h1 id="wiki-heading">${topic.pageName}</h1>
-        <hr>
-        <img class="wiki_manual" src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/>
-
-        <form method="post" action="jsp/site/Portal.jsp">
-
-            <input type="hidden" name="page" value="wiki" />
-            <input type="hidden" name="page_name" value="${topic.pageName}" />
-            <textarea name="content" rows="20" cols="60"></textarea>
-            <input type="hidden" name="action" value="do_create" />
-
-            <br />
-            <input class="button" type="submit" value="#i18n{wiki.create_page.buttonCreate}" />
-
-
-
-        </form>
+        <div id="help" class="span4">
+            <img src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/>
+        </div>
     </div>
 </div>

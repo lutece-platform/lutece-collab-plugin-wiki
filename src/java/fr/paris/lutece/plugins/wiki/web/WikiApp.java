@@ -506,8 +506,12 @@ public class WikiApp implements XPageApplication
 
 
         Topic newTopic = TopicHome.create( topic, _plugin );
-        TopicVersionHome.modifyContentOnly( newTopic.getIdTopic(), user.getName(), "", strContent, 0,
-                _plugin );
+        TopicVersion version = new TopicVersion();
+        version.setEditComment("");
+        String strUser = ( user != null ) ? user.getName() : "anonymous";
+        version.setLuteceUserId( strUser );
+        TopicVersionHome.create( version , _plugin );
+        TopicVersionHome.modifyContentOnly( newTopic.getIdTopic(), strUser, "", strContent, 0, _plugin );
     }
 
     /**
