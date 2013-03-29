@@ -1,56 +1,54 @@
-<div id="wiki-content"  class="span-22 prepend-1 append-1 append-bottom last">
-    <div id="wiki-menu">
-        <ul>
-            <div id="wiki-action" >
-                <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki">
-                        #i18n{wiki.menu.home}
-                    </a>
-                </li>
-                <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=view">
-                        #i18n{wiki.menu.page}
-                    </a>
-                </li>
-                <li class="selected">
-                        #i18n{wiki.menu.source}
-                </li>
-                <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=view_history">
-                        #i18n{wiki.menu.history}
-                    </a>
-                </li>
-            </div>
-        </ul>
-    </div>
-
-
-    <div>
-        <h1 id="wiki-heading">${topic.pageName}</h1>
-        <hr>
-        <img class="wiki_manual" src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/>
-
+<div class="row-fluid">
+    <div class="span12">
         <form method="post" action="jsp/site/Portal.jsp">
-
             <input type="hidden" name="page" value="wiki" />
             <input type="hidden" name="page_name" value="${topic.pageName}" />
-            <textarea name="content" rows="20" cols="60"><#if preview_content??>${preview_content}<#else>${lastVersion.wikiContent}</#if></textarea>
-
-
-            <input type="hidden" name="action" value="do_modify" />
-	    #i18n{wiki.modify_page.labelComment} :
-            <input type="text" name="modification_comment"/>
-	    #i18n{wiki.modify_page.labelPreview} :
-            <input name="preview" id="preview" value="preview" type="radio">
-
-            <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
-            <input type="hidden" name="topic_id" value="${topic.idTopic}" />
-
-            <div>
-
-                <input class="button" type="submit" value="#i18n{wiki.modify_page.buttonModify}" />
+            <div class="pull-right">
+                <button class="btn btn-primary btn-small" type="submit">
+                    <i class="icon-ok icon-white"></i>
+                    #i18n{wiki.modify_page.buttonModify}
+                </button>
+                <a class="btn btn-small" href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=view">
+                    <i class="icon-remove"></i>
+                    Annuler
+                </a>
+                <button id="btn-help" class="btn btn-small" type="button">
+                    <i class="icon-question-sign"></i>
+                    Aide
+                </button>
             </div>
 
+
+            <div class="span7">
+                <h1>${topic.pageName}</h1>
+
+                <textarea class="input-xxlarge" name="content" rows="20" ><#if preview_content??>${preview_content}<#else>${lastVersion.wikiContent}</#if></textarea>
+
+
+                <input class="btn" type="hidden" name="action" value="do_modify" />
+                #i18n{wiki.modify_page.labelComment} :
+                <input type="text" name="modification_comment"/>
+                #i18n{wiki.modify_page.labelPreview} :
+                <input name="preview" id="preview" value="preview" type="radio">
+
+                <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
+                <input type="hidden" name="topic_id" value="${topic.idTopic}" />
+
+            </div>
+            <div id="help" class="span4 pull-right" style="display:none">
+                <br/>
+                <img src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/>
+            </div>
         </form>
     </div>
 </div>
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        $("#btn-help").click(function() {
+            $("#help").toggle("slow");
+        });
+    });
+</script>
+
+

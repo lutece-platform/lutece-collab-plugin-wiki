@@ -1,41 +1,33 @@
 <div class="row-fluid">
     <div class="span12">
 
-        <div class="pull-right">
-            <ul class="nav nav-pills">
-                <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki">
-                        #i18n{wiki.menu.home}
-                    </a>
-                </li>
-                <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=view">
-                        #i18n{wiki.menu.page}
-                    </a>
-                </li>
-                <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=view_history">
-                        #i18n{wiki.menu.history}
-                    </a>
-                </li>
-           </ul>
-        </div>
+        <form method="post" action="jsp/site/Portal.jsp">
+            <input type="hidden" name="page" value="wiki" />
+            <input type="hidden" name="page_name" value="${topic.pageName}" />
+            <input type="hidden" name="action" value="do_create" />
+            <div class="btn-group pull-right">
+                <input class="btn btn-primary" type="submit" value="#i18n{wiki.create_page.buttonCreate}" />
+                <button id="btn-help" class="btn" type="button" >Aide</button>
+            </div>
 
-        <div class="span7">
-            <h1 id="wiki-heading">${topic.pageName}</h1>
-            <form method="post" action="jsp/site/Portal.jsp">
-                <input type="hidden" name="page" value="wiki" />
-                <input type="hidden" name="page_name" value="${topic.pageName}" />
-                <textarea class="x-large" name="content" rows="20" cols="120"></textarea>
-                <input type="hidden" name="action" value="do_create" />
-                <div class="form-actions">
-                    <input class="btn btn-primary" type="submit" value="#i18n{wiki.create_page.buttonCreate}" />
-                </div>
-            </form>
-        </div>
+            <div class="span7">
+                <h1>${topic.pageName}</h1>
+                <textarea class="input-xxlarge" name="content" rows="20" ></textarea>
+            </div>
 
-        <div id="help" class="span4">
-            <img src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/>
-        </div>
+            <div id="help" class="span4 pull-right">
+                <br>
+                <img src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/>
+            </div>
+        </form>
     </div>
 </div>
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        $("#btn-help").click(function() {
+            $("#help").toggle("slow");
+        });
+    });
+</script>
+
