@@ -1,28 +1,19 @@
 <div class="row-fluid">
     <div class="span12">
-        <h1>#i18n{wiki.menu.history}</h1>
-        <div class="pull-right">
-            <ul class="nav nav-pills">
-                <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki">
-                        #i18n{wiki.menu.home}
-                    </a>
-                </li>
-                <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=view">
-                        #i18n{wiki.menu.page}
-                    </a>
-                </li>
-                <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=modify">
-                        #i18n{wiki.menu.source}
-                    </a>
-                </li>
-            </ul>
-        </div>
+        <form method="post" action="jsp/site/Portal.jsp?page=wiki&action=view_diff">
+            <div class="btn-group pull-right">
+                <button class="btn btn-primary btn-small" type="submit">
+                    <i class="icon-eye-open icon-white"></i>
+                    #i18n{wiki.menu.diff}
+                </button>
+                <a class="btn btn-small" href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=view">
+                    <i class="icon-chevron-left"></i>
+                    #i18n{wiki.button.backToPage}
+                </a>
+            </div>
+            <h1>#i18n{wiki.menu.history}</h1>
 
-        <div>
-            <form method="post" action="jsp/site/Portal.jsp?page=wiki&action=view_diff">
+            <div>
                 <fieldset>
                     <legend>${topic.pageName}</legend>
                     <input type="hidden" name="page_name" value="${topic.pageName}" />
@@ -38,12 +29,8 @@
                         </li>
                         </#list>
                     </ul>
-
-                    <div class="form-actions">
-                        <input class="btn btn-primary" type="submit" value="Diff" />
-                    </div>
                 </fieldset>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </div>

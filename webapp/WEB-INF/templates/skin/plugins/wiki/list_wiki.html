@@ -1,6 +1,21 @@
 <div class="row-fluid">
     <div class="span12">
-        
+        <div class="btn-group pull-right">
+            <button id="btn-new-page" type="button">
+                <i class="icon-plus-sign"></i>
+                Nouvelle page
+            </button>
+        </div>
+
+        <div id="div-new-page" style="display:none">
+            <form class="form-inline" action="" method="post">
+                <input type="hidden" name="action" value="create" />
+                #i18n{wiki.list_wiki.create} :
+                <input type="text" name="page_name" />
+                <input class="btn btn-primary btn-small" type="submit" value="#i18n{portal.util.labelOk}" />
+            </form>
+        </div>
+
         <h1>#i18n{wiki.list_wiki.title}</h1>
         <ul>
             <#list list_topic as topic>
@@ -9,17 +24,14 @@
             </li>
             </#list>
         </ul>
-        <br/>
-        <br/>
-        <div class="form-actions">
-        <form class="form-inline" action="" method="post">
-            <input type="hidden" name="action" value="create" />
-            #i18n{wiki.list_wiki.create} :
-            <input type="text" name="page_name" />
-            <input class="btn btn-primary" type="submit" value="#i18n{portal.util.labelOk}" />
-        </form>
-        </div>
-        <br/>
-        <br/>
     </div>
 </div>
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        $("#btn-new-page").click(function() {
+            $("#div-new-page").show("slow");
+        });
+    });
+</script>
+

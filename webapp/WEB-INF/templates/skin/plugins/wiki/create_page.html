@@ -6,8 +6,14 @@
             <input type="hidden" name="page_name" value="${topic.pageName}" />
             <input type="hidden" name="action" value="do_create" />
             <div class="btn-group pull-right">
-                <input class="btn btn-primary" type="submit" value="#i18n{wiki.create_page.buttonCreate}" />
-                <button id="btn-help" class="btn" type="button" >Aide</button>
+                <button class="btn btn-primary btn-small" type="submit">
+                    <i class="icon-ok icon-white"></i>
+                    #i18n{wiki.create_page.buttonCreate}
+                </button>
+                <button id="btn-help" class="btn btn-small" type="button" >
+                    <i class="icon-question-sign"></i>
+                    #i18n{wiki.menu.help}
+                </button>
             </div>
 
             <div class="span7">
@@ -15,7 +21,7 @@
                 <textarea class="input-xxlarge" name="content" rows="20" ></textarea>
             </div>
 
-            <div id="help" class="span4 pull-right">
+            <div id="help" class="span4 pull-right" style="display:none" >
                 <br>
                 <img src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/>
             </div>
