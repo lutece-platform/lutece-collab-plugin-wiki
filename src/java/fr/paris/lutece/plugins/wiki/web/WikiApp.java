@@ -83,7 +83,6 @@ public class WikiApp implements XPageApplication
     private static final String PARAMETER_PAGE_NAME = "page_name";
     private static final String PARAMETER_ACTION = "action";
     private static final String PARAMETER_CONTENT = "content";
-    private static final String PARAMETER_PREVIEW = "preview";
     private static final String PARAMETER_QUERY = "query";
     private static final String PARAMETER_PAGE_INDEX = "page_index";
     private static final String PARAMETER_ACTION_DO_CREATE = "do_create";
@@ -108,7 +107,6 @@ public class WikiApp implements XPageApplication
     private static final String MESSAGE_PAGE_ALREADY_EXISTS = "wiki.message.accessDenied.pageAlreadyExists";
     private static final String PARAMETER_MODIFICATION_COMMENT = "modification_comment";
     private static final String PARAMETER_PREVIOUS_VERSION_ID = "previous_version_id";
-    private static final String PARAMETER_PREVIEW_CONTENT = "preview_content";
     private static final String PARAMETER_TOPIC_ID = "topic_id";
     private static final String PARAMETER_NEW_VERSION = "new_version";
     private static final String PARAMETER_OLD_VERSION = "old_version";
@@ -117,7 +115,6 @@ public class WikiApp implements XPageApplication
     private static final String MARK_TOPIC_NAME = "topic_name";
     private static final String MARK_LIST_TOPIC = "list_topic";
     private static final String MARK_LATEST_VERSION = "lastVersion";
-    private static final String MARK_PREVIEWED_VERSION = "preview_content";
     private static final String MARK_LIST_DIFFS = "listDiffs";
     private static final String MARK_RESULT = "result";
     private static final String MARK_LIST_TOPIC_VERSION = "listTopicVersion";
@@ -134,6 +131,7 @@ public class WikiApp implements XPageApplication
     private static final int ACTION_DO_CREATE = 6;
     private static final int ACTION_DO_MODIFY = 7;
     private static final int ACTION_SEARCH = 8;
+    private static final int ACTION_DELETE = 9;
     
     // private fields
     private Plugin _plugin;
@@ -188,8 +186,7 @@ public class WikiApp implements XPageApplication
                 modify( page, request, strPageName );
                 break;
             case ACTION_DO_CREATE:
-
-                doCreate( page, request, strPageName, checkUser( request ), strContent );
+               doCreate( page, request, strPageName, checkUser( request ), strContent );
                 break;
             case ACTION_DO_MODIFY:
                 doModify( page, request, strPageName, checkUser( request ), strContent );
@@ -197,6 +194,9 @@ public class WikiApp implements XPageApplication
             case ACTION_SEARCH:
             	search( page, request, strPluginName );
             	break;
+            case ACTION_DELETE:
+                delete( page, request, strPageName );
+                break;
         }
 
        return page;
@@ -587,5 +587,13 @@ public class WikiApp implements XPageApplication
         sbPath.append( strPageName );
         
         return sbPath.toString();
+    }
+
+    private void delete( XPage page, HttpServletRequest request, String strPageName) throws UserNotSignedException
+    {
+        checkUser( request );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
+        TopicHome.remove( topic.getIdTopic() , _plugin);
+        home( page, request );
     }
 }
