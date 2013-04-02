@@ -151,6 +151,7 @@ public class WikiApp implements XPageApplication
      * @throws fr.paris.lutece.portal.service.message.SiteMessageException
      * Message displayed if an exception occurs
      */
+    @Override
     public XPage getPage( HttpServletRequest request, int nMode, Plugin plugin )
             throws SiteMessageException, UserNotSignedException
     {
@@ -159,8 +160,6 @@ public class WikiApp implements XPageApplication
         String strPluginName = plugin.getName(  );
         String strPageName = request.getParameter( PARAMETER_PAGE_NAME );
         String strContent = request.getParameter( PARAMETER_CONTENT );
-        String strPreview = request.getParameter( PARAMETER_PREVIEW );
-        String strPreviewedContent = request.getParameter( PARAMETER_PREVIEW_CONTENT );
 
 
         XPage page = new XPage();
@@ -186,7 +185,7 @@ public class WikiApp implements XPageApplication
                 break;
             case ACTION_MODIFY:
                 checkUser( request );
-                modify( page, request, strPageName, strPreviewedContent );
+                modify( page, request, strPageName );
                 break;
             case ACTION_DO_CREATE:
 
@@ -236,7 +235,7 @@ public class WikiApp implements XPageApplication
 
 	private LuteceUser checkUser( HttpServletRequest request ) throws UserNotSignedException
     {
-        LuteceUser luteceUser = null;
+        LuteceUser luteceUser;
 
         if ( SecurityService.isAuthenticationEnable(  ) )
         {
@@ -308,6 +307,8 @@ public class WikiApp implements XPageApplication
         }
 
         page.setContent( viewPageContent( strPageName ) );
+        page.setPathLabel( getPathLabel( strPageName ));
+        page.setTitle( getPageTitle( strPageName ));
 
     }
 
@@ -321,6 +322,8 @@ public class WikiApp implements XPageApplication
         }
 
         page.setContent( viewPageHistory( strPageName ) );
+        page.setPathLabel( getPathLabel( strPageName ));
+        page.setTitle( getPageTitle( strPageName ));
     }
 
     private void viewDiff( XPage page, HttpServletRequest request, String strPageName ) throws SiteMessageException
@@ -338,6 +341,8 @@ public class WikiApp implements XPageApplication
         }
 
         page.setContent( viewTopicDiff( strPageName, nNewTopicVersion, nOldTopicVersion ) );
+        page.setPathLabel( getPathLabel( strPageName ));
+        page.setTitle( getPageTitle( strPageName ));
     }
 
     private void create( XPage page, HttpServletRequest request, String strPageName ) throws SiteMessageException
@@ -353,7 +358,7 @@ public class WikiApp implements XPageApplication
         page.setContent( createPageContent( strPageName ) );
     }
 
-    private void modify( XPage page, HttpServletRequest request, String strPageName, String strPreviewedContent ) throws SiteMessageException
+    private void modify( XPage page, HttpServletRequest request, String strPageName ) throws SiteMessageException
     {
         Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
 
@@ -362,7 +367,9 @@ public class WikiApp implements XPageApplication
             SiteMessageService.setMessage( request, MESSAGE_PAGE_NOT_EXISTS, SiteMessage.TYPE_STOP );
         }
 
-        page.setContent( modifyPageContent( strPageName, strPreviewedContent ) );
+        page.setContent( modifyPageContent( strPageName ) );
+        page.setPathLabel( getPathLabel( strPageName ));
+        page.setTitle( getPageTitle( strPageName ));
     }
 
     private void doCreate( XPage page, HttpServletRequest request, String strPageName, LuteceUser luteceUser, String strContent ) throws SiteMessageException
@@ -384,6 +391,8 @@ public class WikiApp implements XPageApplication
         int nTopicId = Integer.parseInt( strTopicId );
         doModifyPage( nTopicId, user, strComment, strContent, nPreviousVersionId, _plugin );
         page.setContent( viewPageContent( strPageName ) );
+        page.setPathLabel( getPathLabel( strPageName ));
+        page.setTitle( getPageTitle( strPageName ));
     }
 
     private String displayAll()
@@ -519,16 +528,12 @@ public class WikiApp implements XPageApplication
      * @param strPageName
      * @return
      */
-    public String modifyPageContent( String strPageName, String strPreviewContent )
+    public String modifyPageContent( String strPageName )
     {
         Map<String, Object> model = new HashMap<String, Object>();
         Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
         TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic(), _plugin );
         model.put( MARK_TOPIC, topic );
-        if ( strPreviewContent != null )
-        {
-            model.put( MARK_PREVIEWED_VERSION, strPreviewContent );
-        }
         model.put( MARK_LATEST_VERSION, topicVersion );
 
         HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_MODIFY_WIKI, Locale.getDefault(), model );
@@ -562,5 +567,25 @@ public class WikiApp implements XPageApplication
             LuteceWikiParser.setPortalUrl(strWebappUrl);
             _bInit = true;
         }
+    }
+
+    private String getPathLabel(String strPageName)
+    {
+        StringBuilder sbPath = new StringBuilder();
+        sbPath.append( AppPropertiesService.getProperty( PROPERTY_PAGE_PATH ) );
+        sbPath.append( " "  );
+        sbPath.append( strPageName );
+        
+        return sbPath.toString();
+    }
+
+    private String getPageTitle(String strPageName)
+    {
+        StringBuilder sbPath = new StringBuilder();
+        sbPath.append( AppPropertiesService.getProperty( PROPERTY_PAGE_TITLE ) );
+        sbPath.append( " "  );
+        sbPath.append( strPageName );
+        
+        return sbPath.toString();
     }
 }

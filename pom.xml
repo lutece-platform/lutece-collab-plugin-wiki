@@ -47,10 +47,31 @@
         <componentName>wiki</componentName>
         <jiraProjectName>WIKI</jiraProjectName>
         <jiraComponentId>10361</jiraComponentId>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <scm>
         <connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/collaboration/plugin-wiki</connection>
         <developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/collaboration/plugin-wiki</developerConnection>
         <url>http://dev.lutece.paris.fr/viewvc/lutece/portal/trunk/plugins/collaboration/plugin-wiki</url>
     </scm>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.4.3</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
