@@ -22,10 +22,11 @@
             <div class="span7">
                 <h1>${topic.pageName}</h1>
 
-                <textarea class="input-xxlarge" name="content" rows="20" ><#if preview_content??>${preview_content}<#else>${lastVersion.wikiContent}</#if></textarea>
+                <textarea id="wiki" class="input-xxlarge" name="content" rows="20" ><#if preview_content??>${preview_content}<#else>${lastVersion.wikiContent}</#if></textarea>
 
 
                 <input class="btn" type="hidden" name="action" value="do_modify" />
+                <br />
                 #i18n{wiki.modify_page.labelComment} :
                 <input class="input-xxlarge" type="text" name="modification_comment"/>
 
@@ -50,3 +51,11 @@
 </script>
 
 
+<!-- Markipup integration -->
+<script type="text/javascript" src="js/plugins/wiki/markitup/jquery.markitup.js"></script>
+<script type="text/javascript" src="js/plugins/wiki/markitup/sets/wiki/set.js"></script>
+<script language="javascript">
+$(document).ready(function()	{
+    $('#wiki').markItUp(myWikiSettings);
+});
+</script>

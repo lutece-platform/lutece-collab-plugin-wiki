@@ -18,7 +18,7 @@
 
             <div class="span7">
                 <h1>${topic.pageName}</h1>
-                <textarea class="input-xxlarge" name="content" rows="20" ></textarea>
+                <textarea id="wiki" class="input-xxlarge" name="content" rows="20" ></textarea>
             </div>
 
             <div id="help" class="span4 pull-right" style="display:none" >
@@ -37,3 +37,11 @@
     });
 </script>
 
+<!-- Markipup integration -->
+<script type="text/javascript" src="js/plugins/wiki/markitup/jquery.markitup.js"></script>
+<script type="text/javascript" src="js/plugins/wiki/markitup/sets/wiki/set.js"></script>
+<script language="javascript">
+$(document).ready(function()	{
+    $('#wiki').markItUp(myWikiSettings);
+});
+</script>

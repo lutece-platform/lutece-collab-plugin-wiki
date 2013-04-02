@@ -30,6 +30,8 @@
     <css-stylesheets>
         <css-stylesheets-scope>xpage</css-stylesheets-scope>
         <css-stylesheet>wiki/wiki.css</css-stylesheet>
+        <css-stylesheet>wiki/markitup/style.css</css-stylesheet>
+        <css-stylesheet>wiki/markitup/wiki/style.css</css-stylesheet>
     </css-stylesheets>
 
     <!-- XPages parameters -->
