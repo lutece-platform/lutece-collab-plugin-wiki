@@ -30,10 +30,12 @@
 .wiki .markItUpButton9 a {
 	background-image:url(images/list-numeric.png);
 }
-
 .wiki .markItUpButton10 a {
-	background-image:url(images/link.png);
+	background-image:url(images/image.png);
 }
 .wiki .markItUpButton11 a {
+	background-image:url(images/link.png);
+}
+.wiki .markItUpButton12 a {
 	background-image:url(images/url.png);
 }

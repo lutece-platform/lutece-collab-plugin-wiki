@@ -21,6 +21,7 @@ myWikiSettings = {
         {name:'Bulleted list', openWith:'(!(* |!|*)!)'}, 
         {name:'Numeric list', openWith:'(!(# |!|#)!)'}, 
         {separator:'---------------' },
+        {name:'Picture', key:'P', replaceWith:'{{[![Url:!:http://]!]|[![name]!]}}'}, 
         {name:'Link', key:'L', openWith:'[[[![Link]!]|', closeWith:']]', placeHolder:'Your text to link here...' },
         {name:'Url', openWith:'[[[![Url:!:http://]!]|', closeWith:']]', placeHolder:'Your text to link here...' },
     ]
