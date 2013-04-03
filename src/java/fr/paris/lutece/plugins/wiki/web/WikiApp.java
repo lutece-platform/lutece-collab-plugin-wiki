@@ -89,6 +89,7 @@ public class WikiApp implements XPageApplication
     private static final String PARAMETER_ACTION_DO_MODIFY = "do_modify";
     private static final String PARAMETER_ACTION_VIEW_HISTORY = "view_history";
     private static final String PARAMETER_ACTION_SEARCH = "search";
+    private static final String PARAMETER_ACTION_DELETE = "delete";
     private static final String TEMPLATE_MODIFY_WIKI = "skin/plugins/wiki/modify_page.html";
     private static final String TEMPLATE_CREATE_WIKI = "skin/plugins/wiki/create_page.html";
     private static final String TEMPLATE_VIEW_WIKI = "skin/plugins/wiki/view_page.html";
@@ -195,6 +196,7 @@ public class WikiApp implements XPageApplication
             	search( page, request, strPluginName );
             	break;
             case ACTION_DELETE:
+                checkUser( request );
                 delete( page, request, strPageName );
                 break;
         }
@@ -286,6 +288,10 @@ public class WikiApp implements XPageApplication
             else if ( strAction.equals( PARAMETER_ACTION_SEARCH ) )
             {
             	nAction = ACTION_SEARCH;
+            }
+            else if ( strAction.equals( PARAMETER_ACTION_DELETE ) )
+            {
+            	nAction = ACTION_DELETE;
             }
         }
         return nAction;

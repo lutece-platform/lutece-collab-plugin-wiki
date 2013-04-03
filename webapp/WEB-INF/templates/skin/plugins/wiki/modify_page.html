@@ -12,10 +12,10 @@
                     <i class="icon-remove"></i>
                     #i18n{portal.util.labelCancel}
                 </a>
-                <a class="btn btn-small" href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=delete">
+                <button id="btn-delete" class="btn btn-small" type="button">
                     <i class="icon-trash"></i>
                     #i18n{portal.util.labelDelete}
-                </a>
+                </button>
                 <button id="btn-help" class="btn btn-small" type="button">
                     <i class="icon-question-sign"></i>
                     #i18n{wiki.menu.help}
@@ -23,7 +23,15 @@
             </div>
 
 
+
             <div class="span7">
+                <div class="alert alert-error" id="div-confirm-delete" style="display:none">
+                       #i18n{wiki.message.confirmDelete}
+                       <a href="jsp/site/plugins/wiki/DoDeletePage.jsp?page_name=${topic.pageName}" class="btn btn-danger btn-small pull-right"  >
+                            #i18n{portal.util.labelOk}
+                        </a>
+                 </div>
+
                 <h1>${topic.pageName}</h1>
 
                 <textarea id="wiki" class="input-xxlarge" name="content" rows="20" ><#if preview_content??>${preview_content}<#else>${lastVersion.wikiContent}</#if></textarea>
@@ -54,12 +62,20 @@
     });
 </script>
 
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        $("#btn-delete").click(function() {
+            $("#div-confirm-delete").show("slow");
+        });
+    });
+</script>
+
 
 <!-- Markipup integration -->
 <script type="text/javascript" src="js/plugins/wiki/markitup/jquery.markitup.js"></script>
 <script type="text/javascript" src="js/plugins/wiki/markitup/sets/wiki/set.js"></script>
 <script language="javascript">
-$(document).ready(function()	{
-    $('#wiki').markItUp(myWikiSettings);
-});
+    $(document).ready(function() {
+        $('#wiki').markItUp(myWikiSettings);
+    });
 </script>
