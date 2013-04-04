@@ -35,8 +35,7 @@ package fr.paris.lutece.plugins.wiki.service.parser;
 
 import fr.paris.lutece.plugins.wiki.business.Topic;
 import fr.paris.lutece.plugins.wiki.business.TopicHome;
-import fr.paris.lutece.plugins.wiki.utils.Constants;
-import fr.paris.lutece.plugins.wiki.web.WikiApp;
+import fr.paris.lutece.plugins.wiki.web.Constants;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.util.AppLogService;
@@ -102,12 +101,12 @@ public class LuteceWikiParser extends WikiParser
         {
             Plugin plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
             Topic topic = TopicHome.findByPrimaryKey( escapeHTML( escapeURL( link[0] ) ), plugin );
-            String strAction = WikiApp.PARAMETER_ACTION_VIEW;
+            String strAction = Constants.PARAMETER_ACTION_VIEW;
             String strColorBegin = "",strColorEnd="";
 
             if ( topic == null )
             {
-                strAction = WikiApp.PARAMETER_ACTION_CREATE;
+                strAction = Constants.PARAMETER_ACTION_CREATE;
                 strColorBegin = "<font color=red>";
                 strColorEnd="</font>";
             }

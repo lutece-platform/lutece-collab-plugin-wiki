@@ -1,8 +1,9 @@
 <div class="row-fluid">
     <div class="span12">
-        <form method="post" action="jsp/site/Portal.jsp">
-            <input type="hidden" name="page" value="wiki" />
+        <form method="post" action="jsp/site/plugins/wiki/DoModifyPage.jsp">
             <input type="hidden" name="page_name" value="${topic.pageName}" />
+            <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
+            <input type="hidden" name="topic_id" value="${topic.idTopic}" />
             <div class="btn-group pull-right">
                 <button class="btn btn-primary btn-small" type="submit">
                     <i class="icon-ok icon-white"></i>
@@ -22,28 +23,22 @@
                 </button>
             </div>
 
-
-
             <div class="span7">
                 <div class="alert alert-error" id="div-confirm-delete" style="display:none">
-                       #i18n{wiki.message.confirmDelete}
-                       <a href="jsp/site/plugins/wiki/DoDeletePage.jsp?page_name=${topic.pageName}" class="btn btn-danger btn-small pull-right"  >
-                            #i18n{portal.util.labelOk}
-                        </a>
-                 </div>
+                    #i18n{wiki.message.confirmDelete}
+                    <a href="jsp/site/plugins/wiki/DoDeletePage.jsp?page_name=${topic.pageName}" class="btn btn-danger btn-small pull-right"  >
+                        #i18n{portal.util.labelOk}
+                    </a>
+                </div>
 
                 <h1>${topic.pageName}</h1>
 
                 <textarea id="wiki" class="input-xxlarge" name="content" rows="20" ><#if preview_content??>${preview_content}<#else>${lastVersion.wikiContent}</#if></textarea>
 
-
-                <input class="btn" type="hidden" name="action" value="do_modify" />
                 <br />
                 #i18n{wiki.modify_page.labelComment} :
                 <input class="input-xxlarge" type="text" name="modification_comment"/>
 
-                <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
-                <input type="hidden" name="topic_id" value="${topic.idTopic}" />
 
             </div>
             <div id="help" class="span4 pull-right" style="display:none">
