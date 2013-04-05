@@ -1,41 +1,48 @@
-<div id="wiki-content"  class="span-22 prepend-1 append-1 append-bottom last">
+<div class="row-fluid">
+    <div class="span12">
+        <div class="span4 well">
+            <form class="form-search" method="post" action="jsp/site/Portal.jsp">
+                <input type="hidden" name="page" value="wiki" />
+                <input type="hidden" name="action" value="search" />
+                <div class="input-append">
+                    <#if query?exists>
+                    <input class="search-query" type="text" name="query" size="20" value="${query}" />
+                    <#else>
+                    <input class="search-query" type="text" name="query" size="20" value="" />
+                    </#if>
+                    <button class="btn" type="submit" >
+                        <i class="icon-search"></i>                        
+                    </button>
+                </div> 
+                <@pagination paginator=paginator />
+                <div>
+                    <!-- Number of feeds per page selector -->
+                    #i18n{wiki.search_wiki.labelItemsPerPage} :
+                    <select name="items_per_page" class="span2">
+                        <#list [ "10" , "20" , "50" , "100" ] as nb>
+                        <#if nb_items_per_page = nb >
+                        <option selected="selected" value="${nb}">${nb}</option>
+                        <#else>
+                        <option value="${nb}">${nb}</option>
+                        </#if>
+                        </#list>
+                    </select>
+                </div>
+            </form>
+        </div>
 
-    <div>
-        <h1 id="wiki-heading">#i18n{wiki.search_wiki.title}</h1>
-        <hr>
-        <ul>
-            <#list result as topic>
-            <li><a
-                    href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.title}&action=view">${topic.title}</a></li>
-            </#list>
-        </ul>
-        <br/>
-        <br/>
-        <hr>
-        <form method="post" action="jsp/site/Portal.jsp?page=wiki&action=search">
-            <input type="hidden" name="action" value="search" />
-            #i18n{wiki.search_wiki.search} :
-            <#if query?exists>
-	           	<input type="text" name="query" size="20" value="${query}" />
-	        <#else>
-	   	    	<input type="text" name="query" size="20" value="" />
-	        </#if>
-        <br/>    
-	        <@pagination paginator=paginator />
-			<!-- Number of feeds per page selector -->
-		    #i18n{wiki.search_wiki.labelItemsPerPage} :
-		    <select name="items_per_page">
-		        <#list [ "10" , "20" , "50" , "100" ] as nb>
-		            <#if nb_items_per_page = nb >
-		             	<option selected="selected" value="${nb}">${nb}</option>
-		            <#else>
-		            	<option value="${nb}">${nb}</option>
-		        	</#if>
-		    	</#list>
-		    </select>
-		    <input class="button" type="submit" value="#i18n{portal.util.labelOk}" />
-		</form>
-        <br/>
-        <br/>
+        <div class="span7">
+            <h1>#i18n{wiki.search_wiki.title}</h1>
+            <ul>
+                <#list result as topic>
+                <li>
+                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.title}&action=view">
+                        ${topic.title}
+                    </a>
+                </li>
+                </#list>
+            </ul>
+            <br/>
+        </div>
     </div>
 </div>

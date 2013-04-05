@@ -38,6 +38,7 @@ import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.business.TopicVersionHome;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceWikiParser;
+import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.service.content.XPageAppService;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
@@ -179,8 +180,7 @@ public class WikiIndexer implements SearchIndexer
         Plugin plugin = PluginService.getPlugin( PLUGIN_NAME );
 
         UrlItem urlSubject = new UrlItem( strPortalUrl );
-        urlSubject.addParameter( XPageAppService.PARAM_XPAGE_APP,
-            AppPropertiesService.getProperty( PROPERTY_PAGE_PATH_LABEL ) );
+        urlSubject.addParameter( XPageAppService.PARAM_XPAGE_APP, PLUGIN_NAME );
         urlSubject.addParameter( PARAMETER_PAGE_NAME, topic.getPageName(  ) );
         urlSubject.addParameter( PARAMETER_ACTION, PARAMETER_ACTION_VIEW );
 
@@ -249,6 +249,8 @@ public class WikiIndexer implements SearchIndexer
         doc.add( new Field( SearchItem.FIELD_TITLE, topic.getPageName(  ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 
         doc.add( new Field( SearchItem.FIELD_TYPE, PLUGIN_NAME, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+        
+        doc.add( new Field( SearchItem.FIELD_ROLE , Page.ROLE_NONE , Field.Store.YES, Field.Index.NOT_ANALYZED ));
 
         // return the document
         return doc;

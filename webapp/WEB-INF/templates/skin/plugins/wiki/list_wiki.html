@@ -1,18 +1,39 @@
 <div class="row-fluid">
     <div class="span12">
         <div class="btn-group pull-right">
-            <button id="btn-new-page" type="button">
+            <button class="btn btn-small" id="btn-new-page" type="button">
                 <i class="icon-plus-sign"></i>
-                Nouvelle page
+                #i18n{wiki.list_wiki.buttonCreate}
+            </button>
+            <button class="btn btn-small" id="btn-search" type="button">
+                <i class="icon-search"></i>
+                #i18n{portal.util.labelSearch}
             </button>
         </div>
 
         <div id="div-new-page" style="display:none">
-            <form class="form-inline" action="" method="post">
+            <form class="form-search" action="" method="post">
                 <input type="hidden" name="action" value="create" />
                 #i18n{wiki.list_wiki.create} :
-                <input id="input-new-page" type="text" name="page_name" />
-                <input class="btn btn-primary btn-small" type="submit" value="#i18n{portal.util.labelOk}" />
+                <div class="input-append">
+                    <input class="search-query" id="input-new-page" type="text" name="page_name" />
+                    <button class="btn btn-primary" type="submit" >
+                        <i class="icon-plus-sign icon-white"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="div-search" style="display:none">
+            <form class="form-search" action="" method="post">
+                <input type="hidden" name="action" value="search" />
+                #i18n{wiki.search_wiki.search} :
+                <div class="input-append">
+                    <input class="search-query" id="input-search" type="text" name="query" />
+                    <button class="btn btn-primary" type="submit" >
+                        <i class="icon-search icon-white"></i>
+                    </button>
+                </div>
             </form>
         </div>
 
@@ -30,8 +51,14 @@
 <script type="text/javascript">
     jQuery(document).ready(function() {
         $("#btn-new-page").click(function() {
+            $("#div-search").hide();
             $("#div-new-page").show("slow");
             $("#input-new-page").focus();
+        });
+        $("#btn-search").click(function() {
+            $("#div-new-page").hide();
+            $("#div-search").show("slow");
+            $("#input-search").focus();
         });
     });
 </script>
