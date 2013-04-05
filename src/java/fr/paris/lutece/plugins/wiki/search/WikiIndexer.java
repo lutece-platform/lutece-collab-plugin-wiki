@@ -64,26 +64,34 @@ import java.util.List;
  */
 public class WikiIndexer implements SearchIndexer
 {
+    public static final String PROPERTY_INDEX_TYPE_PAGE = "wiki";
+    public static final String PROPERTY_INDEXER_NAME = "wiki.indexer.name";
+    public static final String SHORT_NAME_TOPIC = "wis";
+    public static final String SHORT_NAME_TOPIC_CONTENT = "wic";
     private static final String PARAMETER_PAGE_NAME = "page_name";
     private static final String PARAMETER_ACTION_VIEW = "view";
     private static final String PLUGIN_NAME = "wiki";
-    public static final String PROPERTY_INDEX_TYPE_PAGE = "wiki";
-    public static final String PROPERTY_INDEXER_NAME = "wiki.indexer.name";
     private static final String PROPERTY_PAGE_PATH_LABEL = "wiki.pagePathLabel";
     private static final String PROPERTY_INDEXER_DESCRIPTION = "wiki.indexer.description";
     private static final String PROPERTY_INDEXER_VERSION = "wiki.indexer.version";
     private static final String PROPERTY_INDEXER_ENABLE = "wiki.indexer.enable";
-    public static final String SHORT_NAME_TOPIC = "wis";
-    public static final String SHORT_NAME_TOPIC_CONTENT = "wic";
     private static final String ENABLE_VALUE_TRUE = "1";
     private static final String PARAMETER_ACTION = "action";
     private static final String JSP_SEARCH_WIKI = "jsp/site/Portal.jsp?page=wiki&action=search";
 
+    /**
+     * {@inheritDoc }
+     */
+    @Override
     public String getDescription(  )
     {
         return AppPropertiesService.getProperty( PROPERTY_INDEXER_DESCRIPTION );
     }
 
+    /**
+     * {@inheritDoc }
+     */
+    @Override
     public List<Document> getDocuments( String strDocument )
         throws IOException, InterruptedException, SiteMessageException
     {
@@ -108,19 +116,28 @@ public class WikiIndexer implements SearchIndexer
         return listDocs;
     }
 
+    /**
+     * {@inheritDoc }
+     */
+    @Override
     public String getName(  )
     {
         return AppPropertiesService.getProperty( PROPERTY_INDEXER_NAME );
     }
 
+    /**
+     * {@inheritDoc }
+     */
+    @Override
     public String getVersion(  )
     {
         return AppPropertiesService.getProperty( PROPERTY_INDEXER_VERSION );
     }
 
     /**
-     *
+     * {@inheritDoc }
      */
+    @Override
     public void indexDocuments(  ) throws IOException, InterruptedException, SiteMessageException
     {
         Plugin plugin = PluginService.getPlugin( PLUGIN_NAME );
@@ -132,8 +149,9 @@ public class WikiIndexer implements SearchIndexer
     }
 
     /**
-     *
+     * {@inheritDoc }
      */
+    @Override
     public boolean isEnable(  )
     {
         boolean bReturn = false;
@@ -150,10 +168,10 @@ public class WikiIndexer implements SearchIndexer
     }
 
     /**
-     *
-     * @param topic
-     * @throws IOException
-     * @throws InterruptedException
+     * Indexe the topic
+     * @param topic The topic
+     * @throws IOException if an IO error occurs
+     * @throws InterruptedException if a Thread error occurs
      */
     public void indexTopic( Topic topic ) throws IOException, InterruptedException
     {
@@ -185,13 +203,13 @@ public class WikiIndexer implements SearchIndexer
     }
 
     /**
-     *
-     * @param topic
-     * @param strUrl
-     * @param plugin
-     * @return
-     * @throws IOException
-     * @throws InterruptedException
+     * Get a document for indexing
+     * @param topic The topic
+     * @param strUrl The URL
+     * @param plugin The plugin
+     * @return The document
+     * @throws IOException if an IO error occurs
+     * @throws InterruptedException if a Thread error occurs
      */
     public static org.apache.lucene.document.Document getDocument( Topic topic, String strUrl, Plugin plugin )
         throws IOException, InterruptedException
@@ -239,6 +257,7 @@ public class WikiIndexer implements SearchIndexer
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<String> getListType(  )
     {
         List<String> listType = new ArrayList<String>(  );
@@ -248,8 +267,9 @@ public class WikiIndexer implements SearchIndexer
     }
 
     /**
-    * {@inheritDoc}
-    */
+     * {@inheritDoc}
+     */
+    @Override
     public String getSpecificSearchAppUrl(  )
     {
         return JSP_SEARCH_WIKI;

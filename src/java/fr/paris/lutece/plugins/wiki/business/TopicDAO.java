@@ -80,10 +80,9 @@ public final class TopicDAO implements ITopicDAO
     }
 
     /**
-     * Insert a new record in the table.
-     * @param topic instance of the Topic object to insert
-     * @param plugin The plugin
+     * {@inheritDoc }
      */
+    @Override
     public void insert( Topic topic, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
@@ -99,11 +98,9 @@ public final class TopicDAO implements ITopicDAO
     }
 
     /**
-     * Load the data of the topic from the table
-     * @param nId The identifier of the topic
-     * @param plugin The plugin
-     * @return the instance of the Topic
+     * {@inheritDoc }
      */
+    @Override
     public Topic load( int nId, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
@@ -127,10 +124,9 @@ public final class TopicDAO implements ITopicDAO
     }
 
     /**
-     * Delete a record from the table
-     * @param nTopicId The identifier of the topic
-     * @param plugin The plugin
+     * {@inheritDoc }
      */
+    @Override
     public void delete( int nTopicId, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
@@ -140,10 +136,9 @@ public final class TopicDAO implements ITopicDAO
     }
 
     /**
-     * Update the record in the table
-     * @param topic The reference of the topic
-     * @param plugin The plugin
+     * {@inheritDoc }
      */
+    @Override
     public void store( Topic topic, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
@@ -158,10 +153,9 @@ public final class TopicDAO implements ITopicDAO
     }
 
     /**
-     * Load the data of all the topics and returns them as a collection
-     * @param plugin The plugin
-     * @return The Collection which contains the data of all the topics
+     * {@inheritDoc }
      */
+    @Override
     public Collection<Topic> selectTopicsList( Plugin plugin )
     {
         Collection<Topic> topicList = new ArrayList<Topic>(  );
@@ -184,6 +178,10 @@ public final class TopicDAO implements ITopicDAO
         return topicList;
     }
 
+    /**
+     * {@inheritDoc }
+     */
+    @Override
     public Topic load( String strTopicName, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_NAME, plugin );
@@ -206,6 +204,10 @@ public final class TopicDAO implements ITopicDAO
         return topic;
     }
 
+    /**
+     * {@inheritDoc }
+     */
+    @Override
     public void modify( String strTopicName, String strContent, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE_PAGE_CONTENT, plugin );

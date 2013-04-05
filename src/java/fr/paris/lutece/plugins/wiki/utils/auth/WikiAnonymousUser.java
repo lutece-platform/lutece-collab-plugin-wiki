@@ -41,6 +41,9 @@ import fr.paris.lutece.portal.service.security.LuteceUser;
  */
 public class WikiAnonymousUser extends LuteceUser
 {
+    /**
+     * Constructor
+     */
     public WikiAnonymousUser(  )
     {
         super( "Anonymous", new WikiAnonymousAuthentication(  ) );

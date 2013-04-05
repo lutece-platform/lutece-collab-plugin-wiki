@@ -40,19 +40,23 @@ import java.io.Serializable;
 import java.util.List;
 
 
+/**
+ * Wiki Diff
+ *
+ */
 public class WikiDiff implements Serializable
 {
     /** The newly modified text, or <code>null</code> if text was deleted. */
-    private String newText = null;
+    private String _strNewText = null;
 
     /** The old text that was changed, or <code>null</code> if new text was added. */
-    private String oldText = null;
+    private String _strOldText = null;
 
     /** The zero-based position of the text that was changed. */
-    private int position = -1;
+    private int _nPosition = -1;
 
     /** The diff may (optionally) contain a list of sub-diffs, such as when diffing two topics and then further showing what changed on a line. */
-    private List<WikiDiff> subDiffs = null;
+    private List<WikiDiff> _listSubDiffs = null;
 
     /**
      *
@@ -63,83 +67,95 @@ public class WikiDiff implements Serializable
 
     /**
      *
+     * @param oldText
+     * @param newText
+     * @param position
      */
     public WikiDiff( String oldText, String newText, int position )
     {
-        this.oldText = oldText;
-        this.newText = newText;
-        this.position = position;
+        _strOldText = oldText;
+        _strNewText = newText;
+        _nPosition = position;
     }
 
     /**
      *
+     * @return
      */
     public boolean getChange(  )
     {
-        return !StringUtils.equals( this.oldText, this.newText );
+        return !StringUtils.equals( _strOldText, _strNewText );
     }
 
     /**
      *
+     * @return
      */
     public String getNewText(  )
     {
-        return this.newText;
+        return _strNewText;
     }
 
     /**
      *
+     * @param newText
      */
     public void setNewText( String newText )
     {
-        this.newText = newText;
+        _strNewText = newText;
     }
 
     /**
      *
+     * @return
      */
     public String getOldText(  )
     {
-        return this.oldText;
+        return _strOldText;
     }
 
     /**
      *
+     * @param oldText
      */
     public void setOldText( String oldText )
     {
-        this.oldText = oldText;
+        _strOldText = oldText;
     }
 
     /**
      *
+     * @return
      */
     public int getPosition(  )
     {
-        return this.position;
+        return _nPosition;
     }
 
     /**
      *
+     * @param position
      */
     public void setPosition( int position )
     {
-        this.position = position;
+        _nPosition = position;
     }
 
     /**
      *
+     * @return
      */
     public List<WikiDiff> getSubDiffs(  )
     {
-        return this.subDiffs;
+        return _listSubDiffs;
     }
 
     /**
      *
+     * @param subDiffs
      */
     public void setSubDiffs( List<WikiDiff> subDiffs )
     {
-        this.subDiffs = subDiffs;
+        _listSubDiffs = subDiffs;
     }
 }

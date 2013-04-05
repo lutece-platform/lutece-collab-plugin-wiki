@@ -377,24 +377,10 @@ public class WikiApp implements XPageApplication
         return template.getHtml(  );
     }
 
-    public String previewPageContent( String strTopicName, String strInput )
-    {
-        Map<String, Object> model = new HashMap<String, Object>(  );
-
-        String strWikiResult = new LuteceWikiParser( strInput ).toString(  );
-        model.put( MARK_RESULT, strWikiResult );
-        model.put( MARK_PREVIEW_CONTENT, strInput );
-        model.put( MARK_TOPIC_NAME, strTopicName );
-
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_PREVIEW_WIKI, Locale.getDefault(  ), model );
-
-        return template.getHtml(  );
-    }
-
     /**
-     *
-     * @param strPageName
-     * @return
+     * View page history
+     * @param strPageName The page name
+     * @return The page
      */
     public String viewPageHistory( String strPageName )
     {
@@ -411,11 +397,11 @@ public class WikiApp implements XPageApplication
     }
 
     /**
-     *
-     * @param strPageName
-     * @param nNewTopicVersion
-     * @param nOldTopicVersion
-     * @return
+     * View Diff
+     * @param strPageName The page name
+     * @param nNewTopicVersion The new version
+     * @param nOldTopicVersion The old version
+     * @return The page
      */
     public String viewTopicDiff( String strPageName, int nNewTopicVersion, int nOldTopicVersion )
     {
@@ -442,9 +428,9 @@ public class WikiApp implements XPageApplication
     }
 
     /**
-     *
-     * @param strPageName
-     * @return
+     * Modify page content
+     * @param strPageName The page name
+     * @return The page
      */
     public String modifyPageContent( String strPageName )
     {
@@ -460,9 +446,9 @@ public class WikiApp implements XPageApplication
     }
 
     /**
-     *
-     * @param strPageName
-     * @return
+     * Create page
+     * @param strPageName The page name
+     * @return The page
      */
     public String createPageContent( String strPageName )
     {
@@ -476,6 +462,10 @@ public class WikiApp implements XPageApplication
         return template.getHtml(  );
     }
 
+    /**
+     * Initialise the XPage
+     * @param request The HTTP request
+     */
     private void init( HttpServletRequest request )
     {
         if ( !_bInit )
@@ -488,6 +478,11 @@ public class WikiApp implements XPageApplication
         }
     }
 
+    /**
+     * Build the page path
+     * @param strPageName The page name
+     * @return The path
+     */
     private String getPathLabel( String strPageName )
     {
         StringBuilder sbPath = new StringBuilder(  );
@@ -498,6 +493,11 @@ public class WikiApp implements XPageApplication
         return sbPath.toString(  );
     }
 
+    /**
+     * Build the page title
+     * @param strPageName The page name
+     * @return The page title
+     */
     private String getPageTitle( String strPageName )
     {
         StringBuilder sbPath = new StringBuilder(  );

@@ -68,12 +68,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO
 
         int nKey;
 
-        if ( !daoUtil.next(  ) )
-        {
-            // if the table is empty
-            nKey = 1;
-        }
-
+        daoUtil.next(  );
         nKey = daoUtil.getInt( 1 ) + 1;
         daoUtil.free(  );
 
@@ -81,10 +76,9 @@ public final class TopicVersionDAO implements ITopicVersionDAO
     }
 
     /**
-     * Insert a new record in the table.
-     * @param topicVersion instance of the TopicVersion object to insert
-     * @param plugin The plugin
+     * {@inheritDoc }
      */
+    @Override
     public void insert( TopicVersion topicVersion, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
@@ -103,11 +97,9 @@ public final class TopicVersionDAO implements ITopicVersionDAO
     }
 
     /**
-     * Load the data of the topicVersion from the table
-     * @param nId The identifier of the topicVersion
-     * @param plugin The plugin
-     * @return the instance of the TopicVersion
+     * {@inheritDoc }
      */
+    @Override
     public TopicVersion load( int nId, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
@@ -135,10 +127,9 @@ public final class TopicVersionDAO implements ITopicVersionDAO
     }
 
     /**
-     * Delete a record from the table
-     * @param nTopicVersionId The identifier of the topicVersion
-     * @param plugin The plugin
+     * {@inheritDoc }
      */
+    @Override
     public void delete( int nTopicVersionId, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
@@ -148,10 +139,9 @@ public final class TopicVersionDAO implements ITopicVersionDAO
     }
 
     /**
-     * Update the record in the table
-     * @param topicVersion The reference of the topicVersion
-     * @param plugin The plugin
+     * {@inheritDoc }
      */
+    @Override
     public void store( TopicVersion topicVersion, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
@@ -169,10 +159,9 @@ public final class TopicVersionDAO implements ITopicVersionDAO
     }
 
     /**
-     * Load the data of all the topicVersions and returns them as a collection
-     * @param plugin The plugin
-     * @return The Collection which contains the data of all the topicVersions
+     * {@inheritDoc }
      */
+    @Override
     public Collection<TopicVersion> selectTopicVersionsList( Plugin plugin )
     {
         Collection<TopicVersion> topicVersionList = new ArrayList<TopicVersion>(  );
@@ -198,6 +187,10 @@ public final class TopicVersionDAO implements ITopicVersionDAO
         return topicVersionList;
     }
 
+    /**
+     * {@inheritDoc }
+     */
+    @Override
     public void modifyTopicVersion( int nTopicId, String strUserName, String strComment, String strContent,
         int nPreviousVersion, Plugin plugin )
     {
@@ -214,6 +207,10 @@ public final class TopicVersionDAO implements ITopicVersionDAO
         daoUtil.free(  );
     }
 
+    /**
+     * {@inheritDoc }
+     */
+    @Override
     public TopicVersion loadLastVersion( int nIdTopic, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_LAST_BY_TOPIC_ID, plugin );
@@ -240,6 +237,10 @@ public final class TopicVersionDAO implements ITopicVersionDAO
         return topicVersion;
     }
 
+    /**
+     * {@inheritDoc }
+     */
+    @Override
     public Collection<TopicVersion> loadAllVersions( int nIdTopic, Plugin plugin )
     {
         Collection<TopicVersion> topicVersionList = new ArrayList<TopicVersion>(  );

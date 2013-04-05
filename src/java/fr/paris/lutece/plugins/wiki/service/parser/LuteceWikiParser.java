@@ -48,37 +48,62 @@ import java.io.*;
 import java.net.*;
 
 
+/**
+ *
+ * @author pierre
+ */
 public class LuteceWikiParser extends WikiParser
 {
     private static String _strPortalUrl;
 
-    public LuteceWikiParser( String wikiText )
+    /**
+     * Constructor
+     * @param strWikiText The wiki text
+     */
+    public LuteceWikiParser( String strWikiText )
     {
         super(  );
         HEADING_LEVEL_SHIFT = 0;
-        parse( wikiText );
+        parse( strWikiText );
     }
 
+    /**
+     * Set the portal URL
+     * @param strUrl The URL
+     */
     public static void setPortalUrl( String strUrl )
     {
         _strPortalUrl = strUrl;
     }
 
-    public static String renderXHTML( String wikiText )
+    /**
+     * Render XHTML from wiki text
+     * @param strWikiText The wiki text
+     * @return The XHTML code
+     */
+    public static String renderXHTML( String strWikiText )
     {
-        return new LuteceWikiParser( wikiText ).toString(  );
+        return new LuteceWikiParser( strWikiText ).toString(  );
     }
 
+    /**
+     * Append image
+     * @param strText
+     */
     @Override
-    protected void appendImage( String text )
+    protected void appendImage( String strText )
     {
-        super.appendImage( text );
+        super.appendImage( strText );
     }
 
+    /**
+     * Append link
+     * @param strText The text
+     */
     @Override
-    protected void appendLink( String text )
+    protected void appendLink( String strText )
     {
-        String[] link = split( text, '|' );
+        String[] link = split( strText, '|' );
         URI uri = null;
 
         try
@@ -128,28 +153,37 @@ public class LuteceWikiParser extends WikiParser
         }
     }
 
+    /**
+     * Append a macro
+     * @param strText
+     */
     @Override
-    protected void appendMacro( String text )
+    protected void appendMacro( String strText )
     {
-        if ( "TOC".equals( text ) )
+        if ( "TOC".equals( strText ) )
         {
-            super.appendMacro( text ); // use default
+            super.appendMacro( strText ); // use default
         }
-        else if ( "My-macro".equals( text ) )
+        else if ( "My-macro".equals( strText ) )
         {
             sb.append( "{{ My macro output }}" );
         }
         else
         {
-            super.appendMacro( text );
+            super.appendMacro( strText );
         }
     }
 
-    private static String escapeURL( String s )
+    /**
+     * Encode URL
+     * @param strURL the URL
+     * @return The encoded URL
+     */
+    private static String escapeURL( String strURL )
     {
         try
         {
-            return URLEncoder.encode( s, "utf-8" );
+            return URLEncoder.encode( strURL, "utf-8" );
         }
         catch ( UnsupportedEncodingException e )
         {

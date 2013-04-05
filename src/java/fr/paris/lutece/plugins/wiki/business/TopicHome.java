@@ -104,11 +104,23 @@ public final class TopicHome
         return _dao.load( nKey, plugin );
     }
 
+    /**
+     * Find a topic by it's primary key
+     * @param strTopicName The topic name
+     * @param plugin The plugin
+     * @return The topic
+     */
     public static Topic findByPrimaryKey( String strTopicName, Plugin plugin )
     {
         return _dao.load( strTopicName, plugin );
     }
 
+    /**
+     * Modify the content of a topic
+     * @param strTopicName The topic name
+     * @param strContent The content
+     * @param plugin The plugin
+     */
     public static void modifyContentOnly( String strTopicName, String strContent, Plugin plugin )
     {
         _dao.modify( strTopicName, strContent, plugin );

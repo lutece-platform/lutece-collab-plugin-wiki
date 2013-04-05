@@ -69,7 +69,7 @@ public interface ITopicVersionDAO
 
     /**
      * Load the data from the table
-     * @param strId The identifier of the topicVersion
+     * @param nKey
      * @param plugin the Plugin
      * @return The instance of the topicVersion
      */
@@ -94,7 +94,19 @@ public interface ITopicVersionDAO
     void modifyTopicVersion( int nTopicId, String strUserName, String strComment, String strContent,
         int nPreviousVersion, Plugin plugin );
 
+    /**
+     * Load last version
+     * @param idTopic The topic ID
+     * @param plugin The plugin
+     * @return The topic version
+     */
     TopicVersion loadLastVersion( int idTopic, Plugin plugin );
 
+    /**
+     * Load all versions
+     * @param idTopic The topic id
+     * @param plugin The plugin
+     * @return The list of topics
+     */
     Collection<TopicVersion> loadAllVersions( int idTopic, Plugin plugin );
 }

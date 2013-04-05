@@ -97,7 +97,7 @@ public class TopicVersion
 
     /**
      * Sets the EditComment
-     * @param strEditComment The EditComment
+     * @param strWikiContent The content
      */
     public void setWikiContent( String strWikiContent )
     {

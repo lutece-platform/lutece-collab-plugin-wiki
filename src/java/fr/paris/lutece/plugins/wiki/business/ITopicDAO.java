@@ -69,7 +69,7 @@ public interface ITopicDAO
 
     /**
      * Load the data from the table
-     * @param strId The identifier of the topic
+     * @param nKey
      * @param plugin the Plugin
      * @return The instance of the topic
      */
@@ -82,7 +82,19 @@ public interface ITopicDAO
     */
     Collection<Topic> selectTopicsList( Plugin plugin );
 
+    /**
+     * Load a topic
+     * @param strTopicName The topic name
+     * @param plugin The plugin
+     * @return The topic
+     */
     Topic load( String strTopicName, Plugin plugin );
 
+    /**
+     * Modify the topic
+     * @param strTopicName The topic name
+     * @param strContent The content
+     * @param plugin The plugin
+     */
     void modify( String strTopicName, String strContent, Plugin plugin );
 }

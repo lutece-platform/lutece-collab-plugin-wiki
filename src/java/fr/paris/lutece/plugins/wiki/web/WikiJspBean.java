@@ -82,7 +82,8 @@ public class WikiJspBean implements Serializable
       * Create a wikipage
       * @param request The HTTP Request
       * @return The redirect URL
-      * @throws UserNotSignedException
+      * @throws SiteMessageException if an error occurs
+      * @throws UserNotSignedException if an error occurs
       */
     public String doCreatePage( HttpServletRequest request )
         throws SiteMessageException, UserNotSignedException

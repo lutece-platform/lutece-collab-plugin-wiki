@@ -115,17 +115,38 @@ public final class TopicVersionHome
         return _dao.selectTopicVersionsList( plugin );
     }
 
+    /**
+     * Modify the topic's content
+     * @param nTopicId The topic ID
+     * @param strUserName The username
+     * @param strComment The comment
+     * @param strContent The content
+     * @param nPreviousVersion The prvious version
+     * @param plugin The plugin
+     */
     public static void modifyContentOnly( int nTopicId, String strUserName, String strComment, String strContent,
         int nPreviousVersion, Plugin plugin )
     {
         _dao.modifyTopicVersion( nTopicId, strUserName, strComment, strContent, nPreviousVersion, plugin );
     }
 
+    /**
+     * Find the last version
+     * @param idTopic The topic id
+     * @param plugin The plugin
+     * @return The topic version
+     */
     public static TopicVersion findLastVersion( int idTopic, Plugin plugin )
     {
         return _dao.loadLastVersion( idTopic, plugin );
     }
 
+    /**
+     * Find all versions
+     * @param idTopic The topic id
+     * @param plugin The plugin
+     * @return A collection of topic version
+     */
     public static Collection<TopicVersion> findAllVersions( int idTopic, Plugin plugin )
     {
         return _dao.loadAllVersions( idTopic, plugin );
