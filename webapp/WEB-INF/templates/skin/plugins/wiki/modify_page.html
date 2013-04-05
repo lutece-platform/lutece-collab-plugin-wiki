@@ -26,9 +26,14 @@
             <div class="span7">
                 <div class="alert alert-error" id="div-confirm-delete" style="display:none">
                     #i18n{wiki.message.confirmDelete}
-                    <a href="jsp/site/plugins/wiki/DoDeletePage.jsp?page_name=${topic.pageName}" class="btn btn-danger btn-small pull-right"  >
-                        #i18n{portal.util.labelOk}
-                    </a>
+                    <div class="pull-right">
+                        <a href="jsp/site/plugins/wiki/DoDeletePage.jsp?page_name=${topic.pageName}" class="btn btn-danger btn-small"  >
+                            #i18n{portal.util.labelOk}
+                        </a>
+                        <button id="btn-delete-cancel" class="btn btn-small" type="button" >
+                            #i18n{portal.util.labelCancel}
+                        </button>
+                    </div>
                 </div>
 
                 <h1>${topic.pageName}</h1>
@@ -53,6 +58,7 @@
     jQuery(document).ready(function() {
         $("#btn-help").click(function() {
             $("#help").toggle("slow");
+            this.blur();
         });
     });
 </script>
@@ -62,6 +68,10 @@
         $("#btn-delete").click(function() {
             $("#div-confirm-delete").show("slow");
         });
+        $("#btn-delete-cancel").click(function() {
+            $("#div-confirm-delete").hide("slow");
+        });
+
     });
 </script>
 
