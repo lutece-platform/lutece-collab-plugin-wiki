@@ -1,11 +1,44 @@
+/*
+ * Copyright (c) 2002-2012, Mairie de Paris
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice
+ *     and the following disclaimer.
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright notice
+ *     and the following disclaimer in the documentation and/or other materials
+ *     provided with the distribution.
+ *
+ *  3. Neither the name of 'Mairie de Paris' nor 'Lutece' nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * License 1.0
+ */
 package fr.paris.lutece.plugins.wiki.search;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
+import fr.paris.lutece.portal.service.search.IndexationService;
+import fr.paris.lutece.portal.service.search.LuceneSearchEngine;
+import fr.paris.lutece.portal.service.search.SearchEngine;
+import fr.paris.lutece.portal.service.search.SearchItem;
+import fr.paris.lutece.portal.service.search.SearchResult;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
@@ -21,55 +54,56 @@ import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 
-import fr.paris.lutece.portal.service.search.IndexationService;
-import fr.paris.lutece.portal.service.search.LuceneSearchEngine;
-import fr.paris.lutece.portal.service.search.SearchEngine;
-import fr.paris.lutece.portal.service.search.SearchItem;
-import fr.paris.lutece.portal.service.search.SearchResult;
-import fr.paris.lutece.portal.service.util.AppLogService;
+import java.text.ParseException;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * WikiSearchEngine
  */
 public class WikiSearchEngine implements SearchEngine
 {
-
-	/**
-     * Return search results
-     * @param strQuery The search query
-     * @param request The HTTP request
-     * @return Results as a collection of SearchResult
-     */
-	public List<SearchResult> getSearchResults( String strQuery, HttpServletRequest request )
-	{
-		ArrayList<SearchItem> listResults = new ArrayList<SearchItem>(  );
+    /**
+    * Return search results
+    * @param strQuery The search query
+    * @param request The HTTP request
+    * @return Results as a collection of SearchResult
+    */
+    public List<SearchResult> getSearchResults( String strQuery, HttpServletRequest request )
+    {
+        ArrayList<SearchItem> listResults = new ArrayList<SearchItem>(  );
         Searcher searcher = null;
-        
+
         try
         {
-        	searcher = new IndexSearcher( IndexationService.getDirectoryIndex(  ), true );
-        	
-        	BooleanQuery query = new BooleanQuery(  );
-        	
-        	// Contents
+            searcher = new IndexSearcher( IndexationService.getDirectoryIndex(  ), true );
+
+            BooleanQuery query = new BooleanQuery(  );
+
+            // Contents
             if ( ( strQuery != null ) && !strQuery.equals( "" ) )
             {
-                QueryParser parser = new QueryParser( IndexationService.LUCENE_INDEX_VERSION, SearchItem.FIELD_CONTENTS,
-                        IndexationService.getAnalyser(  ) );
+                QueryParser parser = new QueryParser( IndexationService.LUCENE_INDEX_VERSION,
+                        SearchItem.FIELD_CONTENTS, IndexationService.getAnalyser(  ) );
                 query.add( parser.parse( strQuery ), BooleanClause.Occur.MUST );
             }
-            
+
             // Type
             Query queryType = new TermQuery( new Term( SearchItem.FIELD_TYPE, WikiIndexer.PROPERTY_INDEX_TYPE_PAGE ) );
             query.add( queryType, BooleanClause.Occur.MUST );
-            
+
             // Get results documents
             TopDocs topDocs = searcher.search( query, LuceneSearchEngine.MAX_RESPONSES );
             ScoreDoc[] hits = topDocs.scoreDocs;
-            
-            for (int i = 0; i < hits.length; i++)
+
+            for ( int i = 0; i < hits.length; i++ )
             {
-            	int docId = hits[i].doc;
+                int docId = hits[i].doc;
                 Document document = searcher.doc( docId );
                 SearchItem si = new SearchItem( document );
                 listResults.add( si );
@@ -83,13 +117,13 @@ public class WikiSearchEngine implements SearchEngine
         }
 
         return convertList( listResults );
-	}
-	
-	/**
-     * Convert a list of Lucene items into a list of generic search items
-     * @param listSource The list of Lucene items
-     * @return A list of generic search items
-     */
+    }
+
+    /**
+    * Convert a list of Lucene items into a list of generic search items
+    * @param listSource The list of Lucene items
+    * @return A list of generic search items
+    */
     private List<SearchResult> convertList( List<SearchItem> listSource )
     {
         List<SearchResult> listDest = new ArrayList<SearchResult>(  );

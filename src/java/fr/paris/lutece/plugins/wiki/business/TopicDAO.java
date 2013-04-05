@@ -93,7 +93,7 @@ public final class TopicDAO implements ITopicDAO
         daoUtil.setInt( 1, topic.getIdTopic(  ) );
         daoUtil.setInt( 2, topic.getNamespace(  ) );
         daoUtil.setString( 3, topic.getPageName(  ) );
-      
+
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
     }
@@ -119,7 +119,6 @@ public final class TopicDAO implements ITopicDAO
             topic.setIdTopic( daoUtil.getInt( 1 ) );
             topic.setNamespace( daoUtil.getInt( 2 ) );
             topic.setPageName( daoUtil.getString( 3 ) );
-      
         }
 
         daoUtil.free(  );

@@ -31,20 +31,18 @@
  *
  * License 1.0
  */
-
 package fr.paris.lutece.plugins.wiki.utils.auth;
 
 import fr.paris.lutece.portal.service.security.LuteceUser;
+
 
 /**
  * WikiAnonymousUser
  */
 public class WikiAnonymousUser extends LuteceUser
 {
-
-    public WikiAnonymousUser( )
+    public WikiAnonymousUser(  )
     {
-
-        super( "Anonymous" , new WikiAnonymousAuthentication() );
+        super( "Anonymous", new WikiAnonymousAuthentication(  ) );
     }
 }

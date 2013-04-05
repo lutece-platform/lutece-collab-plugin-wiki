@@ -33,17 +33,13 @@
  */
 package fr.paris.lutece.plugins.wiki.web;
 
+
 /**
  * COnstants
  */
 public final class Constants
 {
-    /** Private constructor */
-    private Constants()
-    {
-    }
     public static final String PLUGIN_NAME = "wiki";
-
     public static final String PARAMETER_ACTION_MODIFY = "modify";
     public static final String PARAMETER_ACTION_CREATE = "create";
     public static final String PARAMETER_ACTION_VIEW = "view";
@@ -60,8 +56,11 @@ public final class Constants
     public static final String PARAMETER_PAGE_INDEX = "page_index";
     public static final String PARAMETER_ACTION_VIEW_HISTORY = "view_history";
     public static final String PARAMETER_ACTION_SEARCH = "search";
-    
     public static final String MESSAGE_PAGE_NOT_EXISTS = "wiki.message.accessDenied.pageNotExists";
     public static final String MESSAGE_PAGE_ALREADY_EXISTS = "wiki.message.accessDenied.pageAlreadyExists";
 
+    /** Private constructor */
+    private Constants(  )
+    {
+    }
 }

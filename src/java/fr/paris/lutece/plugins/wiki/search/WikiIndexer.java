@@ -167,18 +167,20 @@ public class WikiIndexer implements SearchIndexer
         urlSubject.addParameter( PARAMETER_ACTION, PARAMETER_ACTION_VIEW );
 
         org.apache.lucene.document.Document docTopic = null;
+
         try
         {
-        	docTopic = getDocument( topic, urlSubject.getUrl(  ), plugin );
+            docTopic = getDocument( topic, urlSubject.getUrl(  ), plugin );
         }
         catch ( Exception e )
         {
-        	String strMessage = "Topic ID : " + topic.getIdTopic(  );
-        	IndexationService.error( this, e, strMessage );
+            String strMessage = "Topic ID : " + topic.getIdTopic(  );
+            IndexationService.error( this, e, strMessage );
         }
+
         if ( docTopic != null )
         {
-        	IndexationService.write( docTopic );
+            IndexationService.write( docTopic );
         }
     }
 
@@ -210,12 +212,16 @@ public class WikiIndexer implements SearchIndexer
         String strIdSubject = String.valueOf( topic.getPageName(  ) );
         doc.add( new Field( SearchItem.FIELD_UID, strIdSubject + "_" + SHORT_NAME_TOPIC, Field.Store.NO,
                 Field.Index.NOT_ANALYZED ) );
-        TopicVersion latestTopicVersion = TopicVersionHome.findLastVersion(topic.getIdTopic(), plugin);
-        String strWikiContent="";
-        if(latestTopicVersion!= null && latestTopicVersion.getWikiContent() != null && !latestTopicVersion.getWikiContent().equals(""))
+
+        TopicVersion latestTopicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), plugin );
+        String strWikiContent = "";
+
+        if ( ( latestTopicVersion != null ) && ( latestTopicVersion.getWikiContent(  ) != null ) &&
+                !latestTopicVersion.getWikiContent(  ).equals( "" ) )
         {
-        		strWikiContent= latestTopicVersion.getWikiContent(  );
+            strWikiContent = latestTopicVersion.getWikiContent(  );
         }
+
         String strWikiResult = new LuteceWikiParser( strWikiContent ).toString(  );
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, Field.Store.YES, Field.Index.ANALYZED ) );
 
@@ -233,19 +239,19 @@ public class WikiIndexer implements SearchIndexer
     /**
      * {@inheritDoc}
      */
-	public List<String> getListType(  )
-	{
-		List<String> listType = new ArrayList<String>(  );
-		listType.add( PROPERTY_INDEX_TYPE_PAGE );
-		
-		return listType;
-	}
+    public List<String> getListType(  )
+    {
+        List<String> listType = new ArrayList<String>(  );
+        listType.add( PROPERTY_INDEX_TYPE_PAGE );
 
-	/**
-     * {@inheritDoc}
-     */
-	public String getSpecificSearchAppUrl(  )
-	{
-		return JSP_SEARCH_WIKI;
-	}
+        return listType;
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public String getSpecificSearchAppUrl(  )
+    {
+        return JSP_SEARCH_WIKI;
+    }
 }

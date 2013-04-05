@@ -67,13 +67,13 @@ public final class Utils
     public static String ParseHtmlToPlainTextString( String strHTML )
     {
         /*   StringBuilder sbText = new StringBuilder(  );
-        
+
            try
            {
                Lexer lexer = new Lexer( strHTML );
                Parser parser = new Parser( lexer );
                NodeIterator i = parser.elements(  );
-        
+
                while ( i.hasMoreNodes(  ) )
                    sbText.append( i.nextNode(  ).toPlainTextString(  ) );
            }
@@ -81,7 +81,7 @@ public final class Utils
            {
                AppLogService.error( "Parsing html to plain text error : " + e.getMessage(  ), e );
            }
-        
+
            return sbText.toString(  );*/
         return "";
     }

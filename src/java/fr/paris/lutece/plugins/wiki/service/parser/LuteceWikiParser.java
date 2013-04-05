@@ -94,7 +94,8 @@ public class LuteceWikiParser extends WikiParser
             sb.append( "<a href=\"" );
             sb.append( escapeHTML( uri.toString(  ) ) );
             sb.append( "\" rel=\"nofollow\">" );
-            sb.append( escapeHTML( unescapeHTML( ( ( link.length >= 2 ) && !isEmpty( link[1].trim(  ) ) ) ? link[1]: link[0] ) ) );
+            sb.append( escapeHTML( unescapeHTML( ( ( link.length >= 2 ) && !isEmpty( link[1].trim(  ) ) ) ? link[1]
+                                                                                                          : link[0] ) ) );
             sb.append( "</a>" );
         }
         else
@@ -102,24 +103,26 @@ public class LuteceWikiParser extends WikiParser
             Plugin plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
             Topic topic = TopicHome.findByPrimaryKey( escapeHTML( escapeURL( link[0] ) ), plugin );
             String strAction = Constants.PARAMETER_ACTION_VIEW;
-            String strColorBegin = "",strColorEnd="";
+            String strColorBegin = "";
+            String strColorEnd = "";
 
             if ( topic == null )
             {
                 strAction = Constants.PARAMETER_ACTION_CREATE;
                 strColorBegin = "<font color=red>";
-                strColorEnd="</font>";
+                strColorEnd = "</font>";
             }
 
             sb.append( "<a href=\"" );
             sb.append( _strPortalUrl );
             sb.append( "?page=wiki&page_name=" );
-            sb.append( escapeHTML( unescapeHTML( link[0] ) ));
+            sb.append( escapeHTML( unescapeHTML( link[0] ) ) );
             sb.append( "&action=" );
             sb.append( strAction );
             sb.append( " \" title=\"Wikipedia link\">" );
             sb.append( strColorBegin );
-            sb.append( escapeHTML( unescapeHTML( ( ( link.length >= 2 ) && !isEmpty( link[1].trim(  ) ) ) ? link[1] : link[0] ) ) );
+            sb.append( escapeHTML( unescapeHTML( ( ( link.length >= 2 ) && !isEmpty( link[1].trim(  ) ) ) ? link[1]
+                                                                                                          : link[0] ) ) );
             sb.append( strColorEnd );
             sb.append( "</a>" );
         }
@@ -150,7 +153,7 @@ public class LuteceWikiParser extends WikiParser
         }
         catch ( UnsupportedEncodingException e )
         {
-            AppLogService.error("LuteceWikiParser : Error escaping Url : " + e.getMessage(), e );
+            AppLogService.error( "LuteceWikiParser : Error escaping Url : " + e.getMessage(  ), e );
 
             return null;
         }
