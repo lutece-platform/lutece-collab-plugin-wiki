@@ -33,6 +33,8 @@
  */
 package fr.paris.lutece.plugins.wiki.business;
 
+import fr.paris.lutece.portal.business.page.Page;
+
 
 /**
  * This is the business class for the object Topic
@@ -43,6 +45,7 @@ public class Topic
     private int _nIdTopic;
     private int _nNamespace;
     private String _strPageName;
+    private String _strRole = Page.ROLE_NONE;
 
     /**
      * Returns the IdTopic
@@ -97,4 +100,23 @@ public class Topic
     {
         _strPageName = strPageName;
     }
+
+    /**
+     * Returns the Role
+     * @return The Role
+     */
+    public String getRole(  )
+    {
+        return _strRole;
+    }
+
+    /**
+     * Sets the Role
+     * @param strRole The Role
+     */
+    public void setRole( String strRole )
+    {
+        _strRole = strRole;
+    }
+
 }

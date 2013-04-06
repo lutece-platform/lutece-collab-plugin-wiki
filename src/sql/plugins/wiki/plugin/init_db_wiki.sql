@@ -3,7 +3,7 @@
 -- Dumping data for table `wiki_topic`
 --
 
-INSERT INTO `wiki_topic` VALUES (1,0,'Accueil');
+INSERT INTO `wiki_topic` VALUES (1,0,'Accueil','none');
 
 --
 -- Dumping data for table `wiki_topic_version`

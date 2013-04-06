@@ -40,6 +40,9 @@
 
                 <textarea id="wiki" class="input-xxlarge" name="content" rows="20" ><#if preview_content??>${preview_content}<#else>${lastVersion.wikiContent}</#if></textarea>
 
+                <label for="roles_list">#i18n{portal.site.admin_page.labelRole} :</label>
+                <@comboSorted name="role" default_value="${topic.role}" items=page_roles_list />
+
                 <br />
                 #i18n{wiki.modify_page.labelComment} :
                 <input class="input-xxlarge" type="text" name="modification_comment"/>

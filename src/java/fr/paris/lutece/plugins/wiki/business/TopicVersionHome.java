@@ -45,8 +45,7 @@ import java.util.Collection;
 public final class TopicVersionHome
 {
     // Static variable pointed at the DAO instance
-    private static ITopicVersionDAO _dao = (ITopicVersionDAO) SpringContextService.getPluginBean( "wiki",
-            "topicVersionDAO" );
+    private static ITopicVersionDAO _dao = (ITopicVersionDAO) SpringContextService.getBean( "wiki.topicVersionDAO" );
 
     /**
      * Private constructor - this class need not be instantiated

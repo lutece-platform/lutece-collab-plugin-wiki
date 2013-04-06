@@ -8,6 +8,7 @@ CREATE TABLE wiki_topic (
 id_topic INT DEFAULT '0' NOT NULL,
 namespace INT DEFAULT '0' NOT NULL,
 page_name VARCHAR(50) DEFAULT '' NOT NULL,
+page_role VARCHAR(50) DEFAULT '' NOT NULL,
   PRIMARY KEY (id_topic)
 );
 

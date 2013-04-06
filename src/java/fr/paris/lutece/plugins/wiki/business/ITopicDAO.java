@@ -90,11 +90,4 @@ public interface ITopicDAO
      */
     Topic load( String strTopicName, Plugin plugin );
 
-    /**
-     * Modify the topic
-     * @param strTopicName The topic name
-     * @param strContent The content
-     * @param plugin The plugin
-     */
-    void modify( String strTopicName, String strContent, Plugin plugin );
 }

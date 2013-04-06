@@ -45,7 +45,7 @@ import java.util.Collection;
 public final class TopicHome
 {
     // Static variable pointed at the DAO instance
-    private static ITopicDAO _dao = (ITopicDAO) SpringContextService.getPluginBean( "wiki", "topicDAO" );
+    private static ITopicDAO _dao = (ITopicDAO) SpringContextService.getBean( "wiki.topicDAO" );
 
     /**
      * Private constructor - this class need not be instantiated
@@ -113,17 +113,6 @@ public final class TopicHome
     public static Topic findByPrimaryKey( String strTopicName, Plugin plugin )
     {
         return _dao.load( strTopicName, plugin );
-    }
-
-    /**
-     * Modify the content of a topic
-     * @param strTopicName The topic name
-     * @param strContent The content
-     * @param plugin The plugin
-     */
-    public static void modifyContentOnly( String strTopicName, String strContent, Plugin plugin )
-    {
-        _dao.modify( strTopicName, strContent, plugin );
     }
 
     /**

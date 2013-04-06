@@ -50,100 +50,114 @@ import java.io.Serializable;
 
 import javax.servlet.http.HttpServletRequest;
 
-
 /**
  * Wiki JSP Bean
  */
 public class WikiJspBean implements Serializable
 {
+
     private static final String URL_HOME = "../../Portal.jsp?page=wiki";
     private static final String URL_PAGE = "../../Portal.jsp?page=wiki&action=view&page_name=";
     Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
 
     /**
      * Delete a wikipage
+     *
      * @param request The HTTP Request
      * @return The redirect URL
      * @throws UserNotSignedException
      */
     public String doDeletePage( HttpServletRequest request )
-        throws UserNotSignedException
+            throws UserNotSignedException
     {
         checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
-        TopicHome.remove( topic.getIdTopic(  ), _plugin );
+        TopicHome.remove( topic.getIdTopic(), _plugin );
 
         return URL_HOME;
     }
 
     /**
-      * Create a wikipage
-      * @param request The HTTP Request
-      * @return The redirect URL
-      * @throws SiteMessageException if an error occurs
-      * @throws UserNotSignedException if an error occurs
-      */
+     * Create a wikipage
+     *
+     * @param request The HTTP Request
+     * @return The redirect URL
+     * @throws SiteMessageException if an error occurs
+     * @throws UserNotSignedException if an error occurs
+     */
     public String doCreatePage( HttpServletRequest request )
-        throws SiteMessageException, UserNotSignedException
+            throws SiteMessageException, UserNotSignedException
     {
-        LuteceUser user = SecurityService.getInstance(  ).getRemoteUser( request );
+        LuteceUser user = SecurityService.getInstance().getRemoteUser( request );
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         String strContent = request.getParameter( Constants.PARAMETER_CONTENT );
+        String strRole = request.getParameter( Constants.PARAMETER_ROLE );
 
-        if ( TopicHome.findByPrimaryKey( strPageName, _plugin ) != null )
+        if (TopicHome.findByPrimaryKey( strPageName, _plugin ) != null)
         {
             SiteMessageService.setMessage( request, Constants.MESSAGE_PAGE_ALREADY_EXISTS, SiteMessage.TYPE_STOP );
         }
 
-        Topic topic = new Topic(  );
+        Topic topic = new Topic();
         topic.setPageName( strPageName );
+        topic.setRole( strRole );
 
         Topic newTopic = TopicHome.create( topic, _plugin );
-        TopicVersion version = new TopicVersion(  );
+        TopicVersion version = new TopicVersion();
         version.setEditComment( "" );
-        version.setLuteceUserId( user.getName(  ) );
+        version.setLuteceUserId( user.getName() );
         TopicVersionHome.create( version, _plugin );
-        TopicVersionHome.modifyContentOnly( newTopic.getIdTopic(  ), user.getName(  ), "", strContent, 0, _plugin );
+        TopicVersionHome.modifyContentOnly( newTopic.getIdTopic(), user.getName(), "", strContent, 0, _plugin );
 
         return URL_PAGE + strPageName;
     }
 
     /**
      * Modify a wikipage
+     *
      * @param request The HTTP Request
      * @return The redirect URL
      * @throws UserNotSignedException
      */
     public String doModifyPage( HttpServletRequest request )
-        throws UserNotSignedException
+            throws UserNotSignedException
     {
-        LuteceUser user = SecurityService.getInstance(  ).getRemoteUser( request );
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         String strContent = request.getParameter( Constants.PARAMETER_CONTENT );
         String strPreviousVersionId = request.getParameter( Constants.PARAMETER_PREVIOUS_VERSION_ID );
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
         String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT );
+        String strRole = request.getParameter( Constants.PARAMETER_ROLE );
+
+        LuteceUser user = SecurityService.getInstance().getRemoteUser( request );
         int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
         int nTopicId = Integer.parseInt( strTopicId );
-        TopicVersionHome.modifyContentOnly( nTopicId, user.getName(  ), strComment, strContent, nPreviousVersionId,
-            _plugin );
+        TopicVersionHome.modifyContentOnly( nTopicId, user.getName(), strComment, strContent, nPreviousVersionId, _plugin );
+
+        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
+        if (!strRole.equals( topic.getRole() ))
+        {
+            topic.setRole( strRole );
+            TopicHome.update( topic, _plugin );
+        }
 
         return URL_PAGE + strPageName;
     }
 
     /**
      * Check authentication
+     *
      * @param request The HTTP request
      * @throws UserNotSignedException if no user connected
      */
     private void checkUser( HttpServletRequest request )
-        throws UserNotSignedException
+            throws UserNotSignedException
     {
-        if ( SecurityService.isAuthenticationEnable(  ) )
+        if (SecurityService.isAuthenticationEnable())
         {
-            SecurityService.getInstance(  ).getRemoteUser( request );
+            SecurityService.getInstance().getRemoteUser( request );
         }
     }
 }

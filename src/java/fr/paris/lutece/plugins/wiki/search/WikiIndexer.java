@@ -251,7 +251,7 @@ public class WikiIndexer implements SearchIndexer
 
         doc.add( new Field( SearchItem.FIELD_TYPE, strDocumentType, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
         
-        doc.add( new Field( SearchItem.FIELD_ROLE , Page.ROLE_NONE , Field.Store.YES, Field.Index.NOT_ANALYZED ));
+        doc.add( new Field( SearchItem.FIELD_ROLE , topic.getRole() , Field.Store.YES, Field.Index.NOT_ANALYZED ));
 
         // return the document
         return doc;

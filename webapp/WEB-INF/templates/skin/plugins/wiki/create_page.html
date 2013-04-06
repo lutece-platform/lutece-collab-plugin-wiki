@@ -17,6 +17,12 @@
             <div class="span7">
                 <h1>${topic.pageName}</h1>
                 <textarea id="wiki" class="input-xxlarge" name="content" rows="20" ></textarea>
+                
+                <br>
+                <label for="roles_list">#i18n{portal.site.admin_page.labelRole} :</label>
+                <@comboSorted name="role" default_value="${topic.role}" items=page_roles_list />
+
+
             </div>
 
             <div id="help" class="span4 pull-right" style="display:none" >
