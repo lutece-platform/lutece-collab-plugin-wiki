@@ -46,7 +46,6 @@ import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.search.IndexationService;
 import fr.paris.lutece.portal.service.search.SearchIndexer;
 import fr.paris.lutece.portal.service.search.SearchItem;
-import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.url.UrlItem;
 
@@ -72,7 +71,8 @@ public class WikiIndexer implements SearchIndexer
     private static final String PARAMETER_PAGE_NAME = "page_name";
     private static final String PARAMETER_ACTION_VIEW = "view";
     private static final String PLUGIN_NAME = "wiki";
-    private static final String PROPERTY_PAGE_PATH_LABEL = "wiki.pagePathLabel";
+    private static final String PROPERTY_PAGE_BASE_URL = "search.pageIndexer.baseUrl";
+    private static final String PROPERTY_DOCUMENT_TYPE = "wiki.indexer.documentType";
     private static final String PROPERTY_INDEXER_DESCRIPTION = "wiki.indexer.description";
     private static final String PROPERTY_INDEXER_VERSION = "wiki.indexer.version";
     private static final String PROPERTY_INDEXER_ENABLE = "wiki.indexer.enable";
@@ -97,20 +97,20 @@ public class WikiIndexer implements SearchIndexer
         throws IOException, InterruptedException, SiteMessageException
     {
         List<org.apache.lucene.document.Document> listDocs = new ArrayList<org.apache.lucene.document.Document>(  );
-        String strPortalUrl = AppPathService.getPortalUrl(  );
+        String strPortalUrl = AppPropertiesService.getProperty( PROPERTY_PAGE_BASE_URL );
         Plugin plugin = PluginService.getPlugin( PLUGIN_NAME );
 
         Topic topic = TopicHome.findByPrimaryKey( Integer.parseInt( strDocument ), plugin );
+        String strDocumentType = AppPropertiesService.getProperty( PROPERTY_DOCUMENT_TYPE );
 
         if ( topic != null )
         {
             UrlItem urlSubject = new UrlItem( strPortalUrl );
-            urlSubject.addParameter( XPageAppService.PARAM_XPAGE_APP,
-                AppPropertiesService.getProperty( PROPERTY_PAGE_PATH_LABEL ) );
+            urlSubject.addParameter( XPageAppService.PARAM_XPAGE_APP, PLUGIN_NAME );
             urlSubject.addParameter( PARAMETER_PAGE_NAME, topic.getPageName(  ) );
             urlSubject.addParameter( PARAMETER_ACTION, PARAMETER_ACTION_VIEW );
 
-            org.apache.lucene.document.Document docSubject = getDocument( topic, urlSubject.getUrl(  ), plugin );
+            org.apache.lucene.document.Document docSubject = getDocument( topic, urlSubject.getUrl(  ), plugin, strDocumentType );
             listDocs.add( docSubject );
         }
 
@@ -176,7 +176,7 @@ public class WikiIndexer implements SearchIndexer
      */
     public void indexTopic( Topic topic ) throws IOException, InterruptedException
     {
-        String strPortalUrl = AppPathService.getPortalUrl(  );
+        String strPortalUrl = AppPropertiesService.getProperty( PROPERTY_PAGE_BASE_URL );
         Plugin plugin = PluginService.getPlugin( PLUGIN_NAME );
 
         UrlItem urlSubject = new UrlItem( strPortalUrl );
@@ -184,11 +184,12 @@ public class WikiIndexer implements SearchIndexer
         urlSubject.addParameter( PARAMETER_PAGE_NAME, topic.getPageName(  ) );
         urlSubject.addParameter( PARAMETER_ACTION, PARAMETER_ACTION_VIEW );
 
+        String strDocumentType = AppPropertiesService.getProperty( PROPERTY_DOCUMENT_TYPE );
         org.apache.lucene.document.Document docTopic = null;
 
         try
         {
-            docTopic = getDocument( topic, urlSubject.getUrl(  ), plugin );
+            docTopic = getDocument( topic, urlSubject.getUrl(  ), plugin , strDocumentType );
         }
         catch ( Exception e )
         {
@@ -211,7 +212,7 @@ public class WikiIndexer implements SearchIndexer
      * @throws IOException if an IO error occurs
      * @throws InterruptedException if a Thread error occurs
      */
-    public static org.apache.lucene.document.Document getDocument( Topic topic, String strUrl, Plugin plugin )
+    public static org.apache.lucene.document.Document getDocument( Topic topic, String strUrl, Plugin plugin, String strDocumentType )
         throws IOException, InterruptedException
     {
         // make a new, empty document
@@ -248,7 +249,7 @@ public class WikiIndexer implements SearchIndexer
         // separately.
         doc.add( new Field( SearchItem.FIELD_TITLE, topic.getPageName(  ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 
-        doc.add( new Field( SearchItem.FIELD_TYPE, PLUGIN_NAME, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+        doc.add( new Field( SearchItem.FIELD_TYPE, strDocumentType, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
         
         doc.add( new Field( SearchItem.FIELD_ROLE , Page.ROLE_NONE , Field.Store.YES, Field.Index.NOT_ANALYZED ));
 
