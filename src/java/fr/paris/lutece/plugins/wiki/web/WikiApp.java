@@ -535,7 +535,7 @@ public class WikiApp implements XPageApplication
      * @param request The HTTP request
      * @param strPageName The page name
      * @return The topic
-     * @throws SiteMessageException
+     * @throws SiteMessageException If an error occurs
      */
     private Topic getTopic( HttpServletRequest request, String strPageName )
         throws SiteMessageException

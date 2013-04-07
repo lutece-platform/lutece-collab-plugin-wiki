@@ -47,9 +47,14 @@ import java.util.List;
 /**
  * Diff Utils
  */
-public class DiffUtils
+public final class DiffUtils
 {
     private static final int DIFF_UNCHANGED_LINE_DISPLAY = 2;
+
+    /** Private constructor */
+    private DiffUtils(  )
+    {
+    }
 
     /**
      * Get the list of diff between 2 versions
@@ -316,7 +321,7 @@ public class DiffUtils
     /**
      * Converts String to array
      * @param strOriginal The source
-     * @return
+     * @return The array
      */
     private static String[] stringToArray( String strOriginal )
     {
@@ -338,23 +343,23 @@ public class DiffUtils
     /**
      * Pre Buffer Difference
      * @param currentDiff The current Diff
-     * @param nextDiff Next diff
+     * @param previousDiff  previous diff
      * @param oldArray The old array
      * @param newArray The new array
      * @param nBufferAmount Buffer amount
      * @return The diff list
       */
     private static List<WikiDiff> preBufferDifference( Difference currentDiff, Difference previousDiff,
-        String[] oldArray, String[] newArray, int bufferAmount )
+        String[] oldArray, String[] newArray, int nBufferAmount )
     {
         List<WikiDiff> wikiDiffs = new ArrayList<WikiDiff>(  );
 
-        if ( bufferAmount == 0 )
+        if ( nBufferAmount == 0 )
         {
             return wikiDiffs;
         }
 
-        if ( ( bufferAmount == -1 ) && ( previousDiff != null ) )
+        if ( ( nBufferAmount == -1 ) && ( previousDiff != null ) )
         {
             // when buffering everything, only pre-buffer for the first element as the post-buffer code
             // will handle everything else.
@@ -362,14 +367,14 @@ public class DiffUtils
         }
 
         // deletedCurrent is the current position in oldArray to start buffering from
-        int deletedCurrent = ( ( bufferAmount == -1 ) || ( bufferAmount > currentDiff.getDeletedStart(  ) ) ) ? 0
-                                                                                                              : ( currentDiff.getDeletedStart(  ) -
-            bufferAmount );
+        int deletedCurrent = ( ( nBufferAmount == -1 ) || ( nBufferAmount > currentDiff.getDeletedStart(  ) ) ) ? 0
+                                                                                                                : ( currentDiff.getDeletedStart(  ) -
+            nBufferAmount );
 
         // addedCurrent is the current position in newArray to start buffering from
-        int addedCurrent = ( ( bufferAmount == -1 ) || ( bufferAmount > currentDiff.getAddedStart(  ) ) ) ? 0
-                                                                                                          : ( currentDiff.getAddedStart(  ) -
-            bufferAmount );
+        int addedCurrent = ( ( nBufferAmount == -1 ) || ( nBufferAmount > currentDiff.getAddedStart(  ) ) ) ? 0
+                                                                                                            : ( currentDiff.getAddedStart(  ) -
+            nBufferAmount );
 
         if ( previousDiff != null )
         {
@@ -391,14 +396,14 @@ public class DiffUtils
             strNewText = null;
 
             // if diffs are close together, do not allow buffers to overlap
-            if ( canPreBuffer( previousDiff, deletedCurrent, currentDiff.getDeletedStart(  ), oldArray, bufferAmount,
+            if ( canPreBuffer( previousDiff, deletedCurrent, currentDiff.getDeletedStart(  ), oldArray, nBufferAmount,
                         false ) )
             {
                 strOldText = oldArray[deletedCurrent];
                 deletedCurrent++;
             }
 
-            if ( canPreBuffer( previousDiff, addedCurrent, currentDiff.getAddedStart(  ), newArray, bufferAmount, true ) )
+            if ( canPreBuffer( previousDiff, addedCurrent, currentDiff.getAddedStart(  ), newArray, nBufferAmount, true ) )
             {
                 strNewText = newArray[addedCurrent];
                 addedCurrent++;
@@ -453,17 +458,10 @@ public class DiffUtils
      */
     private static boolean hasMoreDiffInfo( int addedCurrent, int deletedCurrent, Difference currentDiff )
     {
-        if ( addedCurrent == -1 )
-        {
-            addedCurrent = 0;
-        }
+        int nAdded = ( addedCurrent == -1 ) ? 0 : addedCurrent;
+        int nDeleted = ( deletedCurrent == -1 ) ? 0 : deletedCurrent;
 
-        if ( deletedCurrent == -1 )
-        {
-            deletedCurrent = 0;
-        }
-
-        return ( ( addedCurrent <= currentDiff.getAddedEnd(  ) ) || ( deletedCurrent <= currentDiff.getDeletedEnd(  ) ) );
+        return ( ( nAdded <= currentDiff.getAddedEnd(  ) ) || ( nDeleted <= currentDiff.getDeletedEnd(  ) ) );
     }
 
     /**
