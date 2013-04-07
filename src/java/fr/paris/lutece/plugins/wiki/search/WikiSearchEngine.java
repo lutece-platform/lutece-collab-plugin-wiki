@@ -43,7 +43,6 @@ import fr.paris.lutece.portal.service.util.AppLogService;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -57,7 +56,6 @@ import org.apache.lucene.search.TopDocs;
 import java.text.ParseException;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -74,10 +72,11 @@ public class WikiSearchEngine implements SearchEngine
     * @param request The HTTP request
     * @return Results as a collection of SearchResult
     */
+    @Override
     public List<SearchResult> getSearchResults( String strQuery, HttpServletRequest request )
     {
         ArrayList<SearchItem> listResults = new ArrayList<SearchItem>(  );
-        Searcher searcher = null;
+        Searcher searcher;
 
         try
         {
@@ -94,7 +93,7 @@ public class WikiSearchEngine implements SearchEngine
             }
 
             // Type
-            Query queryType = new TermQuery( new Term( SearchItem.FIELD_TYPE, WikiIndexer.PROPERTY_INDEX_TYPE_PAGE ) );
+            Query queryType = new TermQuery( new Term( SearchItem.FIELD_TYPE, WikiIndexer.getDocumentType() ) );
             query.add( queryType, BooleanClause.Occur.MUST );
 
             // Get results documents

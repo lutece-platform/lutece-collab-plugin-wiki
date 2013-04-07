@@ -44,6 +44,7 @@ import fr.paris.lutece.plugins.wiki.utils.auth.WikiAnonymousUser;
 import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.business.role.RoleHome;
 import fr.paris.lutece.portal.service.content.XPageAppService;
+import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.SiteMessage;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.message.SiteMessageService;
@@ -63,6 +64,7 @@ import fr.paris.lutece.portal.web.xpages.XPageApplication;
 import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.html.Paginator;
 import fr.paris.lutece.util.url.UrlItem;
+import fr.paris.lutece.util.xml.XmlUtil;
 import java.util.ArrayList;
 
 import java.util.Collection;
@@ -90,6 +92,12 @@ public class WikiApp implements XPageApplication
     private static final String PROPERTY_PAGE_PATH = "wiki.pagePathLabel";
     private static final String PROPERTY_PAGE_TITLE = "wiki.pageTitle";
     private static final String PROPERTY_DEFAULT_RESULT_PER_PAGE = "wiki.search_wiki.itemsPerPage";
+    private static final String PROPERTY_PATH_LIST = "wiki.path.list";
+    private static final String PROPERTY_TITLE_LIST = "wiki.title.list";
+    private static final String PROPERTY_PATH_SEARCH = "wiki.path.search";
+    private static final String PROPERTY_TITLE_SEARCH = "wiki.title.search";
+    private static final String PROPERTY_PATH_CREATE = "wiki.path.labelCreate";
+    private static final String PROPERTY_PATH_MODIFY = "wiki.path.labelModify";
     private static final String MARK_TOPIC = "topic";
     private static final String MARK_LIST_TOPIC = "list_topic";
     private static final String MARK_LATEST_VERSION = "lastVersion";
@@ -107,6 +115,11 @@ public class WikiApp implements XPageApplication
     private static final int ACTION_CREATE = 4;
     private static final int ACTION_MODIFY = 5;
     private static final int ACTION_SEARCH = 6;
+    private static final String TAG_PAGE_LINK = "page_link";
+    private static final String TAG_PAGE_NAME = "page-name";
+    private static final String TAG_PAGE_URL = "page-url";
+    
+
     // private fields
     private Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
     private boolean _bInit;
@@ -132,8 +145,6 @@ public class WikiApp implements XPageApplication
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
 
         XPage page = new XPage();
-        page.setTitle( AppPropertiesService.getProperty( PROPERTY_PAGE_TITLE ) );
-        page.setPathLabel( AppPropertiesService.getProperty( PROPERTY_PAGE_PATH ) );
 
         switch (getAction( request ))
         {
@@ -179,6 +190,19 @@ public class WikiApp implements XPageApplication
     }
 
     /**
+     * Gets the Home page
+     * @param page The xpage
+     * @param request The HTTP request
+     */
+    private void home( XPage page, HttpServletRequest request )
+    {
+        page.setContent( displayAll( request ) );
+//        page.setPathLabel( getPathLabel( I18nService.getLocalizedString( PROPERTY_PATH_LIST, request.getLocale() ) ) );
+        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_LIST, request.getLocale() ) ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath(I18nService.getLocalizedString( PROPERTY_PATH_LIST, request.getLocale() )) );
+    }
+
+    /**
      * Search page 
      * @param page The xpage
      * @param request The request
@@ -211,19 +235,11 @@ public class WikiApp implements XPageApplication
 
         HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_SEARCH_WIKI, Locale.getDefault(), model );
         page.setContent( template.getHtml() );
+        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_SEARCH, request.getLocale() ) ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath(I18nService.getLocalizedString( PROPERTY_PATH_SEARCH, request.getLocale() )) );
     }
 
    
-    /**
-     * Gets the Home page
-     * @param page The xpage
-     * @param request The HTTP request
-     */
-    private void home( XPage page, HttpServletRequest request )
-    {
-        page.setContent( displayAll( request ) );
-    }
-
     /**
      * Display all pages
      * @param request The HTTP request
@@ -252,8 +268,8 @@ public class WikiApp implements XPageApplication
     {
         Topic topic = getTopic( request, strPageName );
         page.setContent( viewPageContent( topic ) );
-        page.setPathLabel( getPathLabel( strPageName ) );
         page.setTitle( getPageTitle( strPageName ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
     }
 
     /**
@@ -288,8 +304,8 @@ public class WikiApp implements XPageApplication
     {
         Topic topic = getTopic( request, strPageName );
         page.setContent( viewPageHistory( topic ) );
-        page.setPathLabel( getPathLabel( strPageName ) );
         page.setTitle( getPageTitle( strPageName ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
     }
 
     /**
@@ -329,8 +345,8 @@ public class WikiApp implements XPageApplication
 
 
         page.setContent( viewTopicDiff( topic, nNewTopicVersion, nOldTopicVersion ) );
-        page.setPathLabel( getPathLabel( strPageName ) );
         page.setTitle( getPageTitle( strPageName ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
     }
 
     /**
@@ -381,6 +397,8 @@ public class WikiApp implements XPageApplication
         }
 
         page.setContent( createPageContent( strPageName ) );
+        String strPath = strPageName + I18nService.getLocalizedString( PROPERTY_PATH_CREATE ,request.getLocale() );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
     }
 
     /**
@@ -415,8 +433,9 @@ public class WikiApp implements XPageApplication
     {
         Topic topic = getTopic( request, strPageName );
         page.setContent( modifyPageContent( topic ) );
-        page.setPathLabel( getPathLabel( strPageName ) );
         page.setTitle( getPageTitle( strPageName ) );
+        String strPath = strPageName + I18nService.getLocalizedString( PROPERTY_PATH_MODIFY ,request.getLocale() );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
     }
 
     /**
@@ -584,22 +603,6 @@ public class WikiApp implements XPageApplication
     }
 
     /**
-     * Build the page path
-     *
-     * @param strPageName The page name
-     * @return The path
-     */
-    private String getPathLabel( String strPageName )
-    {
-        StringBuilder sbPath = new StringBuilder();
-        sbPath.append( AppPropertiesService.getProperty( PROPERTY_PAGE_PATH ) );
-        sbPath.append( " " );
-        sbPath.append( strPageName );
-
-        return sbPath.toString();
-    }
-
-    /**
      * Build the page title
      *
      * @param strPageName The page name
@@ -613,5 +616,19 @@ public class WikiApp implements XPageApplication
         sbPath.append( strPageName );
 
         return sbPath.toString();
+    }
+    
+    private String getXmlExtendedPath( String strPageName )
+    {
+        StringBuffer sbXml = new StringBuffer();
+        XmlUtil.beginElement( sbXml , TAG_PAGE_LINK );
+        XmlUtil.addElement(sbXml, TAG_PAGE_NAME, AppPropertiesService.getProperty( PROPERTY_PAGE_PATH ) );
+        XmlUtil.addElement(sbXml, TAG_PAGE_URL, "page=wiki" );
+        XmlUtil.endElement(sbXml, TAG_PAGE_LINK );
+        XmlUtil.beginElement( sbXml , TAG_PAGE_LINK );
+        XmlUtil.addElement(sbXml, TAG_PAGE_NAME, strPageName );
+        XmlUtil.addElement(sbXml, TAG_PAGE_URL, "" );
+        XmlUtil.endElement(sbXml, TAG_PAGE_LINK );
+        return sbXml.toString();
     }
 }

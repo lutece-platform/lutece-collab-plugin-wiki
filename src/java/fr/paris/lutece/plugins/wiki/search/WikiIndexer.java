@@ -38,7 +38,6 @@ import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.business.TopicVersionHome;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceWikiParser;
-import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.service.content.XPageAppService;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
@@ -56,6 +55,7 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.lucene.document.DateTools;
 
 
 /**
@@ -64,10 +64,8 @@ import java.util.List;
  */
 public class WikiIndexer implements SearchIndexer
 {
-    public static final String PROPERTY_INDEX_TYPE_PAGE = "wiki";
-    public static final String PROPERTY_INDEXER_NAME = "wiki.indexer.name";
-    public static final String SHORT_NAME_TOPIC = "wis";
-    public static final String SHORT_NAME_TOPIC_CONTENT = "wic";
+    private static final String PROPERTY_INDEXER_NAME = "wiki.indexer.name";
+    private static final String SHORT_NAME_TOPIC = "wis";
     private static final String PARAMETER_PAGE_NAME = "page_name";
     private static final String PARAMETER_ACTION_VIEW = "view";
     private static final String PLUGIN_NAME = "wiki";
@@ -101,7 +99,6 @@ public class WikiIndexer implements SearchIndexer
         Plugin plugin = PluginService.getPlugin( PLUGIN_NAME );
 
         Topic topic = TopicHome.findByPrimaryKey( Integer.parseInt( strDocument ), plugin );
-        String strDocumentType = AppPropertiesService.getProperty( PROPERTY_DOCUMENT_TYPE );
 
         if ( topic != null )
         {
@@ -110,7 +107,7 @@ public class WikiIndexer implements SearchIndexer
             urlSubject.addParameter( PARAMETER_PAGE_NAME, topic.getPageName(  ) );
             urlSubject.addParameter( PARAMETER_ACTION, PARAMETER_ACTION_VIEW );
 
-            org.apache.lucene.document.Document docSubject = getDocument( topic, urlSubject.getUrl(  ), plugin, strDocumentType );
+            org.apache.lucene.document.Document docSubject = getDocument( topic, urlSubject.getUrl(  ), plugin );
             listDocs.add( docSubject );
         }
 
@@ -184,12 +181,11 @@ public class WikiIndexer implements SearchIndexer
         urlSubject.addParameter( PARAMETER_PAGE_NAME, topic.getPageName(  ) );
         urlSubject.addParameter( PARAMETER_ACTION, PARAMETER_ACTION_VIEW );
 
-        String strDocumentType = AppPropertiesService.getProperty( PROPERTY_DOCUMENT_TYPE );
         org.apache.lucene.document.Document docTopic = null;
 
         try
         {
-            docTopic = getDocument( topic, urlSubject.getUrl(  ), plugin , strDocumentType );
+            docTopic = getDocument( topic, urlSubject.getUrl(  ), plugin );
         }
         catch ( Exception e )
         {
@@ -212,7 +208,7 @@ public class WikiIndexer implements SearchIndexer
      * @throws IOException if an IO error occurs
      * @throws InterruptedException if a Thread error occurs
      */
-    public static org.apache.lucene.document.Document getDocument( Topic topic, String strUrl, Plugin plugin, String strDocumentType )
+    public static org.apache.lucene.document.Document getDocument( Topic topic, String strUrl, Plugin plugin )
         throws IOException, InterruptedException
     {
         // make a new, empty document
@@ -241,19 +237,21 @@ public class WikiIndexer implements SearchIndexer
             strWikiContent = latestTopicVersion.getWikiContent(  );
         }
 
-        String strWikiResult = new LuteceWikiParser( strWikiContent ).toString(  );
+        String strWikiResult = new LuteceWikiParser( strWikiContent ).toString(  ) + " " + topic.getPageName();
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, Field.Store.YES, Field.Index.ANALYZED ) );
+
+        String strDate = DateTools.dateToString( latestTopicVersion.getDateEdition(), DateTools.Resolution.DAY );
+        doc.add( new Field( SearchItem.FIELD_DATE, strDate, Field.Store.YES, Field.Index.NOT_ANALYZED ) );// return the document
 
         // Add the subject name as a separate Text field, so that it can be
         // searched
         // separately.
         doc.add( new Field( SearchItem.FIELD_TITLE, topic.getPageName(  ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 
-        doc.add( new Field( SearchItem.FIELD_TYPE, strDocumentType, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+        doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType(), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
         
         doc.add( new Field( SearchItem.FIELD_ROLE , topic.getRole() , Field.Store.YES, Field.Index.NOT_ANALYZED ));
 
-        // return the document
         return doc;
     }
 
@@ -264,7 +262,7 @@ public class WikiIndexer implements SearchIndexer
     public List<String> getListType(  )
     {
         List<String> listType = new ArrayList<String>(  );
-        listType.add( PROPERTY_INDEX_TYPE_PAGE );
+        listType.add( getDocumentType() );
 
         return listType;
     }
@@ -277,4 +275,15 @@ public class WikiIndexer implements SearchIndexer
     {
         return JSP_SEARCH_WIKI;
     }
+    
+    /**
+     * Get Lucene index document type
+     * @return The document type
+     */
+    public static String getDocumentType()
+    {
+        return AppPropertiesService.getProperty( PROPERTY_DOCUMENT_TYPE );
+    }
+    
+    
 }
