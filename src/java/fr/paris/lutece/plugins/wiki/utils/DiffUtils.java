@@ -53,8 +53,9 @@ public class DiffUtils
 
     /**
      * Get the list of diff between 2 versions
-     * @param strNewVersion
-     * @param strOldVersion
+     *
+     * @param strNewVersion The new version
+     * @param strOldVersion The old version
      * @return The list
      */
     public static List<WikiDiff> diff( String strNewVersion, String strOldVersion )
@@ -77,8 +78,9 @@ public class DiffUtils
 
     /**
      * process
-     * @param strNewVersion
-     * @param strOldVersion
+     *
+     * @param strNewVersion The new version
+     * @param strOldVersion The old version
      * @return The list of diff
      */
     private static List<WikiDiff> process( String strNewVersion, String strOldVersion )
@@ -98,7 +100,8 @@ public class DiffUtils
 
     /**
      * Split a string into lines
-     * @param strOriginal
+     *
+     * @param strOriginal The source
      * @return An array of lines
      */
     private static String[] split( String strOriginal )
@@ -112,11 +115,12 @@ public class DiffUtils
     }
 
     /**
+     * Generate Wiki diffs
      *
-     * @param diffs
-     * @param oldArray
-     * @param newArray
-     * @return
+     * @param diffs The diffs list
+     * @param oldArray The old array
+     * @param newArray the new array
+     * @return The list of diff
      */
     private static List<WikiDiff> generateWikiDiffs( List<Difference> diffs, String[] oldArray, String[] newArray )
     {
@@ -183,11 +187,12 @@ public class DiffUtils
     }
 
     /**
+     * Process diff
      *
-     * @param currentDiff
-     * @param oldArray
-     * @param newArray
-     * @return
+     * @param currentDiff The current diff
+     * @param oldArray The old array
+     * @param newArray The new array
+     * @return The list of diffs
      */
     private static List<WikiDiff> processDifference( Difference currentDiff, String[] oldArray, String[] newArray )
     {
@@ -241,6 +246,16 @@ public class DiffUtils
         return wikiDiffs;
     }
 
+    /**
+     * Post Buffer difference
+     *
+     * @param currentDiff The current Diff
+     * @param nextDiff Next diff
+     * @param oldArray The old array
+     * @param newArray The new array
+     * @param nBufferAmount Buffer amount
+     * @return The diff list
+     */
     private static List<WikiDiff> postBufferDifference( Difference currentDiff, Difference nextDiff, String[] oldArray,
         String[] newArray, int nBufferAmount )
     {
@@ -298,6 +313,11 @@ public class DiffUtils
         return wikiDiffs;
     }
 
+    /**
+     * Converts String to array
+     * @param strOriginal The source
+     * @return
+     */
     private static String[] stringToArray( String strOriginal )
     {
         if ( strOriginal == null )
@@ -315,6 +335,15 @@ public class DiffUtils
         return result;
     }
 
+    /**
+     * Pre Buffer Difference
+     * @param currentDiff The current Diff
+     * @param nextDiff Next diff
+     * @param oldArray The old array
+     * @param newArray The new array
+     * @param nBufferAmount Buffer amount
+     * @return The diff list
+      */
     private static List<WikiDiff> preBufferDifference( Difference currentDiff, Difference previousDiff,
         String[] oldArray, String[] newArray, int bufferAmount )
     {
@@ -386,6 +415,14 @@ public class DiffUtils
         return wikiDiffs;
     }
 
+    /**
+     *
+     * @param nextDiff next diff
+     * @param current current
+     * @param replacementArray replacement array
+     * @param adding adding
+     * @return true if post buffer possible
+     */
     private static boolean canPostBuffer( Difference nextDiff, int current, String[] replacementArray, boolean adding )
     {
         if ( ( current < 0 ) || ( current >= replacementArray.length ) )
@@ -407,6 +444,13 @@ public class DiffUtils
         return ( nextStart > current );
     }
 
+    /**
+     *
+     * @param addedCurrent added current
+     * @param deletedCurrent deleted current
+     * @param currentDiff current diff
+     * @return true if has more diff info
+     */
     private static boolean hasMoreDiffInfo( int addedCurrent, int deletedCurrent, Difference currentDiff )
     {
         if ( addedCurrent == -1 )
@@ -423,7 +467,16 @@ public class DiffUtils
     }
 
     /**
-     * Utility method for determining whether or not to prepend lines of context around a diff.
+     * Utility method for determining whether or not to prepend lines of context
+     * around a diff.
+     *
+     * @param previousDiff Previous diff
+     * @param current current
+     * @param currentStart current start
+     * @param replacementArray replacement array
+     * @param bufferAmount buffer amount
+     * @param adding adding
+     * @return true if pre buffer possible
      */
     private static boolean canPreBuffer( Difference previousDiff, int current, int currentStart,
         String[] replacementArray, int bufferAmount, boolean adding )

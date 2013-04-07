@@ -65,8 +65,8 @@ import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.html.Paginator;
 import fr.paris.lutece.util.url.UrlItem;
 import fr.paris.lutece.util.xml.XmlUtil;
-import java.util.ArrayList;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -75,12 +75,12 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+
 /**
  * This class provides a simple implementation of an XPage
  */
 public class WikiApp implements XPageApplication
 {
-
     private static final String TEMPLATE_MODIFY_WIKI = "skin/plugins/wiki/modify_page.html";
     private static final String TEMPLATE_CREATE_WIKI = "skin/plugins/wiki/create_page.html";
     private static final String TEMPLATE_VIEW_WIKI = "skin/plugins/wiki/view_page.html";
@@ -118,7 +118,6 @@ public class WikiApp implements XPageApplication
     private static final String TAG_PAGE_LINK = "page_link";
     private static final String TAG_PAGE_NAME = "page-name";
     private static final String TAG_PAGE_URL = "page-url";
-    
 
     // private fields
     private Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
@@ -133,20 +132,22 @@ public class WikiApp implements XPageApplication
      * @param request The http request
      * @param nMode The current mode
      * @param plugin The plugin object
+     * @return The Xpage
      * @throws fr.paris.lutece.portal.service.message.SiteMessageException
      * Message displayed if an exception occurs
+     * @throws UserNotSignedException if user not connected
      */
     @Override
     public XPage getPage( HttpServletRequest request, int nMode, Plugin plugin )
-            throws SiteMessageException, UserNotSignedException
+        throws SiteMessageException, UserNotSignedException
     {
         init( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
 
-        XPage page = new XPage();
+        XPage page = new XPage(  );
 
-        switch (getAction( request ))
+        switch ( getAction( request ) )
         {
             case ACTION_NONE:
                 home( page, request );
@@ -184,6 +185,11 @@ public class WikiApp implements XPageApplication
                 search( page, request );
 
                 break;
+
+            default:
+                home( page, request );
+
+                break;
         }
 
         return page;
@@ -197,20 +203,21 @@ public class WikiApp implements XPageApplication
     private void home( XPage page, HttpServletRequest request )
     {
         page.setContent( displayAll( request ) );
-//        page.setPathLabel( getPathLabel( I18nService.getLocalizedString( PROPERTY_PATH_LIST, request.getLocale() ) ) );
-        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_LIST, request.getLocale() ) ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath(I18nService.getLocalizedString( PROPERTY_PATH_LIST, request.getLocale() )) );
+        //        page.setPathLabel( getPathLabel( I18nService.getLocalizedString( PROPERTY_PATH_LIST, request.getLocale() ) ) );
+        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_LIST, request.getLocale(  ) ) ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_LIST,
+                    request.getLocale(  ) ) ) );
     }
 
     /**
-     * Search page 
+     * Search page
      * @param page The xpage
      * @param request The request
      */
     private void search( XPage page, HttpServletRequest request )
     {
         String strQuery = request.getParameter( Constants.PARAMETER_QUERY );
-        String strPortalUrl = AppPathService.getPortalUrl();
+        String strPortalUrl = AppPathService.getPortalUrl(  );
 
         UrlItem urlWikiXpage = new UrlItem( strPortalUrl );
         urlWikiXpage.addParameter( XPageAppService.PARAM_XPAGE_APP, Constants.PLUGIN_NAME );
@@ -224,22 +231,22 @@ public class WikiApp implements XPageApplication
         SearchEngine engine = (SearchEngine) SpringContextService.getBean( BEAN_SEARCH_ENGINE );
         List<SearchResult> listResults = engine.getSearchResults( strQuery, request );
 
-        Paginator paginator = new Paginator( listResults, _nItemsPerPage, urlWikiXpage.getUrl(),
+        Paginator paginator = new Paginator( listResults, _nItemsPerPage, urlWikiXpage.getUrl(  ),
                 Constants.PARAMETER_PAGE_INDEX, _strCurrentPageIndex );
 
-        HashMap<String, Object> model = new HashMap<String, Object>();
-        model.put( MARK_RESULT, paginator.getPageItems() );
+        HashMap<String, Object> model = new HashMap<String, Object>(  );
+        model.put( MARK_RESULT, paginator.getPageItems(  ) );
         model.put( MARK_QUERY, strQuery );
         model.put( MARK_PAGINATOR, paginator );
         model.put( MARK_NB_ITEMS_PER_PAGE, "" + _nItemsPerPage );
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_SEARCH_WIKI, Locale.getDefault(), model );
-        page.setContent( template.getHtml() );
-        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_SEARCH, request.getLocale() ) ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath(I18nService.getLocalizedString( PROPERTY_PATH_SEARCH, request.getLocale() )) );
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_SEARCH_WIKI, Locale.getDefault(  ), model );
+        page.setContent( template.getHtml(  ) );
+        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_SEARCH, request.getLocale(  ) ) ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_SEARCH,
+                    request.getLocale(  ) ) ) );
     }
 
-   
     /**
      * Display all pages
      * @param request The HTTP request
@@ -249,11 +256,12 @@ public class WikiApp implements XPageApplication
     {
         List<Topic> listTopic = getTopicsForUser( request );
 
-        Map<String, Object> model = new HashMap<String, Object>();
+        Map<String, Object> model = new HashMap<String, Object>(  );
         model.put( MARK_LIST_TOPIC, listTopic );
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_LIST_WIKI, Locale.getDefault(), model );
 
-        return template.getHtml();
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_LIST_WIKI, Locale.getDefault(  ), model );
+
+        return template.getHtml(  );
     }
 
     /**
@@ -264,7 +272,7 @@ public class WikiApp implements XPageApplication
      * @throws SiteMessageException if an error occurs
      */
     private void view( XPage page, HttpServletRequest request, String strPageName )
-            throws SiteMessageException
+        throws SiteMessageException
     {
         Topic topic = getTopic( request, strPageName );
         page.setContent( viewPageContent( topic ) );
@@ -275,21 +283,21 @@ public class WikiApp implements XPageApplication
     /**
      * View page content
      *
-     * @param Topic The topic
-     * @return
+     * @param topic The topic
+     * @return The page content
      */
     private String viewPageContent( Topic topic )
     {
-        String strContent = TopicVersionHome.findLastVersion( topic.getIdTopic(), _plugin ).getWikiContent();
+        String strContent = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin ).getWikiContent(  );
 
-        String strWikiResult = new LuteceWikiParser( strContent ).toString();
-        Map<String, Object> model = new HashMap<String, Object>();
+        String strWikiResult = new LuteceWikiParser( strContent ).toString(  );
+        Map<String, Object> model = new HashMap<String, Object>(  );
         model.put( MARK_RESULT, strWikiResult );
         model.put( MARK_TOPIC, topic );
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_WIKI, Locale.getDefault(), model );
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_WIKI, Locale.getDefault(  ), model );
 
-        return template.getHtml();
+        return template.getHtml(  );
     }
 
     /**
@@ -300,7 +308,7 @@ public class WikiApp implements XPageApplication
      * @throws SiteMessageException if an error occurs
      */
     private void viewHistory( XPage page, HttpServletRequest request, String strPageName )
-            throws SiteMessageException
+        throws SiteMessageException
     {
         Topic topic = getTopic( request, strPageName );
         page.setContent( viewPageHistory( topic ) );
@@ -311,20 +319,20 @@ public class WikiApp implements XPageApplication
     /**
      * View page history
      *
-     * @param Topic The topic
-     * @return The page
+     * @param topic The topic
+     * @return The page content
      */
     public String viewPageHistory( Topic topic )
     {
-        Map<String, Object> model = new HashMap<String, Object>();
-        Collection<TopicVersion> listTopicVersions = TopicVersionHome.findAllVersions( topic.getIdTopic(), _plugin );
+        Map<String, Object> model = new HashMap<String, Object>(  );
+        Collection<TopicVersion> listTopicVersions = TopicVersionHome.findAllVersions( topic.getIdTopic(  ), _plugin );
 
         model.put( MARK_LIST_TOPIC_VERSION, listTopicVersions );
         model.put( MARK_TOPIC, topic );
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_HISTORY_WIKI, Locale.getDefault(), model );
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_HISTORY_WIKI, Locale.getDefault(  ), model );
 
-        return template.getHtml();
+        return template.getHtml(  );
     }
 
     /**
@@ -335,14 +343,13 @@ public class WikiApp implements XPageApplication
      * @throws SiteMessageException if an error occurs
      */
     private void viewDiff( XPage page, HttpServletRequest request, String strPageName )
-            throws SiteMessageException
+        throws SiteMessageException
     {
         Topic topic = getTopic( request, strPageName );
         String strNewVersion = request.getParameter( Constants.PARAMETER_NEW_VERSION );
         String strOldVersion = request.getParameter( Constants.PARAMETER_OLD_VERSION );
         int nNewTopicVersion = Integer.parseInt( strNewVersion );
         int nOldTopicVersion = Integer.parseInt( strOldVersion );
-
 
         page.setContent( viewTopicDiff( topic, nNewTopicVersion, nOldTopicVersion ) );
         page.setTitle( getPageTitle( strPageName ) );
@@ -352,30 +359,28 @@ public class WikiApp implements XPageApplication
     /**
      * View Diff
      *
-     * @param Topic The topic
+     * @param topic The topic
      * @param nNewTopicVersion The new version
      * @param nOldTopicVersion The old version
      * @return The page
      */
     private String viewTopicDiff( Topic topic, int nNewTopicVersion, int nOldTopicVersion )
     {
-        if (nOldTopicVersion == 0)
-        {
-            nOldTopicVersion = nNewTopicVersion;
-        }
-
+        int nPrevTopicVersion = ( nOldTopicVersion == 0 ) ? nNewTopicVersion : nOldTopicVersion;
         TopicVersion newTopicVersion = TopicVersionHome.findByPrimaryKey( nNewTopicVersion, _plugin );
-        TopicVersion oldTopicVersion = TopicVersionHome.findByPrimaryKey( nOldTopicVersion, _plugin );
+        TopicVersion oldTopicVersion = TopicVersionHome.findByPrimaryKey( nPrevTopicVersion, _plugin );
 
-        List<WikiDiff> listDiffs = DiffUtils.diff( newTopicVersion.getWikiContent(), oldTopicVersion.getWikiContent() );
+        List<WikiDiff> listDiffs = DiffUtils.diff( newTopicVersion.getWikiContent(  ),
+                oldTopicVersion.getWikiContent(  ) );
 
-        Map<String, Object> model = new HashMap<String, Object>();
+        Map<String, Object> model = new HashMap<String, Object>(  );
         model.put( MARK_LIST_DIFFS, listDiffs );
         model.put( MARK_TOPIC, topic );
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_DIFF_TOPIC_WIKI, Locale.getDefault(), model );
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_DIFF_TOPIC_WIKI, Locale.getDefault(  ),
+                model );
 
-        return template.getHtml();
+        return template.getHtml(  );
     }
 
     /**
@@ -387,17 +392,18 @@ public class WikiApp implements XPageApplication
      * @throws SiteMessageException if an error occurs
      */
     private void create( XPage page, HttpServletRequest request, String strPageName )
-            throws SiteMessageException
+        throws SiteMessageException
     {
         Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
 
-        if (topic != null)
+        if ( topic != null )
         {
             SiteMessageService.setMessage( request, Constants.MESSAGE_PAGE_ALREADY_EXISTS, SiteMessage.TYPE_STOP );
         }
 
         page.setContent( createPageContent( strPageName ) );
-        String strPath = strPageName + I18nService.getLocalizedString( PROPERTY_PATH_CREATE ,request.getLocale() );
+
+        String strPath = strPageName + I18nService.getLocalizedString( PROPERTY_PATH_CREATE, request.getLocale(  ) );
         page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
     }
 
@@ -409,15 +415,15 @@ public class WikiApp implements XPageApplication
      */
     public String createPageContent( String strPageName )
     {
-        Map<String, Object> model = new HashMap<String, Object>();
-        Topic topic = new Topic();
+        Map<String, Object> model = new HashMap<String, Object>(  );
+        Topic topic = new Topic(  );
         topic.setPageName( strPageName );
         model.put( MARK_TOPIC, topic );
-        model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList() );
+        model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList(  ) );
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_CREATE_WIKI, Locale.getDefault(), model );
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_CREATE_WIKI, Locale.getDefault(  ), model );
 
-        return template.getHtml();
+        return template.getHtml(  );
     }
 
     /**
@@ -429,36 +435,37 @@ public class WikiApp implements XPageApplication
      * @throws SiteMessageException if an exception occurs
      */
     private void modify( XPage page, HttpServletRequest request, String strPageName )
-            throws SiteMessageException
+        throws SiteMessageException
     {
         Topic topic = getTopic( request, strPageName );
         page.setContent( modifyPageContent( topic ) );
         page.setTitle( getPageTitle( strPageName ) );
-        String strPath = strPageName + I18nService.getLocalizedString( PROPERTY_PATH_MODIFY ,request.getLocale() );
+
+        String strPath = strPageName + I18nService.getLocalizedString( PROPERTY_PATH_MODIFY, request.getLocale(  ) );
         page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
     }
 
     /**
      * Modify page content
      *
-     * @param Topic The topic
+     * @param topic The topic
      * @return The page
      */
     public String modifyPageContent( Topic topic )
     {
-        TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic(), _plugin );
-        Map<String, Object> model = new HashMap<String, Object>();
+        TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
+        Map<String, Object> model = new HashMap<String, Object>(  );
         model.put( MARK_TOPIC, topic );
         model.put( MARK_LATEST_VERSION, topicVersion );
-        model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList() );
+        model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList(  ) );
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_MODIFY_WIKI, Locale.getDefault(), model );
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_MODIFY_WIKI, Locale.getDefault(  ), model );
 
-        return template.getHtml();
+        return template.getHtml(  );
     }
 
     /////////////////////  Utils ////////////////////////////
-    
+
     /**
      * Check the connected user
      * @param request The HTTP request
@@ -466,17 +473,17 @@ public class WikiApp implements XPageApplication
      * @throws UserNotSignedException if user not connected
      */
     private LuteceUser checkUser( HttpServletRequest request )
-            throws UserNotSignedException
+        throws UserNotSignedException
     {
         LuteceUser user;
 
-        if (SecurityService.isAuthenticationEnable())
+        if ( SecurityService.isAuthenticationEnable(  ) )
         {
-            user = SecurityService.getInstance().getRemoteUser( request );
+            user = SecurityService.getInstance(  ).getRemoteUser( request );
         }
         else
         {
-            user = new WikiAnonymousUser();
+            user = new WikiAnonymousUser(  );
         }
 
         return user;
@@ -492,29 +499,29 @@ public class WikiApp implements XPageApplication
         String strAction = request.getParameter( Constants.PARAMETER_ACTION );
         int nAction = ACTION_NONE;
 
-        if (strAction != null)
+        if ( strAction != null )
         {
-            if (strAction.equals( Constants.PARAMETER_ACTION_VIEW ))
+            if ( strAction.equals( Constants.PARAMETER_ACTION_VIEW ) )
             {
                 nAction = ACTION_VIEW;
             }
-            else if (strAction.equals( Constants.PARAMETER_ACTION_VIEW_HISTORY ))
+            else if ( strAction.equals( Constants.PARAMETER_ACTION_VIEW_HISTORY ) )
             {
                 nAction = ACTION_VIEW_HISTORY;
             }
-            else if (strAction.equals( Constants.PARAMETER_ACTION_VIEW_DIFF ))
+            else if ( strAction.equals( Constants.PARAMETER_ACTION_VIEW_DIFF ) )
             {
                 nAction = ACTION_VIEW_DIFF;
             }
-            else if (strAction.equals( Constants.PARAMETER_ACTION_CREATE ))
+            else if ( strAction.equals( Constants.PARAMETER_ACTION_CREATE ) )
             {
                 nAction = ACTION_CREATE;
             }
-            else if (strAction.equals( Constants.PARAMETER_ACTION_MODIFY ))
+            else if ( strAction.equals( Constants.PARAMETER_ACTION_MODIFY ) )
             {
                 nAction = ACTION_MODIFY;
             }
-            else if (strAction.equals( Constants.PARAMETER_ACTION_SEARCH ))
+            else if ( strAction.equals( Constants.PARAMETER_ACTION_SEARCH ) )
             {
                 nAction = ACTION_SEARCH;
             }
@@ -528,20 +535,23 @@ public class WikiApp implements XPageApplication
      * @param request The HTTP request
      * @param strPageName The page name
      * @return The topic
-     * @throws SiteMessageException 
+     * @throws SiteMessageException
      */
-    private Topic getTopic( HttpServletRequest request, String strPageName ) throws SiteMessageException
+    private Topic getTopic( HttpServletRequest request, String strPageName )
+        throws SiteMessageException
     {
         Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
 
-        if (topic == null)
+        if ( topic == null )
         {
             SiteMessageService.setMessage( request, Constants.MESSAGE_PAGE_NOT_EXISTS, SiteMessage.TYPE_STOP );
         }
-        String strRole = topic.getRole();
-        if (SecurityService.isAuthenticationEnable() && (!Page.ROLE_NONE.equals( strRole )))
+
+        String strRole = topic.getRole(  );
+
+        if ( SecurityService.isAuthenticationEnable(  ) && ( !Page.ROLE_NONE.equals( strRole ) ) )
         {
-            if (!SecurityService.getInstance().isUserInRole( request, strRole ))
+            if ( !SecurityService.getInstance(  ).isUserInRole( request, strRole ) )
             {
                 SiteMessageService.setMessage( request, Constants.MESSAGE_USER_NOT_IN_ROLE, SiteMessage.TYPE_STOP );
             }
@@ -559,16 +569,18 @@ public class WikiApp implements XPageApplication
     {
         Collection<Topic> listTopicAll = TopicHome.getTopicsList( _plugin );
         List<Topic> listTopic;
-        if (SecurityService.isAuthenticationEnable())
-        {
-            listTopic = new ArrayList<Topic>();
 
-            for (Topic topic : listTopicAll)
+        if ( SecurityService.isAuthenticationEnable(  ) )
+        {
+            listTopic = new ArrayList<Topic>(  );
+
+            for ( Topic topic : listTopicAll )
             {
-                String strRole = topic.getRole();
-                if (!Page.ROLE_NONE.equals( strRole ))
+                String strRole = topic.getRole(  );
+
+                if ( !Page.ROLE_NONE.equals( strRole ) )
                 {
-                    if (SecurityService.getInstance().isUserInRole( request, strRole ))
+                    if ( SecurityService.getInstance(  ).isUserInRole( request, strRole ) )
                     {
                         listTopic.add( topic );
                     }
@@ -594,9 +606,9 @@ public class WikiApp implements XPageApplication
      */
     private void init( HttpServletRequest request )
     {
-        if (!_bInit)
+        if ( !_bInit )
         {
-            String strWebappUrl = AppPathService.getBaseUrl( request ) + AppPathService.getPortalUrl();
+            String strWebappUrl = AppPathService.getBaseUrl( request ) + AppPathService.getPortalUrl(  );
             LuteceWikiParser.setPortalUrl( strWebappUrl );
             _bInit = true;
         }
@@ -610,25 +622,31 @@ public class WikiApp implements XPageApplication
      */
     private String getPageTitle( String strPageName )
     {
-        StringBuilder sbPath = new StringBuilder();
+        StringBuilder sbPath = new StringBuilder(  );
         sbPath.append( AppPropertiesService.getProperty( PROPERTY_PAGE_TITLE ) );
         sbPath.append( " " );
         sbPath.append( strPageName );
 
-        return sbPath.toString();
+        return sbPath.toString(  );
     }
-    
+
+    /**
+     * Build XML path infos
+     * @param strPageName The page name
+     * @return The XML that content path info
+     */
     private String getXmlExtendedPath( String strPageName )
     {
-        StringBuffer sbXml = new StringBuffer();
-        XmlUtil.beginElement( sbXml , TAG_PAGE_LINK );
-        XmlUtil.addElement(sbXml, TAG_PAGE_NAME, AppPropertiesService.getProperty( PROPERTY_PAGE_PATH ) );
-        XmlUtil.addElement(sbXml, TAG_PAGE_URL, "page=wiki" );
-        XmlUtil.endElement(sbXml, TAG_PAGE_LINK );
-        XmlUtil.beginElement( sbXml , TAG_PAGE_LINK );
-        XmlUtil.addElement(sbXml, TAG_PAGE_NAME, strPageName );
-        XmlUtil.addElement(sbXml, TAG_PAGE_URL, "" );
-        XmlUtil.endElement(sbXml, TAG_PAGE_LINK );
-        return sbXml.toString();
+        StringBuffer sbXml = new StringBuffer(  );
+        XmlUtil.beginElement( sbXml, TAG_PAGE_LINK );
+        XmlUtil.addElement( sbXml, TAG_PAGE_NAME, AppPropertiesService.getProperty( PROPERTY_PAGE_PATH ) );
+        XmlUtil.addElement( sbXml, TAG_PAGE_URL, "page=wiki" );
+        XmlUtil.endElement( sbXml, TAG_PAGE_LINK );
+        XmlUtil.beginElement( sbXml, TAG_PAGE_LINK );
+        XmlUtil.addElement( sbXml, TAG_PAGE_NAME, strPageName );
+        XmlUtil.addElement( sbXml, TAG_PAGE_URL, "" );
+        XmlUtil.endElement( sbXml, TAG_PAGE_LINK );
+
+        return sbXml.toString(  );
     }
 }

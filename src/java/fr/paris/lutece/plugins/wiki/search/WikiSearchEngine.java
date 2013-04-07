@@ -93,7 +93,7 @@ public class WikiSearchEngine implements SearchEngine
             }
 
             // Type
-            Query queryType = new TermQuery( new Term( SearchItem.FIELD_TYPE, WikiIndexer.getDocumentType() ) );
+            Query queryType = new TermQuery( new Term( SearchItem.FIELD_TYPE, WikiIndexer.getDocumentType(  ) ) );
             query.add( queryType, BooleanClause.Occur.MUST );
 
             // Get results documents

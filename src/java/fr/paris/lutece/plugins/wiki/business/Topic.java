@@ -118,5 +118,4 @@ public class Topic
     {
         _strRole = strRole;
     }
-
 }

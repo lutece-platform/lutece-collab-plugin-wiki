@@ -111,7 +111,7 @@ public final class TopicDAO implements ITopicDAO
             topic.setIdTopic( daoUtil.getInt( 1 ) );
             topic.setNamespace( daoUtil.getInt( 2 ) );
             topic.setPageName( daoUtil.getString( 3 ) );
-            topic.setRole( daoUtil.getString( 4 ));
+            topic.setRole( daoUtil.getString( 4 ) );
         }
 
         daoUtil.free(  );
@@ -202,5 +202,4 @@ public final class TopicDAO implements ITopicDAO
 
         return topic;
     }
-
 }

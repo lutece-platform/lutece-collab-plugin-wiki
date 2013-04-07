@@ -39,26 +39,29 @@ import java.util.Collection;
 
 
 /**
-* ITopicVersionDAO Interface
-*/
+ * ITopicVersionDAO Interface
+ */
 public interface ITopicVersionDAO
 {
     /**
      * Insert a new record in the table.
+     *
      * @param topicVersion instance of the TopicVersion object to inssert
      * @param plugin the Plugin
      */
     void insert( TopicVersion topicVersion, Plugin plugin );
 
     /**
-    * Update the record in the table
-    * @param topicVersion the reference of the TopicVersion
-    * @param plugin the Plugin
-    */
+     * Update the record in the table
+     *
+     * @param topicVersion the reference of the TopicVersion
+     * @param plugin the Plugin
+     */
     void store( TopicVersion topicVersion, Plugin plugin );
 
     /**
      * Delete a record from the table
+     *
      * @param nIdTopicVersion int identifier of the TopicVersion to delete
      * @param plugin the Plugin
      */
@@ -66,36 +69,41 @@ public interface ITopicVersionDAO
 
     ///////////////////////////////////////////////////////////////////////////
     // Finders
-
     /**
      * Load the data from the table
-     * @param nKey
+     *
+     * @param nKey The key
      * @param plugin the Plugin
      * @return The instance of the topicVersion
      */
     TopicVersion load( int nKey, Plugin plugin );
 
     /**
-    * Load the data of all the topicVersion objects and returns them as a collection
-    * @param plugin the Plugin
-    * @return The collection which contains the data of all the topicVersion objects
-    */
+     * Load the data of all the topicVersion objects and returns them as a
+     * collection
+     *
+     * @param plugin the Plugin
+     * @return The collection which contains the data of all the topicVersion
+     * objects
+     */
     Collection<TopicVersion> selectTopicVersionsList( Plugin plugin );
 
     /**
-         *
-         * @param nTopicId
-         * @param strUserName
-         * @param strComment
-         * @param strContent
-         * @param nPreviousVersion
-         * @param plugin
-         */
+     * Modify the topic version
+     *
+     * @param nTopicId The topic ID
+     * @param strUserName The username
+     * @param strComment The comment
+     * @param strContent The content
+     * @param nPreviousVersion The previous version
+     * @param plugin The plugin
+     */
     void modifyTopicVersion( int nTopicId, String strUserName, String strComment, String strContent,
         int nPreviousVersion, Plugin plugin );
 
     /**
      * Load last version
+     *
      * @param idTopic The topic ID
      * @param plugin The plugin
      * @return The topic version
@@ -104,6 +112,7 @@ public interface ITopicVersionDAO
 
     /**
      * Load all versions
+     *
      * @param idTopic The topic id
      * @param plugin The plugin
      * @return The list of topics

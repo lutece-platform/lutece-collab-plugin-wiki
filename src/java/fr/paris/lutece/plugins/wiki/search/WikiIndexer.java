@@ -48,6 +48,7 @@ import fr.paris.lutece.portal.service.search.SearchItem;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.url.UrlItem;
 
+import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
@@ -55,7 +56,6 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.lucene.document.DateTools;
 
 
 /**
@@ -237,20 +237,20 @@ public class WikiIndexer implements SearchIndexer
             strWikiContent = latestTopicVersion.getWikiContent(  );
         }
 
-        String strWikiResult = new LuteceWikiParser( strWikiContent ).toString(  ) + " " + topic.getPageName();
+        String strWikiResult = new LuteceWikiParser( strWikiContent ).toString(  ) + " " + topic.getPageName(  );
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, Field.Store.YES, Field.Index.ANALYZED ) );
 
-        String strDate = DateTools.dateToString( latestTopicVersion.getDateEdition(), DateTools.Resolution.DAY );
-        doc.add( new Field( SearchItem.FIELD_DATE, strDate, Field.Store.YES, Field.Index.NOT_ANALYZED ) );// return the document
+        String strDate = DateTools.dateToString( latestTopicVersion.getDateEdition(  ), DateTools.Resolution.DAY );
+        doc.add( new Field( SearchItem.FIELD_DATE, strDate, Field.Store.YES, Field.Index.NOT_ANALYZED ) ); // return the document
 
         // Add the subject name as a separate Text field, so that it can be
         // searched
         // separately.
         doc.add( new Field( SearchItem.FIELD_TITLE, topic.getPageName(  ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 
-        doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType(), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-        
-        doc.add( new Field( SearchItem.FIELD_ROLE , topic.getRole() , Field.Store.YES, Field.Index.NOT_ANALYZED ));
+        doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType(  ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+
+        doc.add( new Field( SearchItem.FIELD_ROLE, topic.getRole(  ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 
         return doc;
     }
@@ -262,7 +262,7 @@ public class WikiIndexer implements SearchIndexer
     public List<String> getListType(  )
     {
         List<String> listType = new ArrayList<String>(  );
-        listType.add( getDocumentType() );
+        listType.add( getDocumentType(  ) );
 
         return listType;
     }
@@ -275,15 +275,13 @@ public class WikiIndexer implements SearchIndexer
     {
         return JSP_SEARCH_WIKI;
     }
-    
+
     /**
      * Get Lucene index document type
      * @return The document type
      */
-    public static String getDocumentType()
+    public static String getDocumentType(  )
     {
         return AppPropertiesService.getProperty( PROPERTY_DOCUMENT_TYPE );
     }
-    
-    
 }

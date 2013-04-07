@@ -47,19 +47,19 @@ import java.util.List;
 public class WikiDiff implements Serializable
 {
     /** The newly modified text, or <code>null</code> if text was deleted. */
-    private String _strNewText = null;
+    private String _strNewText;
 
     /** The old text that was changed, or <code>null</code> if new text was added. */
-    private String _strOldText = null;
+    private String _strOldText;
 
     /** The zero-based position of the text that was changed. */
     private int _nPosition = -1;
 
     /** The diff may (optionally) contain a list of sub-diffs, such as when diffing two topics and then further showing what changed on a line. */
-    private List<WikiDiff> _listSubDiffs = null;
+    private List<WikiDiff> _listSubDiffs;
 
     /**
-     *
+     * Constructor
      */
     public WikiDiff(  )
     {
@@ -67,20 +67,20 @@ public class WikiDiff implements Serializable
 
     /**
      *
-     * @param oldText
-     * @param newText
-     * @param position
+     * @param strOldText Old Text
+     * @param strNewText New Text
+     * @param nPosition Position
      */
-    public WikiDiff( String oldText, String newText, int position )
+    public WikiDiff( String strOldText, String strNewText, int nPosition )
     {
-        _strOldText = oldText;
-        _strNewText = newText;
-        _nPosition = position;
+        _strOldText = strOldText;
+        _strNewText = strNewText;
+        _nPosition = nPosition;
     }
 
     /**
-     *
-     * @return
+     * Gets changes
+     * @return true if there is changes
      */
     public boolean getChange(  )
     {
@@ -88,8 +88,8 @@ public class WikiDiff implements Serializable
     }
 
     /**
-     *
-     * @return
+     * Gets new text
+     * @return The new text
      */
     public String getNewText(  )
     {
@@ -97,17 +97,17 @@ public class WikiDiff implements Serializable
     }
 
     /**
-     *
-     * @param newText
+     * Sets new text
+     * @param strNewText The new text
      */
-    public void setNewText( String newText )
+    public void setNewText( String strNewText )
     {
-        _strNewText = newText;
+        _strNewText = strNewText;
     }
 
     /**
-     *
-     * @return
+     * Gets old text
+     * @return The old text
      */
     public String getOldText(  )
     {
@@ -115,17 +115,17 @@ public class WikiDiff implements Serializable
     }
 
     /**
-     *
-     * @param oldText
+     * Sets old text
+     * @param strOldText The old text
      */
-    public void setOldText( String oldText )
+    public void setOldText( String strOldText )
     {
-        _strOldText = oldText;
+        _strOldText = strOldText;
     }
 
     /**
-     *
-     * @return
+     * Gets the position
+     * @return The position
      */
     public int getPosition(  )
     {
@@ -133,17 +133,17 @@ public class WikiDiff implements Serializable
     }
 
     /**
-     *
-     * @param position
+     * Sets the position
+     * @param nPosition The position
      */
-    public void setPosition( int position )
+    public void setPosition( int nPosition )
     {
-        _nPosition = position;
+        _nPosition = nPosition;
     }
 
     /**
-     *
-     * @return
+     * Gets diffs
+     * @return The diffs
      */
     public List<WikiDiff> getSubDiffs(  )
     {
@@ -151,11 +151,11 @@ public class WikiDiff implements Serializable
     }
 
     /**
-     *
-     * @param subDiffs
+     * Sets the diffs list
+     * @param liistSubDiffs The list
      */
-    public void setSubDiffs( List<WikiDiff> subDiffs )
+    public void setSubDiffs( List<WikiDiff> liistSubDiffs )
     {
-        _listSubDiffs = subDiffs;
+        _listSubDiffs = liistSubDiffs;
     }
 }

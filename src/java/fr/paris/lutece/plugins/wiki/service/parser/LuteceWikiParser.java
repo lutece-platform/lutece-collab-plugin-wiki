@@ -43,10 +43,11 @@ import static ys.wikiparser.Utils.*;
 
 import ys.wikiparser.WikiParser;
 
-import java.io.*;
+import java.io.UnsupportedEncodingException;
 
-import java.net.*;
-
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 
 /**
  *
@@ -88,7 +89,7 @@ public class LuteceWikiParser extends WikiParser
 
     /**
      * Append image
-     * @param strText
+     * @param strText The text
      */
     @Override
     protected void appendImage( String strText )
@@ -112,6 +113,7 @@ public class LuteceWikiParser extends WikiParser
         }
         catch ( URISyntaxException e )
         {
+            AppLogService.error( "LuteceWikiParser : Error appenlink : " + e.getMessage(  ), e );
         }
 
         if ( ( uri != null ) && uri.isAbsolute(  ) )
@@ -155,7 +157,7 @@ public class LuteceWikiParser extends WikiParser
 
     /**
      * Append a macro
-     * @param strText
+     * @param strText The text
      */
     @Override
     protected void appendMacro( String strText )

@@ -69,7 +69,7 @@ public interface ITopicDAO
 
     /**
      * Load the data from the table
-     * @param nKey
+     * @param nKey The key
      * @param plugin the Plugin
      * @return The instance of the topic
      */
@@ -89,5 +89,4 @@ public interface ITopicDAO
      * @return The topic
      */
     Topic load( String strTopicName, Plugin plugin );
-
 }
