@@ -21,6 +21,12 @@
             <url>http://dev.lutece.paris.fr/maven_repository</url>
             <layout>default</layout>
         </repository>
+        <repository>
+            <id>nuxeo</id>
+            <name>nuxeoRepository</name>
+            <url>https://maven-us.nuxeo.org/nexus/content/groups/public</url>
+            <layout>default</layout>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -40,6 +46,11 @@
             <artifactId>commons-lang</artifactId>
             <version>2.3</version>
             <scope>provided</scope>
+         </dependency>
+         <dependency>
+             <groupId>org.outerj.daisy</groupId>
+             <artifactId>daisydiff</artifactId>
+             <version>1.2-NX1</version>
          </dependency>
     </dependencies>
 

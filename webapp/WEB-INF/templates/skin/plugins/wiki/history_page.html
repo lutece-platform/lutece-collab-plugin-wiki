@@ -18,13 +18,13 @@
                     <legend>${topic.pageName}</legend>
                     <input type="hidden" name="page_name" value="${topic.pageName}" />
                     <ul>
+                        
                         <#list listTopicVersion as lastVersion >
                         <li>
-                            <span>(<a href="" title="Main Page">cur</a>&nbsp;| <a href="lienversdifftopicversion" title="Main Page">prev</a>) </span>
-                            <input name="old_version" id="old_version" type="radio" value="${lastVersion.idTopicVersionPrevious}">
                             <input name="new_version" id="new_version" type="radio" value="${lastVersion.idTopicVersion}">
-                            <a href="" title="Main Page">${lastVersion.dateEdition}</a>
-                            <span><a href="" title="User:Shubinator" class="mw-userlink">${lastVersion.luteceUserId}</a> </span>
+                            <input name="old_version" id="old_version" type="radio" value="${lastVersion.idTopicVersion}">
+                            ${lastVersion.dateEdition}
+                            <span>${lastVersion.luteceUserId}</span>
                             <span>${lastVersion.editComment} </span>
                         </li>
                         </#list>

@@ -37,9 +37,8 @@ import fr.paris.lutece.plugins.wiki.business.Topic;
 import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.business.TopicVersionHome;
-import fr.paris.lutece.plugins.wiki.service.WikiDiff;
+import fr.paris.lutece.plugins.wiki.service.DiffService;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceWikiParser;
-import fr.paris.lutece.plugins.wiki.utils.DiffUtils;
 import fr.paris.lutece.plugins.wiki.utils.auth.WikiAnonymousUser;
 import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.business.role.RoleHome;
@@ -101,7 +100,7 @@ public class WikiApp implements XPageApplication
     private static final String MARK_TOPIC = "topic";
     private static final String MARK_LIST_TOPIC = "list_topic";
     private static final String MARK_LATEST_VERSION = "lastVersion";
-    private static final String MARK_LIST_DIFFS = "listDiffs";
+    private static final String MARK_DIFF = "diff";
     private static final String MARK_RESULT = "result";
     private static final String MARK_LIST_TOPIC_VERSION = "listTopicVersion";
     private static final String MARK_PAGE_ROLES_LIST = "page_roles_list";
@@ -370,11 +369,12 @@ public class WikiApp implements XPageApplication
         TopicVersion newTopicVersion = TopicVersionHome.findByPrimaryKey( nNewTopicVersion, _plugin );
         TopicVersion oldTopicVersion = TopicVersionHome.findByPrimaryKey( nPrevTopicVersion, _plugin );
 
-        List<WikiDiff> listDiffs = DiffUtils.diff( newTopicVersion.getWikiContent(  ),
-                oldTopicVersion.getWikiContent(  ) );
-
+        String strNewHtml = LuteceWikiParser.renderXHTML( newTopicVersion.getWikiContent(  ));
+        String strOldHtml = LuteceWikiParser.renderXHTML( oldTopicVersion.getWikiContent(  ));
+        String strDiff = DiffService.getDiff( strOldHtml, strNewHtml );
+        
         Map<String, Object> model = new HashMap<String, Object>(  );
-        model.put( MARK_LIST_DIFFS, listDiffs );
+        model.put( MARK_DIFF, strDiff );
         model.put( MARK_TOPIC, topic );
 
         HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_DIFF_TOPIC_WIKI, Locale.getDefault(  ),

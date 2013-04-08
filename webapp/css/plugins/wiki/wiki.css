@@ -1,123 +1,26 @@
-.wiki-content
-{
-    float: left;
-    margin-left: 10px;
-    width:90%;
-
+/*
+ * Styles for the HTML Diff
+ */
+span.diff-html-added {
+  font-size: 100%;
+  background-color: #ccffcc; /* light green */
+  cursor: pointer;
 }
 
-#wiki-menu
-{
-    float: right;
-    text-align: right;
+span.diff-html-removed {
+  font-size: 100%;
+  text-decoration: line-through;
+  background-color: #fdc6c6; /* light red */
+    cursor: pointer;
 }
 
-#wiki-menu ul
-{
-    list-style: none;
-    padding: 0;
-    margin: 0;
+span.diff-html-changed {
+  background: url(../images/diffunderline.gif) bottom repeat-x;
+  *background-color: #c6c6fd; /* light blue */
+  cursor: pointer;
 }
 
-#wiki-menu li
-{
-    float: left;
-}
-
-#wiki-menu li a
-{
-    display: inline-block;
-    height: 1.5em;
-    padding-left: 1em;
-    padding-right: 0.4em;
-    border-top:0.4em;
-    text-decoration: none;
-
-}
-
-#wiki-menu li a:hover
-{
-    text-decoration: underline;
-}
-
-
-/* Hide from IE5-Mac \*/
-#wiki-menu li a
-{
-    float: none;
-}
-/* End hide */
-#wiki-menu li.selected
-{
-    font-weight: bold;
-    padding-left: 1em;
-}
-
-#wiki-heading 
-
-{
-    margin-top: 0pt;
-    padding-top: 0pt;
-    margin-bottom: 0.1em;
-    line-height: 1.2em;
-    font-size: 1.6em;
-    padding-bottom: 0pt;
-}
-.wiki_manual
-{
-    float: right;
-}
-
-.diff-delete {
-    float: left;
-    position: relative;
-    background: #eeee88;
-    font-weight: bold;
-    padding: 0.1em;
-    width: 48%;
-    overflow: hidden;
-}
-.diff-add {
-    float: left;
-    position: relative;
-    background: #88ee88;
-    font-weight: bold;
-    padding: 0.1em;
-    width: 48%;
-    overflow: hidden;
-}
-.diff-unchanged {
-    float: left;
-    position: relative;
-    background: #dddddd;
-    padding: 0.1em;
-    width: 48%;
-    overflow: hidden;
-}
-.diff-indicator {
-    float: left;
-    position: relative;
-    font-weight: bold;
-    padding: 0.1em;
-    text-align: right;
-    width: 7px;
-}
-.diff-line {
-    clear: both;
-    padding: 0.5em 0.1em 0.1em 0.1em;
-    font-weight: bold;
-}
-.diff-entry {
-    clear: both;
-    margin: 1px;
-    padding: 1px;
-}
-.diff-change {
-    font-weight: bold;
-    color: red;
-}
-
-#wiki-action
-{
-    height: 1.5em;
+span.diff-html-conflict {
+/*  background: url(../images/diffunderline.gif) bottom repeat-x; */
+  background-color: #f781be; /* light rose */
 }
