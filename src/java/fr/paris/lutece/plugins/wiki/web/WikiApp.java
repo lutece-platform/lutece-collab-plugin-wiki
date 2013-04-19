@@ -497,7 +497,9 @@ public class WikiApp implements XPageApplication
     private int getAction( HttpServletRequest request )
     {
         String strAction = request.getParameter( Constants.PARAMETER_ACTION );
-        int nAction = ACTION_NONE;
+        String strPageName = request.getParameter(Constants.PARAMETER_PAGE_NAME );
+                
+        int nAction = (strPageName != null ) ? ACTION_VIEW : ACTION_NONE;
 
         if ( strAction != null )
         {
