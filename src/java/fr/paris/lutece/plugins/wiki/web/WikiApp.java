@@ -58,6 +58,7 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import fr.paris.lutece.portal.web.resource.ExtendableResourcePluginActionManager;
 import fr.paris.lutece.portal.web.xpages.XPage;
 import fr.paris.lutece.portal.web.xpages.XPageApplication;
 import fr.paris.lutece.util.html.HtmlTemplate;
@@ -438,7 +439,7 @@ public class WikiApp implements XPageApplication
         throws SiteMessageException
     {
         Topic topic = getTopic( request, strPageName );
-        page.setContent( modifyPageContent( topic ) );
+        page.setContent( modifyPageContent( request , topic ) );
         page.setTitle( getPageTitle( strPageName ) );
 
         String strPath = strPageName + I18nService.getLocalizedString( PROPERTY_PATH_MODIFY, request.getLocale(  ) );
@@ -448,17 +449,18 @@ public class WikiApp implements XPageApplication
     /**
      * Modify page content
      *
+     * @param request The HTTP request
      * @param topic The topic
      * @return The page
      */
-    public String modifyPageContent( Topic topic )
+    public String modifyPageContent( HttpServletRequest request , Topic topic )
     {
         TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
         Map<String, Object> model = new HashMap<String, Object>(  );
         model.put( MARK_TOPIC, topic );
         model.put( MARK_LATEST_VERSION, topicVersion );
         model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList(  ) );
-
+        ExtendableResourcePluginActionManager.fillModel( request, null, model, Integer.toString( topic.getIdTopic(  )), Topic.RESOURCE_TYPE );
         HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_MODIFY_WIKI, Locale.getDefault(  ), model );
 
         return template.getHtml(  );

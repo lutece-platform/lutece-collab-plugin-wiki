@@ -5,4 +5,7 @@
  	<bean id="wiki.topicVersionDAO"  class="fr.paris.lutece.plugins.wiki.business.TopicVersionDAO" />
  	<!-- Search Engine -->
 	<bean id="wiki.wikiSearchEngine" class="fr.paris.lutece.plugins.wiki.search.WikiSearchEngine" />
+
+        <!-- Extend resource service -->
+        <bean id="wiki.extendableResourceService" class="fr.paris.lutece.plugins.wiki.service.WikiExtendableResourceService" />
 </beans>

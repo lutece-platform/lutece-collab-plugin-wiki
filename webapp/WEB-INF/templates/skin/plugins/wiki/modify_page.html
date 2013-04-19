@@ -4,6 +4,10 @@
             <input type="hidden" name="page_name" value="${topic.pageName}" />
             <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
             <input type="hidden" name="topic_id" value="${topic.idTopic}" />
+
+            <!-- Extends --> 
+            ${extendableResourceActionsHtml!}
+
             <div class="btn-group pull-right">
                 <button class="btn btn-primary btn-small" type="submit">
                     <i class="icon-ok icon-white"></i>
@@ -21,8 +25,10 @@
                     <i class="icon-question-sign"></i>
                     #i18n{wiki.menu.help}
                 </button>
+                
             </div>
-
+            
+            
             <div class="span7">
                 <div class="alert alert-error" id="div-confirm-delete" style="display:none">
                     #i18n{wiki.message.confirmDelete}

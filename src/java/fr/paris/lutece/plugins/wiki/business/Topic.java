@@ -34,13 +34,17 @@
 package fr.paris.lutece.plugins.wiki.business;
 
 import fr.paris.lutece.portal.business.page.Page;
+import fr.paris.lutece.portal.service.resource.IExtendableResource;
 
 
 /**
  * This is the business class for the object Topic
  */
-public class Topic
+public class Topic implements IExtendableResource
 {
+    public static final String RESOURCE_TYPE = "wiki";
+    
+    
     // Variables declarations 
     private int _nIdTopic;
     private int _nNamespace;
@@ -117,5 +121,50 @@ public class Topic
     public void setRole( String strRole )
     {
         _strRole = strRole;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public String getIdExtendableResource()
+    {
+        return Integer.toString( _nIdTopic );
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public String getExtendableResourceType()
+    {
+        return RESOURCE_TYPE;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public String getExtendableResourceName()
+    {
+        return _strPageName;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public String getExtendableResourceDescription()
+    {
+        return "";
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public String getExtendableResourceImageUrl()
+    {
+        return null;
     }
 }

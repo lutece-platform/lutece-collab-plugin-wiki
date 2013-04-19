@@ -10,11 +10,15 @@
                 #i18n{wiki.menu.history}
             </a>
         </div>
-
+            @Extender[${topic.idTopic},wiki,opengraph]@
         <div>
             <h1>${topic.pageName}</h1>
             <br/>
             ${result}
         </div>
+        @Extender[${topic.idTopic},wiki,hit,{show:true}]@
+        @Extender[${topic.idTopic},wiki,feedback]@
+        @Extender[${topic.idTopic},wiki,rating,{show:"all"}]@
+        @Extender[${topic.idTopic},wiki,comment]@
     </div>
 </div>
