@@ -70,7 +70,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -240,7 +239,7 @@ public class WikiApp implements XPageApplication
         model.put( MARK_PAGINATOR, paginator );
         model.put( MARK_NB_ITEMS_PER_PAGE, "" + _nItemsPerPage );
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_SEARCH_WIKI, Locale.getDefault(  ), model );
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_SEARCH_WIKI, request.getLocale(), model );
         page.setContent( template.getHtml(  ) );
         page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_SEARCH, request.getLocale(  ) ) ) );
         page.setXmlExtendedPathLabel( getXmlExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_SEARCH,
@@ -259,7 +258,7 @@ public class WikiApp implements XPageApplication
         Map<String, Object> model = new HashMap<String, Object>(  );
         model.put( MARK_LIST_TOPIC, listTopic );
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_LIST_WIKI, Locale.getDefault(  ), model );
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_LIST_WIKI, request.getLocale(), model );
 
         return template.getHtml(  );
     }
@@ -275,7 +274,7 @@ public class WikiApp implements XPageApplication
         throws SiteMessageException
     {
         Topic topic = getTopic( request, strPageName );
-        page.setContent( viewPageContent( topic ) );
+        page.setContent( viewPageContent( request, topic ) );
         page.setTitle( getPageTitle( strPageName ) );
         page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
     }
@@ -283,10 +282,11 @@ public class WikiApp implements XPageApplication
     /**
      * View page content
      *
+     * @param request The HTTP request
      * @param topic The topic
      * @return The page content
      */
-    private String viewPageContent( Topic topic )
+    private String viewPageContent( HttpServletRequest request , Topic topic  )
     {
         String strContent = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin ).getWikiContent(  );
 
@@ -295,7 +295,7 @@ public class WikiApp implements XPageApplication
         model.put( MARK_RESULT, strWikiResult );
         model.put( MARK_TOPIC, topic );
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_WIKI, Locale.getDefault(  ), model );
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_WIKI, request.getLocale(), model );
 
         return template.getHtml(  );
     }
@@ -311,7 +311,7 @@ public class WikiApp implements XPageApplication
         throws SiteMessageException
     {
         Topic topic = getTopic( request, strPageName );
-        page.setContent( viewPageHistory( topic ) );
+        page.setContent( viewPageHistory( request, topic ) );
         page.setTitle( getPageTitle( strPageName ) );
         page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
     }
@@ -319,10 +319,11 @@ public class WikiApp implements XPageApplication
     /**
      * View page history
      *
+     * @param request The HTTP request
      * @param topic The topic
      * @return The page content
      */
-    public String viewPageHistory( Topic topic )
+    public String viewPageHistory( HttpServletRequest request, Topic topic )
     {
         Map<String, Object> model = new HashMap<String, Object>(  );
         Collection<TopicVersion> listTopicVersions = TopicVersionHome.findAllVersions( topic.getIdTopic(  ), _plugin );
@@ -330,7 +331,7 @@ public class WikiApp implements XPageApplication
         model.put( MARK_LIST_TOPIC_VERSION, listTopicVersions );
         model.put( MARK_TOPIC, topic );
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_HISTORY_WIKI, Locale.getDefault(  ), model );
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_HISTORY_WIKI, request.getLocale(), model );
 
         return template.getHtml(  );
     }
@@ -351,7 +352,7 @@ public class WikiApp implements XPageApplication
         int nNewTopicVersion = Integer.parseInt( strNewVersion );
         int nOldTopicVersion = Integer.parseInt( strOldVersion );
 
-        page.setContent( viewTopicDiff( topic, nNewTopicVersion, nOldTopicVersion ) );
+        page.setContent( viewTopicDiff( request, topic, nNewTopicVersion, nOldTopicVersion ) );
         page.setTitle( getPageTitle( strPageName ) );
         page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
     }
@@ -359,12 +360,13 @@ public class WikiApp implements XPageApplication
     /**
      * View Diff
      *
+     * @param request The HTTP request
      * @param topic The topic
      * @param nNewTopicVersion The new version
      * @param nOldTopicVersion The old version
      * @return The page
      */
-    private String viewTopicDiff( Topic topic, int nNewTopicVersion, int nOldTopicVersion )
+    private String viewTopicDiff( HttpServletRequest request, Topic topic, int nNewTopicVersion, int nOldTopicVersion )
     {
         int nPrevTopicVersion = ( nOldTopicVersion == 0 ) ? nNewTopicVersion : nOldTopicVersion;
         TopicVersion newTopicVersion = TopicVersionHome.findByPrimaryKey( nNewTopicVersion, _plugin );
@@ -378,7 +380,7 @@ public class WikiApp implements XPageApplication
         model.put( MARK_DIFF, strDiff );
         model.put( MARK_TOPIC, topic );
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_DIFF_TOPIC_WIKI, Locale.getDefault(  ),
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_DIFF_TOPIC_WIKI, request.getLocale(),
                 model );
 
         return template.getHtml(  );
@@ -402,7 +404,7 @@ public class WikiApp implements XPageApplication
             SiteMessageService.setMessage( request, Constants.MESSAGE_PAGE_ALREADY_EXISTS, SiteMessage.TYPE_STOP );
         }
 
-        page.setContent( createPageContent( strPageName ) );
+        page.setContent( createPageContent( request, strPageName ) );
 
         String strPath = strPageName + I18nService.getLocalizedString( PROPERTY_PATH_CREATE, request.getLocale(  ) );
         page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
@@ -414,7 +416,7 @@ public class WikiApp implements XPageApplication
      * @param strPageName The page name
      * @return The page
      */
-    public String createPageContent( String strPageName )
+    public String createPageContent( HttpServletRequest request, String strPageName )
     {
         Map<String, Object> model = new HashMap<String, Object>(  );
         Topic topic = new Topic(  );
@@ -422,7 +424,7 @@ public class WikiApp implements XPageApplication
         model.put( MARK_TOPIC, topic );
         model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList(  ) );
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_CREATE_WIKI, Locale.getDefault(  ), model );
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_CREATE_WIKI, request.getLocale(), model );
 
         return template.getHtml(  );
     }
@@ -461,7 +463,7 @@ public class WikiApp implements XPageApplication
         model.put( MARK_LATEST_VERSION, topicVersion );
         model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList(  ) );
         ExtendableResourcePluginActionManager.fillModel( request, null, model, Integer.toString( topic.getIdTopic(  )), Topic.RESOURCE_TYPE );
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_MODIFY_WIKI, Locale.getDefault(  ), model );
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_MODIFY_WIKI, request.getLocale(), model );
 
         return template.getHtml(  );
     }
