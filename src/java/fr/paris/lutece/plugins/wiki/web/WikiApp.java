@@ -80,6 +80,8 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class WikiApp implements XPageApplication
 {
+    public static final int ACTION_VIEW = 1;
+
     private static final String TEMPLATE_MODIFY_WIKI = "skin/plugins/wiki/modify_page.html";
     private static final String TEMPLATE_CREATE_WIKI = "skin/plugins/wiki/create_page.html";
     private static final String TEMPLATE_VIEW_WIKI = "skin/plugins/wiki/view_page.html";
@@ -108,7 +110,6 @@ public class WikiApp implements XPageApplication
     private static final String MARK_PAGINATOR = "paginator";
     private static final String MARK_NB_ITEMS_PER_PAGE = "nb_items_per_page";
     private static final int ACTION_NONE = 0;
-    private static final int ACTION_VIEW = 1;
     private static final int ACTION_VIEW_HISTORY = 2;
     private static final int ACTION_VIEW_DIFF = 3;
     private static final int ACTION_CREATE = 4;

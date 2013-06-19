@@ -35,12 +35,19 @@
 import fr.paris.lutece.plugins.wiki.business.Topic;
 import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.web.Constants;
+import fr.paris.lutece.plugins.wiki.web.WikiApp;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.resource.IExtendableResource;
 import fr.paris.lutece.portal.service.resource.IExtendableResourceService;
+import fr.paris.lutece.portal.service.util.AppPathService;
+import fr.paris.lutece.util.url.UrlItem;
+
 import java.util.Locale;
+
+import org.apache.commons.lang.StringUtils;
+
 
 /**
  * Wiki Extendable Resource Service
@@ -49,6 +56,10 @@ public class WikiExtendableResourceService implements IExtendableResourceService
 {
 
     private static final String RESOURCE_TYPE_DESCRIPTION = "wiki.extend.resourceType";
+
+    private static final String PARAMETER_PAGE = "page";
+    private static final String PARAMETER_ACTION = "action";
+
     private static Plugin _plugin = PluginService.getPlugin(Constants.PLUGIN_NAME);
 
     /**
@@ -93,5 +104,26 @@ public class WikiExtendableResourceService implements IExtendableResourceService
     public String getResourceTypeDescription(Locale locale)
     {
         return I18nService.getLocalizedString(RESOURCE_TYPE_DESCRIPTION, locale);
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public String getResourceUrl( String strIdResource, String strResourceType )
+    {
+        if ( StringUtils.isNotEmpty( strIdResource ) && StringUtils.isNumeric( strIdResource ) )
+        {
+            Topic topic = TopicHome.findByPrimaryKey( Integer.parseInt( strIdResource ), _plugin );
+            if ( topic != null )
+            {
+                UrlItem urlItem = new UrlItem( AppPathService.getPortalUrl( ) );
+                urlItem.addParameter( PARAMETER_PAGE, Constants.PLUGIN_NAME );
+                urlItem.addParameter( PARAMETER_ACTION, WikiApp.ACTION_VIEW );
+                urlItem.addParameter( Constants.PARAMETER_PAGE_NAME, topic.getPageName( ) );
+                return urlItem.getUrl( );
+            }
+        }
+        return null;
     }
 }
