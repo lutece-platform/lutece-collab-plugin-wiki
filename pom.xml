@@ -21,12 +21,6 @@
             <url>http://dev.lutece.paris.fr/maven_repository</url>
             <layout>default</layout>
         </repository>
-        <repository>
-            <id>nuxeo</id>
-            <name>nuxeoRepository</name>
-            <url>https://maven-us.nuxeo.org/nexus/content/groups/public</url>
-            <layout>default</layout>
-        </repository>
     </repositories>
 
     <dependencies>
