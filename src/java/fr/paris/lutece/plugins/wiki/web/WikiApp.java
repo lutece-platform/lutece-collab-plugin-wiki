@@ -58,9 +58,11 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
+import fr.paris.lutece.portal.util.mvc.xpage.MVCApplication;
+import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
 import fr.paris.lutece.portal.web.resource.ExtendableResourcePluginActionManager;
 import fr.paris.lutece.portal.web.xpages.XPage;
-import fr.paris.lutece.portal.web.xpages.XPageApplication;
 import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.html.Paginator;
 import fr.paris.lutece.util.url.UrlItem;
@@ -74,12 +76,13 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-
 /**
  * This class provides a simple implementation of an XPage
  */
-public class WikiApp implements XPageApplication
+@Controller(xpageName = "mvcdemo", pageTitleProperty = "wiki.pageTitle", pagePathProperty = "wiki.pagePathLabel")
+public class WikiApp extends MVCApplication
 {
+
     public static final int ACTION_VIEW = 1;
 
     private static final String TEMPLATE_MODIFY_WIKI = "skin/plugins/wiki/modify_page.html";
@@ -109,18 +112,20 @@ public class WikiApp implements XPageApplication
     private static final String MARK_QUERY = "query";
     private static final String MARK_PAGINATOR = "paginator";
     private static final String MARK_NB_ITEMS_PER_PAGE = "nb_items_per_page";
-    private static final int ACTION_NONE = 0;
-    private static final int ACTION_VIEW_HISTORY = 2;
-    private static final int ACTION_VIEW_DIFF = 3;
-    private static final int ACTION_CREATE = 4;
-    private static final int ACTION_MODIFY = 5;
-    private static final int ACTION_SEARCH = 6;
+
+    private static final String VIEW_HOME = "home";
+    private static final String VIEW_PAGE = "page";
+    private static final String VIEW_CREATE_PAGE = "createPage";
+    private static final String VIEW_MODIFY_PAGE = "modifyPage";
+    private static final String VIEW_HISTORY = "history";
+    private static final String VIEW_SEARCH = "search";
+
     private static final String TAG_PAGE_LINK = "page_link";
     private static final String TAG_PAGE_NAME = "page-name";
     private static final String TAG_PAGE_URL = "page-url";
 
     // private fields
-    private Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
+    private final Plugin _plugin = PluginService.getPlugin(Constants.PLUGIN_NAME);
     private boolean _bInit;
     private String _strCurrentPageIndex;
     private int _nDefaultItemsPerPage;
@@ -137,225 +142,266 @@ public class WikiApp implements XPageApplication
      * Message displayed if an exception occurs
      * @throws UserNotSignedException if user not connected
      */
-    @Override
-    public XPage getPage( HttpServletRequest request, int nMode, Plugin plugin )
-        throws SiteMessageException, UserNotSignedException
+    /*
+     @Override
+     public XPage getPage( HttpServletRequest request, int nMode, Plugin plugin )
+     throws SiteMessageException, UserNotSignedException
+     {
+     init( request );
+
+     String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+
+     XPage page = new XPage(  );
+
+     switch ( getAction( request ) )
+     {
+     case ACTION_NONE:
+     home( page, request );
+
+     break;
+
+     case ACTION_VIEW:
+     view( page, request, strPageName );
+
+     break;
+
+     case ACTION_VIEW_HISTORY:
+     viewHistory( page, request, strPageName );
+
+     break;
+
+     case ACTION_VIEW_DIFF:
+     viewDiff( page, request, strPageName );
+
+     break;
+
+     case ACTION_CREATE:
+     checkUser( request );
+     create( page, request, strPageName );
+
+     break;
+
+     case ACTION_MODIFY:
+     checkUser( request );
+     modify( page, request, strPageName );
+
+     break;
+
+     case ACTION_SEARCH:
+     search( page, request );
+
+     break;
+
+     default:
+     home( page, request );
+
+     break;
+     }
+
+     return page;
+     }
+     */
+    /**
+     * Gets the Home page
+     *
+     * @param request The HTTP request
+     * @return The XPage
+     */
+    @View(value = VIEW_HOME, defaultView = true)
+    public XPage home(HttpServletRequest request)
     {
-        init( request );
-
-        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-
-        XPage page = new XPage(  );
-
-        switch ( getAction( request ) )
-        {
-            case ACTION_NONE:
-                home( page, request );
-
-                break;
-
-            case ACTION_VIEW:
-                view( page, request, strPageName );
-
-                break;
-
-            case ACTION_VIEW_HISTORY:
-                viewHistory( page, request, strPageName );
-
-                break;
-
-            case ACTION_VIEW_DIFF:
-                viewDiff( page, request, strPageName );
-
-                break;
-
-            case ACTION_CREATE:
-                checkUser( request );
-                create( page, request, strPageName );
-
-                break;
-
-            case ACTION_MODIFY:
-                checkUser( request );
-                modify( page, request, strPageName );
-
-                break;
-
-            case ACTION_SEARCH:
-                search( page, request );
-
-                break;
-
-            default:
-                home( page, request );
-
-                break;
-        }
-
+        XPage page = getTopicsListPage(request);
+        page.setTitle(getPageTitle(I18nService.getLocalizedString(PROPERTY_TITLE_LIST, request.getLocale())));
+        page.setXmlExtendedPathLabel(getXmlExtendedPath(I18nService.getLocalizedString(PROPERTY_PATH_LIST, request.getLocale())));
         return page;
     }
 
     /**
-     * Gets the Home page
-     * @param page The xpage
-     * @param request The HTTP request
-     */
-    private void home( XPage page, HttpServletRequest request )
-    {
-        page.setContent( displayAll( request ) );
-        //        page.setPathLabel( getPathLabel( I18nService.getLocalizedString( PROPERTY_PATH_LIST, request.getLocale() ) ) );
-        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_LIST, request.getLocale(  ) ) ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_LIST,
-                    request.getLocale(  ) ) ) );
-    }
-
-    /**
      * Search page
-     * @param page The xpage
+     *
      * @param request The request
+     * @return Thye XPage
      */
-    private void search( XPage page, HttpServletRequest request )
+    @View( VIEW_SEARCH )
+    public XPage search(HttpServletRequest request)
     {
-        String strQuery = request.getParameter( Constants.PARAMETER_QUERY );
-        String strPortalUrl = AppPathService.getPortalUrl(  );
+        String strQuery = request.getParameter(Constants.PARAMETER_QUERY);
+        String strPortalUrl = AppPathService.getPortalUrl();
 
-        UrlItem urlWikiXpage = new UrlItem( strPortalUrl );
-        urlWikiXpage.addParameter( XPageAppService.PARAM_XPAGE_APP, Constants.PLUGIN_NAME );
-        urlWikiXpage.addParameter( Constants.PARAMETER_ACTION, Constants.PARAMETER_ACTION_SEARCH );
+        UrlItem urlWikiXpage = new UrlItem(strPortalUrl);
+        urlWikiXpage.addParameter(XPageAppService.PARAM_XPAGE_APP, Constants.PLUGIN_NAME);
+        urlWikiXpage.addParameter(Constants.PARAMETER_ACTION, Constants.PARAMETER_ACTION_SEARCH);
 
-        _strCurrentPageIndex = Paginator.getPageIndex( request, Paginator.PARAMETER_PAGE_INDEX, _strCurrentPageIndex );
-        _nDefaultItemsPerPage = AppPropertiesService.getPropertyInt( PROPERTY_DEFAULT_RESULT_PER_PAGE, 10 );
-        _nItemsPerPage = Paginator.getItemsPerPage( request, Paginator.PARAMETER_ITEMS_PER_PAGE, _nItemsPerPage,
-                _nDefaultItemsPerPage );
+        _strCurrentPageIndex = Paginator.getPageIndex(request, Paginator.PARAMETER_PAGE_INDEX, _strCurrentPageIndex);
+        _nDefaultItemsPerPage = AppPropertiesService.getPropertyInt(PROPERTY_DEFAULT_RESULT_PER_PAGE, 10);
+        _nItemsPerPage = Paginator.getItemsPerPage(request, Paginator.PARAMETER_ITEMS_PER_PAGE, _nItemsPerPage,
+                _nDefaultItemsPerPage);
 
-        SearchEngine engine = (SearchEngine) SpringContextService.getBean( BEAN_SEARCH_ENGINE );
-        List<SearchResult> listResults = engine.getSearchResults( strQuery, request );
+        SearchEngine engine = (SearchEngine) SpringContextService.getBean(BEAN_SEARCH_ENGINE);
+        List<SearchResult> listResults = engine.getSearchResults(strQuery, request);
 
-        Paginator paginator = new Paginator( listResults, _nItemsPerPage, urlWikiXpage.getUrl(  ),
-                Constants.PARAMETER_PAGE_INDEX, _strCurrentPageIndex );
+        Paginator paginator = new Paginator(listResults, _nItemsPerPage, urlWikiXpage.getUrl(),
+                Constants.PARAMETER_PAGE_INDEX, _strCurrentPageIndex);
 
-        HashMap<String, Object> model = new HashMap<String, Object>(  );
-        model.put( MARK_RESULT, paginator.getPageItems(  ) );
-        model.put( MARK_QUERY, strQuery );
-        model.put( MARK_PAGINATOR, paginator );
-        model.put( MARK_NB_ITEMS_PER_PAGE, "" + _nItemsPerPage );
+        Map<String, Object> model = getModel();
+        model.put(MARK_RESULT, paginator.getPageItems());
+        model.put(MARK_QUERY, strQuery);
+        model.put(MARK_PAGINATOR, paginator);
+        model.put(MARK_NB_ITEMS_PER_PAGE, "" + _nItemsPerPage);
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_SEARCH_WIKI, request.getLocale(), model );
-        page.setContent( template.getHtml(  ) );
-        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_SEARCH, request.getLocale(  ) ) ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_SEARCH,
-                    request.getLocale(  ) ) ) );
+        XPage page = getXPage(TEMPLATE_SEARCH_WIKI, request.getLocale(), model);
+        page.setTitle(getPageTitle(I18nService.getLocalizedString(PROPERTY_TITLE_SEARCH, request.getLocale())));
+        page.setXmlExtendedPathLabel(getXmlExtendedPath(I18nService.getLocalizedString(PROPERTY_PATH_SEARCH,
+                request.getLocale())));
+        return page;
     }
 
     /**
      * Display all pages
+     *
      * @param request The HTTP request
      * @return The page
      */
-    private String displayAll( HttpServletRequest request )
+    private XPage getTopicsListPage(HttpServletRequest request)
     {
-        List<Topic> listTopic = getTopicsForUser( request );
+        List<Topic> listTopic = getTopicsForUser(request);
 
-        Map<String, Object> model = new HashMap<String, Object>(  );
-        model.put( MARK_LIST_TOPIC, listTopic );
+        Map<String, Object> model = getModel();
+        model.put(MARK_LIST_TOPIC, listTopic);
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_LIST_WIKI, request.getLocale(), model );
-
-        return template.getHtml(  );
+        return getXPage(TEMPLATE_LIST_WIKI, request.getLocale(), model);
     }
 
     /**
      * Display the view page
-     * @param page The xpage
+     *
      * @param request The HTTP request
-     * @param strPageName The page name
+     * @return The XPage
      * @throws SiteMessageException if an error occurs
      */
-    private void view( XPage page, HttpServletRequest request, String strPageName )
-        throws SiteMessageException
+    @View(VIEW_PAGE)
+    public XPage view(HttpServletRequest request)
+            throws SiteMessageException
     {
-        Topic topic = getTopic( request, strPageName );
-        page.setContent( viewPageContent( request, topic ) );
-        page.setTitle( getPageTitle( strPageName ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
+        String strPageName = request.getParameter(Constants.PARAMETER_PAGE_NAME);
+        Topic topic = getTopic(request, strPageName);
+        String strContent = TopicVersionHome.findLastVersion(topic.getIdTopic(), _plugin).getWikiContent();
+
+        String strWikiResult = new LuteceWikiParser(strContent).toString();
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put(MARK_RESULT, strWikiResult);
+        model.put(MARK_TOPIC, topic);
+
+        XPage page = getXPage(TEMPLATE_VIEW_WIKI, request.getLocale(), model);
+        page.setTitle(getPageTitle(strPageName));
+        page.setXmlExtendedPathLabel(getXmlExtendedPath(strPageName));
+        return page;
     }
 
     /**
-     * View page content
+     * Create a new Page
+     *
+     * @param request The request
+     * @return The XPage
+     * @throws SiteMessageException if an error occurs
+     */
+    @View(VIEW_CREATE_PAGE)
+    public XPage create(HttpServletRequest request)
+            throws SiteMessageException
+    {
+        String strPageName = request.getParameter(Constants.PARAMETER_PAGE_NAME);
+        Topic topic = TopicHome.findByPrimaryKey(strPageName, _plugin);
+
+        if (topic != null)
+        {
+            SiteMessageService.setMessage(request, Constants.MESSAGE_PAGE_ALREADY_EXISTS, SiteMessage.TYPE_STOP);
+        }
+
+        Map<String, Object> model = getModel();
+        topic = new Topic();
+        topic.setPageName(strPageName);
+        model.put(MARK_TOPIC, topic);
+        model.put(MARK_PAGE_ROLES_LIST, RoleHome.getRolesList());
+
+        XPage page = getXPage(TEMPLATE_CREATE_WIKI, request.getLocale(), model);
+
+        String strPath = strPageName + I18nService.getLocalizedString(PROPERTY_PATH_CREATE, request.getLocale());
+        page.setXmlExtendedPathLabel(getXmlExtendedPath(strPath));
+        return page;
+    }
+
+    /**
+     * Display the edit mode
      *
      * @param request The HTTP request
-     * @param topic The topic
-     * @return The page content
+     * @return The XPage
+     * @throws SiteMessageException if an exception occurs
      */
-    private String viewPageContent( HttpServletRequest request , Topic topic  )
+    @View( VIEW_MODIFY_PAGE )
+    public XPage modify( HttpServletRequest request )
+            throws SiteMessageException
     {
-        String strContent = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin ).getWikiContent(  );
+        String strPageName = request.getParameter(Constants.PARAMETER_PAGE_NAME);
+        Topic topic = getTopic(request, strPageName);
+        TopicVersion topicVersion = TopicVersionHome.findLastVersion(topic.getIdTopic(), _plugin);
+        Map<String, Object> model = getModel();
+        model.put(MARK_TOPIC, topic);
+        model.put(MARK_LATEST_VERSION, topicVersion);
+        model.put(MARK_PAGE_ROLES_LIST, RoleHome.getRolesList());
+        ExtendableResourcePluginActionManager.fillModel(request, null, model, Integer.toString(topic.getIdTopic()), Topic.RESOURCE_TYPE);
+        XPage page = getXPage(TEMPLATE_MODIFY_WIKI, request.getLocale(), model);
+        page.setTitle(getPageTitle(strPageName));
 
-        String strWikiResult = new LuteceWikiParser( strContent ).toString(  );
-        Map<String, Object> model = new HashMap<String, Object>(  );
-        model.put( MARK_RESULT, strWikiResult );
-        model.put( MARK_TOPIC, topic );
-
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_WIKI, request.getLocale(), model );
-
-        return template.getHtml(  );
+        String strPath = strPageName + I18nService.getLocalizedString(PROPERTY_PATH_MODIFY, request.getLocale());
+        page.setXmlExtendedPathLabel(getXmlExtendedPath(strPath));
+        return page;
     }
 
     /**
      * Display the history page
-     * @param page The xpage
-     * @param request The HTTP request
-     * @param strPageName The page name
-     * @throws SiteMessageException if an error occurs
-     */
-    private void viewHistory( XPage page, HttpServletRequest request, String strPageName )
-        throws SiteMessageException
-    {
-        Topic topic = getTopic( request, strPageName );
-        page.setContent( viewPageHistory( request, topic ) );
-        page.setTitle( getPageTitle( strPageName ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
-    }
-
-    /**
-     * View page history
      *
      * @param request The HTTP request
-     * @param topic The topic
-     * @return The page content
+     * @return The XPage
+     * @throws SiteMessageException if an error occurs
      */
-    public String viewPageHistory( HttpServletRequest request, Topic topic )
+    @View( VIEW_HISTORY )
+    public XPage viewHistory( HttpServletRequest request )
+            throws SiteMessageException
     {
-        Map<String, Object> model = new HashMap<String, Object>(  );
-        Collection<TopicVersion> listTopicVersions = TopicVersionHome.findAllVersions( topic.getIdTopic(  ), _plugin );
+        String strPageName = request.getParameter(Constants.PARAMETER_PAGE_NAME);
+        Topic topic = getTopic(request, strPageName);
+        Map<String, Object> model = getModel();
+        Collection<TopicVersion> listTopicVersions = TopicVersionHome.findAllVersions(topic.getIdTopic(), _plugin);
 
-        model.put( MARK_LIST_TOPIC_VERSION, listTopicVersions );
-        model.put( MARK_TOPIC, topic );
+        model.put(MARK_LIST_TOPIC_VERSION, listTopicVersions);
+        model.put(MARK_TOPIC, topic);
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_HISTORY_WIKI, request.getLocale(), model );
-
-        return template.getHtml(  );
+        XPage page = getXPage(TEMPLATE_VIEW_HISTORY_WIKI, request.getLocale(), model);
+        page.setTitle(getPageTitle(strPageName));
+        page.setXmlExtendedPathLabel(getXmlExtendedPath(strPageName));
+        return page;
     }
 
     /**
      * Display the diff page
+     *
      * @param page The xpage
      * @param request The HTTP request
      * @param strPageName The page name
      * @throws SiteMessageException if an error occurs
      */
-    private void viewDiff( XPage page, HttpServletRequest request, String strPageName )
-        throws SiteMessageException
+    private void viewDiff(XPage page, HttpServletRequest request, String strPageName)
+            throws SiteMessageException
     {
-        Topic topic = getTopic( request, strPageName );
-        String strNewVersion = request.getParameter( Constants.PARAMETER_NEW_VERSION );
-        String strOldVersion = request.getParameter( Constants.PARAMETER_OLD_VERSION );
-        int nNewTopicVersion = Integer.parseInt( strNewVersion );
-        int nOldTopicVersion = Integer.parseInt( strOldVersion );
+        Topic topic = getTopic(request, strPageName);
+        String strNewVersion = request.getParameter(Constants.PARAMETER_NEW_VERSION);
+        String strOldVersion = request.getParameter(Constants.PARAMETER_OLD_VERSION);
+        int nNewTopicVersion = Integer.parseInt(strNewVersion);
+        int nOldTopicVersion = Integer.parseInt(strOldVersion);
 
-        page.setContent( viewTopicDiff( request, topic, nNewTopicVersion, nOldTopicVersion ) );
-        page.setTitle( getPageTitle( strPageName ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
+        page.setContent(viewTopicDiff(request, topic, nNewTopicVersion, nOldTopicVersion));
+        page.setTitle(getPageTitle(strPageName));
+        page.setXmlExtendedPathLabel(getXmlExtendedPath(strPageName));
     }
 
     /**
@@ -367,240 +413,119 @@ public class WikiApp implements XPageApplication
      * @param nOldTopicVersion The old version
      * @return The page
      */
-    private String viewTopicDiff( HttpServletRequest request, Topic topic, int nNewTopicVersion, int nOldTopicVersion )
+    private String viewTopicDiff(HttpServletRequest request, Topic topic, int nNewTopicVersion, int nOldTopicVersion)
     {
-        int nPrevTopicVersion = ( nOldTopicVersion == 0 ) ? nNewTopicVersion : nOldTopicVersion;
-        TopicVersion newTopicVersion = TopicVersionHome.findByPrimaryKey( nNewTopicVersion, _plugin );
-        TopicVersion oldTopicVersion = TopicVersionHome.findByPrimaryKey( nPrevTopicVersion, _plugin );
+        int nPrevTopicVersion = (nOldTopicVersion == 0) ? nNewTopicVersion : nOldTopicVersion;
+        TopicVersion newTopicVersion = TopicVersionHome.findByPrimaryKey(nNewTopicVersion, _plugin);
+        TopicVersion oldTopicVersion = TopicVersionHome.findByPrimaryKey(nPrevTopicVersion, _plugin);
 
-        String strNewHtml = LuteceWikiParser.renderXHTML( newTopicVersion.getWikiContent(  ));
-        String strOldHtml = LuteceWikiParser.renderXHTML( oldTopicVersion.getWikiContent(  ));
-        String strDiff = DiffService.getDiff( strOldHtml, strNewHtml );
-        
-        Map<String, Object> model = new HashMap<String, Object>(  );
-        model.put( MARK_DIFF, strDiff );
-        model.put( MARK_TOPIC, topic );
+        String strNewHtml = LuteceWikiParser.renderXHTML(newTopicVersion.getWikiContent());
+        String strOldHtml = LuteceWikiParser.renderXHTML(oldTopicVersion.getWikiContent());
+        String strDiff = DiffService.getDiff(strOldHtml, strNewHtml);
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_DIFF_TOPIC_WIKI, request.getLocale(),
-                model );
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put(MARK_DIFF, strDiff);
+        model.put(MARK_TOPIC, topic);
 
-        return template.getHtml(  );
-    }
+        HtmlTemplate template = AppTemplateService.getTemplate(TEMPLATE_VIEW_DIFF_TOPIC_WIKI, request.getLocale(),
+                model);
 
-    /**
-     * Create a new Page
-     *
-     * @param page The xpage
-     * @param request The request
-     * @param strPageName The page name
-     * @throws SiteMessageException if an error occurs
-     */
-    private void create( XPage page, HttpServletRequest request, String strPageName )
-        throws SiteMessageException
-    {
-        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
-
-        if ( topic != null )
-        {
-            SiteMessageService.setMessage( request, Constants.MESSAGE_PAGE_ALREADY_EXISTS, SiteMessage.TYPE_STOP );
-        }
-
-        page.setContent( createPageContent( request, strPageName ) );
-
-        String strPath = strPageName + I18nService.getLocalizedString( PROPERTY_PATH_CREATE, request.getLocale(  ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
-    }
-
-    /**
-     * Create page
-     *
-     * @param strPageName The page name
-     * @return The page
-     */
-    public String createPageContent( HttpServletRequest request, String strPageName )
-    {
-        Map<String, Object> model = new HashMap<String, Object>(  );
-        Topic topic = new Topic(  );
-        topic.setPageName( strPageName );
-        model.put( MARK_TOPIC, topic );
-        model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList(  ) );
-
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_CREATE_WIKI, request.getLocale(), model );
-
-        return template.getHtml(  );
-    }
-
-    /**
-     * Display the edit mode
-     *
-     * @param page The xpage
-     * @param request The HTTP request
-     * @param strPageName The Page name
-     * @throws SiteMessageException if an exception occurs
-     */
-    private void modify( XPage page, HttpServletRequest request, String strPageName )
-        throws SiteMessageException
-    {
-        Topic topic = getTopic( request, strPageName );
-        page.setContent( modifyPageContent( request , topic ) );
-        page.setTitle( getPageTitle( strPageName ) );
-
-        String strPath = strPageName + I18nService.getLocalizedString( PROPERTY_PATH_MODIFY, request.getLocale(  ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
-    }
-
-    /**
-     * Modify page content
-     *
-     * @param request The HTTP request
-     * @param topic The topic
-     * @return The page
-     */
-    public String modifyPageContent( HttpServletRequest request , Topic topic )
-    {
-        TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
-        Map<String, Object> model = new HashMap<String, Object>(  );
-        model.put( MARK_TOPIC, topic );
-        model.put( MARK_LATEST_VERSION, topicVersion );
-        model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList(  ) );
-        ExtendableResourcePluginActionManager.fillModel( request, null, model, Integer.toString( topic.getIdTopic(  )), Topic.RESOURCE_TYPE );
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_MODIFY_WIKI, request.getLocale(), model );
-
-        return template.getHtml(  );
+        return template.getHtml();
     }
 
     /////////////////////  Utils ////////////////////////////
-
     /**
      * Check the connected user
+     *
      * @param request The HTTP request
      * @return The user
      * @throws UserNotSignedException if user not connected
      */
-    private LuteceUser checkUser( HttpServletRequest request )
-        throws UserNotSignedException
+    private LuteceUser checkUser(HttpServletRequest request)
+            throws UserNotSignedException
     {
         LuteceUser user;
 
-        if ( SecurityService.isAuthenticationEnable(  ) )
+        if (SecurityService.isAuthenticationEnable())
         {
-            user = SecurityService.getInstance(  ).getRemoteUser( request );
+            user = SecurityService.getInstance().getRemoteUser(request);
         }
         else
         {
-            user = new WikiAnonymousUser(  );
+            user = new WikiAnonymousUser();
         }
 
         return user;
     }
 
     /**
-     * Get an action number from the action name
-     * @param request The HTTP request
-     * @return The action number
-     */
-    private int getAction( HttpServletRequest request )
-    {
-        String strAction = request.getParameter( Constants.PARAMETER_ACTION );
-        String strPageName = request.getParameter(Constants.PARAMETER_PAGE_NAME );
-                
-        int nAction = (strPageName != null ) ? ACTION_VIEW : ACTION_NONE;
-
-        if ( strAction != null )
-        {
-            if ( strAction.equals( Constants.PARAMETER_ACTION_VIEW ) )
-            {
-                nAction = ACTION_VIEW;
-            }
-            else if ( strAction.equals( Constants.PARAMETER_ACTION_VIEW_HISTORY ) )
-            {
-                nAction = ACTION_VIEW_HISTORY;
-            }
-            else if ( strAction.equals( Constants.PARAMETER_ACTION_VIEW_DIFF ) )
-            {
-                nAction = ACTION_VIEW_DIFF;
-            }
-            else if ( strAction.equals( Constants.PARAMETER_ACTION_CREATE ) )
-            {
-                nAction = ACTION_CREATE;
-            }
-            else if ( strAction.equals( Constants.PARAMETER_ACTION_MODIFY ) )
-            {
-                nAction = ACTION_MODIFY;
-            }
-            else if ( strAction.equals( Constants.PARAMETER_ACTION_SEARCH ) )
-            {
-                nAction = ACTION_SEARCH;
-            }
-        }
-
-        return nAction;
-    }
-
-    /**
      * Gets the topic corresponding to the given page name
+     *
      * @param request The HTTP request
      * @param strPageName The page name
      * @return The topic
      * @throws SiteMessageException If an error occurs
      */
-    private Topic getTopic( HttpServletRequest request, String strPageName )
-        throws SiteMessageException
+    private Topic getTopic(HttpServletRequest request, String strPageName)
+            throws SiteMessageException
     {
-        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
+        Topic topic = TopicHome.findByPrimaryKey(strPageName, _plugin);
 
-        if ( topic == null )
+        if (topic == null)
         {
-            SiteMessageService.setMessage( request, Constants.MESSAGE_PAGE_NOT_EXISTS, SiteMessage.TYPE_STOP );
+            SiteMessageService.setMessage(request, Constants.MESSAGE_PAGE_NOT_EXISTS, SiteMessage.TYPE_STOP);
         }
-
-        String strRole = topic.getRole(  );
-
-        if ( SecurityService.isAuthenticationEnable(  ) && ( !Page.ROLE_NONE.equals( strRole ) ) )
+        else
         {
-            if ( !SecurityService.getInstance(  ).isUserInRole( request, strRole ) )
+
+            String strRole = topic.getRole();
+
+            if (SecurityService.isAuthenticationEnable() && (!Page.ROLE_NONE.equals(strRole)))
             {
-                SiteMessageService.setMessage( request, Constants.MESSAGE_USER_NOT_IN_ROLE, SiteMessage.TYPE_STOP );
+                if (!SecurityService.getInstance().isUserInRole(request, strRole))
+                {
+                    SiteMessageService.setMessage(request, Constants.MESSAGE_USER_NOT_IN_ROLE, SiteMessage.TYPE_STOP);
+                }
             }
         }
-
         return topic;
     }
 
     /**
      * Gets topics visible for a given user
+     *
      * @param request The HTTP request
      * @return The list of topics
      */
-    private List<Topic> getTopicsForUser( HttpServletRequest request )
+    private List<Topic> getTopicsForUser(HttpServletRequest request)
     {
-        Collection<Topic> listTopicAll = TopicHome.getTopicsList( _plugin );
+        Collection<Topic> listTopicAll = TopicHome.getTopicsList(_plugin);
         List<Topic> listTopic;
 
-        if ( SecurityService.isAuthenticationEnable(  ) )
+        if (SecurityService.isAuthenticationEnable())
         {
-            listTopic = new ArrayList<Topic>(  );
+            listTopic = new ArrayList<Topic>();
 
-            for ( Topic topic : listTopicAll )
+            for (Topic topic : listTopicAll)
             {
-                String strRole = topic.getRole(  );
+                String strRole = topic.getRole();
 
-                if ( !Page.ROLE_NONE.equals( strRole ) )
+                if (!Page.ROLE_NONE.equals(strRole))
                 {
-                    if ( SecurityService.getInstance(  ).isUserInRole( request, strRole ) )
+                    if (SecurityService.getInstance().isUserInRole(request, strRole))
                     {
-                        listTopic.add( topic );
+                        listTopic.add(topic);
                     }
                 }
                 else
                 {
-                    listTopic.add( topic );
+                    listTopic.add(topic);
                 }
             }
         }
         else
         {
-            listTopic = new ArrayList<Topic>( listTopicAll );
+            listTopic = new ArrayList<Topic>(listTopicAll);
         }
 
         return listTopic;
@@ -611,12 +536,12 @@ public class WikiApp implements XPageApplication
      *
      * @param request The HTTP request
      */
-    private void init( HttpServletRequest request )
+    private void init(HttpServletRequest request)
     {
-        if ( !_bInit )
+        if (!_bInit)
         {
-            String strWebappUrl = AppPathService.getBaseUrl( request ) + AppPathService.getPortalUrl(  );
-            LuteceWikiParser.setPortalUrl( strWebappUrl );
+            String strWebappUrl = AppPathService.getBaseUrl(request) + AppPathService.getPortalUrl();
+            LuteceWikiParser.setPortalUrl(strWebappUrl);
             _bInit = true;
         }
     }
@@ -627,33 +552,34 @@ public class WikiApp implements XPageApplication
      * @param strPageName The page name
      * @return The page title
      */
-    private String getPageTitle( String strPageName )
+    private String getPageTitle(String strPageName)
     {
-        StringBuilder sbPath = new StringBuilder(  );
-        sbPath.append( AppPropertiesService.getProperty( PROPERTY_PAGE_TITLE ) );
-        sbPath.append( " " );
-        sbPath.append( strPageName );
+        StringBuilder sbPath = new StringBuilder();
+        sbPath.append(AppPropertiesService.getProperty(PROPERTY_PAGE_TITLE));
+        sbPath.append(" ");
+        sbPath.append(strPageName);
 
-        return sbPath.toString(  );
+        return sbPath.toString();
     }
 
     /**
      * Build XML path infos
+     *
      * @param strPageName The page name
      * @return The XML that content path info
      */
-    private String getXmlExtendedPath( String strPageName )
+    private String getXmlExtendedPath(String strPageName)
     {
-        StringBuffer sbXml = new StringBuffer(  );
-        XmlUtil.beginElement( sbXml, TAG_PAGE_LINK );
-        XmlUtil.addElement( sbXml, TAG_PAGE_NAME, AppPropertiesService.getProperty( PROPERTY_PAGE_PATH ) );
-        XmlUtil.addElement( sbXml, TAG_PAGE_URL, "page=wiki" );
-        XmlUtil.endElement( sbXml, TAG_PAGE_LINK );
-        XmlUtil.beginElement( sbXml, TAG_PAGE_LINK );
-        XmlUtil.addElement( sbXml, TAG_PAGE_NAME, strPageName );
-        XmlUtil.addElement( sbXml, TAG_PAGE_URL, "" );
-        XmlUtil.endElement( sbXml, TAG_PAGE_LINK );
+        StringBuffer sbXml = new StringBuffer();
+        XmlUtil.beginElement(sbXml, TAG_PAGE_LINK);
+        XmlUtil.addElement(sbXml, TAG_PAGE_NAME, AppPropertiesService.getProperty(PROPERTY_PAGE_PATH));
+        XmlUtil.addElement(sbXml, TAG_PAGE_URL, "page=wiki");
+        XmlUtil.endElement(sbXml, TAG_PAGE_LINK);
+        XmlUtil.beginElement(sbXml, TAG_PAGE_LINK);
+        XmlUtil.addElement(sbXml, TAG_PAGE_NAME, strPageName);
+        XmlUtil.addElement(sbXml, TAG_PAGE_URL, "");
+        XmlUtil.endElement(sbXml, TAG_PAGE_LINK);
 
-        return sbXml.toString(  );
+        return sbXml.toString();
     }
 }

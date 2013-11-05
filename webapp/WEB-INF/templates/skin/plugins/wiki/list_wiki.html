@@ -12,8 +12,9 @@
         </div>
 
         <div id="div-new-page" style="display:none">
-            <form class="form-search" action="" method="post">
-                <input type="hidden" name="action" value="create" />
+            <form class="form-search" action="jsp/site/Portal.jsp" method="post">
+                <input type="hidden" name="page" value="wiki" />
+                <input type="hidden" name="view" value="createPage" />
                 #i18n{wiki.list_wiki.create} :
                 <div class="input-append">
                     <input class="search-query" id="input-new-page" type="text" name="page_name" />
@@ -26,7 +27,7 @@
 
         <div id="div-search" style="display:none">
             <form class="form-search" action="" method="post">
-                <input type="hidden" name="action" value="search" />
+                <input type="hidden" name="view" value="search" />
                 #i18n{wiki.search_wiki.search} :
                 <div class="input-append">
                     <input class="search-query" id="input-search" type="text" name="query" />
@@ -41,7 +42,7 @@
         <ul>
             <#list list_topic as topic>
             <li>
-                <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}">${topic.pageName}</a>
+                <a href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}">${topic.pageName}</a>
             </li>
             </#list>
         </ul>

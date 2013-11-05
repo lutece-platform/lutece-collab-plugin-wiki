@@ -1,24 +1,28 @@
 <div class="row-fluid">
     <div class="span12">
         <div class="btn-group pull-right">
-            <a class="btn btn-small" href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=modify">
+            <a class="btn btn-small" href="jsp/site/Portal.jsp?page=wiki&view=modifyPage&page_name=${topic.pageName}">
                 <i class="icon-edit"></i>
                 #i18n{wiki.menu.source}
             </a>
-            <a class="btn btn-small" href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=view_history">
+            <a class="btn btn-small" href="jsp/site/Portal.jsp?page=wiki&view=history&page_name=${topic.pageName}&action=view_history">
                 <i class="icon-list"></i>
                 #i18n{wiki.menu.history}
             </a>
         </div>
+        <#if isExtendInstalled?? && isExtendInstalled >
             @Extender[${topic.idTopic},wiki,opengraph]@
+        </#if>
         <div>
             <h1>${topic.pageName}</h1>
             <br/>
             ${result}
         </div>
-        @Extender[${topic.idTopic},wiki,hit,{show:true}]@
-        @Extender[${topic.idTopic},wiki,feedback]@
-        @Extender[${topic.idTopic},wiki,rating,{show:"all"}]@
-        @Extender[${topic.idTopic},wiki,comment]@
+        <#if isExtendInstalled?? && isExtendInstalled >
+            @Extender[${topic.idTopic},wiki,hit,{show:true}]@
+            @Extender[${topic.idTopic},wiki,feedback]@
+            @Extender[${topic.idTopic},wiki,rating,{show:"all"}]@
+            @Extender[${topic.idTopic},wiki,comment]@
+        </#if>
     </div>
 </div>
