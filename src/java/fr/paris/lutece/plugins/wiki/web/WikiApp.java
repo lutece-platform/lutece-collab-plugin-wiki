@@ -58,6 +58,7 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.util.mvc.xpage.MVCApplication;
 import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
@@ -79,7 +80,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * This class provides a simple implementation of an XPage
  */
-@Controller(xpageName = "mvcdemo", pageTitleProperty = "wiki.pageTitle", pagePathProperty = "wiki.pagePathLabel")
+@Controller(xpageName = "wiki", pageTitleProperty = "wiki.pageTitle", pagePathProperty = "wiki.pagePathLabel")
 public class WikiApp extends MVCApplication
 {
 
@@ -119,6 +120,10 @@ public class WikiApp extends MVCApplication
     private static final String VIEW_MODIFY_PAGE = "modifyPage";
     private static final String VIEW_HISTORY = "history";
     private static final String VIEW_SEARCH = "search";
+    
+    private static final String ACTION_CREATE_PAGE = "createPage";
+    private static final String ACTION_MODIFY_PAGE = "modifyPage";
+    private static final String ACTION_DELETE_PAGE = "deletePage";
 
     private static final String TAG_PAGE_LINK = "page_link";
     private static final String TAG_PAGE_NAME = "page-name";
@@ -529,6 +534,100 @@ public class WikiApp extends MVCApplication
         }
 
         return listTopic;
+    }
+
+    /**
+     * Delete a wikipage
+     *
+     * @param request The HTTP Request
+     * @return The redirect URL
+     * @throws UserNotSignedException if user not connected
+     */
+    @Action( ACTION_DELETE_PAGE )
+    public XPage doDeletePage( HttpServletRequest request )
+        throws UserNotSignedException
+    {
+        checkUser( request );
+
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
+        TopicHome.remove( topic.getIdTopic(  ), _plugin );
+
+        return redirectView( request , VIEW_HOME );
+    }
+
+    /**
+     * Create a wikipage
+     *
+     * @param request The HTTP Request
+     * @return The redirect URL
+     * @throws SiteMessageException if an error occurs
+     * @throws UserNotSignedException if user not connected
+     */
+    @Action( ACTION_CREATE_PAGE )
+    public XPage doCreatePage( HttpServletRequest request )
+        throws SiteMessageException, UserNotSignedException
+    {
+        LuteceUser user = checkUser( request );
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        String strContent = request.getParameter( Constants.PARAMETER_CONTENT );
+        String strRole = request.getParameter( Constants.PARAMETER_ROLE );
+
+        if ( TopicHome.findByPrimaryKey( strPageName, _plugin ) != null )
+        {
+            SiteMessageService.setMessage( request, Constants.MESSAGE_PAGE_ALREADY_EXISTS, SiteMessage.TYPE_STOP );
+        }
+
+        Topic topic = new Topic(  );
+        topic.setPageName( strPageName );
+        topic.setRole( strRole );
+
+        Topic newTopic = TopicHome.create( topic, _plugin );
+        TopicVersion version = new TopicVersion(  );
+        version.setEditComment( "" );
+        version.setLuteceUserId( user.getName(  ) );
+        TopicVersionHome.create( version, _plugin );
+        TopicVersionHome.modifyContentOnly( newTopic.getIdTopic(  ), user.getName(  ), "", strContent, 0, _plugin );
+        Map<String,String> mapParameters = new HashMap<String,String>();
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME , strPageName );
+        return redirect( request , VIEW_PAGE , mapParameters );
+    }
+
+    /**
+     * Modify a wikipage
+     *
+     * @param request The HTTP Request
+     * @return The redirect URL
+     * @throws UserNotSignedException If user not connected
+     */
+    @Action( ACTION_MODIFY_PAGE )
+    public XPage doModifyPage( HttpServletRequest request )
+        throws UserNotSignedException
+    {
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        String strContent = request.getParameter( Constants.PARAMETER_CONTENT );
+        String strPreviousVersionId = request.getParameter( Constants.PARAMETER_PREVIOUS_VERSION_ID );
+        String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
+        String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT );
+        String strRole = request.getParameter( Constants.PARAMETER_ROLE );
+
+        LuteceUser user = checkUser( request );
+        int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
+        int nTopicId = Integer.parseInt( strTopicId );
+        TopicVersionHome.modifyContentOnly( nTopicId, user.getName(  ), strComment, strContent, nPreviousVersionId,
+            _plugin );
+
+        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
+
+        if ( !strRole.equals( topic.getRole(  ) ) )
+        {
+            topic.setRole( strRole );
+            TopicHome.update( topic, _plugin );
+        }
+
+        Map<String,String> mapParameters = new HashMap<String,String>();
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME , strPageName );
+        return redirect( request , VIEW_PAGE , mapParameters );
     }
 
     /**

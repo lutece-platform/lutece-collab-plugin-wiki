@@ -1,6 +1,7 @@
 <div class="row-fluid">
     <div class="span12">
-        <form method="post" action="jsp/site/plugins/wiki/DoModifyPage.jsp">
+        <form method="post" action="jsp/site/Portal.jsp">
+            <input type="hidden" name="page" value="wiki" />
             <input type="hidden" name="page_name" value="${topic.pageName}" />
             <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
             <input type="hidden" name="topic_id" value="${topic.idTopic}" />
@@ -9,14 +10,14 @@
             ${extendableResourceActionsHtml!}
 
             <div class="btn-group pull-right">
-                <button class="btn btn-primary btn-small" type="submit">
+                <button name="action_modifyPage" class="btn btn-primary btn-small" type="submit">
                     <i class="icon-ok icon-white"></i>
                     #i18n{wiki.modify_page.buttonModify}
                 </button>
-                <a class="btn btn-small" href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}">
+                <button name="view_page" class="btn btn-small" type="submit">
                     <i class="icon-remove"></i>
                     #i18n{portal.util.labelCancel}
-                </a>
+                </button>
                 <button id="btn-delete" class="btn btn-small" type="button">
                     <i class="icon-trash"></i>
                     #i18n{portal.util.labelDelete}
@@ -33,9 +34,9 @@
                 <div class="alert alert-error" id="div-confirm-delete" style="display:none">
                     #i18n{wiki.message.confirmDelete}
                     <div class="pull-right">
-                        <a href="jsp/site/plugins/wiki/DoDeletePage.jsp?page_name=${topic.pageName}" class="btn btn-danger btn-small"  >
+                        <button name="action_deletePage" class="btn btn-danger btn-small" type="submit" >
                             #i18n{portal.util.labelOk}
-                        </a>
+                        </button>
                         <button id="btn-delete-cancel" class="btn btn-small" type="button" >
                             #i18n{portal.util.labelCancel}
                         </button>
