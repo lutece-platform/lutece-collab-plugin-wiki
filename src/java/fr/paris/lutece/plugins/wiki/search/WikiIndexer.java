@@ -33,6 +33,17 @@
  */
 package fr.paris.lutece.plugins.wiki.search;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.lucene.document.DateTools;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+
 import fr.paris.lutece.plugins.wiki.business.Topic;
 import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
@@ -47,17 +58,6 @@ import fr.paris.lutece.portal.service.search.SearchIndexer;
 import fr.paris.lutece.portal.service.search.SearchItem;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.url.UrlItem;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.lucene.document.DateTools;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
 
 
 /**
@@ -241,14 +241,13 @@ public class WikiIndexer implements SearchIndexer
         }
 
         String strWikiResult = new LuteceWikiParser( strWikiContent ).toString( ) + " " + topic.getPageName( );
-        doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, TextField.TYPE_STORED ) );
+        doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, TextField.TYPE_NOT_STORED ) );
 
         String strDate = DateTools.dateToString( latestTopicVersion.getDateEdition( ), DateTools.Resolution.DAY );
-        doc.add( new Field( SearchItem.FIELD_DATE, strDate, ft ) ); // return the document
+        doc.add( new Field( SearchItem.FIELD_DATE, strDate, ft ) );
 
         // Add the subject name as a separate Text field, so that it can be
-        // searched
-        // separately.
+        // searched separately.
         doc.add( new Field( SearchItem.FIELD_TITLE, topic.getPageName( ), ft ) );
 
         doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType( ), ft ) );
