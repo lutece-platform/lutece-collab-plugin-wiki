@@ -120,6 +120,7 @@ public class WikiApp extends MVCApplication
     private static final String VIEW_MODIFY_PAGE = "modifyPage";
     private static final String VIEW_HISTORY = "history";
     private static final String VIEW_SEARCH = "search";
+    private static final String VIEW_DIFF = "diff";
     
     private static final String ACTION_CREATE_PAGE = "createPage";
     private static final String ACTION_MODIFY_PAGE = "modifyPage";
@@ -395,18 +396,22 @@ public class WikiApp extends MVCApplication
      * @param strPageName The page name
      * @throws SiteMessageException if an error occurs
      */
-    private void viewDiff(XPage page, HttpServletRequest request, String strPageName)
+    @View( VIEW_DIFF )
+    public XPage viewDiff( HttpServletRequest request )
             throws SiteMessageException
     {
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic(request, strPageName);
         String strNewVersion = request.getParameter(Constants.PARAMETER_NEW_VERSION);
         String strOldVersion = request.getParameter(Constants.PARAMETER_OLD_VERSION);
         int nNewTopicVersion = Integer.parseInt(strNewVersion);
         int nOldTopicVersion = Integer.parseInt(strOldVersion);
 
+        XPage page = new XPage();
         page.setContent(viewTopicDiff(request, topic, nNewTopicVersion, nOldTopicVersion));
         page.setTitle(getPageTitle(strPageName));
         page.setXmlExtendedPathLabel(getXmlExtendedPath(strPageName));
+        return page;
     }
 
     /**

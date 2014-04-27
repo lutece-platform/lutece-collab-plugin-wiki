@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-sm-12">
-        <form method="post" action="jsp/site/Portal.jsp?page=wiki&action=view_diff">
+        <form method="post" action="jsp/site/Portal.jsp">
             <div class="btn-group pull-right">
                 <button class="btn btn-primary btn-small" type="submit">
                     <span class="glyphicon glyphicon-eye-open"></span>
@@ -16,7 +16,10 @@
             <div>
                 <fieldset>
                     <legend>${topic.pageName}</legend>
+                    <input type="hidden" name="page" value="wiki" />
                     <input type="hidden" name="page_name" value="${topic.pageName}" />
+                    <input type="hidden" name="view" value="diff" />
+                    
                     <ul>
                         
                         <#list listTopicVersion as lastVersion >
