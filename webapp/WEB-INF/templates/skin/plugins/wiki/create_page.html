@@ -1,21 +1,21 @@
-<div class="row-fluid">
-    <div class="span12">
+<div class="row">
+    <div class="col-sm-12">
 
         <form method="post" action="jsp/site/Portal.jsp">
             <input type="hidden" name="page" value="wiki" />
             <input type="hidden" name="page_name" value="${topic.pageName}" />
             <div class="btn-group pull-right">
                 <button name="action_createPage" class="btn btn-primary btn-small" type="submit">
-                    <i class="icon-ok icon-white"></i>
+                    <span class="glyphicon glyphicon-ok"></span>
                     #i18n{wiki.create_page.buttonCreate}
                 </button>
                 <button id="btn-help" class="btn btn-small" type="button" >
-                    <i class="icon-question-sign"></i>
+                    <span class="glyphicon glyphicon-question-sign"></span>
                     #i18n{wiki.menu.help}
                 </button>
             </div>
 
-            <div class="span7">
+            <div class="col-sm-7">
                 <h1>${topic.pageName}</h1>
                 <textarea id="wiki" class="input-xxlarge" name="content" rows="20" ></textarea>
                 
@@ -26,7 +26,7 @@
 
             </div>
 
-            <div id="help" class="span4 pull-right" style="display:none" >
+            <div id="help" class="col-sm-4 pull-right" style="display:none" >
                 <br>
                 <img src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/>
             </div>
