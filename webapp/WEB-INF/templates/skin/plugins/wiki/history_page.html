@@ -1,38 +1,43 @@
 <div class="row">
     <div class="col-sm-12">
         <form method="post" action="jsp/site/Portal.jsp">
-            <div class="btn-group pull-right">
-                <button class="btn btn-primary btn-small" type="submit">
+                    <input type="hidden" name="page" value="wiki" />
+                    <input type="hidden" name="page_name" value="${topic.pageName}" />
+                    <input type="hidden" name="view" value="diff" />
+            <div class="btn-group btn-group-xs pull-right">
+                <button class="btn btn-primary" type="submit" title="#i18n{wiki.menu.diff}">
                     <span class="glyphicon glyphicon-eye-open"></span>
-                    #i18n{wiki.menu.diff}
                 </button>
-                <a class="btn btn-small" href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}">
+                <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
                     <span class="glyphicon glyphicon-chevron-left"></span>
-                    #i18n{wiki.button.backToPage}
                 </a>
             </div>
             <h1>#i18n{wiki.menu.history}</h1>
 
             <div>
-                <fieldset>
-                    <legend>${topic.pageName}</legend>
-                    <input type="hidden" name="page" value="wiki" />
-                    <input type="hidden" name="page_name" value="${topic.pageName}" />
-                    <input type="hidden" name="view" value="diff" />
+                <p>#i18n{wiki.history_page.explanation}</p>
                     
-                    <ul>
-                        
+                    <table class="table table-condensed table-striped">
+                        <tr>
+                            <th>#i18n{wiki.history_page.tableHeader.mostRecent}</th>
+                            <th>#i18n{wiki.history_page.tableHeader.lessRecent}</th>
+                            <th>#i18n{wiki.history_page.tableHeader.date}</th>
+                            <th>#i18n{wiki.history_page.tableHeader.author}</th>
+                            <th>#i18n{wiki.history_page.tableHeader.comment}</th>
+                        </tr>
                         <#list listTopicVersion as lastVersion >
-                        <li>
-                            <input name="new_version" id="new_version" type="radio" value="${lastVersion.idTopicVersion}">
-                            <input name="old_version" id="old_version" type="radio" value="${lastVersion.idTopicVersion}">
-                            ${lastVersion.dateEdition}
-                            <span>${lastVersion.luteceUserId}</span>
-                            <span>${lastVersion.editComment} </span>
-                        </li>
+                        <tr>
+                            <td><input name="new_version" id="new_version" type="radio" value="${lastVersion.idTopicVersion}"></td>
+                            <td><input name="old_version" id="old_version" type="radio" value="${lastVersion.idTopicVersion}"></td>
+                            <td>${lastVersion.dateEdition}</td>
+                            <td>
+                                <img class="avatar-small" src="${lastVersion.userAvatarUrl!''}" alt="avatar" />
+                                ${lastVersion.userName!''} ${lastVersion.userPseudo!''}
+                            </td>
+                            <td>${lastVersion.editComment}</td>
+                        </tr>
                         </#list>
-                    </ul>
-                </fieldset>
+                    </table>
             </div>
         </form>
     </div>

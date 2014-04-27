@@ -1,13 +1,11 @@
 <div class="row">
     <div class="col-sm-12">
-        <div class="btn-group pull-right">
-            <a class="btn btn-small" href="jsp/site/Portal.jsp?page=wiki&view=modifyPage&page_name=${topic.pageName}">
+        <div class="btn-group btn-group-xs pull-right">
+            <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&action=editPage&page_name=${topic.pageName}" title="#i18n{wiki.menu.source}">
                 <span class="glyphicon glyphicon-edit"></span>
-                #i18n{wiki.menu.source}
             </a>
-            <a class="btn btn-small" href="jsp/site/Portal.jsp?page=wiki&view=history&page_name=${topic.pageName}&action=view_history">
+            <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=history&page_name=${topic.pageName}&action=view_history" title="#i18n{wiki.menu.history}">
                 <span class="glyphicon glyphicon-list"></span>
-                #i18n{wiki.menu.history}
             </a>
         </div>
         <#if isExtendInstalled?? && isExtendInstalled >

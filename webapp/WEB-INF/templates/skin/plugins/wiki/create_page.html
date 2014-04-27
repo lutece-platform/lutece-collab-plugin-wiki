@@ -4,14 +4,12 @@
         <form method="post" action="jsp/site/Portal.jsp">
             <input type="hidden" name="page" value="wiki" />
             <input type="hidden" name="page_name" value="${topic.pageName}" />
-            <div class="btn-group pull-right">
-                <button name="action_createPage" class="btn btn-primary btn-small" type="submit">
+            <div class="btn-group btn-group-xs pull-right">
+                <button name="action_createPage" class="btn btn-primary" type="submit" title="#i18n{wiki.create_page.buttonCreate}">
                     <span class="glyphicon glyphicon-ok"></span>
-                    #i18n{wiki.create_page.buttonCreate}
                 </button>
-                <button id="btn-help" class="btn btn-small" type="button" >
+                <button id="btn-help" class="btn btn-default" type="button" title="#i18n{wiki.menu.help}">
                     <span class="glyphicon glyphicon-question-sign"></span>
-                    #i18n{wiki.menu.help}
                 </button>
             </div>
 

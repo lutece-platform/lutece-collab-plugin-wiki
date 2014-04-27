@@ -49,6 +49,9 @@ public class TopicVersion
     private Timestamp _strDateEdition;
     private int _nIdTopicVersionPrevious;
     private String _strWikiContent;
+    private String _strUserPseudo;
+    private String _strUserAvatarUrl;
+    private String _strUserName;
 
     /**
      * Returns the IdTopicVersion
@@ -175,4 +178,62 @@ public class TopicVersion
     {
         _nIdTopicVersionPrevious = nIdTopicVersionPrevious;
     }
+    
+    
+    /**
+     * Returns the UserPseudo
+     * @return The UserPseudo
+     */
+    public String getUserPseudo(  )
+    {
+        return _strUserPseudo;
+    }
+
+    /**
+     * Sets the UserPseudo
+     * @param strUserPseudo The UserPseudo
+     */
+    public void setUserPseudo( String strUserPseudo )
+    {
+        _strUserPseudo = strUserPseudo;
+    }
+
+    /**
+     * Returns the UserName
+     * @return The UserName
+     */
+    public String getUserName(  )
+    {
+        return _strUserName;
+    }
+
+    /**
+     * Sets the UserName
+     * @param strUserName The UserName
+     */
+    public void setUserName( String strUserName )
+    {
+        _strUserName = strUserName;
+    }
+
+    /**
+     * Returns the UserAvatarUrl
+     * @return The UserAvatarUrl
+     */
+    public String getUserAvatarUrl(  )
+    {
+        return _strUserAvatarUrl;
+    }
+
+    /**
+     * Sets the UserAvatarUrl
+     * @param strUserAvatarUrl The UserAvatarUrl
+     */
+    public void setUserAvatarUrl( String strUserAvatarUrl )
+    {
+        _strUserAvatarUrl = strUserAvatarUrl;
+    }
+
+
+
 }

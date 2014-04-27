@@ -9,22 +9,18 @@
             <input type="hidden" name="page_name" value="${topic.pageName}" />
             <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
             <input type="hidden" name="topic_id" value="${topic.idTopic}" />
-            <div class="btn-group pull-right">
-                <button name="action_modifyPage" class="btn btn-primary btn-small" type="submit">
+            <div class="btn-group btn-group-xs pull-right">
+                <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}">
                     <span class="glyphicon glyphicon-ok"></span>
-                    #i18n{wiki.modify_page.buttonModify}
                 </button>
-                <button name="view_page" class="btn btn-small" type="submit">
+                <button name="view_page" class="btn btn-default" type="submit" title="#i18n{portal.util.labelCancel}">
                     <span class="glyphicon glyphicon-remove"></span>
-                    #i18n{portal.util.labelCancel}
                 </button>
-                <button id="btn-delete" class="btn btn-small" type="button">
+                <button id="btn-delete" class="btn btn-default" type="button" title="#i18n{portal.util.labelDelete}">
                     <span class="glyphicon glyphicon-trash"></span>
-                    #i18n{portal.util.labelDelete}
                 </button>
-                <button id="btn-help" class="btn btn-small" type="button">
+                <button id="btn-help" class="btn btn-default" type="button" title="#i18n{wiki.menu.help}">
                     <span class="glyphicon glyphicon-question-sign"></span>
-                    #i18n{wiki.menu.help}
                 </button>
 
             </div>
@@ -34,10 +30,10 @@
                 <div class="alert alert-error" id="div-confirm-delete" style="display:none">
                     #i18n{wiki.message.confirmDelete}
                     <div class="pull-right">
-                        <button name="action_deletePage" class="btn btn-danger btn-small" type="submit" >
+                        <button name="action_deletePage" class="btn btn-danger btn-xs" type="submit" >
                             #i18n{portal.util.labelOk}
                         </button>
-                        <button id="btn-delete-cancel" class="btn btn-small" type="button" >
+                        <button id="btn-delete-cancel" class="btn btn-xs" type="button" >
                             #i18n{portal.util.labelCancel}
                         </button>
                     </div>

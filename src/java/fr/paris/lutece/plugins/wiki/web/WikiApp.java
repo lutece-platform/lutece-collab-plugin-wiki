@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.wiki.web;
 
+import fr.paris.lutece.plugins.avatar.service.AvatarService;
 import fr.paris.lutece.plugins.wiki.business.Topic;
 import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
@@ -49,6 +50,7 @@ import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.message.SiteMessageService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
+import fr.paris.lutece.portal.service.prefs.UserPreferencesService;
 import fr.paris.lutece.portal.service.search.SearchEngine;
 import fr.paris.lutece.portal.service.search.SearchResult;
 import fr.paris.lutece.portal.service.security.LuteceUser;
@@ -68,13 +70,13 @@ import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.html.Paginator;
 import fr.paris.lutece.util.url.UrlItem;
 import fr.paris.lutece.util.xml.XmlUtil;
-
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -122,7 +124,9 @@ public class WikiApp extends MVCApplication
     private static final String VIEW_SEARCH = "search";
     private static final String VIEW_DIFF = "diff";
     
+    private static final String ACTION_NEW_PAGE = "newPage";
     private static final String ACTION_CREATE_PAGE = "createPage";
+    private static final String ACTION_EDIT_PAGE = "editPage";
     private static final String ACTION_MODIFY_PAGE = "modifyPage";
     private static final String ACTION_DELETE_PAGE = "deletePage";
 
@@ -309,6 +313,24 @@ public class WikiApp extends MVCApplication
      *
      * @param request The request
      * @return The XPage
+     * @throws UserNotSignedException if the user is not signed
+     * @throws java.io.UnsupportedEncodingException if an encoding exception occurs
+     */
+    @Action( ACTION_NEW_PAGE )
+    public XPage newPage( HttpServletRequest request ) throws UserNotSignedException, UnsupportedEncodingException
+    {
+        checkUser( request );
+        String strPageName = request.getParameter(Constants.PARAMETER_PAGE_NAME);
+        Map<String,String> mapParameters = new HashMap<String,String>();
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, URLEncoder.encode( strPageName , "UTF-8" ));
+        return redirect( request , VIEW_CREATE_PAGE, mapParameters );
+    }
+    
+    /**
+     * Create a new Page
+     *
+     * @param request The request
+     * @return The XPage
      * @throws SiteMessageException if an error occurs
      */
     @View(VIEW_CREATE_PAGE)
@@ -336,6 +358,22 @@ public class WikiApp extends MVCApplication
         return page;
     }
 
+    /**
+     * Display the Edit page
+     * @param request The HTTP request
+     * @return The page
+     * @throws UserNotSignedException if the user is not signed 
+     * @throws java.io.UnsupportedEncodingException if an encoding exception occurs
+     */
+    @Action( ACTION_EDIT_PAGE )
+    public XPage edit( HttpServletRequest request ) throws UserNotSignedException, UnsupportedEncodingException
+    {
+        checkUser( request );
+        String strPageName = request.getParameter(Constants.PARAMETER_PAGE_NAME);
+        Map<String,String> mapParameters = new HashMap<String,String>();
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, URLEncoder.encode( strPageName , "UTF-8" ));
+        return redirect( request , VIEW_MODIFY_PAGE, mapParameters );
+    }
     /**
      * Display the edit mode
      *
@@ -379,6 +417,7 @@ public class WikiApp extends MVCApplication
         Map<String, Object> model = getModel();
         Collection<TopicVersion> listTopicVersions = TopicVersionHome.findAllVersions(topic.getIdTopic(), _plugin);
 
+        fillUsersData( listTopicVersions );
         model.put(MARK_LIST_TOPIC_VERSION, listTopicVersions);
         model.put(MARK_TOPIC, topic);
 
@@ -391,9 +430,8 @@ public class WikiApp extends MVCApplication
     /**
      * Display the diff page
      *
-     * @param page The xpage
      * @param request The HTTP request
-     * @param strPageName The page name
+     * @return The XPage
      * @throws SiteMessageException if an error occurs
      */
     @View( VIEW_DIFF )
@@ -689,5 +727,24 @@ public class WikiApp extends MVCApplication
         XmlUtil.endElement(sbXml, TAG_PAGE_LINK);
 
         return sbXml.toString();
+    }
+
+    private void fillUsersData(Collection<TopicVersion> listTopicVersions)
+    {
+        for(  TopicVersion version : listTopicVersions )
+        {
+            String strUserId = version.getLuteceUserId();
+            LuteceUser user = SecurityService.getInstance().getUser( strUserId );
+            if( user != null )
+            {
+                version.setUserName( user.getUserInfo(LuteceUser.NAME_GIVEN) + " " + user.getUserInfo( LuteceUser.NAME_FAMILY ) );
+                version.setUserAvatarUrl( AvatarService.getAvatarUrl( user.getEmail() ));
+            }
+            else
+            {
+                version.setUserPseudo( UserPreferencesService.instance().getNickname(strUserId));
+                version.setUserAvatarUrl( AvatarService.getAvatarUrl(strUserId) );
+            }
+        }
     }
 }

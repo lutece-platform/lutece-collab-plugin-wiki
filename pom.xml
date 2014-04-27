@@ -27,8 +27,14 @@
         <dependency>
             <groupId>fr.paris.lutece</groupId>
             <artifactId>lutece-core</artifactId>
-            <version>[4.1.1-SNAPSHOT,)</version>
+            <version>[4.9.9-SNAPSHOT,)</version>
             <type>lutece-core</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-avatar</artifactId>
+            <version>[1.2.0,)</version>
+            <type>lutece-plugin</type>
         </dependency>
         <dependency>
             <groupId>org.htmlparser</groupId>
