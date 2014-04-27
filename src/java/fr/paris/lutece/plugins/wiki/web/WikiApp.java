@@ -454,6 +454,10 @@ public class WikiApp extends MVCApplication
         if (SecurityService.isAuthenticationEnable())
         {
             user = SecurityService.getInstance().getRemoteUser(request);
+            if( user ==  null )
+            {
+                throw new UserNotSignedException();
+            }
         }
         else
         {
