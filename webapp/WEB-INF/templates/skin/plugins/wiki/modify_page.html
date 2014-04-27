@@ -1,36 +1,36 @@
-<div class="row-fluid">
-    <div class="span12">
+<div class="row">
+    <div class="col-sm-12">
+
+        <!-- Extends --> 
+        $ {extendableResourceActionsHtml!}
+
         <form method="post" action="jsp/site/Portal.jsp">
             <input type="hidden" name="page" value="wiki" />
             <input type="hidden" name="page_name" value="${topic.pageName}" />
             <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
             <input type="hidden" name="topic_id" value="${topic.idTopic}" />
-
-            <!-- Extends --> 
-            ${extendableResourceActionsHtml!}
-
             <div class="btn-group pull-right">
                 <button name="action_modifyPage" class="btn btn-primary btn-small" type="submit">
-                    <i class="icon-ok icon-white"></i>
+                    <span class="glyphicon glyphicon-ok"></span>
                     #i18n{wiki.modify_page.buttonModify}
                 </button>
                 <button name="view_page" class="btn btn-small" type="submit">
-                    <i class="icon-remove"></i>
+                    <span class="glyphicon glyphicon-remove"></span>
                     #i18n{portal.util.labelCancel}
                 </button>
                 <button id="btn-delete" class="btn btn-small" type="button">
-                    <i class="icon-trash"></i>
+                    <span class="glyphicon glyphicon-trash"></span>
                     #i18n{portal.util.labelDelete}
                 </button>
                 <button id="btn-help" class="btn btn-small" type="button">
-                    <i class="icon-question-sign"></i>
+                    <span class="glyphicon glyphicon-question-sign"></span>
                     #i18n{wiki.menu.help}
                 </button>
-                
+
             </div>
-            
-            
-            <div class="span7">
+
+
+            <div class="col-sm-8">
                 <div class="alert alert-error" id="div-confirm-delete" style="display:none">
                     #i18n{wiki.message.confirmDelete}
                     <div class="pull-right">
@@ -56,7 +56,7 @@
 
 
             </div>
-            <div id="help" class="span4 pull-right" style="display:none">
+            <div id="help" class="clo-sm-4 pull-right" style="display:none">
                 <br/>
                 <img src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/>
             </div>
