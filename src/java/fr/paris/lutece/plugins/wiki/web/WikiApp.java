@@ -742,9 +742,9 @@ public class WikiApp extends MVCApplication
             }
             else
             {
-                version.setUserPseudo( UserPreferencesService.instance().getNickname(strUserId));
                 version.setUserAvatarUrl( AvatarService.getAvatarUrl(strUserId) );
             }
+            version.setUserPseudo( UserPreferencesService.instance().getNickname(strUserId));
         }
     }
 }
