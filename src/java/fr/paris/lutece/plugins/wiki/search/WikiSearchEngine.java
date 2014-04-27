@@ -40,12 +40,6 @@ import fr.paris.lutece.portal.service.search.SearchItem;
 import fr.paris.lutece.portal.service.search.SearchResult;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -59,6 +53,13 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+
+import java.text.ParseException;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -75,26 +76,26 @@ public class WikiSearchEngine implements SearchEngine
     @Override
     public List<SearchResult> getSearchResults( String strQuery, HttpServletRequest request )
     {
-        ArrayList<SearchItem> listResults = new ArrayList<SearchItem>( );
+        ArrayList<SearchItem> listResults = new ArrayList<SearchItem>(  );
         IndexSearcher searcher;
 
         try
         {
-            IndexReader ir = DirectoryReader.open( IndexationService.getDirectoryIndex( ) );
+            IndexReader ir = DirectoryReader.open( IndexationService.getDirectoryIndex(  ) );
             searcher = new IndexSearcher( ir );
 
-            BooleanQuery query = new BooleanQuery( );
+            BooleanQuery query = new BooleanQuery(  );
 
             // Contents
             if ( ( strQuery != null ) && !strQuery.equals( "" ) )
             {
                 QueryParser parser = new QueryParser( IndexationService.LUCENE_INDEX_VERSION,
-                        SearchItem.FIELD_CONTENTS, IndexationService.getAnalyser( ) );
+                        SearchItem.FIELD_CONTENTS, IndexationService.getAnalyser(  ) );
                 query.add( parser.parse( strQuery ), BooleanClause.Occur.MUST );
             }
 
             // Type
-            Query queryType = new TermQuery( new Term( SearchItem.FIELD_TYPE, WikiIndexer.getDocumentType( ) ) );
+            Query queryType = new TermQuery( new Term( SearchItem.FIELD_TYPE, WikiIndexer.getDocumentType(  ) ) );
             query.add( queryType, BooleanClause.Occur.MUST );
 
             // Get results documents
@@ -111,7 +112,7 @@ public class WikiSearchEngine implements SearchEngine
         }
         catch ( Exception e )
         {
-            AppLogService.error( e.getMessage( ), e );
+            AppLogService.error( e.getMessage(  ), e );
         }
 
         return convertList( listResults );
@@ -124,27 +125,27 @@ public class WikiSearchEngine implements SearchEngine
      */
     private List<SearchResult> convertList( List<SearchItem> listSource )
     {
-        List<SearchResult> listDest = new ArrayList<SearchResult>( );
+        List<SearchResult> listDest = new ArrayList<SearchResult>(  );
 
         for ( SearchItem item : listSource )
         {
-            SearchResult result = new SearchResult( );
-            result.setId( item.getId( ) );
+            SearchResult result = new SearchResult(  );
+            result.setId( item.getId(  ) );
 
             try
             {
-                result.setDate( DateTools.stringToDate( item.getDate( ) ) );
+                result.setDate( DateTools.stringToDate( item.getDate(  ) ) );
             }
             catch ( ParseException e )
             {
-                AppLogService.error( "Bad Date Format for indexed item \"" + item.getTitle( ) + "\" : "
-                        + e.getMessage( ) );
+                AppLogService.error( "Bad Date Format for indexed item \"" + item.getTitle(  ) + "\" : " +
+                    e.getMessage(  ) );
             }
 
-            result.setUrl( item.getUrl( ) );
-            result.setTitle( item.getTitle( ) );
-            result.setSummary( item.getSummary( ) );
-            result.setType( item.getType( ) );
+            result.setUrl( item.getUrl(  ) );
+            result.setTitle( item.getTitle(  ) );
+            result.setSummary( item.getSummary(  ) );
+            result.setType( item.getType(  ) );
             listDest.add( result );
         }
 

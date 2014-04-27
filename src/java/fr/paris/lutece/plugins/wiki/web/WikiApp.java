@@ -70,24 +70,27 @@ import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.html.Paginator;
 import fr.paris.lutece.util.url.UrlItem;
 import fr.paris.lutece.util.xml.XmlUtil;
+
 import java.io.UnsupportedEncodingException;
+
 import java.net.URLEncoder;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * This class provides a simple implementation of an XPage
  */
-@Controller(xpageName = "wiki", pageTitleProperty = "wiki.pageTitle", pagePathProperty = "wiki.pagePathLabel")
+@Controller( xpageName = "wiki", pageTitleProperty = "wiki.pageTitle", pagePathProperty = "wiki.pagePathLabel" )
 public class WikiApp extends MVCApplication
 {
-
     public static final int ACTION_VIEW = 1;
-
     private static final String TEMPLATE_MODIFY_WIKI = "skin/plugins/wiki/modify_page.html";
     private static final String TEMPLATE_CREATE_WIKI = "skin/plugins/wiki/create_page.html";
     private static final String TEMPLATE_VIEW_WIKI = "skin/plugins/wiki/view_page.html";
@@ -115,7 +118,6 @@ public class WikiApp extends MVCApplication
     private static final String MARK_QUERY = "query";
     private static final String MARK_PAGINATOR = "paginator";
     private static final String MARK_NB_ITEMS_PER_PAGE = "nb_items_per_page";
-
     private static final String VIEW_HOME = "home";
     private static final String VIEW_PAGE = "page";
     private static final String VIEW_CREATE_PAGE = "createPage";
@@ -123,19 +125,17 @@ public class WikiApp extends MVCApplication
     private static final String VIEW_HISTORY = "history";
     private static final String VIEW_SEARCH = "search";
     private static final String VIEW_DIFF = "diff";
-    
     private static final String ACTION_NEW_PAGE = "newPage";
     private static final String ACTION_CREATE_PAGE = "createPage";
     private static final String ACTION_EDIT_PAGE = "editPage";
     private static final String ACTION_MODIFY_PAGE = "modifyPage";
     private static final String ACTION_DELETE_PAGE = "deletePage";
-
     private static final String TAG_PAGE_LINK = "page_link";
     private static final String TAG_PAGE_NAME = "page-name";
     private static final String TAG_PAGE_URL = "page-url";
 
     // private fields
-    private final Plugin _plugin = PluginService.getPlugin(Constants.PLUGIN_NAME);
+    private final Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
     private boolean _bInit;
     private String _strCurrentPageIndex;
     private int _nDefaultItemsPerPage;
@@ -152,6 +152,7 @@ public class WikiApp extends MVCApplication
      * Message displayed if an exception occurs
      * @throws UserNotSignedException if user not connected
      */
+
     /*
      @Override
      public XPage getPage( HttpServletRequest request, int nMode, Plugin plugin )
@@ -211,18 +212,21 @@ public class WikiApp extends MVCApplication
      return page;
      }
      */
+
     /**
      * Gets the Home page
      *
      * @param request The HTTP request
      * @return The XPage
      */
-    @View(value = VIEW_HOME, defaultView = true)
-    public XPage home(HttpServletRequest request)
+    @View( value = VIEW_HOME, defaultView = true )
+    public XPage home( HttpServletRequest request )
     {
-        XPage page = getTopicsListPage(request);
-        page.setTitle(getPageTitle(I18nService.getLocalizedString(PROPERTY_TITLE_LIST, request.getLocale())));
-        page.setXmlExtendedPathLabel(getXmlExtendedPath(I18nService.getLocalizedString(PROPERTY_PATH_LIST, request.getLocale())));
+        XPage page = getTopicsListPage( request );
+        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_LIST, request.getLocale(  ) ) ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_LIST,
+                    request.getLocale(  ) ) ) );
+
         return page;
     }
 
@@ -233,36 +237,37 @@ public class WikiApp extends MVCApplication
      * @return Thye XPage
      */
     @View( VIEW_SEARCH )
-    public XPage search(HttpServletRequest request)
+    public XPage search( HttpServletRequest request )
     {
-        String strQuery = request.getParameter(Constants.PARAMETER_QUERY);
-        String strPortalUrl = AppPathService.getPortalUrl();
+        String strQuery = request.getParameter( Constants.PARAMETER_QUERY );
+        String strPortalUrl = AppPathService.getPortalUrl(  );
 
-        UrlItem urlWikiXpage = new UrlItem(strPortalUrl);
-        urlWikiXpage.addParameter(XPageAppService.PARAM_XPAGE_APP, Constants.PLUGIN_NAME);
-        urlWikiXpage.addParameter(Constants.PARAMETER_ACTION, Constants.PARAMETER_ACTION_SEARCH);
+        UrlItem urlWikiXpage = new UrlItem( strPortalUrl );
+        urlWikiXpage.addParameter( XPageAppService.PARAM_XPAGE_APP, Constants.PLUGIN_NAME );
+        urlWikiXpage.addParameter( Constants.PARAMETER_ACTION, Constants.PARAMETER_ACTION_SEARCH );
 
-        _strCurrentPageIndex = Paginator.getPageIndex(request, Paginator.PARAMETER_PAGE_INDEX, _strCurrentPageIndex);
-        _nDefaultItemsPerPage = AppPropertiesService.getPropertyInt(PROPERTY_DEFAULT_RESULT_PER_PAGE, 10);
-        _nItemsPerPage = Paginator.getItemsPerPage(request, Paginator.PARAMETER_ITEMS_PER_PAGE, _nItemsPerPage,
-                _nDefaultItemsPerPage);
+        _strCurrentPageIndex = Paginator.getPageIndex( request, Paginator.PARAMETER_PAGE_INDEX, _strCurrentPageIndex );
+        _nDefaultItemsPerPage = AppPropertiesService.getPropertyInt( PROPERTY_DEFAULT_RESULT_PER_PAGE, 10 );
+        _nItemsPerPage = Paginator.getItemsPerPage( request, Paginator.PARAMETER_ITEMS_PER_PAGE, _nItemsPerPage,
+                _nDefaultItemsPerPage );
 
-        SearchEngine engine = (SearchEngine) SpringContextService.getBean(BEAN_SEARCH_ENGINE);
-        List<SearchResult> listResults = engine.getSearchResults(strQuery, request);
+        SearchEngine engine = (SearchEngine) SpringContextService.getBean( BEAN_SEARCH_ENGINE );
+        List<SearchResult> listResults = engine.getSearchResults( strQuery, request );
 
-        Paginator paginator = new Paginator(listResults, _nItemsPerPage, urlWikiXpage.getUrl(),
-                Constants.PARAMETER_PAGE_INDEX, _strCurrentPageIndex);
+        Paginator paginator = new Paginator( listResults, _nItemsPerPage, urlWikiXpage.getUrl(  ),
+                Constants.PARAMETER_PAGE_INDEX, _strCurrentPageIndex );
 
-        Map<String, Object> model = getModel();
-        model.put(MARK_RESULT, paginator.getPageItems());
-        model.put(MARK_QUERY, strQuery);
-        model.put(MARK_PAGINATOR, paginator);
-        model.put(MARK_NB_ITEMS_PER_PAGE, "" + _nItemsPerPage);
+        Map<String, Object> model = getModel(  );
+        model.put( MARK_RESULT, paginator.getPageItems(  ) );
+        model.put( MARK_QUERY, strQuery );
+        model.put( MARK_PAGINATOR, paginator );
+        model.put( MARK_NB_ITEMS_PER_PAGE, "" + _nItemsPerPage );
 
-        XPage page = getXPage(TEMPLATE_SEARCH_WIKI, request.getLocale(), model);
-        page.setTitle(getPageTitle(I18nService.getLocalizedString(PROPERTY_TITLE_SEARCH, request.getLocale())));
-        page.setXmlExtendedPathLabel(getXmlExtendedPath(I18nService.getLocalizedString(PROPERTY_PATH_SEARCH,
-                request.getLocale())));
+        XPage page = getXPage( TEMPLATE_SEARCH_WIKI, request.getLocale(  ), model );
+        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_SEARCH, request.getLocale(  ) ) ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_SEARCH,
+                    request.getLocale(  ) ) ) );
+
         return page;
     }
 
@@ -272,14 +277,14 @@ public class WikiApp extends MVCApplication
      * @param request The HTTP request
      * @return The page
      */
-    private XPage getTopicsListPage(HttpServletRequest request)
+    private XPage getTopicsListPage( HttpServletRequest request )
     {
-        List<Topic> listTopic = getTopicsForUser(request);
+        List<Topic> listTopic = getTopicsForUser( request );
 
-        Map<String, Object> model = getModel();
-        model.put(MARK_LIST_TOPIC, listTopic);
+        Map<String, Object> model = getModel(  );
+        model.put( MARK_LIST_TOPIC, listTopic );
 
-        return getXPage(TEMPLATE_LIST_WIKI, request.getLocale(), model);
+        return getXPage( TEMPLATE_LIST_WIKI, request.getLocale(  ), model );
     }
 
     /**
@@ -289,22 +294,22 @@ public class WikiApp extends MVCApplication
      * @return The XPage
      * @throws SiteMessageException if an error occurs
      */
-    @View(VIEW_PAGE)
-    public XPage view(HttpServletRequest request)
-            throws SiteMessageException
+    @View( VIEW_PAGE )
+    public XPage view( HttpServletRequest request ) throws SiteMessageException
     {
-        String strPageName = request.getParameter(Constants.PARAMETER_PAGE_NAME);
-        Topic topic = getTopic(request, strPageName);
-        String strContent = TopicVersionHome.findLastVersion(topic.getIdTopic(), _plugin).getWikiContent();
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Topic topic = getTopic( request, strPageName );
+        String strContent = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin ).getWikiContent(  );
 
-        String strWikiResult = new LuteceWikiParser(strContent).toString();
-        Map<String, Object> model = new HashMap<String, Object>();
-        model.put(MARK_RESULT, strWikiResult);
-        model.put(MARK_TOPIC, topic);
+        String strWikiResult = new LuteceWikiParser( strContent ).toString(  );
+        Map<String, Object> model = new HashMap<String, Object>(  );
+        model.put( MARK_RESULT, strWikiResult );
+        model.put( MARK_TOPIC, topic );
 
-        XPage page = getXPage(TEMPLATE_VIEW_WIKI, request.getLocale(), model);
-        page.setTitle(getPageTitle(strPageName));
-        page.setXmlExtendedPathLabel(getXmlExtendedPath(strPageName));
+        XPage page = getXPage( TEMPLATE_VIEW_WIKI, request.getLocale(  ), model );
+        page.setTitle( getPageTitle( strPageName ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
+
         return page;
     }
 
@@ -317,15 +322,18 @@ public class WikiApp extends MVCApplication
      * @throws java.io.UnsupportedEncodingException if an encoding exception occurs
      */
     @Action( ACTION_NEW_PAGE )
-    public XPage newPage( HttpServletRequest request ) throws UserNotSignedException, UnsupportedEncodingException
+    public XPage newPage( HttpServletRequest request )
+        throws UserNotSignedException, UnsupportedEncodingException
     {
         checkUser( request );
-        String strPageName = request.getParameter(Constants.PARAMETER_PAGE_NAME);
-        Map<String,String> mapParameters = new HashMap<String,String>();
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME, URLEncoder.encode( strPageName , "UTF-8" ));
-        return redirect( request , VIEW_CREATE_PAGE, mapParameters );
+
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Map<String, String> mapParameters = new HashMap<String, String>(  );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, URLEncoder.encode( strPageName, "UTF-8" ) );
+
+        return redirect( request, VIEW_CREATE_PAGE, mapParameters );
     }
-    
+
     /**
      * Create a new Page
      *
@@ -333,28 +341,28 @@ public class WikiApp extends MVCApplication
      * @return The XPage
      * @throws SiteMessageException if an error occurs
      */
-    @View(VIEW_CREATE_PAGE)
-    public XPage create(HttpServletRequest request)
-            throws SiteMessageException
+    @View( VIEW_CREATE_PAGE )
+    public XPage create( HttpServletRequest request ) throws SiteMessageException
     {
-        String strPageName = request.getParameter(Constants.PARAMETER_PAGE_NAME);
-        Topic topic = TopicHome.findByPrimaryKey(strPageName, _plugin);
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
 
-        if (topic != null)
+        if ( topic != null )
         {
-            SiteMessageService.setMessage(request, Constants.MESSAGE_PAGE_ALREADY_EXISTS, SiteMessage.TYPE_STOP);
+            SiteMessageService.setMessage( request, Constants.MESSAGE_PAGE_ALREADY_EXISTS, SiteMessage.TYPE_STOP );
         }
 
-        Map<String, Object> model = getModel();
-        topic = new Topic();
-        topic.setPageName(strPageName);
-        model.put(MARK_TOPIC, topic);
-        model.put(MARK_PAGE_ROLES_LIST, RoleHome.getRolesList());
+        Map<String, Object> model = getModel(  );
+        topic = new Topic(  );
+        topic.setPageName( strPageName );
+        model.put( MARK_TOPIC, topic );
+        model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList(  ) );
 
-        XPage page = getXPage(TEMPLATE_CREATE_WIKI, request.getLocale(), model);
+        XPage page = getXPage( TEMPLATE_CREATE_WIKI, request.getLocale(  ), model );
 
-        String strPath = strPageName + I18nService.getLocalizedString(PROPERTY_PATH_CREATE, request.getLocale());
-        page.setXmlExtendedPathLabel(getXmlExtendedPath(strPath));
+        String strPath = strPageName + I18nService.getLocalizedString( PROPERTY_PATH_CREATE, request.getLocale(  ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
+
         return page;
     }
 
@@ -362,18 +370,21 @@ public class WikiApp extends MVCApplication
      * Display the Edit page
      * @param request The HTTP request
      * @return The page
-     * @throws UserNotSignedException if the user is not signed 
+     * @throws UserNotSignedException if the user is not signed
      * @throws java.io.UnsupportedEncodingException if an encoding exception occurs
      */
     @Action( ACTION_EDIT_PAGE )
     public XPage edit( HttpServletRequest request ) throws UserNotSignedException, UnsupportedEncodingException
     {
         checkUser( request );
-        String strPageName = request.getParameter(Constants.PARAMETER_PAGE_NAME);
-        Map<String,String> mapParameters = new HashMap<String,String>();
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME, URLEncoder.encode( strPageName , "UTF-8" ));
-        return redirect( request , VIEW_MODIFY_PAGE, mapParameters );
+
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Map<String, String> mapParameters = new HashMap<String, String>(  );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, URLEncoder.encode( strPageName, "UTF-8" ) );
+
+        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
     }
+
     /**
      * Display the edit mode
      *
@@ -382,22 +393,24 @@ public class WikiApp extends MVCApplication
      * @throws SiteMessageException if an exception occurs
      */
     @View( VIEW_MODIFY_PAGE )
-    public XPage modify( HttpServletRequest request )
-            throws SiteMessageException
+    public XPage modify( HttpServletRequest request ) throws SiteMessageException
     {
-        String strPageName = request.getParameter(Constants.PARAMETER_PAGE_NAME);
-        Topic topic = getTopic(request, strPageName);
-        TopicVersion topicVersion = TopicVersionHome.findLastVersion(topic.getIdTopic(), _plugin);
-        Map<String, Object> model = getModel();
-        model.put(MARK_TOPIC, topic);
-        model.put(MARK_LATEST_VERSION, topicVersion);
-        model.put(MARK_PAGE_ROLES_LIST, RoleHome.getRolesList());
-        ExtendableResourcePluginActionManager.fillModel(request, null, model, Integer.toString(topic.getIdTopic()), Topic.RESOURCE_TYPE);
-        XPage page = getXPage(TEMPLATE_MODIFY_WIKI, request.getLocale(), model);
-        page.setTitle(getPageTitle(strPageName));
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Topic topic = getTopic( request, strPageName );
+        TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
+        Map<String, Object> model = getModel(  );
+        model.put( MARK_TOPIC, topic );
+        model.put( MARK_LATEST_VERSION, topicVersion );
+        model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList(  ) );
+        ExtendableResourcePluginActionManager.fillModel( request, null, model,
+            Integer.toString( topic.getIdTopic(  ) ), Topic.RESOURCE_TYPE );
 
-        String strPath = strPageName + I18nService.getLocalizedString(PROPERTY_PATH_MODIFY, request.getLocale());
-        page.setXmlExtendedPathLabel(getXmlExtendedPath(strPath));
+        XPage page = getXPage( TEMPLATE_MODIFY_WIKI, request.getLocale(  ), model );
+        page.setTitle( getPageTitle( strPageName ) );
+
+        String strPath = strPageName + I18nService.getLocalizedString( PROPERTY_PATH_MODIFY, request.getLocale(  ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
+
         return page;
     }
 
@@ -410,20 +423,21 @@ public class WikiApp extends MVCApplication
      */
     @View( VIEW_HISTORY )
     public XPage viewHistory( HttpServletRequest request )
-            throws SiteMessageException
+        throws SiteMessageException
     {
-        String strPageName = request.getParameter(Constants.PARAMETER_PAGE_NAME);
-        Topic topic = getTopic(request, strPageName);
-        Map<String, Object> model = getModel();
-        Collection<TopicVersion> listTopicVersions = TopicVersionHome.findAllVersions(topic.getIdTopic(), _plugin);
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Topic topic = getTopic( request, strPageName );
+        Map<String, Object> model = getModel(  );
+        Collection<TopicVersion> listTopicVersions = TopicVersionHome.findAllVersions( topic.getIdTopic(  ), _plugin );
 
         fillUsersData( listTopicVersions );
-        model.put(MARK_LIST_TOPIC_VERSION, listTopicVersions);
-        model.put(MARK_TOPIC, topic);
+        model.put( MARK_LIST_TOPIC_VERSION, listTopicVersions );
+        model.put( MARK_TOPIC, topic );
 
-        XPage page = getXPage(TEMPLATE_VIEW_HISTORY_WIKI, request.getLocale(), model);
-        page.setTitle(getPageTitle(strPageName));
-        page.setXmlExtendedPathLabel(getXmlExtendedPath(strPageName));
+        XPage page = getXPage( TEMPLATE_VIEW_HISTORY_WIKI, request.getLocale(  ), model );
+        page.setTitle( getPageTitle( strPageName ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
+
         return page;
     }
 
@@ -436,19 +450,20 @@ public class WikiApp extends MVCApplication
      */
     @View( VIEW_DIFF )
     public XPage viewDiff( HttpServletRequest request )
-            throws SiteMessageException
+        throws SiteMessageException
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = getTopic(request, strPageName);
-        String strNewVersion = request.getParameter(Constants.PARAMETER_NEW_VERSION);
-        String strOldVersion = request.getParameter(Constants.PARAMETER_OLD_VERSION);
-        int nNewTopicVersion = Integer.parseInt(strNewVersion);
-        int nOldTopicVersion = Integer.parseInt(strOldVersion);
+        Topic topic = getTopic( request, strPageName );
+        String strNewVersion = request.getParameter( Constants.PARAMETER_NEW_VERSION );
+        String strOldVersion = request.getParameter( Constants.PARAMETER_OLD_VERSION );
+        int nNewTopicVersion = Integer.parseInt( strNewVersion );
+        int nOldTopicVersion = Integer.parseInt( strOldVersion );
 
-        XPage page = new XPage();
-        page.setContent(viewTopicDiff(request, topic, nNewTopicVersion, nOldTopicVersion));
-        page.setTitle(getPageTitle(strPageName));
-        page.setXmlExtendedPathLabel(getXmlExtendedPath(strPageName));
+        XPage page = new XPage(  );
+        page.setContent( viewTopicDiff( request, topic, nNewTopicVersion, nOldTopicVersion ) );
+        page.setTitle( getPageTitle( strPageName ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
+
         return page;
     }
 
@@ -461,24 +476,24 @@ public class WikiApp extends MVCApplication
      * @param nOldTopicVersion The old version
      * @return The page
      */
-    private String viewTopicDiff(HttpServletRequest request, Topic topic, int nNewTopicVersion, int nOldTopicVersion)
+    private String viewTopicDiff( HttpServletRequest request, Topic topic, int nNewTopicVersion, int nOldTopicVersion )
     {
-        int nPrevTopicVersion = (nOldTopicVersion == 0) ? nNewTopicVersion : nOldTopicVersion;
-        TopicVersion newTopicVersion = TopicVersionHome.findByPrimaryKey(nNewTopicVersion, _plugin);
-        TopicVersion oldTopicVersion = TopicVersionHome.findByPrimaryKey(nPrevTopicVersion, _plugin);
+        int nPrevTopicVersion = ( nOldTopicVersion == 0 ) ? nNewTopicVersion : nOldTopicVersion;
+        TopicVersion newTopicVersion = TopicVersionHome.findByPrimaryKey( nNewTopicVersion, _plugin );
+        TopicVersion oldTopicVersion = TopicVersionHome.findByPrimaryKey( nPrevTopicVersion, _plugin );
 
-        String strNewHtml = LuteceWikiParser.renderXHTML(newTopicVersion.getWikiContent());
-        String strOldHtml = LuteceWikiParser.renderXHTML(oldTopicVersion.getWikiContent());
-        String strDiff = DiffService.getDiff(strOldHtml, strNewHtml);
+        String strNewHtml = LuteceWikiParser.renderXHTML( newTopicVersion.getWikiContent(  ) );
+        String strOldHtml = LuteceWikiParser.renderXHTML( oldTopicVersion.getWikiContent(  ) );
+        String strDiff = DiffService.getDiff( strOldHtml, strNewHtml );
 
-        Map<String, Object> model = new HashMap<String, Object>();
-        model.put(MARK_DIFF, strDiff);
-        model.put(MARK_TOPIC, topic);
+        Map<String, Object> model = new HashMap<String, Object>(  );
+        model.put( MARK_DIFF, strDiff );
+        model.put( MARK_TOPIC, topic );
 
-        HtmlTemplate template = AppTemplateService.getTemplate(TEMPLATE_VIEW_DIFF_TOPIC_WIKI, request.getLocale(),
-                model);
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_DIFF_TOPIC_WIKI, request.getLocale(  ),
+                model );
 
-        return template.getHtml();
+        return template.getHtml(  );
     }
 
     /////////////////////  Utils ////////////////////////////
@@ -489,22 +504,23 @@ public class WikiApp extends MVCApplication
      * @return The user
      * @throws UserNotSignedException if user not connected
      */
-    private LuteceUser checkUser(HttpServletRequest request)
-            throws UserNotSignedException
+    private LuteceUser checkUser( HttpServletRequest request )
+        throws UserNotSignedException
     {
         LuteceUser user;
 
-        if (SecurityService.isAuthenticationEnable())
+        if ( SecurityService.isAuthenticationEnable(  ) )
         {
-            user = SecurityService.getInstance().getRemoteUser(request);
-            if( user ==  null )
+            user = SecurityService.getInstance(  ).getRemoteUser( request );
+
+            if ( user == null )
             {
-                throw new UserNotSignedException();
+                throw new UserNotSignedException(  );
             }
         }
         else
         {
-            user = new WikiAnonymousUser();
+            user = new WikiAnonymousUser(  );
         }
 
         return user;
@@ -518,28 +534,28 @@ public class WikiApp extends MVCApplication
      * @return The topic
      * @throws SiteMessageException If an error occurs
      */
-    private Topic getTopic(HttpServletRequest request, String strPageName)
-            throws SiteMessageException
+    private Topic getTopic( HttpServletRequest request, String strPageName )
+        throws SiteMessageException
     {
-        Topic topic = TopicHome.findByPrimaryKey(strPageName, _plugin);
+        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
 
-        if (topic == null)
+        if ( topic == null )
         {
-            SiteMessageService.setMessage(request, Constants.MESSAGE_PAGE_NOT_EXISTS, SiteMessage.TYPE_STOP);
+            SiteMessageService.setMessage( request, Constants.MESSAGE_PAGE_NOT_EXISTS, SiteMessage.TYPE_STOP );
         }
         else
         {
+            String strRole = topic.getRole(  );
 
-            String strRole = topic.getRole();
-
-            if (SecurityService.isAuthenticationEnable() && (!Page.ROLE_NONE.equals(strRole)))
+            if ( SecurityService.isAuthenticationEnable(  ) && ( !Page.ROLE_NONE.equals( strRole ) ) )
             {
-                if (!SecurityService.getInstance().isUserInRole(request, strRole))
+                if ( !SecurityService.getInstance(  ).isUserInRole( request, strRole ) )
                 {
-                    SiteMessageService.setMessage(request, Constants.MESSAGE_USER_NOT_IN_ROLE, SiteMessage.TYPE_STOP);
+                    SiteMessageService.setMessage( request, Constants.MESSAGE_USER_NOT_IN_ROLE, SiteMessage.TYPE_STOP );
                 }
             }
         }
+
         return topic;
     }
 
@@ -549,35 +565,35 @@ public class WikiApp extends MVCApplication
      * @param request The HTTP request
      * @return The list of topics
      */
-    private List<Topic> getTopicsForUser(HttpServletRequest request)
+    private List<Topic> getTopicsForUser( HttpServletRequest request )
     {
-        Collection<Topic> listTopicAll = TopicHome.getTopicsList(_plugin);
+        Collection<Topic> listTopicAll = TopicHome.getTopicsList( _plugin );
         List<Topic> listTopic;
 
-        if (SecurityService.isAuthenticationEnable())
+        if ( SecurityService.isAuthenticationEnable(  ) )
         {
-            listTopic = new ArrayList<Topic>();
+            listTopic = new ArrayList<Topic>(  );
 
-            for (Topic topic : listTopicAll)
+            for ( Topic topic : listTopicAll )
             {
-                String strRole = topic.getRole();
+                String strRole = topic.getRole(  );
 
-                if (!Page.ROLE_NONE.equals(strRole))
+                if ( !Page.ROLE_NONE.equals( strRole ) )
                 {
-                    if (SecurityService.getInstance().isUserInRole(request, strRole))
+                    if ( SecurityService.getInstance(  ).isUserInRole( request, strRole ) )
                     {
-                        listTopic.add(topic);
+                        listTopic.add( topic );
                     }
                 }
                 else
                 {
-                    listTopic.add(topic);
+                    listTopic.add( topic );
                 }
             }
         }
         else
         {
-            listTopic = new ArrayList<Topic>(listTopicAll);
+            listTopic = new ArrayList<Topic>( listTopicAll );
         }
 
         return listTopic;
@@ -600,7 +616,7 @@ public class WikiApp extends MVCApplication
         Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
         TopicHome.remove( topic.getIdTopic(  ), _plugin );
 
-        return redirectView( request , VIEW_HOME );
+        return redirectView( request, VIEW_HOME );
     }
 
     /**
@@ -635,9 +651,11 @@ public class WikiApp extends MVCApplication
         version.setLuteceUserId( user.getName(  ) );
         TopicVersionHome.create( version, _plugin );
         TopicVersionHome.modifyContentOnly( newTopic.getIdTopic(  ), user.getName(  ), "", strContent, 0, _plugin );
-        Map<String,String> mapParameters = new HashMap<String,String>();
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME , strPageName );
-        return redirect( request , VIEW_PAGE , mapParameters );
+
+        Map<String, String> mapParameters = new HashMap<String, String>(  );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+
+        return redirect( request, VIEW_PAGE, mapParameters );
     }
 
     /**
@@ -672,9 +690,10 @@ public class WikiApp extends MVCApplication
             TopicHome.update( topic, _plugin );
         }
 
-        Map<String,String> mapParameters = new HashMap<String,String>();
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME , strPageName );
-        return redirect( request , VIEW_PAGE , mapParameters );
+        Map<String, String> mapParameters = new HashMap<String, String>(  );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+
+        return redirect( request, VIEW_PAGE, mapParameters );
     }
 
     /**
@@ -682,12 +701,12 @@ public class WikiApp extends MVCApplication
      *
      * @param request The HTTP request
      */
-    private void init(HttpServletRequest request)
+    private void init( HttpServletRequest request )
     {
-        if (!_bInit)
+        if ( !_bInit )
         {
-            String strWebappUrl = AppPathService.getBaseUrl(request) + AppPathService.getPortalUrl();
-            LuteceWikiParser.setPortalUrl(strWebappUrl);
+            String strWebappUrl = AppPathService.getBaseUrl( request ) + AppPathService.getPortalUrl(  );
+            LuteceWikiParser.setPortalUrl( strWebappUrl );
             _bInit = true;
         }
     }
@@ -698,14 +717,14 @@ public class WikiApp extends MVCApplication
      * @param strPageName The page name
      * @return The page title
      */
-    private String getPageTitle(String strPageName)
+    private String getPageTitle( String strPageName )
     {
-        StringBuilder sbPath = new StringBuilder();
-        sbPath.append(AppPropertiesService.getProperty(PROPERTY_PAGE_TITLE));
-        sbPath.append(" ");
-        sbPath.append(strPageName);
+        StringBuilder sbPath = new StringBuilder(  );
+        sbPath.append( AppPropertiesService.getProperty( PROPERTY_PAGE_TITLE ) );
+        sbPath.append( " " );
+        sbPath.append( strPageName );
 
-        return sbPath.toString();
+        return sbPath.toString(  );
     }
 
     /**
@@ -714,37 +733,40 @@ public class WikiApp extends MVCApplication
      * @param strPageName The page name
      * @return The XML that content path info
      */
-    private String getXmlExtendedPath(String strPageName)
+    private String getXmlExtendedPath( String strPageName )
     {
-        StringBuffer sbXml = new StringBuffer();
-        XmlUtil.beginElement(sbXml, TAG_PAGE_LINK);
-        XmlUtil.addElement(sbXml, TAG_PAGE_NAME, AppPropertiesService.getProperty(PROPERTY_PAGE_PATH));
-        XmlUtil.addElement(sbXml, TAG_PAGE_URL, "page=wiki");
-        XmlUtil.endElement(sbXml, TAG_PAGE_LINK);
-        XmlUtil.beginElement(sbXml, TAG_PAGE_LINK);
-        XmlUtil.addElement(sbXml, TAG_PAGE_NAME, strPageName);
-        XmlUtil.addElement(sbXml, TAG_PAGE_URL, "");
-        XmlUtil.endElement(sbXml, TAG_PAGE_LINK);
+        StringBuffer sbXml = new StringBuffer(  );
+        XmlUtil.beginElement( sbXml, TAG_PAGE_LINK );
+        XmlUtil.addElement( sbXml, TAG_PAGE_NAME, AppPropertiesService.getProperty( PROPERTY_PAGE_PATH ) );
+        XmlUtil.addElement( sbXml, TAG_PAGE_URL, "page=wiki" );
+        XmlUtil.endElement( sbXml, TAG_PAGE_LINK );
+        XmlUtil.beginElement( sbXml, TAG_PAGE_LINK );
+        XmlUtil.addElement( sbXml, TAG_PAGE_NAME, strPageName );
+        XmlUtil.addElement( sbXml, TAG_PAGE_URL, "" );
+        XmlUtil.endElement( sbXml, TAG_PAGE_LINK );
 
-        return sbXml.toString();
+        return sbXml.toString(  );
     }
 
-    private void fillUsersData(Collection<TopicVersion> listTopicVersions)
+    private void fillUsersData( Collection<TopicVersion> listTopicVersions )
     {
-        for(  TopicVersion version : listTopicVersions )
+        for ( TopicVersion version : listTopicVersions )
         {
-            String strUserId = version.getLuteceUserId();
-            LuteceUser user = SecurityService.getInstance().getUser( strUserId );
-            if( user != null )
+            String strUserId = version.getLuteceUserId(  );
+            LuteceUser user = SecurityService.getInstance(  ).getUser( strUserId );
+
+            if ( user != null )
             {
-                version.setUserName( user.getUserInfo(LuteceUser.NAME_GIVEN) + " " + user.getUserInfo( LuteceUser.NAME_FAMILY ) );
-                version.setUserAvatarUrl( AvatarService.getAvatarUrl( user.getEmail() ));
+                version.setUserName( user.getUserInfo( LuteceUser.NAME_GIVEN ) + " " +
+                    user.getUserInfo( LuteceUser.NAME_FAMILY ) );
+                version.setUserAvatarUrl( AvatarService.getAvatarUrl( user.getEmail(  ) ) );
             }
             else
             {
-                version.setUserAvatarUrl( AvatarService.getAvatarUrl(strUserId) );
+                version.setUserAvatarUrl( AvatarService.getAvatarUrl( strUserId ) );
             }
-            version.setUserPseudo( UserPreferencesService.instance().getNickname(strUserId));
+
+            version.setUserPseudo( UserPreferencesService.instance(  ).getNickname( strUserId ) );
         }
     }
 }

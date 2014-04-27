@@ -30,7 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * License 1.0
- */package fr.paris.lutece.plugins.wiki.service;
+ */
+package fr.paris.lutece.plugins.wiki.service;
 
 import fr.paris.lutece.plugins.wiki.business.Topic;
 import fr.paris.lutece.plugins.wiki.business.TopicHome;
@@ -44,9 +45,9 @@ import fr.paris.lutece.portal.service.resource.IExtendableResourceService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.util.url.UrlItem;
 
-import java.util.Locale;
-
 import org.apache.commons.lang.StringUtils;
+
+import java.util.Locale;
 
 
 /**
@@ -54,35 +55,33 @@ import org.apache.commons.lang.StringUtils;
  */
 public class WikiExtendableResourceService implements IExtendableResourceService
 {
-
     private static final String RESOURCE_TYPE_DESCRIPTION = "wiki.extend.resourceType";
-
     private static final String PARAMETER_PAGE = "page";
     private static final String PARAMETER_ACTION = "action";
-
-    private static Plugin _plugin = PluginService.getPlugin(Constants.PLUGIN_NAME);
+    private static Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
 
     /**
      * {@inheritDoc }
      */
     @Override
-    public boolean isInvoked(String strResourceType)
+    public boolean isInvoked( String strResourceType )
     {
-        return Topic.RESOURCE_TYPE.equalsIgnoreCase(strResourceType);
+        return Topic.RESOURCE_TYPE.equalsIgnoreCase( strResourceType );
     }
 
     /**
      * {@inheritDoc }
      */
     @Override
-    public IExtendableResource getResource(String strIdResource, String strResourceType)
+    public IExtendableResource getResource( String strIdResource, String strResourceType )
     {
         try
         {
-            int nIdTopic = Integer.parseInt(strIdResource);
-            return TopicHome.findByPrimaryKey(nIdTopic, _plugin);
+            int nIdTopic = Integer.parseInt( strIdResource );
+
+            return TopicHome.findByPrimaryKey( nIdTopic, _plugin );
         }
-        catch (NumberFormatException e)
+        catch ( NumberFormatException e )
         {
             return null;
         }
@@ -92,7 +91,7 @@ public class WikiExtendableResourceService implements IExtendableResourceService
      * {@inheritDoc }
      */
     @Override
-    public String getResourceType()
+    public String getResourceType(  )
     {
         return Topic.RESOURCE_TYPE;
     }
@@ -101,9 +100,9 @@ public class WikiExtendableResourceService implements IExtendableResourceService
      * {@inheritDoc }
      */
     @Override
-    public String getResourceTypeDescription(Locale locale)
+    public String getResourceTypeDescription( Locale locale )
     {
-        return I18nService.getLocalizedString(RESOURCE_TYPE_DESCRIPTION, locale);
+        return I18nService.getLocalizedString( RESOURCE_TYPE_DESCRIPTION, locale );
     }
 
     /**
@@ -115,15 +114,18 @@ public class WikiExtendableResourceService implements IExtendableResourceService
         if ( StringUtils.isNotEmpty( strIdResource ) && StringUtils.isNumeric( strIdResource ) )
         {
             Topic topic = TopicHome.findByPrimaryKey( Integer.parseInt( strIdResource ), _plugin );
+
             if ( topic != null )
             {
-                UrlItem urlItem = new UrlItem( AppPathService.getPortalUrl( ) );
+                UrlItem urlItem = new UrlItem( AppPathService.getPortalUrl(  ) );
                 urlItem.addParameter( PARAMETER_PAGE, Constants.PLUGIN_NAME );
                 urlItem.addParameter( PARAMETER_ACTION, WikiApp.ACTION_VIEW );
-                urlItem.addParameter( Constants.PARAMETER_PAGE_NAME, topic.getPageName( ) );
-                return urlItem.getUrl( );
+                urlItem.addParameter( Constants.PARAMETER_PAGE_NAME, topic.getPageName(  ) );
+
+                return urlItem.getUrl(  );
             }
         }
+
         return null;
     }
 }

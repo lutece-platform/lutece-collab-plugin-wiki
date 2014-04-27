@@ -34,122 +34,127 @@
 package fr.paris.lutece.plugins.wiki.service;
 
 import fr.paris.lutece.portal.service.util.AppLogService;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamResult;
+
 import org.ccil.cowan.tagsoup.AttributesImpl;
+
 import org.outerj.daisy.diff.HtmlCleaner;
 import org.outerj.daisy.diff.XslFilter;
 import org.outerj.daisy.diff.html.HTMLDiffer;
 import org.outerj.daisy.diff.html.HtmlSaxDiffOutput;
 import org.outerj.daisy.diff.html.TextNodeComparator;
 import org.outerj.daisy.diff.html.dom.DomTreeBuilder;
+
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamResult;
+
 
 /**
  * Diff Service
  */
 public class DiffService
 {
-
     private static final String XSL_OUTPUT = "fr/paris/lutece/plugins/wiki/service/output.xsl";
 
-    public static String getDiff(String strOld, String strNew)
+    public static String getDiff( String strOld, String strNew )
     {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        String[] css = new String[]
-        {
-        };
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(  );
+        String[] css = new String[] {  };
 
         try
         {
-            SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
+            SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance(  );
 
-            TransformerHandler result = tf.newTransformerHandler();
-            result.setResult(new StreamResult(baos));
+            TransformerHandler result = tf.newTransformerHandler(  );
+            result.setResult( new StreamResult( baos ) );
 
-            XslFilter filter = new XslFilter();
+            XslFilter filter = new XslFilter(  );
 
-            ContentHandler postProcess = filter.xsl(result, XSL_OUTPUT);
-            Locale locale = Locale.getDefault();
+            ContentHandler postProcess = filter.xsl( result, XSL_OUTPUT );
+            Locale locale = Locale.getDefault(  );
             String prefix = "diff";
 
-            HtmlCleaner cleaner = new HtmlCleaner();
+            HtmlCleaner cleaner = new HtmlCleaner(  );
 
-            InputSource oldSource = new InputSource(new StringReader(strOld));
-            InputSource newSource = new InputSource(new StringReader(strNew));
+            InputSource oldSource = new InputSource( new StringReader( strOld ) );
+            InputSource newSource = new InputSource( new StringReader( strNew ) );
 
-            DomTreeBuilder oldHandler = new DomTreeBuilder();
-            cleaner.cleanAndParse(oldSource, oldHandler);
-            System.out.print(".");
-            TextNodeComparator leftComparator = new TextNodeComparator(oldHandler, locale);
+            DomTreeBuilder oldHandler = new DomTreeBuilder(  );
+            cleaner.cleanAndParse( oldSource, oldHandler );
+            System.out.print( "." );
 
-            DomTreeBuilder newHandler = new DomTreeBuilder();
-            cleaner.cleanAndParse(newSource, newHandler);
-            System.out.print(".");
-            TextNodeComparator rightComparator = new TextNodeComparator(newHandler, locale);
+            TextNodeComparator leftComparator = new TextNodeComparator( oldHandler, locale );
 
-            postProcess.startDocument();
-            postProcess.startElement("", "diffreport", "diffreport", new AttributesImpl());
-            doCSS(css, postProcess);
-            postProcess.startElement("", "diff", "diff", new AttributesImpl());
-            HtmlSaxDiffOutput output = new HtmlSaxDiffOutput(postProcess, prefix);
+            DomTreeBuilder newHandler = new DomTreeBuilder(  );
+            cleaner.cleanAndParse( newSource, newHandler );
+            System.out.print( "." );
 
-            HTMLDiffer differ = new HTMLDiffer(output);
-            differ.diff(leftComparator, rightComparator);
-            System.out.print(".");
-            postProcess.endElement("", "diff", "diff");
-            postProcess.endElement("", "diffreport", "diffreport");
-            postProcess.endDocument();
+            TextNodeComparator rightComparator = new TextNodeComparator( newHandler, locale );
+
+            postProcess.startDocument(  );
+            postProcess.startElement( "", "diffreport", "diffreport", new AttributesImpl(  ) );
+            doCSS( css, postProcess );
+            postProcess.startElement( "", "diff", "diff", new AttributesImpl(  ) );
+
+            HtmlSaxDiffOutput output = new HtmlSaxDiffOutput( postProcess, prefix );
+
+            HTMLDiffer differ = new HTMLDiffer( output );
+            differ.diff( leftComparator, rightComparator );
+            System.out.print( "." );
+            postProcess.endElement( "", "diff", "diff" );
+            postProcess.endElement( "", "diffreport", "diffreport" );
+            postProcess.endDocument(  );
         }
-        catch (TransformerConfigurationException ex)
+        catch ( TransformerConfigurationException ex )
         {
-            AppLogService.error( "DiffService Error : " + ex.getMessage() , ex );
+            AppLogService.error( "DiffService Error : " + ex.getMessage(  ), ex );
         }
-        catch (IOException ex)
+        catch ( IOException ex )
         {
-            AppLogService.error( "DiffService Error : " + ex.getMessage() , ex );
+            AppLogService.error( "DiffService Error : " + ex.getMessage(  ), ex );
         }
-        catch (SAXException ex)
+        catch ( SAXException ex )
         {
-            AppLogService.error( "DiffService Error : " + ex.getMessage() , ex );
+            AppLogService.error( "DiffService Error : " + ex.getMessage(  ), ex );
         }
 
-        String strOutput = baos.toString();
-        
+        String strOutput = baos.toString(  );
+
         // Remove XML header
         strOutput = strOutput.substring( strOutput.indexOf( ">" ) + 1 );
-        
-        return strOutput;
 
+        return strOutput;
     }
 
-    private static void doCSS(String[] css, ContentHandler handler) throws SAXException
+    private static void doCSS( String[] css, ContentHandler handler )
+        throws SAXException
     {
-        handler.startElement("", "css", "css",
-                new AttributesImpl());
-        for (String cssLink : css)
+        handler.startElement( "", "css", "css", new AttributesImpl(  ) );
+
+        for ( String cssLink : css )
         {
-            AttributesImpl attr = new AttributesImpl();
-            attr.addAttribute("", "href", "href", "CDATA", cssLink);
-            attr.addAttribute("", "type", "type", "CDATA", "text/css");
-            attr.addAttribute("", "rel", "rel", "CDATA", "stylesheet");
-            handler.startElement("", "link", "link",
-                    attr);
-            handler.endElement("", "link", "link");
+            AttributesImpl attr = new AttributesImpl(  );
+            attr.addAttribute( "", "href", "href", "CDATA", cssLink );
+            attr.addAttribute( "", "type", "type", "CDATA", "text/css" );
+            attr.addAttribute( "", "rel", "rel", "CDATA", "stylesheet" );
+            handler.startElement( "", "link", "link", attr );
+            handler.endElement( "", "link", "link" );
         }
 
-        handler.endElement("", "css", "css");
-
+        handler.endElement( "", "css", "css" );
     }
 }

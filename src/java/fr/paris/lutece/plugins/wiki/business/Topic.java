@@ -43,8 +43,7 @@ import fr.paris.lutece.portal.service.resource.IExtendableResource;
 public class Topic implements IExtendableResource
 {
     public static final String RESOURCE_TYPE = "wiki";
-    
-    
+
     // Variables declarations 
     private int _nIdTopic;
     private int _nNamespace;
@@ -127,7 +126,7 @@ public class Topic implements IExtendableResource
      * {@inheritDoc }
      */
     @Override
-    public String getIdExtendableResource()
+    public String getIdExtendableResource(  )
     {
         return Integer.toString( _nIdTopic );
     }
@@ -136,7 +135,7 @@ public class Topic implements IExtendableResource
      * {@inheritDoc }
      */
     @Override
-    public String getExtendableResourceType()
+    public String getExtendableResourceType(  )
     {
         return RESOURCE_TYPE;
     }
@@ -145,7 +144,7 @@ public class Topic implements IExtendableResource
      * {@inheritDoc }
      */
     @Override
-    public String getExtendableResourceName()
+    public String getExtendableResourceName(  )
     {
         return _strPageName;
     }
@@ -154,7 +153,7 @@ public class Topic implements IExtendableResource
      * {@inheritDoc }
      */
     @Override
-    public String getExtendableResourceDescription()
+    public String getExtendableResourceDescription(  )
     {
         return "";
     }
@@ -163,7 +162,7 @@ public class Topic implements IExtendableResource
      * {@inheritDoc }
      */
     @Override
-    public String getExtendableResourceImageUrl()
+    public String getExtendableResourceImageUrl(  )
     {
         return null;
     }

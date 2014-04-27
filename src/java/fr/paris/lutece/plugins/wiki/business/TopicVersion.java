@@ -178,8 +178,7 @@ public class TopicVersion
     {
         _nIdTopicVersionPrevious = nIdTopicVersionPrevious;
     }
-    
-    
+
     /**
      * Returns the UserPseudo
      * @return The UserPseudo
@@ -233,7 +232,4 @@ public class TopicVersion
     {
         _strUserAvatarUrl = strUserAvatarUrl;
     }
-
-
-
 }
