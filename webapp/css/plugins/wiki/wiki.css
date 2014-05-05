@@ -24,3 +24,11 @@ span.diff-html-conflict {
 /*  background: url(../images/diffunderline.gif) bottom repeat-x; */
   background-color: #f781be; /* light rose */
 }
+
+.markItUp {
+    width: 100%;
+}
+
+.markItUpEditor {
+    width: 100%;
+}

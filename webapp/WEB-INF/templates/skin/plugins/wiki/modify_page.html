@@ -2,7 +2,7 @@
     <div class="col-sm-12">
 
         <!-- Extends --> 
-        $ {extendableResourceActionsHtml!}
+        <!-- ${extendableResourceActionsHtml!} -->
 
         <form method="post" action="jsp/site/Portal.jsp">
             <input type="hidden" name="page" value="wiki" />
@@ -24,47 +24,60 @@
                 </button>
 
             </div>
-
-
-            <div class="col-sm-7">
-                <div class="alert alert-error" id="div-confirm-delete" style="display:none">
-                    #i18n{wiki.message.confirmDelete}
-                    <div class="pull-right">
-                        <button name="action_deletePage" class="btn btn-danger btn-xs" type="submit" >
-                            #i18n{portal.util.labelOk}
-                        </button>
-                        <button id="btn-delete-cancel" class="btn btn-xs" type="button" >
-                            #i18n{portal.util.labelCancel}
-                        </button>
-                    </div>
-                </div>
-
-                <h1>${topic.pageName}</h1>
-
-                <textarea id="wiki" class="input-xxlarge" name="content" rows="20" ><#if preview_content??>${preview_content}<#else>${lastVersion.wikiContent}</#if></textarea>
-
-                <label for="roles_list">#i18n{portal.site.admin_page.labelRole} :</label>
-                <@comboSorted name="role" default_value="${topic.role}" items=page_roles_list />
-
-                <br />
-                #i18n{wiki.modify_page.labelComment} :
-                <input class="input-xxlarge" type="text" name="modification_comment"/>
-
-
-            </div>
-            <div id="help" class="clo-sm-4 pull-right" style="display:none">
-                <br/>
-                <img src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/>
-            </div>
-        </form>
     </div>
 </div>
+<div class="row">
+    <div id="mainpanel" class="col-sm-12">
+        <div class="alert alert-error" id="div-confirm-delete" style="display:none">
+            #i18n{wiki.message.confirmDelete}
+            <div class="pull-right">
+                <button name="action_deletePage" class="btn btn-danger btn-xs" type="submit" >
+                    #i18n{portal.util.labelOk}
+                </button>
+                <button id="btn-delete-cancel" class="btn btn-xs" type="button" >
+                    #i18n{portal.util.labelCancel}
+                </button>
+            </div>
+        </div>
 
+        <h1>${topic.pageName}</h1>
+
+        <div class="form-group">
+            <textarea id="wiki" class="form-control" name="content" rows="20" ><#if preview_content??>${preview_content}<#else>${lastVersion.wikiContent}</#if></textarea>
+        </div>
+        
+        <label for="roles_list">#i18n{portal.site.admin_page.labelRole} :</label>
+        <@comboSorted name="role" default_value="${topic.role}" items=page_roles_list />
+
+        <br />
+        #i18n{wiki.modify_page.labelComment} :
+        <input class="input-xxlarge" type="text" name="modification_comment"/>
+
+
+    </div>
+    <div id="help" class="col-sm-4 pull-right" style="display:none">
+        <br/>
+        <img src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/>
+    </div>
+
+</div>
+</form>
+        
 <script type="text/javascript">
     jQuery(document).ready(function() {
         $("#btn-help").click(function() {
             $("#help").toggle("slow");
             this.blur();
+            if ($("#mainpanel").hasClass("col-sm-7"))
+            {
+                $("#mainpanel").removeClass("col-sm-7");
+                $("#mainpanel").addClass("col-sm-12");
+            }
+            else
+            {
+                $("#mainpanel").removeClass("col-sm-12");
+                $("#mainpanel").addClass("col-sm-7");
+            }
         });
     });
 </script>
