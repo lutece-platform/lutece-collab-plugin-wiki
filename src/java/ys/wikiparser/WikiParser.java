@@ -75,6 +75,7 @@ public class WikiParser
     private int mediawikiTableLevel = 0;
     protected int HEADING_LEVEL_SHIFT = 1; // make =h2, ==h3, ...
     protected String HEADING_ID_PREFIX = null;
+    private String _strTableClass = "";
 
     protected WikiParser(  )
     {
@@ -85,6 +86,11 @@ public class WikiParser
     protected WikiParser( String wikiText )
     {
         parse( wikiText );
+    }
+    
+    protected void setTableClass( String strClass )
+    {
+        _strTableClass = strClass;
     }
 
     public static String renderXHTML( String wikiText )
@@ -198,7 +204,7 @@ public class WikiParser
             if ( !inTable )
             {
                 closeListsAndTables(  ); // close lists if any
-                sb.append( "<table border=\"1\">" );
+                sb.append( "<table class=\"" ).append( _strTableClass ).append( "\" >" );
                 inTable = true;
             }
 
@@ -360,7 +366,7 @@ public class WikiParser
 
                 if ( ( pp == wikiLength ) || ( wikiChars[pp] == '\n' ) )
                 { // yes, it's start of a table
-                    sb.append( "<table border=\"1\"><tr><td>" );
+                    sb.append( "<table class=\"").append( _strTableClass ).append( "\" ><tr><td>" );
                     mediawikiTableLevel++;
                     pos = pp + 1;
 

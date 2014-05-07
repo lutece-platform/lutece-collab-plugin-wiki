@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.wiki.web.Constants;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import static ys.wikiparser.Utils.*;
 
 import ys.wikiparser.WikiParser;
@@ -51,11 +52,12 @@ import java.net.URLEncoder;
 
 
 /**
- *
- * @author pierre
+ * Lutece Wiki Parser
  */
 public class LuteceWikiParser extends WikiParser
 {
+    private static final String PROPERTY_TABLE_CLASS = "wiki.parser.tableClass";
+    
     private static String _strPortalUrl;
 
     /**
@@ -66,6 +68,7 @@ public class LuteceWikiParser extends WikiParser
     {
         super(  );
         HEADING_LEVEL_SHIFT = 0;
+        setTableClass( AppPropertiesService.getProperty( PROPERTY_TABLE_CLASS ));
         parse( strWikiText );
     }
 
