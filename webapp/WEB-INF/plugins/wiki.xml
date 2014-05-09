@@ -32,7 +32,14 @@
         <css-stylesheet>wiki/wiki.css</css-stylesheet>
         <css-stylesheet>wiki/markitup/style.css</css-stylesheet>
         <css-stylesheet>wiki/markitup/wiki/style.css</css-stylesheet>
+        <css-stylesheet>wiki/prettify/custom_prettify.css</css-stylesheet>
     </css-stylesheets>
+    
+    <!-- Specific plugin CSS stylesheet -->
+    <javascript-files>
+        <javascript-files-scope>xpage</javascript-files-scope>  
+        <javascript-file>wiki/prettify/run_prettify.js</javascript-file>
+    </javascript-files>
 
     <!-- XPages parameters -->
     <applications>

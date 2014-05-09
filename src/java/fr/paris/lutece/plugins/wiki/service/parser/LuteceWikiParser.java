@@ -65,7 +65,7 @@ public class LuteceWikiParser extends WikiParser
         String strRender = strHTML.replaceAll( "\\[lt;" , "&lt;" );
         strRender = strRender.replaceAll("\\[gt;" , "&gt;");
         strRender = strRender.replaceAll("\\[nbsp;" , "&nbsp;");
-        strRender = strRender.replaceAll("\\[code]" , "<div class=\"code\"><pre>");
+        strRender = strRender.replaceAll("\\[code]" , "<div class=\"code\"><pre class=\"prettyprint\">");
         strRender = strRender.replaceAll("\\[/code]" , "</pre></div>");
         return strRender;
     }
