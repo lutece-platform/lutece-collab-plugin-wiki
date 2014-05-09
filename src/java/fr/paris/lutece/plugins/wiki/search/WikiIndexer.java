@@ -249,11 +249,11 @@ public class WikiIndexer implements SearchIndexer
 
         // Add the subject name as a separate Text field, so that it can be
         // searched separately.
-        doc.add( new Field( SearchItem.FIELD_TITLE, topic.getPageName(  ), ft ) );
+        doc.add( new Field( SearchItem.FIELD_TITLE, topic.getPageTitle(  ), ft ) );
 
         doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType(  ), ft ) );
 
-        doc.add( new Field( SearchItem.FIELD_ROLE, topic.getRole(  ), ft ) );
+        doc.add( new Field( SearchItem.FIELD_ROLE, topic.getViewRole(  ), ft ) );
 
         return doc;
     }

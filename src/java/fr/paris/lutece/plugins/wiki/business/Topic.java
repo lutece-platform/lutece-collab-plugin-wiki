@@ -48,7 +48,9 @@ public class Topic implements IExtendableResource
     private int _nIdTopic;
     private int _nNamespace;
     private String _strPageName;
-    private String _strRole = Page.ROLE_NONE;
+    private String _strPageTitle;
+    private String _strViewRole = Page.ROLE_NONE;
+    private String _strEditRole = Page.ROLE_NONE;
 
     /**
      * Returns the IdTopic
@@ -105,21 +107,57 @@ public class Topic implements IExtendableResource
     }
 
     /**
-     * Returns the Role
-     * @return The Role
+     * Returns the PageTitle
+     * @return The PageTitle
      */
-    public String getRole(  )
+    public String getPageTitle(  )
     {
-        return _strRole;
+        return _strPageTitle;
     }
 
     /**
-     * Sets the Role
-     * @param strRole The Role
+     * Sets the PageTitle
+     * @param strPageTitle The PageTitle
      */
-    public void setRole( String strRole )
+    public void setPageTitle( String strPageTitle )
     {
-        _strRole = strRole;
+        _strPageTitle = strPageTitle;
+    }
+
+    /**
+     * Returns the ViewRole
+     * @return The ViewRole
+     */
+    public String getViewRole(  )
+    {
+        return _strViewRole;
+    }
+
+    /**
+     * Sets the ViewRole
+     * @param strViewRole The ViewRole
+     */
+    public void setViewRole( String strViewRole )
+    {
+        _strViewRole = strViewRole;
+    }
+
+    /**
+     * Returns the EditRole
+     * @return The EditRole
+     */
+    public String getEditRole(  )
+    {
+        return _strEditRole;
+    }
+
+    /**
+     * Sets the EditRole
+     * @param strEditRole The EditRole
+     */
+    public void setEditRole( String strEditRole )
+    {
+        _strEditRole = strEditRole;
     }
 
     /**

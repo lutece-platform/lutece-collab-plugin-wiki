@@ -42,15 +42,28 @@
             <h1>${topic.pageName}</h1>
 
             <div class="form-group">
+                <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
+                <input class="form-control" type="text" name="page_title" value="${topic.pageTitle}" maxlength="100"/>
+            </div>
+            
+            <div class="form-group">
                 <textarea id="wiki" class="form-control" name="content" rows="20" ><#if preview_content??>${preview_content}<#else>${lastVersion.wikiContent}</#if></textarea>
             </div>
 
-            <label for="roles_list">#i18n{portal.site.admin_page.labelRole} :</label>
-            <@comboSorted name="role" default_value="${topic.role}" items=page_roles_list />
-
-            <br />
-            #i18n{wiki.modify_page.labelComment} :
-            <input class="input-xxlarge" type="text" name="modification_comment"/>
+            <div class="form-group">
+                <label for="modification_comment">#i18n{wiki.modify_page.labelComment} :</label>
+                <input class="form-control" type="text" name="modification_comment"/>
+            </div>
+            
+            <div class="form-group">
+                <label for="roles_list">#i18n{wiki.modify_page.labelViewRole} :</label>
+                <@comboSorted name="view_role" default_value="${topic.viewRole}" items=page_roles_list />
+            </div>
+            
+            <div class="form-group">
+                <label for="roles_list">#i18n{wiki.modify_page.labelEditRole} :</label>
+                <@comboSorted name="edit_role" default_value="${topic.editRole}" items=page_roles_list />
+            </div>
 
 
         </div>

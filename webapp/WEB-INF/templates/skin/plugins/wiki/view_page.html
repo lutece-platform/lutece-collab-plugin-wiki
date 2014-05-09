@@ -12,9 +12,7 @@
             @Extender[${topic.idTopic},wiki,opengraph]@
         </#if>
         <div>
-            <h1>${topic.pageName}</h1>
-            <br/>
-            ${result}
+           ${result}
         </div>
         <#if isExtendInstalled?? && isExtendInstalled >
             @Extender[${topic.idTopic},wiki,hit,{show:true}]@

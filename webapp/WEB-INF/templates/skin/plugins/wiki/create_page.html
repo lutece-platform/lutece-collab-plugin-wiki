@@ -20,12 +20,23 @@
             <h1>${topic.pageName}</h1>
 
             <div class="form-group">
+                <label for="page_title">#i18n{wiki.create_page.pageTitle} :</label>
+                <input class="form-control" type="text" name="page_title" value="${topic.pageTitle}" maxlength="100" />
+            </div>
+
+            <div class="form-group">
                 <textarea id="wiki" class="form-control" name="content" rows="20" ></textarea>
             </div>
 
-            <br>
-            <label for="roles_list">#i18n{portal.site.admin_page.labelRole} :</label>
-            <@comboSorted name="role" default_value="${topic.role}" items=page_roles_list />
+            <div class="form-group">
+                <label for="roles_list">#i18n{wiki.create_page.labelViewRole} :</label>
+                <@comboSorted name="view_role" default_value="${topic.viewRole}" items=page_roles_list />
+            </div>
+            
+            <div class="form-group">
+                <label for="roles_list">#i18n{wiki.create_page.labelEditRole} :</label>
+                <@comboSorted name="edit_role" default_value="${topic.editRole}" items=page_roles_list />
+            </div>
 
 
         </div>

@@ -47,12 +47,12 @@ public final class TopicDAO implements ITopicDAO
 {
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_topic ) FROM wiki_topic";
-    private static final String SQL_QUERY_SELECT = "SELECT id_topic, namespace, page_name, page_role FROM wiki_topic WHERE id_topic = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO wiki_topic ( id_topic, namespace, page_name, page_role ) VALUES ( ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_SELECT = "SELECT id_topic, namespace, page_name, page_title, page_view_role, page_edit_role FROM wiki_topic WHERE id_topic = ?";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO wiki_topic ( id_topic, namespace, page_name, page_title, page_view_role, page_edit_role ) VALUES ( ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM wiki_topic WHERE id_topic = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE wiki_topic SET id_topic = ?, namespace = ?, page_name = ?, page_role = ? WHERE id_topic = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_topic, namespace, page_name, page_role FROM wiki_topic";
-    private static final String SQL_QUERY_SELECT_BY_NAME = "SELECT id_topic, namespace, page_name, page_role FROM wiki_topic WHERE page_name  = ?";
+    private static final String SQL_QUERY_UPDATE = "UPDATE wiki_topic SET id_topic = ?, namespace = ?, page_name = ?, page_title = ?, page_view_role = ?, page_edit_role = ? WHERE id_topic = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_topic, namespace, page_name, page_title, page_view_role, page_edit_role FROM wiki_topic";
+    private static final String SQL_QUERY_SELECT_BY_NAME = "SELECT id_topic, namespace, page_name, page_title, page_view_role, page_edit_role FROM wiki_topic WHERE page_name  = ?";
 
     /**
      * Generates a new primary key
@@ -86,7 +86,9 @@ public final class TopicDAO implements ITopicDAO
         daoUtil.setInt( 1, topic.getIdTopic(  ) );
         daoUtil.setInt( 2, topic.getNamespace(  ) );
         daoUtil.setString( 3, topic.getPageName(  ) );
-        daoUtil.setString( 4, topic.getRole(  ) );
+        daoUtil.setString( 4, topic.getPageTitle(  ) );
+        daoUtil.setString( 5, topic.getViewRole(  ) );
+        daoUtil.setString( 6, topic.getEditRole(  ) );
 
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
@@ -111,7 +113,9 @@ public final class TopicDAO implements ITopicDAO
             topic.setIdTopic( daoUtil.getInt( 1 ) );
             topic.setNamespace( daoUtil.getInt( 2 ) );
             topic.setPageName( daoUtil.getString( 3 ) );
-            topic.setRole( daoUtil.getString( 4 ) );
+            topic.setPageTitle( daoUtil.getString( 4 ) );
+            topic.setViewRole( daoUtil.getString( 5 ) );
+            topic.setEditRole( daoUtil.getString( 6 ) );
         }
 
         daoUtil.free(  );
@@ -142,8 +146,10 @@ public final class TopicDAO implements ITopicDAO
         daoUtil.setInt( 1, topic.getIdTopic(  ) );
         daoUtil.setInt( 2, topic.getNamespace(  ) );
         daoUtil.setString( 3, topic.getPageName(  ) );
-        daoUtil.setString( 4, topic.getRole(  ) );
-        daoUtil.setInt( 5, topic.getIdTopic(  ) );
+        daoUtil.setString( 4, topic.getPageTitle(  ) );
+        daoUtil.setString( 5, topic.getViewRole(  ) );
+        daoUtil.setString( 6, topic.getEditRole(  ) );
+        daoUtil.setInt( 7, topic.getIdTopic(  ) );
 
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
@@ -166,7 +172,9 @@ public final class TopicDAO implements ITopicDAO
             topic.setIdTopic( daoUtil.getInt( 1 ) );
             topic.setNamespace( daoUtil.getInt( 2 ) );
             topic.setPageName( daoUtil.getString( 3 ) );
-            topic.setRole( daoUtil.getString( 4 ) );
+            topic.setPageTitle( daoUtil.getString( 4 ) );
+            topic.setViewRole( daoUtil.getString( 5 ) );
+            topic.setEditRole( daoUtil.getString( 6 ) );
 
             topicList.add( topic );
         }
@@ -195,7 +203,9 @@ public final class TopicDAO implements ITopicDAO
             topic.setIdTopic( daoUtil.getInt( 1 ) );
             topic.setNamespace( daoUtil.getInt( 2 ) );
             topic.setPageName( daoUtil.getString( 3 ) );
-            topic.setRole( daoUtil.getString( 4 ) );
+            topic.setPageTitle( daoUtil.getString( 4 ) );
+            topic.setViewRole( daoUtil.getString( 5 ) );
+            topic.setEditRole( daoUtil.getString( 6 ) );
         }
 
         daoUtil.free(  );

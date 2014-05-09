@@ -44,6 +44,7 @@ public final class Constants
     public static final String PARAMETER_ACTION_CREATE = "create";
     public static final String PARAMETER_ACTION_VIEW = "view";
     public static final String PARAMETER_PAGE_NAME = "page_name";
+    public static final String PARAMETER_PAGE_TITLE = "page_title";
     public static final String PARAMETER_ACTION = "action";
     public static final String PARAMETER_CONTENT = "content";
     public static final String PARAMETER_MODIFICATION_COMMENT = "modification_comment";
@@ -56,7 +57,8 @@ public final class Constants
     public static final String PARAMETER_PAGE_INDEX = "page_index";
     public static final String PARAMETER_ACTION_VIEW_HISTORY = "view_history";
     public static final String PARAMETER_ACTION_SEARCH = "search";
-    public static final String PARAMETER_ROLE = "role";
+    public static final String PARAMETER_VIEW_ROLE = "view_role";
+    public static final String PARAMETER_EDIT_ROLE = "edit_role";
     public static final String MESSAGE_PAGE_NOT_EXISTS = "wiki.message.accessDenied.pageNotExists";
     public static final String MESSAGE_PAGE_ALREADY_EXISTS = "wiki.message.accessDenied.pageAlreadyExists";
     public static final String MESSAGE_USER_NOT_IN_ROLE = "wiki.message.accessDenied.userNotInRole";

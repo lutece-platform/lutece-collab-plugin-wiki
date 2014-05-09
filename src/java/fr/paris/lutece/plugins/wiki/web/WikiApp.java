@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.business.TopicVersionHome;
 import fr.paris.lutece.plugins.wiki.service.DiffService;
+import fr.paris.lutece.plugins.wiki.service.WikiUtils;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceWikiParser;
 import fr.paris.lutece.plugins.wiki.utils.auth.WikiAnonymousUser;
 import fr.paris.lutece.portal.business.page.Page;
@@ -68,10 +69,12 @@ import fr.paris.lutece.portal.web.resource.ExtendableResourcePluginActionManager
 import fr.paris.lutece.portal.web.xpages.XPage;
 import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.html.Paginator;
+import fr.paris.lutece.util.string.StringUtil;
 import fr.paris.lutece.util.url.UrlItem;
 import fr.paris.lutece.util.xml.XmlUtil;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 import java.net.URLEncoder;
 
@@ -141,77 +144,6 @@ public class WikiApp extends MVCApplication
     private int _nDefaultItemsPerPage;
     private int _nItemsPerPage;
 
-    /**
-     * Returns the content of the page wiki.
-     *
-     * @param request The http request
-     * @param nMode The current mode
-     * @param plugin The plugin object
-     * @return The Xpage
-     * @throws fr.paris.lutece.portal.service.message.SiteMessageException
-     * Message displayed if an exception occurs
-     * @throws UserNotSignedException if user not connected
-     */
-
-    /*
-     @Override
-     public XPage getPage( HttpServletRequest request, int nMode, Plugin plugin )
-     throws SiteMessageException, UserNotSignedException
-     {
-     init( request );
-
-     String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-
-     XPage page = new XPage(  );
-
-     switch ( getAction( request ) )
-     {
-     case ACTION_NONE:
-     home( page, request );
-
-     break;
-
-     case ACTION_VIEW:
-     view( page, request, strPageName );
-
-     break;
-
-     case ACTION_VIEW_HISTORY:
-     viewHistory( page, request, strPageName );
-
-     break;
-
-     case ACTION_VIEW_DIFF:
-     viewDiff( page, request, strPageName );
-
-     break;
-
-     case ACTION_CREATE:
-     checkUser( request );
-     create( page, request, strPageName );
-
-     break;
-
-     case ACTION_MODIFY:
-     checkUser( request );
-     modify( page, request, strPageName );
-
-     break;
-
-     case ACTION_SEARCH:
-     search( page, request );
-
-     break;
-
-     default:
-     home( page, request );
-
-     break;
-     }
-
-     return page;
-     }
-     */
 
     /**
      * Gets the Home page
@@ -307,8 +239,8 @@ public class WikiApp extends MVCApplication
         model.put( MARK_TOPIC, topic );
 
         XPage page = getXPage( TEMPLATE_VIEW_WIKI, request.getLocale(  ), model );
-        page.setTitle( getPageTitle( strPageName ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
+        page.setTitle( getPageTitle( topic.getPageTitle() ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( topic.getPageTitle() ) );
 
         return page;
     }
@@ -328,8 +260,14 @@ public class WikiApp extends MVCApplication
         checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        System.out.print( "PageName = " + strPageName );
+        strPageName = URLDecoder.decode( strPageName , "UTF-8" );
+        System.out.print( "PageName = " + strPageName );
+        String strPageTitle =  strPageName;
+        strPageName = WikiUtils.normalize( strPageName );
         Map<String, String> mapParameters = new HashMap<String, String>(  );
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME, URLEncoder.encode( strPageName, "UTF-8" ) );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+        mapParameters.put( Constants.PARAMETER_PAGE_TITLE, URLEncoder.encode( strPageTitle , "UTF-8" ));
 
         return redirect( request, VIEW_CREATE_PAGE, mapParameters );
     }
@@ -345,6 +283,7 @@ public class WikiApp extends MVCApplication
     public XPage create( HttpServletRequest request ) throws SiteMessageException
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE );
         Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
 
         if ( topic != null )
@@ -355,6 +294,7 @@ public class WikiApp extends MVCApplication
         Map<String, Object> model = getModel(  );
         topic = new Topic(  );
         topic.setPageName( strPageName );
+        topic.setPageTitle( strPageTitle );
         model.put( MARK_TOPIC, topic );
         model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList(  ) );
 
@@ -545,7 +485,7 @@ public class WikiApp extends MVCApplication
         }
         else
         {
-            String strRole = topic.getRole(  );
+            String strRole = topic.getViewRole(  );
 
             if ( SecurityService.isAuthenticationEnable(  ) && ( !Page.ROLE_NONE.equals( strRole ) ) )
             {
@@ -576,7 +516,7 @@ public class WikiApp extends MVCApplication
 
             for ( Topic topic : listTopicAll )
             {
-                String strRole = topic.getRole(  );
+                String strRole = topic.getViewRole(  );
 
                 if ( !Page.ROLE_NONE.equals( strRole ) )
                 {
@@ -634,7 +574,8 @@ public class WikiApp extends MVCApplication
         LuteceUser user = checkUser( request );
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         String strContent = request.getParameter( Constants.PARAMETER_CONTENT );
-        String strRole = request.getParameter( Constants.PARAMETER_ROLE );
+        String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE );
+        String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE );
 
         if ( TopicHome.findByPrimaryKey( strPageName, _plugin ) != null )
         {
@@ -642,8 +583,10 @@ public class WikiApp extends MVCApplication
         }
 
         Topic topic = new Topic(  );
-        topic.setPageName( strPageName );
-        topic.setRole( strRole );
+        topic.setPageName( WikiUtils.normalize( strPageName ));
+        topic.setPageTitle( strPageName );
+        topic.setViewRole( strViewRole );
+        topic.setViewRole( strEditRole );
 
         Topic newTopic = TopicHome.create( topic, _plugin );
         TopicVersion version = new TopicVersion(  );
@@ -670,11 +613,13 @@ public class WikiApp extends MVCApplication
         throws UserNotSignedException
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE );
         String strContent = request.getParameter( Constants.PARAMETER_CONTENT );
         String strPreviousVersionId = request.getParameter( Constants.PARAMETER_PREVIOUS_VERSION_ID );
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
         String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT );
-        String strRole = request.getParameter( Constants.PARAMETER_ROLE );
+        String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE );
+        String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE );
 
         LuteceUser user = checkUser( request );
         int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
@@ -684,11 +629,10 @@ public class WikiApp extends MVCApplication
 
         Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
 
-        if ( !strRole.equals( topic.getRole(  ) ) )
-        {
-            topic.setRole( strRole );
-            TopicHome.update( topic, _plugin );
-        }
+        topic.setPageTitle( strPageTitle );
+        topic.setViewRole( strViewRole );
+        topic.setEditRole( strEditRole );
+        TopicHome.update( topic, _plugin );
 
         Map<String, String> mapParameters = new HashMap<String, String>(  );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );

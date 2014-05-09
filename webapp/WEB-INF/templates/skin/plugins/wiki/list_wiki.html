@@ -10,12 +10,13 @@
         </div>
 
         <div id="div-new-page" style="display:none">
-            <form class="form-search" action="jsp/site/Portal.jsp" method="post">
+            <form class="form-search" action="jsp/site/Portal.jsp" method="post" >
                 <input type="hidden" name="page" value="wiki" />
                 <input type="hidden" name="action" value="newPage" />
-                #i18n{wiki.list_wiki.create} :
+                
                 <div class="input-append">
-                    <input class="search-query" id="input-new-page" type="text" name="page_name" />
+                    <label>#i18n{wiki.list_wiki.create} :</label>
+                    <input class="search-query col-sm-4" id="input-new-page" type="text" name="page_name" />
                     <button class="btn btn-primary btn-xs" type="submit" >
                         <span class="glyphicon glyphicon-plus-sign"></span>
                     </button>
@@ -40,7 +41,7 @@
         <ul>
             <#list list_topic as topic>
             <li>
-                <a href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}">${topic.pageName}</a>
+                <a href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}">${topic.pageTitle}</a>
             </li>
             </#list>
         </ul>
