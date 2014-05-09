@@ -69,12 +69,10 @@ import fr.paris.lutece.portal.web.resource.ExtendableResourcePluginActionManager
 import fr.paris.lutece.portal.web.xpages.XPage;
 import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.html.Paginator;
-import fr.paris.lutece.util.string.StringUtil;
 import fr.paris.lutece.util.url.UrlItem;
 import fr.paris.lutece.util.xml.XmlUtil;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 
 import java.net.URLEncoder;
 
@@ -231,12 +229,13 @@ public class WikiApp extends MVCApplication
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName );
-        String strContent = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin ).getWikiContent(  );
-
-        String strWikiResult = new LuteceWikiParser( strContent ).toString(  );
+        TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
+        fillUserData( version );
+        String strWikiResult = new LuteceWikiParser( version.getWikiContent() ).toString();
         Map<String, Object> model = new HashMap<String, Object>(  );
         model.put( MARK_RESULT, strWikiResult );
         model.put( MARK_TOPIC, topic );
+        model.put( MARK_LATEST_VERSION , version );
 
         XPage page = getXPage( TEMPLATE_VIEW_WIKI, request.getLocale(  ), model );
         page.setTitle( getPageTitle( topic.getPageTitle() ) );
@@ -260,9 +259,6 @@ public class WikiApp extends MVCApplication
         checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        System.out.print( "PageName = " + strPageName );
-        strPageName = URLDecoder.decode( strPageName , "UTF-8" );
-        System.out.print( "PageName = " + strPageName );
         String strPageTitle =  strPageName;
         strPageName = WikiUtils.normalize( strPageName );
         Map<String, String> mapParameters = new HashMap<String, String>(  );
@@ -573,6 +569,7 @@ public class WikiApp extends MVCApplication
     {
         LuteceUser user = checkUser( request );
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE );
         String strContent = request.getParameter( Constants.PARAMETER_CONTENT );
         String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE );
         String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE );
@@ -584,7 +581,7 @@ public class WikiApp extends MVCApplication
 
         Topic topic = new Topic(  );
         topic.setPageName( WikiUtils.normalize( strPageName ));
-        topic.setPageTitle( strPageName );
+        topic.setPageTitle( strPageTitle );
         topic.setViewRole( strViewRole );
         topic.setViewRole( strEditRole );
 
@@ -696,21 +693,27 @@ public class WikiApp extends MVCApplication
     {
         for ( TopicVersion version : listTopicVersions )
         {
-            String strUserId = version.getLuteceUserId(  );
-            LuteceUser user = SecurityService.getInstance(  ).getUser( strUserId );
-
-            if ( user != null )
-            {
-                version.setUserName( user.getUserInfo( LuteceUser.NAME_GIVEN ) + " " +
-                    user.getUserInfo( LuteceUser.NAME_FAMILY ) );
-                version.setUserAvatarUrl( AvatarService.getAvatarUrl( user.getEmail(  ) ) );
-            }
-            else
-            {
-                version.setUserAvatarUrl( AvatarService.getAvatarUrl( strUserId ) );
-            }
-
-            version.setUserPseudo( UserPreferencesService.instance(  ).getNickname( strUserId ) );
+            fillUserData( version );
         }
+    }
+    
+    private void fillUserData( TopicVersion version )
+    {
+        String strUserId = version.getLuteceUserId(  );
+        LuteceUser user = SecurityService.getInstance(  ).getUser( strUserId );
+
+        if ( user != null )
+        {
+            version.setUserName( user.getUserInfo( LuteceUser.NAME_GIVEN ) + " " +
+                user.getUserInfo( LuteceUser.NAME_FAMILY ) );
+            version.setUserAvatarUrl( AvatarService.getAvatarUrl( user.getEmail(  ) ) );
+        }
+        else
+        {
+            version.setUserAvatarUrl( AvatarService.getAvatarUrl( strUserId ) );
+        }
+
+        version.setUserPseudo( UserPreferencesService.instance(  ).getNickname( strUserId ) );
+       
     }
 }

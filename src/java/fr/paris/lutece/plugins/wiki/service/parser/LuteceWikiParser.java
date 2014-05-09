@@ -58,7 +58,17 @@ public class LuteceWikiParser extends WikiParser
 {
     private static final String PROPERTY_TABLE_CLASS = "wiki.parser.tableClass";
     
-    private static String _strPortalUrl;
+    private static String _strPortalUrl = "jsp/site/Portal.jsp";
+
+    private static String renderSpecific(String strHTML)
+    {
+        String strRender = strHTML.replaceAll( "\\[lt;" , "&lt;" );
+        strRender = strRender.replaceAll("\\[gt;" , "&gt;");
+        strRender = strRender.replaceAll("\\[nbsp;" , "&nbsp;");
+        strRender = strRender.replaceAll("\\[code]" , "<div class=\"code\"><pre>");
+        strRender = strRender.replaceAll("\\[/code]" , "</pre></div>");
+        return strRender;
+    }
 
     /**
      * Constructor
@@ -89,6 +99,12 @@ public class LuteceWikiParser extends WikiParser
     public static String renderXHTML( String strWikiText )
     {
         return new LuteceWikiParser( strWikiText ).toString(  );
+    }
+    
+    @Override
+    public String toString( )
+    {
+        return renderSpecific( super.toString() );
     }
 
     /**
@@ -136,24 +152,31 @@ public class LuteceWikiParser extends WikiParser
             String strAction = Constants.PARAMETER_ACTION_VIEW;
             String strColorBegin = "";
             String strColorEnd = "";
+            String strTopicName = link[0];
 
             if ( topic == null )
             {
-                strAction = Constants.PARAMETER_ACTION_CREATE;
+                strAction = "&action=" + Constants.PARAMETER_ACTION_CREATE;
                 strColorBegin = "<font color=red>";
                 strColorEnd = "</font>";
+                System.out.println( "Topic non trouvé : " + escapeHTML( escapeURL( link[0] ) ));
+                System.out.println( "Topic non trouvé link [0]: " + link[0] );
+            }
+            else
+            {
+                strTopicName = topic.getPageTitle();
+                strAction = "&view=page";
             }
 
             sb.append( "<a href=\"" );
             sb.append( _strPortalUrl );
             sb.append( "?page=wiki&page_name=" );
             sb.append( escapeHTML( unescapeHTML( link[0] ) ) );
-            sb.append( "&action=" );
             sb.append( strAction );
             sb.append( " \" title=\"Wikipedia link\">" );
             sb.append( strColorBegin );
             sb.append( escapeHTML( unescapeHTML( ( ( link.length >= 2 ) && !isEmpty( link[1].trim(  ) ) ) ? link[1]
-                                                                                                          : link[0] ) ) );
+                                                                                                          : strTopicName ) ) );
             sb.append( strColorEnd );
             sb.append( "</a>" );
         }

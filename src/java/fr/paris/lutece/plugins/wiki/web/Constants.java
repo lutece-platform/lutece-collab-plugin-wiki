@@ -41,7 +41,7 @@ public final class Constants
 {
     public static final String PLUGIN_NAME = "wiki";
     public static final String PARAMETER_ACTION_MODIFY = "modify";
-    public static final String PARAMETER_ACTION_CREATE = "create";
+    public static final String PARAMETER_ACTION_CREATE = "newPage";
     public static final String PARAMETER_ACTION_VIEW = "view";
     public static final String PARAMETER_PAGE_NAME = "page_name";
     public static final String PARAMETER_PAGE_TITLE = "page_title";
