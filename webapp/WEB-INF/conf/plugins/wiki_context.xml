@@ -3,8 +3,12 @@
 <beans>
  	<bean id="wiki.topicDAO"  class="fr.paris.lutece.plugins.wiki.business.TopicDAO" />  
  	<bean id="wiki.topicVersionDAO"  class="fr.paris.lutece.plugins.wiki.business.TopicVersionDAO" />
+ 	<bean id="wiki.imageDAO"  class="fr.paris.lutece.plugins.wiki.business.ImageDAO" />  
+        
+        
  	<!-- Search Engine -->
 	<bean id="wiki.wikiSearchEngine" class="fr.paris.lutece.plugins.wiki.search.WikiSearchEngine" />
+        
 
         <!-- Extend resource service -->
         <bean id="wiki.extendableResourceService" class="fr.paris.lutece.plugins.wiki.service.WikiExtendableResourceService" />

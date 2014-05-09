@@ -75,6 +75,30 @@
     </div>
 </form>
 
+<form action="jsp/site/Portal.jsp" method="post" enctype="multipart/form-data" >
+    <input type="hidden" name="page" value="wiki" />
+    <input type="hidden" name="page_name" value="${topic.pageName}" />
+    <input type="hidden" name="action" value="uploadImage" />
+    <input type="hidden" name="topic_id" value="${topic.idTopic}" />
+    <fieldset>
+        <legend>Ajouter une image</legend>
+        <div class="form-group">
+            <label for="name">Name : </label>
+            <input class="form-control" name="image_name" type="text" />
+        </div>
+        <div class="form-group">
+            <label for="name">Name : </label>
+            <input class="form-control" name="image_file" type="file" />
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary" name="name" type="submit" >Uploader</button>
+        </div>
+    </fieldset>
+    
+</form>
+    
+    
+
 <script type="text/javascript">
     jQuery(document).ready(function() {
         $("#btn-help").click(function() {

@@ -59,6 +59,8 @@ public final class Constants
     public static final String PARAMETER_ACTION_SEARCH = "search";
     public static final String PARAMETER_VIEW_ROLE = "view_role";
     public static final String PARAMETER_EDIT_ROLE = "edit_role";
+    public static final String PARAMETER_IMAGE_NAME = "image_name";
+    public static final String PARAMETER_IMAGE_FILE = "image_file";
     public static final String MESSAGE_PAGE_NOT_EXISTS = "wiki.message.accessDenied.pageNotExists";
     public static final String MESSAGE_PAGE_ALREADY_EXISTS = "wiki.message.accessDenied.pageAlreadyExists";
     public static final String MESSAGE_USER_NOT_IN_ROLE = "wiki.message.accessDenied.userNotInRole";

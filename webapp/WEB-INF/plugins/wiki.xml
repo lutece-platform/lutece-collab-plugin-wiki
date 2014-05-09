@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?><plug-in>
     <name>wiki</name>
-    <class>fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation</class>
+    <class>fr.paris.lutece.plugins.wiki.service.WikiPlugin</class>
     <version>1.2.0</version>
     <documentation/>
     <installation/>

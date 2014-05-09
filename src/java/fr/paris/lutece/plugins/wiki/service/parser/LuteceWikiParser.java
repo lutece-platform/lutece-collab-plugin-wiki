@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.wiki.service.parser;
 
+import fr.paris.lutece.plugins.wiki.business.ImageHome;
 import fr.paris.lutece.plugins.wiki.business.Topic;
 import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.web.Constants;
@@ -114,7 +115,22 @@ public class LuteceWikiParser extends WikiParser
     @Override
     protected void appendImage( String strText )
     {
-        super.appendImage( strText );
+        try
+        {
+            String[] link = split( strText, '|' );
+            String strAlt =  "";
+            int nImageId = Integer.parseInt( link[0]);
+            if( link.length > 1 )
+            {
+                strAlt = link[1];
+            }
+            // Image image = ImageHome.findByPrimaryKey(nImageId, _plugin);
+            sb.append("<img src=\"image?resource_type=wiki_image&id=").append(nImageId).append("\" alt=\"").append(strAlt).append("\" title=\"").append(strAlt).append( "\" />");
+        }
+        catch( NumberFormatException e )
+        {
+            super.appendImage( strText );
+        }
     }
 
     /**

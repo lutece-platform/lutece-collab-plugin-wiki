@@ -34,6 +34,8 @@
 package fr.paris.lutece.plugins.wiki.web;
 
 import fr.paris.lutece.plugins.avatar.service.AvatarService;
+import fr.paris.lutece.plugins.wiki.business.Image;
+import fr.paris.lutece.plugins.wiki.business.ImageHome;
 import fr.paris.lutece.plugins.wiki.business.Topic;
 import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
@@ -46,6 +48,8 @@ import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.business.role.RoleHome;
 import fr.paris.lutece.portal.service.content.XPageAppService;
 import fr.paris.lutece.portal.service.i18n.I18nService;
+import fr.paris.lutece.portal.service.message.AdminMessage;
+import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.service.message.SiteMessage;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.message.SiteMessageService;
@@ -66,23 +70,21 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.util.mvc.xpage.MVCApplication;
 import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
 import fr.paris.lutece.portal.web.resource.ExtendableResourcePluginActionManager;
+import fr.paris.lutece.portal.web.upload.MultipartHttpServletRequest;
 import fr.paris.lutece.portal.web.xpages.XPage;
 import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.html.Paginator;
 import fr.paris.lutece.util.url.UrlItem;
 import fr.paris.lutece.util.xml.XmlUtil;
-
 import java.io.UnsupportedEncodingException;
-
 import java.net.URLEncoder;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.fileupload.FileItem;
 
 
 /**
@@ -131,6 +133,7 @@ public class WikiApp extends MVCApplication
     private static final String ACTION_EDIT_PAGE = "editPage";
     private static final String ACTION_MODIFY_PAGE = "modifyPage";
     private static final String ACTION_DELETE_PAGE = "deletePage";
+    private static final String ACTION_UPLOAD_IMAGE = "uploadImage";
     private static final String TAG_PAGE_LINK = "page_link";
     private static final String TAG_PAGE_NAME = "page-name";
     private static final String TAG_PAGE_URL = "page-url";
@@ -597,6 +600,62 @@ public class WikiApp extends MVCApplication
 
         return redirect( request, VIEW_PAGE, mapParameters );
     }
+    
+    
+    @Action( ACTION_UPLOAD_IMAGE )
+    public XPage doUploadImage( HttpServletRequest request )
+    {
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        String strName = request.getParameter( Constants.PARAMETER_IMAGE_NAME );
+        String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
+        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+        FileItem fileItem = multipartRequest.getFile( Constants.PARAMETER_IMAGE_FILE );
+        Image image = new Image();
+        boolean bError = false;
+        
+        if ( ( strName == null ) || strName.trim(  ).equals( "" ) )
+        {
+            bError = true;
+            addError( "Le  champ nom est obligatoire ");
+        }
+        else if ( ( image.getValue(  ) == null ) &&
+                ( ( fileItem == null ) ||
+                ( ( fileItem.getName(  ) == null ) && "".equals( fileItem.getName(  ) ) ) ) )
+        {
+            bError = true;
+            addError( "Le  champ image est obligatoire ");
+        }
+
+        if( !bError )
+        {
+
+            image.setName( strName );
+            image.setTopicId( Integer.parseInt(strTopicId));
+
+            if ( ( fileItem != null ) && ( fileItem.getName(  ) != null ) && !"".equals( fileItem.getName(  ) ) )
+            {
+                image.setValue( fileItem.get(  ) );
+                image.setMimeType( fileItem.getContentType(  ) );
+            }
+            else
+            {
+                image.setValue( null );
+            }
+
+            image.setWidth( 500 );
+            image.setHeight( 500 );
+
+            ImageHome.create( image , _plugin);
+        }
+        
+        Map<String, String> mapParameters = new HashMap<String, String>(  );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+        
+        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
+
+    }
+    
+    
 
     /**
      * Modify a wikipage

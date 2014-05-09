@@ -29,3 +29,20 @@ CREATE TABLE wiki_topic_version (
   wiki_content LONG VARCHAR,
     PRIMARY KEY (id_topic_version)
 );
+
+---
+-- Structure for table wiki_image --
+---
+DROP TABLE IF EXISTS wiki_image;
+CREATE TABLE wiki_image
+(
+ 	id_image INT DEFAULT 0 NOT NULL,
+	name VARCHAR(255) DEFAULT NULL,
+	mime_type VARCHAR(50) DEFAULT NULL,
+	file_value LONG VARBINARY,
+        id_topic INT DEFAULT NULL,
+	width INT DEFAULT NULL,
+	height INT DEFAULT NULL,
+	PRIMARY KEY (id_image)
+);
+
