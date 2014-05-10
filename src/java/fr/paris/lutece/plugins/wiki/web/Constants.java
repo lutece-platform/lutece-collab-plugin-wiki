@@ -40,6 +40,7 @@ package fr.paris.lutece.plugins.wiki.web;
 public final class Constants
 {
     public static final String PLUGIN_NAME = "wiki";
+    public static final String PARAMETER_PAGE = "page";
     public static final String PARAMETER_ACTION_MODIFY = "modify";
     public static final String PARAMETER_ACTION_CREATE = "newPage";
     public static final String PARAMETER_ACTION_VIEW = "view";
@@ -61,6 +62,7 @@ public final class Constants
     public static final String PARAMETER_EDIT_ROLE = "edit_role";
     public static final String PARAMETER_IMAGE_NAME = "image_name";
     public static final String PARAMETER_IMAGE_FILE = "image_file";
+    public static final String PARAMETER_IMAGE_ID = "id_image";
     public static final String MESSAGE_PAGE_NOT_EXISTS = "wiki.message.accessDenied.pageNotExists";
     public static final String MESSAGE_PAGE_ALREADY_EXISTS = "wiki.message.accessDenied.pageAlreadyExists";
     public static final String MESSAGE_USER_NOT_IN_ROLE = "wiki.message.accessDenied.userNotInRole";

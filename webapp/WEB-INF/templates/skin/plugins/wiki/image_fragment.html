@@ -5,6 +5,7 @@
 
 <div class="row">
     <div class="col-sm-6">
+        <@messages infos=infos />
         <table class="table table-condensed table-stripend">
             <tr>
                 <th>#i18n{wiki.image_fragment.colImage}</th>
@@ -21,7 +22,7 @@
                     {{${image.id}|${image.name}|<em>width</em>|<em>height</em>}}
                 </td>
                 <td>
-                    <a class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}">
+                    <a href="jsp/site/Portal.jsp?page=wiki&action=confirmRemoveImage&id_image=${image.id}&page_name=${topic.pageName}" class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}">
                         <span class="glyphicon glyphicon-trash"></span>
                     </a>
                 </td>
@@ -37,6 +38,7 @@
             <input type="hidden" name="topic_id" value="${topic.idTopic}" />
             <fieldset>
                 <legend><span class="glyphicon glyphicon-plus"></span> &nbsp; #i18n{wiki.image_fragment.titleAddImage}</legend>
+                <@messages errors=errors />
                 <div class="form-group">
                     <label class="col-sm-4" for="name">#i18n{wiki.image_fragment.labelFile}&nbsp;: </label>
                     <div class="col-sm-8">

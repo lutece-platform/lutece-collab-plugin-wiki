@@ -132,10 +132,18 @@ public class WikiApp extends MVCApplication
     private static final String ACTION_EDIT_PAGE = "editPage";
     private static final String ACTION_MODIFY_PAGE = "modifyPage";
     private static final String ACTION_DELETE_PAGE = "deletePage";
+    private static final String ACTION_REMOVE_IMAGE = "removeImage";
+    private static final String ACTION_CONFIRM_REMOVE_IMAGE = "confirmRemoveImage";
     private static final String ACTION_UPLOAD_IMAGE = "uploadImage";
     private static final String TAG_PAGE_LINK = "page_link";
     private static final String TAG_PAGE_NAME = "page-name";
     private static final String TAG_PAGE_URL = "page-url";
+    private static final String JSP_PAGE_PORTAL = "jsp/site/Portal.jsp";
+    private static final String MESSAGE_IMAGE_REMOVED = "wiki.message.image.removed";
+    private static final String MESSAGE_CONFIRM_REMOVE_IMAGE = "wiki.message.confirmRemoveImage";
+    private static final String MESSAGE_NAME_MANDATORY = "wiki.message.error.name.notNull"; 
+    private static final String MESSAGE_FILE_MANDATORY = "wiki.message.error.file.notNull"; 
+
 
     // private fields
     private final Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
@@ -614,17 +622,15 @@ public class WikiApp extends MVCApplication
         Image image = new Image();
         boolean bError = false;
         
+        if ( ( fileItem == null ) || ( fileItem.getName(  ) == null ) || "".equals( fileItem.getName(  ) ) ) 
+        {
+            bError = true;
+            addError( MESSAGE_FILE_MANDATORY , request.getLocale() );
+        }
         if ( ( strName == null ) || strName.trim(  ).equals( "" ) )
         {
             bError = true;
-            addError( "Le  champ nom est obligatoire ");
-        }
-        else if ( ( image.getValue(  ) == null ) &&
-                ( ( fileItem == null ) ||
-                ( ( fileItem.getName(  ) == null ) && "".equals( fileItem.getName(  ) ) ) ) )
-        {
-            bError = true;
-            addError( "Le  champ image est obligatoire ");
+            addError( MESSAGE_NAME_MANDATORY , request.getLocale());
         }
 
         if( !bError )
@@ -656,6 +662,46 @@ public class WikiApp extends MVCApplication
 
     }
     
+   /**
+     * Manages the removal form of a image whose identifier is in the http
+     * request
+     *
+     * @param request The Http request
+     * @return the html code to confirm
+     */
+    @Action( ACTION_CONFIRM_REMOVE_IMAGE )
+    public XPage getConfirmRemoveImage( HttpServletRequest request ) throws SiteMessageException
+    {
+        int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_IMAGE_ID ) );
+        UrlItem url = new UrlItem( JSP_PAGE_PORTAL );
+        url.addParameter( Constants.PARAMETER_PAGE, Constants.PLUGIN_NAME );
+        url.addParameter( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) );
+        url.addParameter( Constants.PARAMETER_ACTION, ACTION_REMOVE_IMAGE );
+        url.addParameter( Constants.PARAMETER_IMAGE_ID, nId );
+        
+        SiteMessageService.setMessage(request, MESSAGE_CONFIRM_REMOVE_IMAGE, SiteMessage.TYPE_CONFIRMATION, url.getUrl(  ));
+        return null;
+    }
+
+    /**
+     * Handles the removal form of a image
+     *
+     * @param request The Http request
+     * @return the jsp URL to display the form to manage images
+     */
+    @Action( ACTION_REMOVE_IMAGE )
+    public XPage doRemoveImage( HttpServletRequest request )
+    {
+        int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_IMAGE_ID ) );
+        ImageHome.remove( nId , _plugin );
+        addInfo( MESSAGE_IMAGE_REMOVED, getLocale( request ) );
+
+        Map<String, String> mapParameters = new HashMap<String, String>(  );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) );
+        
+        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
+    }
+
     
 
     /**
