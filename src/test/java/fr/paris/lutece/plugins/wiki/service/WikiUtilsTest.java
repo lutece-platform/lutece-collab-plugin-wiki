@@ -31,11 +31,11 @@
  *
  * License 1.0
  */
-
 package fr.paris.lutece.plugins.wiki.service;
 
-import org.junit.Test;
 import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 /**
  *
@@ -43,20 +43,18 @@ import static org.junit.Assert.*;
  */
 public class WikiUtilsTest
 {
-    
-
     /**
      * Test of normalize method, of class WikiUtils.
      */
     @Test
-    public void testNormalize()
+    public void testNormalize(  )
     {
-        System.out.println("normalize");
+        System.out.println( "normalize" );
+
         String strSource = "éà àqsd%Uqsgh";
         String strExpResult = "ea_aqsd_uqsgh";
-        String strResult = WikiUtils.normalize(strSource);
+        String strResult = WikiUtils.normalize( strSource );
         System.out.println( "Normalized : " + strResult );
-        assertEquals(strExpResult, strResult );
+        assertEquals( strExpResult, strResult );
     }
-    
 }

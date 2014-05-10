@@ -59,18 +59,7 @@ public class LuteceWikiParser extends WikiParser
 {
     private static final String PROPERTY_TABLE_CLASS = "wiki.parser.tableClass";
     private static final String PROPERTY_IMAGE_CLASS = "wiki.parser.imageClass";
-    
     private static String _strPortalUrl = "jsp/site/Portal.jsp";
-
-    private static String renderSpecific(String strHTML)
-    {
-        String strRender = strHTML.replaceAll( "\\[lt;" , "&lt;" );
-        strRender = strRender.replaceAll("\\[gt;" , "&gt;");
-        strRender = strRender.replaceAll("\\[nbsp;" , "&nbsp;");
-        strRender = strRender.replaceAll("\\[code]" , "<div class=\"code\"><pre class=\"prettyprint\">");
-        strRender = strRender.replaceAll("\\[/code]" , "</pre></div>");
-        return strRender;
-    }
 
     /**
      * Constructor
@@ -80,8 +69,19 @@ public class LuteceWikiParser extends WikiParser
     {
         super(  );
         HEADING_LEVEL_SHIFT = 0;
-        setTableClass( AppPropertiesService.getProperty( PROPERTY_TABLE_CLASS ));
+        setTableClass( AppPropertiesService.getProperty( PROPERTY_TABLE_CLASS ) );
         parse( strWikiText );
+    }
+
+    private static String renderSpecific( String strHTML )
+    {
+        String strRender = strHTML.replaceAll( "\\[lt;", "&lt;" );
+        strRender = strRender.replaceAll( "\\[gt;", "&gt;" );
+        strRender = strRender.replaceAll( "\\[nbsp;", "&nbsp;" );
+        strRender = strRender.replaceAll( "\\[code]", "<div class=\"code\"><pre class=\"prettyprint\">" );
+        strRender = strRender.replaceAll( "\\[/code]", "</pre></div>" );
+
+        return strRender;
     }
 
     /**
@@ -102,11 +102,11 @@ public class LuteceWikiParser extends WikiParser
     {
         return new LuteceWikiParser( strWikiText ).toString(  );
     }
-    
+
     @Override
-    public String toString( )
+    public String toString(  )
     {
-        return renderSpecific( super.toString() );
+        return renderSpecific( super.toString(  ) );
     }
 
     /**
@@ -122,32 +122,38 @@ public class LuteceWikiParser extends WikiParser
             String strAlt = "illustration";
             String strWidth = null;
             String strHeight = null;
-            
-            int nImageId = Integer.parseInt( link[0].trim() );
-            switch( link.length )
+
+            int nImageId = Integer.parseInt( link[0].trim(  ) );
+
+            switch ( link.length )
             {
                 case 4:
-                    strHeight = link[3].trim();
+                    strHeight = link[3].trim(  );
+
                 case 3:
-                    strWidth = link[2].trim();
+                    strWidth = link[2].trim(  );
+
                 case 2:
-                    strAlt = link[1].trim();
-                    
+                    strAlt = link[1].trim(  );
             }
-            sb.append("<img src=\"image?resource_type=wiki_image&id=").append(nImageId).append("\" alt=\"");
-            sb.append(strAlt).append("\" title=\"").append(strAlt).append( "\" ");
-            sb.append( " class=\"").append( AppPropertiesService.getProperty(PROPERTY_IMAGE_CLASS)).append("\" " );
-            if( strWidth != null )
+
+            sb.append( "<img src=\"image?resource_type=wiki_image&id=" ).append( nImageId ).append( "\" alt=\"" );
+            sb.append( strAlt ).append( "\" title=\"" ).append( strAlt ).append( "\" " );
+            sb.append( " class=\"" ).append( AppPropertiesService.getProperty( PROPERTY_IMAGE_CLASS ) ).append( "\" " );
+
+            if ( strWidth != null )
             {
-                sb.append( " width=\"" ).append( strWidth ).append("\" ");
+                sb.append( " width=\"" ).append( strWidth ).append( "\" " );
             }
-            if( strHeight != null )
+
+            if ( strHeight != null )
             {
-                sb.append( " height=\"" ).append( strHeight ).append("\" ");
+                sb.append( " height=\"" ).append( strHeight ).append( "\" " );
             }
-            sb.append( " />");
+
+            sb.append( " />" );
         }
-        catch( NumberFormatException e )
+        catch ( NumberFormatException e )
         {
             super.appendImage( strText );
         }
@@ -195,12 +201,10 @@ public class LuteceWikiParser extends WikiParser
                 strAction = "&action=" + Constants.PARAMETER_ACTION_CREATE;
                 strColorBegin = "<font color=red>";
                 strColorEnd = "</font>";
-                System.out.println( "Topic non trouvé : " + escapeHTML( escapeURL( link[0] ) ));
-                System.out.println( "Topic non trouvé link [0]: " + link[0] );
             }
             else
             {
-                strTopicName = topic.getPageTitle();
+                strTopicName = topic.getPageTitle(  );
                 strAction = "&view=page";
             }
 

@@ -74,15 +74,20 @@ import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.html.Paginator;
 import fr.paris.lutece.util.url.UrlItem;
 import fr.paris.lutece.util.xml.XmlUtil;
+
+import org.apache.commons.fileupload.FileItem;
+
 import java.io.UnsupportedEncodingException;
+
 import java.net.URLEncoder;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.fileupload.FileItem;
 
 
 /**
@@ -141,9 +146,8 @@ public class WikiApp extends MVCApplication
     private static final String JSP_PAGE_PORTAL = "jsp/site/Portal.jsp";
     private static final String MESSAGE_IMAGE_REMOVED = "wiki.message.image.removed";
     private static final String MESSAGE_CONFIRM_REMOVE_IMAGE = "wiki.message.confirmRemoveImage";
-    private static final String MESSAGE_NAME_MANDATORY = "wiki.message.error.name.notNull"; 
-    private static final String MESSAGE_FILE_MANDATORY = "wiki.message.error.file.notNull"; 
-
+    private static final String MESSAGE_NAME_MANDATORY = "wiki.message.error.name.notNull";
+    private static final String MESSAGE_FILE_MANDATORY = "wiki.message.error.file.notNull";
 
     // private fields
     private final Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
@@ -151,7 +155,6 @@ public class WikiApp extends MVCApplication
     private String _strCurrentPageIndex;
     private int _nDefaultItemsPerPage;
     private int _nItemsPerPage;
-
 
     /**
      * Gets the Home page
@@ -241,15 +244,16 @@ public class WikiApp extends MVCApplication
         Topic topic = getTopic( request, strPageName );
         TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
         fillUserData( version );
-        String strWikiResult = new LuteceWikiParser( version.getWikiContent() ).toString();
+
+        String strWikiResult = new LuteceWikiParser( version.getWikiContent(  ) ).toString(  );
         Map<String, Object> model = new HashMap<String, Object>(  );
         model.put( MARK_RESULT, strWikiResult );
         model.put( MARK_TOPIC, topic );
-        model.put( MARK_LATEST_VERSION , version );
+        model.put( MARK_LATEST_VERSION, version );
 
         XPage page = getXPage( TEMPLATE_VIEW_WIKI, request.getLocale(  ), model );
-        page.setTitle( getPageTitle( topic.getPageTitle() ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( topic.getPageTitle() ) );
+        page.setTitle( getPageTitle( topic.getPageTitle(  ) ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( topic.getPageTitle(  ) ) );
 
         return page;
     }
@@ -269,11 +273,12 @@ public class WikiApp extends MVCApplication
         checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        String strPageTitle =  strPageName;
+        String strPageTitle = strPageName;
         strPageName = WikiUtils.normalize( strPageName );
+
         Map<String, String> mapParameters = new HashMap<String, String>(  );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
-        mapParameters.put( Constants.PARAMETER_PAGE_TITLE, URLEncoder.encode( strPageTitle , "UTF-8" ));
+        mapParameters.put( Constants.PARAMETER_PAGE_TITLE, URLEncoder.encode( strPageTitle, "UTF-8" ) );
 
         return redirect( request, VIEW_CREATE_PAGE, mapParameters );
     }
@@ -344,7 +349,7 @@ public class WikiApp extends MVCApplication
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName );
         TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
-        List<Image> listImages = ImageHome.findByTopic(topic.getIdTopic(  ), _plugin );
+        List<Image> listImages = ImageHome.findByTopic( topic.getIdTopic(  ), _plugin );
         Map<String, Object> model = getModel(  );
         model.put( MARK_TOPIC, topic );
         model.put( MARK_LATEST_VERSION, topicVersion );
@@ -592,7 +597,7 @@ public class WikiApp extends MVCApplication
         }
 
         Topic topic = new Topic(  );
-        topic.setPageName( WikiUtils.normalize( strPageName ));
+        topic.setPageName( WikiUtils.normalize( strPageName ) );
         topic.setPageTitle( strPageTitle );
         topic.setViewRole( strViewRole );
         topic.setViewRole( strEditRole );
@@ -609,8 +614,7 @@ public class WikiApp extends MVCApplication
 
         return redirect( request, VIEW_PAGE, mapParameters );
     }
-    
-    
+
     @Action( ACTION_UPLOAD_IMAGE )
     public XPage doUploadImage( HttpServletRequest request )
     {
@@ -619,25 +623,25 @@ public class WikiApp extends MVCApplication
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         FileItem fileItem = multipartRequest.getFile( Constants.PARAMETER_IMAGE_FILE );
-        Image image = new Image();
+        Image image = new Image(  );
         boolean bError = false;
-        
-        if ( ( fileItem == null ) || ( fileItem.getName(  ) == null ) || "".equals( fileItem.getName(  ) ) ) 
+
+        if ( ( fileItem == null ) || ( fileItem.getName(  ) == null ) || "".equals( fileItem.getName(  ) ) )
         {
             bError = true;
-            addError( MESSAGE_FILE_MANDATORY , request.getLocale() );
+            addError( MESSAGE_FILE_MANDATORY, request.getLocale(  ) );
         }
+
         if ( ( strName == null ) || strName.trim(  ).equals( "" ) )
         {
             bError = true;
-            addError( MESSAGE_NAME_MANDATORY , request.getLocale());
+            addError( MESSAGE_NAME_MANDATORY, request.getLocale(  ) );
         }
 
-        if( !bError )
+        if ( !bError )
         {
-
             image.setName( strName );
-            image.setTopicId( Integer.parseInt(strTopicId));
+            image.setTopicId( Integer.parseInt( strTopicId ) );
 
             if ( ( fileItem != null ) && ( fileItem.getName(  ) != null ) && !"".equals( fileItem.getName(  ) ) )
             {
@@ -652,25 +656,25 @@ public class WikiApp extends MVCApplication
             image.setWidth( 500 );
             image.setHeight( 500 );
 
-            ImageHome.create( image , _plugin);
+            ImageHome.create( image, _plugin );
         }
-        
+
         Map<String, String> mapParameters = new HashMap<String, String>(  );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
-        
-        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
 
+        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
     }
-    
-   /**
-     * Manages the removal form of a image whose identifier is in the http
-     * request
-     *
-     * @param request The Http request
-     * @return the html code to confirm
-     */
+
+    /**
+      * Manages the removal form of a image whose identifier is in the http
+      * request
+      *
+      * @param request The Http request
+      * @return the html code to confirm
+      */
     @Action( ACTION_CONFIRM_REMOVE_IMAGE )
-    public XPage getConfirmRemoveImage( HttpServletRequest request ) throws SiteMessageException
+    public XPage getConfirmRemoveImage( HttpServletRequest request )
+        throws SiteMessageException
     {
         int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_IMAGE_ID ) );
         UrlItem url = new UrlItem( JSP_PAGE_PORTAL );
@@ -678,8 +682,10 @@ public class WikiApp extends MVCApplication
         url.addParameter( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) );
         url.addParameter( Constants.PARAMETER_ACTION, ACTION_REMOVE_IMAGE );
         url.addParameter( Constants.PARAMETER_IMAGE_ID, nId );
-        
-        SiteMessageService.setMessage(request, MESSAGE_CONFIRM_REMOVE_IMAGE, SiteMessage.TYPE_CONFIRMATION, url.getUrl(  ));
+
+        SiteMessageService.setMessage( request, MESSAGE_CONFIRM_REMOVE_IMAGE, SiteMessage.TYPE_CONFIRMATION,
+            url.getUrl(  ) );
+
         return null;
     }
 
@@ -693,16 +699,14 @@ public class WikiApp extends MVCApplication
     public XPage doRemoveImage( HttpServletRequest request )
     {
         int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_IMAGE_ID ) );
-        ImageHome.remove( nId , _plugin );
+        ImageHome.remove( nId, _plugin );
         addInfo( MESSAGE_IMAGE_REMOVED, getLocale( request ) );
 
         Map<String, String> mapParameters = new HashMap<String, String>(  );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) );
-        
+
         return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
     }
-
-    
 
     /**
      * Modify a wikipage
@@ -802,7 +806,7 @@ public class WikiApp extends MVCApplication
             fillUserData( version );
         }
     }
-    
+
     private void fillUserData( TopicVersion version )
     {
         String strUserId = version.getLuteceUserId(  );
@@ -820,6 +824,5 @@ public class WikiApp extends MVCApplication
         }
 
         version.setUserPseudo( UserPreferencesService.instance(  ).getNickname( strUserId ) );
-       
     }
 }

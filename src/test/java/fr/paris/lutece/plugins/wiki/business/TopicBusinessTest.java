@@ -63,9 +63,9 @@ public class TopicBusinessTest extends LuteceTestCase
         topic.setNamespace( NAMESPACE1 );
         topic.setPageName( PAGENAME1 );
         topic.setPageTitle( PAGETITLE1 );
-        topic.setViewRole(VIEWROLE1);
-        topic.setEditRole(EDITROLE1);
-        
+        topic.setViewRole( VIEWROLE1 );
+        topic.setEditRole( EDITROLE1 );
+
         // Create test
         TopicHome.create( topic, plugin );
 
@@ -74,25 +74,25 @@ public class TopicBusinessTest extends LuteceTestCase
         assertEquals( topicStored.getNamespace(  ), topic.getNamespace(  ) );
         assertEquals( topicStored.getPageName(  ), topic.getPageName(  ) );
         assertEquals( topicStored.getPageTitle(  ), topic.getPageTitle(  ) );
-        assertEquals( topicStored.getViewRole(), topic.getViewRole(  ) );
-        assertEquals( topicStored.getEditRole(), topic.getEditRole(  ) );
+        assertEquals( topicStored.getViewRole(  ), topic.getViewRole(  ) );
+        assertEquals( topicStored.getEditRole(  ), topic.getEditRole(  ) );
 
         // Update test
         topic.setIdTopic( IDTOPIC2 );
         topic.setNamespace( NAMESPACE2 );
         topic.setPageName( PAGENAME2 );
         topic.setPageTitle( PAGETITLE2 );
-        topic.setViewRole(VIEWROLE2);
-        topic.setEditRole(EDITROLE2);
-        
+        topic.setViewRole( VIEWROLE2 );
+        topic.setEditRole( EDITROLE2 );
+
         TopicHome.update( topic, plugin );
         topicStored = TopicHome.findByPrimaryKey( topic.getIdTopic(  ), plugin );
         assertEquals( topicStored.getIdTopic(  ), topic.getIdTopic(  ) );
         assertEquals( topicStored.getNamespace(  ), topic.getNamespace(  ) );
         assertEquals( topicStored.getPageName(  ), topic.getPageName(  ) );
         assertEquals( topicStored.getPageTitle(  ), topic.getPageTitle(  ) );
-        assertEquals( topicStored.getViewRole(), topic.getViewRole(  ) );
-        assertEquals( topicStored.getEditRole(), topic.getEditRole(  ) );
+        assertEquals( topicStored.getViewRole(  ), topic.getViewRole(  ) );
+        assertEquals( topicStored.getEditRole(  ), topic.getEditRole(  ) );
 
         // List test
         TopicHome.getTopicsList( plugin );

@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.wiki.service;
 
 import fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation;
 
+
 /**
  * Wiki Plugin
  */

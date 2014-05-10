@@ -31,10 +31,10 @@
  *
  * License 1.0
  */
-
 package fr.paris.lutece.plugins.wiki.service;
 
 import java.text.Normalizer;
+
 
 /**
  * WikiUtils
@@ -43,10 +43,10 @@ public final class WikiUtils
 {
     public static String normalize( String strSource )
     {
-        String  strNormalized = Normalizer.normalize( strSource, Normalizer.Form.NFKD );
-        strNormalized = strNormalized.replaceAll("\\p{M}", "");
-        strNormalized = strNormalized.replaceAll("[^\\w]", "_");
-        return strNormalized.toLowerCase();
+        String strNormalized = Normalizer.normalize( strSource, Normalizer.Form.NFKD );
+        strNormalized = strNormalized.replaceAll( "\\p{M}", "" );
+        strNormalized = strNormalized.replaceAll( "[^\\w]", "_" );
+
+        return strNormalized.toLowerCase(  );
     }
-    
 }

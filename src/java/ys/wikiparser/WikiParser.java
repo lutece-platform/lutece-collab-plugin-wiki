@@ -87,7 +87,7 @@ public class WikiParser
     {
         parse( wikiText );
     }
-    
+
     protected void setTableClass( String strClass )
     {
         _strTableClass = strClass;
@@ -366,7 +366,7 @@ public class WikiParser
 
                 if ( ( pp == wikiLength ) || ( wikiChars[pp] == '\n' ) )
                 { // yes, it's start of a table
-                    sb.append( "<table class=\"").append( _strTableClass ).append( "\" ><tr><td>" );
+                    sb.append( "<table class=\"" ).append( _strTableClass ).append( "\" ><tr><td>" );
                     mediawikiTableLevel++;
                     pos = pp + 1;
 

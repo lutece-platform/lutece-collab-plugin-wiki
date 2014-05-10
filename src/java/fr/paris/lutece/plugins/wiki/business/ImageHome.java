@@ -127,16 +127,15 @@ public final class ImageHome
     {
         return _dao.selectAll( plugin );
     }
-    
+
     /**
      * Find images for a given topic
      * @param nIdTopic The topic ID
      * @param plugin The plugin
      * @return The list
      */
-    public static List<Image> findByTopic(int nIdTopic, Plugin plugin)
+    public static List<Image> findByTopic( int nIdTopic, Plugin plugin )
     {
-        return _dao.selectByTopicId( nIdTopic, plugin);
+        return _dao.selectByTopicId( nIdTopic, plugin );
     }
-
 }

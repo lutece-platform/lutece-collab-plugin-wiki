@@ -97,7 +97,7 @@ public class ImageDAO implements IImageDAO
         daoUtil.setString( ++nPos, image.getName(  ) );
         daoUtil.setString( ++nPos, image.getMimeType(  ) );
         daoUtil.setBytes( ++nPos, image.getValue(  ) );
-        daoUtil.setInt( ++nPos, image.getTopicId());
+        daoUtil.setInt( ++nPos, image.getTopicId(  ) );
         daoUtil.setInt( ++nPos, image.getWidth(  ) );
         daoUtil.setInt( ++nPos, image.getHeight(  ) );
         daoUtil.executeUpdate(  );
@@ -119,7 +119,7 @@ public class ImageDAO implements IImageDAO
         daoUtil.setString( ++nPos, image.getMimeType(  ) );
         daoUtil.setBytes( ++nPos, image.getValue(  ) );
         daoUtil.setInt( ++nPos, image.getTopicId(  ) );
-         daoUtil.setInt( ++nPos, image.getWidth(  ) );
+        daoUtil.setInt( ++nPos, image.getWidth(  ) );
         daoUtil.setInt( ++nPos, image.getHeight(  ) );
 
         daoUtil.setInt( ++nPos, image.getId(  ) );
@@ -139,7 +139,7 @@ public class ImageDAO implements IImageDAO
 
         daoUtil.setInt( ++nPos, image.getId(  ) );
         daoUtil.setString( ++nPos, image.getName(  ) );
-        daoUtil.setInt( ++nPos, image.getTopicId());
+        daoUtil.setInt( ++nPos, image.getTopicId(  ) );
         daoUtil.setInt( ++nPos, image.getWidth(  ) );
         daoUtil.setInt( ++nPos, image.getHeight(  ) );
         daoUtil.setInt( ++nPos, image.getId(  ) );
@@ -224,7 +224,7 @@ public class ImageDAO implements IImageDAO
 
         return listImage;
     }
-    
+
     /**
      * {@inheritDoc }
      */
@@ -258,5 +258,4 @@ public class ImageDAO implements IImageDAO
 
         return listImage;
     }
-
 }

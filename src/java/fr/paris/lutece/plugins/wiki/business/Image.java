@@ -39,7 +39,7 @@ package fr.paris.lutece.plugins.wiki.business;
  * Image
  *
  */
-public class Image 
+public class Image
 {
     private int _nId;
     private String _strName;
@@ -53,7 +53,7 @@ public class Image
     *
     * @return the id of the image
     */
-     public int getId(  )
+    public int getId(  )
     {
         return _nId;
     }

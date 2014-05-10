@@ -90,7 +90,7 @@ public interface IImageDAO
      * @return a list of Image
      */
     List<Image> selectAll( Plugin plugin );
-    
+
     /**
      * select images for a given topic
      * @param nTopicId The topic ID
