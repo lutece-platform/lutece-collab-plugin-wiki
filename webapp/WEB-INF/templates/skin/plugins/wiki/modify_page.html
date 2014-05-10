@@ -1,141 +1,129 @@
-<form method="post" action="jsp/site/Portal.jsp">
-    <input type="hidden" name="page" value="wiki" />
-    <input type="hidden" name="page_name" value="${topic.pageName}" />
-    <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
-    <input type="hidden" name="topic_id" value="${topic.idTopic}" />
+<div class="row">
+    <form method="post" action="jsp/site/Portal.jsp">
+        <div class="row">
+            <input type="hidden" name="page" value="wiki" />
+            <input type="hidden" name="page_name" value="${topic.pageName}" />
+            <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
+            <input type="hidden" name="topic_id" value="${topic.idTopic}" />
 
-    <div class="row">
-        <div class="col-sm-12">
+            <div class="col-sm-12">
 
-            <div class="btn-group btn-group-xs pull-right">
-                <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}">
-                    <span class="glyphicon glyphicon-ok"></span>
-                </button>
-                <button name="view_page" class="btn btn-default" type="submit" title="#i18n{portal.util.labelCancel}">
-                    <span class="glyphicon glyphicon-remove"></span>
-                </button>
-                <button id="btn-delete" class="btn btn-default" type="button" title="#i18n{portal.util.labelDelete}">
-                    <span class="glyphicon glyphicon-trash"></span>
-                </button>
-                <button id="btn-help" class="btn btn-default" type="button" title="#i18n{wiki.menu.help}">
-                    <span class="glyphicon glyphicon-question-sign"></span>
-                </button>
-
-            </div>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div id="main-panel" class="col-sm-12">
-            <div class="alert alert-error" id="div-confirm-delete" style="display:none">
-                #i18n{wiki.message.confirmDelete}
-                <div class="pull-right">
-                    <button name="action_deletePage" class="btn btn-danger btn-xs" type="submit" >
-                        #i18n{portal.util.labelOk}
+                <div class="btn-group btn-group-xs pull-right">
+                    <button name="view_page" class="btn btn-default" type="submit" title="#i18n{portal.util.labelCancel}">
+                        <span class="glyphicon glyphicon-remove"></span>
                     </button>
-                    <button id="btn-delete-cancel" class="btn btn-xs" type="button" >
-                        #i18n{portal.util.labelCancel}
+                    <button id="btn-delete" class="btn btn-default" type="button" title="#i18n{portal.util.labelDelete}">
+                        <span class="glyphicon glyphicon-trash"></span>
                     </button>
+                    <button id="btn-help" class="btn btn-default" type="button" title="#i18n{wiki.menu.help}">
+                        <span class="glyphicon glyphicon-question-sign"></span>
+                    </button>
+
                 </div>
             </div>
-
-            <h1>${topic.pageName}</h1>
-
-            <div class="form-group">
-                <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
-                <input class="form-control" type="text" name="page_title" value="${topic.pageTitle}" maxlength="100"/>
-            </div>
-            
-            <div class="form-group">
-                <textarea id="wiki" class="form-control" name="content" rows="20" ><#if preview_content??>${preview_content}<#else>${lastVersion.wikiContent}</#if></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="modification_comment">#i18n{wiki.modify_page.labelComment} :</label>
-                <input class="form-control" type="text" name="modification_comment"/>
-            </div>
-            
-            <div class="form-group">
-                <label for="roles_list">#i18n{wiki.modify_page.labelViewRole} :</label>
-                <@comboSorted name="view_role" default_value="${topic.viewRole}" items=page_roles_list />
-            </div>
-            
-            <div class="form-group">
-                <label for="roles_list">#i18n{wiki.modify_page.labelEditRole} :</label>
-                <@comboSorted name="edit_role" default_value="${topic.editRole}" items=page_roles_list />
-            </div>
-
-
-        </div>
-        <div id="help" class="col-sm-4 pull-right" style="display:none">
-            <br/>
-            <img src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/>
         </div>
 
-    </div>
-</form>
+        <div class="row">
+            <div id="main-panel" class="col-sm-12">
+                <div class="alert alert-error" id="div-confirm-delete" style="display:none">
+                    #i18n{wiki.message.confirmDelete}
+                    <div class="pull-right">
+                        <button name="action_deletePage" class="btn btn-danger btn-xs" type="submit" >
+                            #i18n{portal.util.labelOk}
+                        </button>
+                        <button id="btn-delete-cancel" class="btn btn-xs" type="button" >
+                            #i18n{portal.util.labelCancel}
+                        </button>
+                    </div>
+                </div>
 
-<form action="jsp/site/Portal.jsp" method="post" enctype="multipart/form-data" >
-    <input type="hidden" name="page" value="wiki" />
-    <input type="hidden" name="page_name" value="${topic.pageName}" />
-    <input type="hidden" name="action" value="uploadImage" />
-    <input type="hidden" name="topic_id" value="${topic.idTopic}" />
-    <fieldset>
-        <legend>Ajouter une image</legend>
-        <div class="form-group">
-            <label for="name">Name : </label>
-            <input class="form-control" name="image_name" type="text" />
-        </div>
-        <div class="form-group">
-            <label for="name">Name : </label>
-            <input class="form-control" name="image_file" type="file" />
-        </div>
-        <div class="form-group">
-            <button class="btn btn-primary" name="name" type="submit" >Uploader</button>
-        </div>
-    </fieldset>
-    
-</form>
-    
-    
+                <h1>${topic.pageName}</h1>
 
-<script type="text/javascript">
-    jQuery(document).ready(function() {
-        $("#btn-help").click(function() {
-            $("#help").toggle("slow");
-            this.blur();
-            if ($("#main-panel").hasClass("col-sm-7"))
-            {
-                $("#main-panel").removeClass("col-sm-7");
-                $("#main-panel").addClass("col-sm-12");
-            }
-            else
-            {
-                $("#main-panel").removeClass("col-sm-12");
-                $("#main-panel").addClass("col-sm-7");
-            }
+                <div class="form-group">
+                    <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
+                    <input class="form-control" type="text" name="page_title" value="${topic.pageTitle}" maxlength="100"/>
+                </div>
+
+                <div class="form-group">
+                    <textarea id="wiki" class="form-control" name="content" rows="20" ><#if preview_content??>${preview_content}<#else>${lastVersion.wikiContent}</#if></textarea>
+                </div>
+            </div>
+            <div id="help" class="col-sm-4 pull-right" style="display:none">
+                <br/>
+                <img src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="modification_comment"><span class="glyphicon glyphicon-comment"></span> &nbsp; #i18n{wiki.modify_page.labelComment} :</label>
+                    <input class="form-control" type="text" name="modification_comment"/>
+                </div>
+                <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}">
+                    <span class="glyphicon glyphicon-save"></span> &nbsp; #i18n{wiki.modify_page.buttonModify}
+                </button>
+            </div>
+            <div class="col-sm-6 well">
+                <fieldset>
+                    <legend><span class="glyphicon glyphicon-user"></span> &nbsp; Droits d'accès</legend>
+                    <div class="form-group">
+                        <label class="col-sm-6" for="roles_list">#i18n{wiki.modify_page.labelViewRole} :</label>
+                        <div class="col-sm-6">
+                            <@comboSorted name="view_role" default_value="${topic.viewRole}" items=page_roles_list />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-6" for="roles_list">#i18n{wiki.modify_page.labelEditRole} :</label>
+                        <div class="col-sm-6">
+                            <@comboSorted name="edit_role" default_value="${topic.editRole}" items=page_roles_list />
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </form>
+</div>
+
+<#include "image_fragment.html" />
+
+    <script type="text/javascript">
+        jQuery(document).ready(function() {
+            $("#btn-help").click(function() {
+                $("#help").toggle("slow");
+                this.blur();
+                if ($("#main-panel").hasClass("col-sm-7"))
+                {
+                    $("#main-panel").removeClass("col-sm-7");
+                    $("#main-panel").addClass("col-sm-12");
+                }
+                else
+                {
+                    $("#main-panel").removeClass("col-sm-12");
+                    $("#main-panel").addClass("col-sm-7");
+                }
+            });
         });
-    });
-</script>
+    </script>
 
-<script type="text/javascript">
-    jQuery(document).ready(function() {
-        $("#btn-delete").click(function() {
-            $("#div-confirm-delete").show("slow");
+    <script type="text/javascript">
+        jQuery(document).ready(function() {
+            $("#btn-delete").click(function() {
+                $("#div-confirm-delete").show("slow");
+            });
+            $("#btn-delete-cancel").click(function() {
+                $("#div-confirm-delete").hide("slow");
+            });
+
         });
-        $("#btn-delete-cancel").click(function() {
-            $("#div-confirm-delete").hide("slow");
+    </script>
+
+
+    <!-- Markipup integration -->
+    <script type="text/javascript" src="js/plugins/wiki/markitup/jquery.markitup.js"></script>
+    <script type="text/javascript" src="js/plugins/wiki/markitup/sets/wiki/set.js"></script>
+    <script language="javascript">
+        $(document).ready(function() {
+            $('#wiki').markItUp(myWikiSettings);
         });
-
-    });
-</script>
-
-
-<!-- Markipup integration -->
-<script type="text/javascript" src="js/plugins/wiki/markitup/jquery.markitup.js"></script>
-<script type="text/javascript" src="js/plugins/wiki/markitup/sets/wiki/set.js"></script>
-<script language="javascript">
-    $(document).ready(function() {
-        $('#wiki').markItUp(myWikiSettings);
-    });
-</script>
+    </script>

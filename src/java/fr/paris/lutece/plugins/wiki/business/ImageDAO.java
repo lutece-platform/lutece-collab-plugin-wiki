@@ -59,7 +59,7 @@ public class ImageDAO implements IImageDAO
     private static final String SQL_QUERY_UPDATE_METADATA = "UPDATE wiki_image  SET id_image=?,name=?,id_topic=?,width=?,height=?" +
         " WHERE id_image=?";
     private static final String SQL_QUERY_DELETE = "DELETE FROM wiki_image  WHERE id_image=? ";
-    private static final String SQL_QUERY_FIND_BY_TOPIC = "SELECT id_image,name,mime_type,file_value,id_topic,width,height" +
+    private static final String SQL_QUERY_FIND_BY_TOPIC = "SELECT id_image,name,mime_type,id_topic,width,height" +
         " FROM wiki_image WHERE id_topic=?";
 
     /**

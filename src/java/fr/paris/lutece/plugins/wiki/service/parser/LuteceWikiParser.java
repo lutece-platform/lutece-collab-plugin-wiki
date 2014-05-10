@@ -58,6 +58,7 @@ import java.net.URLEncoder;
 public class LuteceWikiParser extends WikiParser
 {
     private static final String PROPERTY_TABLE_CLASS = "wiki.parser.tableClass";
+    private static final String PROPERTY_IMAGE_CLASS = "wiki.parser.imageClass";
     
     private static String _strPortalUrl = "jsp/site/Portal.jsp";
 
@@ -118,14 +119,33 @@ public class LuteceWikiParser extends WikiParser
         try
         {
             String[] link = split( strText, '|' );
-            String strAlt =  "";
-            int nImageId = Integer.parseInt( link[0]);
-            if( link.length > 1 )
+            String strAlt = "illustration";
+            String strWidth = null;
+            String strHeight = null;
+            
+            int nImageId = Integer.parseInt( link[0].trim() );
+            switch( link.length )
             {
-                strAlt = link[1];
+                case 4:
+                    strHeight = link[3].trim();
+                case 3:
+                    strWidth = link[2].trim();
+                case 2:
+                    strAlt = link[1].trim();
+                    
             }
-            // Image image = ImageHome.findByPrimaryKey(nImageId, _plugin);
-            sb.append("<img src=\"image?resource_type=wiki_image&id=").append(nImageId).append("\" alt=\"").append(strAlt).append("\" title=\"").append(strAlt).append( "\" />");
+            sb.append("<img src=\"image?resource_type=wiki_image&id=").append(nImageId).append("\" alt=\"");
+            sb.append(strAlt).append("\" title=\"").append(strAlt).append( "\" ");
+            sb.append( " class=\"").append( AppPropertiesService.getProperty(PROPERTY_IMAGE_CLASS)).append("\" " );
+            if( strWidth != null )
+            {
+                sb.append( " width=\"" ).append( strWidth ).append("\" ");
+            }
+            if( strHeight != null )
+            {
+                sb.append( " height=\"" ).append( strHeight ).append("\" ");
+            }
+            sb.append( " />");
         }
         catch( NumberFormatException e )
         {

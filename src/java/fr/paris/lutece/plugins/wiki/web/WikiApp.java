@@ -48,8 +48,6 @@ import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.business.role.RoleHome;
 import fr.paris.lutece.portal.service.content.XPageAppService;
 import fr.paris.lutece.portal.service.i18n.I18nService;
-import fr.paris.lutece.portal.service.message.AdminMessage;
-import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.service.message.SiteMessage;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.message.SiteMessageService;
@@ -121,6 +119,7 @@ public class WikiApp extends MVCApplication
     private static final String MARK_QUERY = "query";
     private static final String MARK_PAGINATOR = "paginator";
     private static final String MARK_NB_ITEMS_PER_PAGE = "nb_items_per_page";
+    private static final String MARK_IMAGES_LIST = "images_list";
     private static final String VIEW_HOME = "home";
     private static final String VIEW_PAGE = "page";
     private static final String VIEW_CREATE_PAGE = "createPage";
@@ -337,10 +336,12 @@ public class WikiApp extends MVCApplication
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName );
         TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
+        List<Image> listImages = ImageHome.findByTopic(topic.getIdTopic(  ), _plugin );
         Map<String, Object> model = getModel(  );
         model.put( MARK_TOPIC, topic );
         model.put( MARK_LATEST_VERSION, topicVersion );
         model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList(  ) );
+        model.put( MARK_IMAGES_LIST, listImages );
         ExtendableResourcePluginActionManager.fillModel( request, null, model,
             Integer.toString( topic.getIdTopic(  ) ), Topic.RESOURCE_TYPE );
 
