@@ -3,9 +3,14 @@
         <div class="row">
             <input type="hidden" name="page" value="wiki" />
             <input type="hidden" name="page_name" value="${topic.pageName}" />
-            <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
             <input type="hidden" name="topic_id" value="${topic.idTopic}" />
-
+            <#if lastVersion??>
+                <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
+            <#else>
+                <input type="hidden" name="previous_version_id" value="0" />
+            </#if>
+            
+ 
             <div class="col-sm-12">
 
                 <div class="btn-group btn-group-xs pull-right">
@@ -37,7 +42,7 @@
                     </div>
                 </div>
 
-                <h1>${topic.pageName}</h1>
+                <h1>#i18n{wiki.menu.edit} <small> ${topic.pageTitle} [${topic.pageName}]</small></h1>
 
                 <div class="form-group">
                     <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
@@ -45,7 +50,7 @@
                 </div>
 
                 <div class="form-group">
-                    <textarea id="wiki" class="form-control" name="content" rows="20" ><#if preview_content??>${preview_content}<#else>${lastVersion.wikiContent}</#if></textarea>
+                    <textarea id="wiki" class="form-control" name="content" rows="20" ><#if lastVersion??>${lastVersion.wikiContent}</#if></textarea>
                 </div>
             </div>
             <div id="help" class="col-sm-4 pull-right" style="display:none">

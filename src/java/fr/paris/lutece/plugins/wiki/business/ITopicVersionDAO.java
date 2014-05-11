@@ -118,4 +118,11 @@ public interface ITopicVersionDAO
      * @return The list of topics
      */
     Collection<TopicVersion> loadAllVersions( int idTopic, Plugin plugin );
+
+    /**
+     * Remove all topicVersions for a given topic
+     * @param nTopicId The Topic Id
+     * @param plugin the Plugin
+     */
+    void deleteByTopic(int nTopicId, Plugin plugin);
 }

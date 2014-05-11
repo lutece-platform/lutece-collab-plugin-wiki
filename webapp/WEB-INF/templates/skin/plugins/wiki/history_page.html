@@ -1,43 +1,51 @@
 <div class="row">
     <div class="col-sm-12">
         <form method="post" action="jsp/site/Portal.jsp">
-                    <input type="hidden" name="page" value="wiki" />
-                    <input type="hidden" name="page_name" value="${topic.pageName}" />
-                    <input type="hidden" name="view" value="diff" />
+            <input type="hidden" name="page" value="wiki" />
+            <input type="hidden" name="page_name" value="${topic.pageName}" />
+            <input type="hidden" name="view" value="diff" />
             <div class="btn-group btn-group-xs pull-right">
                 <button class="btn btn-primary" type="submit" title="#i18n{wiki.menu.diff}">
-                    <span class="glyphicon glyphicon-eye-open"></span>
+                    <span class="glyphicon glyphicon-eye-open"></span> #i18n{wiki.menu.diff}
                 </button>
-                <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
-                    <span class="glyphicon glyphicon-chevron-left"></span>
+                <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
+                    <span class="glyphicon glyphicon-chevron-left"></span> #i18n{portal.util.labelBack}
                 </a>
             </div>
-            <h1>#i18n{wiki.menu.history}</h1>
+            <h1>#i18n{wiki.menu.history} <small> ${topic.pageTitle} [${topic.pageName}]</small></h1>
+
+            <@messages infos=infos />
 
             <div>
                 <p>#i18n{wiki.history_page.explanation}</p>
-                    
-                    <table class="table table-condensed table-striped">
-                        <tr>
-                            <th>#i18n{wiki.history_page.tableHeader.mostRecent}</th>
-                            <th>#i18n{wiki.history_page.tableHeader.lessRecent}</th>
-                            <th>#i18n{wiki.history_page.tableHeader.date}</th>
-                            <th>#i18n{wiki.history_page.tableHeader.author}</th>
-                            <th>#i18n{wiki.history_page.tableHeader.comment}</th>
-                        </tr>
-                        <#list listTopicVersion as lastVersion >
-                        <tr>
-                            <td><input name="new_version" id="new_version" type="radio" value="${lastVersion.idTopicVersion}"></td>
-                            <td><input name="old_version" id="old_version" type="radio" value="${lastVersion.idTopicVersion}"></td>
-                            <td>${lastVersion.dateEdition}</td>
-                            <td>
-                                <img class="avatar-small" src="${lastVersion.userAvatarUrl!''}" alt="avatar" />
-                                ${lastVersion.userName!''} ${lastVersion.userPseudo!''}
-                            </td>
-                            <td>${lastVersion.editComment}</td>
-                        </tr>
-                        </#list>
-                    </table>
+
+                <table class="table table-condensed table-striped">
+                    <tr>
+                        <th>#i18n{wiki.history_page.tableHeader.mostRecent}</th>
+                        <th>#i18n{wiki.history_page.tableHeader.lessRecent}</th>
+                        <th><span class="glyphicon glyphicon-calendar"></span> #i18n{wiki.history_page.tableHeader.date}</th>
+                        <th><span class="glyphicon glyphicon-user"></span> #i18n{wiki.history_page.tableHeader.author}</th>
+                        <th><span class="glyphicon glyphicon-comment"></span> #i18n{wiki.history_page.tableHeader.comment}</th>
+                        <th>#i18n{portal.util.labelActions}</th>
+                    </tr>
+                    <#list listTopicVersion as lastVersion >
+                    <tr>
+                        <td><input name="new_version" id="new_version" type="radio" value="${lastVersion.idTopicVersion}"></td>
+                        <td><input name="old_version" id="old_version" type="radio" value="${lastVersion.idTopicVersion}"></td>
+                        <td>${lastVersion.dateEdition}</td>
+                        <td>
+                            <img class="avatar-small" src="${lastVersion.userAvatarUrl!''}" alt="avatar" />
+                            ${lastVersion.userName!''} ${lastVersion.userPseudo!''}
+                        </td>
+                        <td>${lastVersion.editComment}</td>
+                        <td>
+                            <a href="jsp/site/Portal.jsp?page=wiki&action=confirmRemoveVersion&id_topic_version=${lastVersion.idTopicVersion}&page_name=${topic.pageName}" class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}">
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </a>
+                        </td>
+                    </tr>
+                    </#list>
+                </table>
             </div>
         </form>
     </div>

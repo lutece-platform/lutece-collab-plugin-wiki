@@ -87,6 +87,8 @@ public final class TopicHome
      */
     public static void remove( int nTopicId, Plugin plugin )
     {
+        TopicVersionHome.removeByTopic( nTopicId, plugin );
+        ImageHome.removeByTopic( nTopicId, plugin );
         _dao.delete( nTopicId, plugin );
     }
 

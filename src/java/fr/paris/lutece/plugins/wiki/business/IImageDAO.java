@@ -98,4 +98,14 @@ public interface IImageDAO
      * @return The list
      */
     List<Image> selectByTopicId( int nTopicId, Plugin plugin );
+
+
+    /**
+     *  remove all images associated to a given topic
+     *
+     * @param  nTopicId The Topic ID
+     * @param plugin the Plugin
+     *
+     */
+    void deleteByTopic(int nTopicId, Plugin plugin);
 }

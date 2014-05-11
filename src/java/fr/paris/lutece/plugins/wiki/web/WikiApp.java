@@ -112,7 +112,6 @@ public class WikiApp extends MVCApplication
     private static final String PROPERTY_TITLE_LIST = "wiki.title.list";
     private static final String PROPERTY_PATH_SEARCH = "wiki.path.search";
     private static final String PROPERTY_TITLE_SEARCH = "wiki.title.search";
-    private static final String PROPERTY_PATH_CREATE = "wiki.path.labelCreate";
     private static final String PROPERTY_PATH_MODIFY = "wiki.path.labelModify";
     private static final String MARK_TOPIC = "topic";
     private static final String MARK_LIST_TOPIC = "list_topic";
@@ -127,18 +126,18 @@ public class WikiApp extends MVCApplication
     private static final String MARK_IMAGES_LIST = "images_list";
     private static final String VIEW_HOME = "home";
     private static final String VIEW_PAGE = "page";
-    private static final String VIEW_CREATE_PAGE = "createPage";
     private static final String VIEW_MODIFY_PAGE = "modifyPage";
     private static final String VIEW_HISTORY = "history";
     private static final String VIEW_SEARCH = "search";
     private static final String VIEW_DIFF = "diff";
     private static final String ACTION_NEW_PAGE = "newPage";
-    private static final String ACTION_CREATE_PAGE = "createPage";
     private static final String ACTION_EDIT_PAGE = "editPage";
     private static final String ACTION_MODIFY_PAGE = "modifyPage";
     private static final String ACTION_DELETE_PAGE = "deletePage";
     private static final String ACTION_REMOVE_IMAGE = "removeImage";
     private static final String ACTION_CONFIRM_REMOVE_IMAGE = "confirmRemoveImage";
+    private static final String ACTION_REMOVE_VERSION = "removeVersion";
+    private static final String ACTION_CONFIRM_REMOVE_VERSION = "confirmRemoveVersion";
     private static final String ACTION_UPLOAD_IMAGE = "uploadImage";
     private static final String TAG_PAGE_LINK = "page_link";
     private static final String TAG_PAGE_NAME = "page-name";
@@ -148,6 +147,8 @@ public class WikiApp extends MVCApplication
     private static final String MESSAGE_CONFIRM_REMOVE_IMAGE = "wiki.message.confirmRemoveImage";
     private static final String MESSAGE_NAME_MANDATORY = "wiki.message.error.name.notNull";
     private static final String MESSAGE_FILE_MANDATORY = "wiki.message.error.file.notNull";
+    private static final String MESSAGE_CONFIRM_REMOVE_VERSION = "wiki.message.confirmRemoveVersion";
+    private static final String MESSAGE_VERSION_REMOVED = "wiki.message.version.removed";
     private static final String ANCHOR_IMAGES = "#images";
 
     // private fields
@@ -275,6 +276,19 @@ public class WikiApp extends MVCApplication
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         String strPageTitle = strPageName;
         strPageName = WikiUtils.normalize( strPageName );
+        
+        Topic topic =TopicHome.findByPrimaryKey( strPageName, _plugin);
+        if( topic == null )
+        {
+            topic = new Topic();
+            topic.setPageName( strPageName );
+            topic.setPageTitle( strPageTitle );
+            topic.setViewRole( Page.ROLE_NONE );
+            topic.setViewRole( Page.ROLE_NONE );
+
+            TopicHome.create( topic, _plugin );
+            
+        }
 
         Map<String, String> mapParameters = new HashMap<String, String>(  );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
@@ -283,39 +297,6 @@ public class WikiApp extends MVCApplication
         return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
     }
 
-    /**
-     * Create a new Page
-     *
-     * @param request The request
-     * @return The XPage
-     * @throws SiteMessageException if an error occurs
-     */
-    @View( VIEW_CREATE_PAGE )
-    public XPage create( HttpServletRequest request ) throws SiteMessageException
-    {
-        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE );
-        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
-
-        if ( topic != null )
-        {
-            SiteMessageService.setMessage( request, Constants.MESSAGE_PAGE_ALREADY_EXISTS, SiteMessage.TYPE_STOP );
-        }
-
-        Map<String, Object> model = getModel(  );
-        topic = new Topic(  );
-        topic.setPageName( strPageName );
-        topic.setPageTitle( strPageTitle );
-        model.put( MARK_TOPIC, topic );
-        model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList(  ) );
-
-        XPage page = getXPage( TEMPLATE_CREATE_WIKI, request.getLocale(  ), model );
-
-        String strPath = strPageName + I18nService.getLocalizedString( PROPERTY_PATH_CREATE, request.getLocale(  ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
-
-        return page;
-    }
 
     /**
      * Display the Edit page
@@ -488,6 +469,174 @@ public class WikiApp extends MVCApplication
         return template.getHtml(  );
     }
 
+    /**
+     * Delete a wikipage
+     *
+     * @param request The HTTP Request
+     * @return The redirect URL
+     * @throws UserNotSignedException if user not connected
+     */
+    @Action( ACTION_DELETE_PAGE )
+    public XPage doDeletePage( HttpServletRequest request )
+        throws UserNotSignedException
+    {
+        checkUser( request );
+
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
+        TopicHome.remove( topic.getIdTopic(  ), _plugin );
+
+        return redirectView( request, VIEW_HOME );
+    }
+
+    /**
+     * Upload an image
+     * @param request The HTTP request
+     * @return The XPage
+     * @throws UserNotSignedException if the user is not signed 
+     */
+    @Action( ACTION_UPLOAD_IMAGE )
+    public XPage doUploadImage( HttpServletRequest request ) throws UserNotSignedException
+    {
+        checkUser( request );
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        String strName = request.getParameter( Constants.PARAMETER_IMAGE_NAME );
+        String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
+        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+        FileItem fileItem = multipartRequest.getFile( Constants.PARAMETER_IMAGE_FILE );
+        Image image = new Image(  );
+        boolean bError = false;
+
+        if ( ( fileItem == null ) || ( fileItem.getName(  ) == null ) || "".equals( fileItem.getName(  ) ) )
+        {
+            bError = true;
+            addError( MESSAGE_FILE_MANDATORY, request.getLocale(  ) );
+        }
+
+        if ( ( strName == null ) || strName.trim(  ).equals( "" ) )
+        {
+            bError = true;
+            addError( MESSAGE_NAME_MANDATORY, request.getLocale(  ) );
+        }
+
+        if ( !bError )
+        {
+            image.setName( strName );
+            image.setTopicId( Integer.parseInt( strTopicId ) );
+
+            if ( ( fileItem != null ) && ( fileItem.getName(  ) != null ) && !"".equals( fileItem.getName(  ) ) )
+            {
+                image.setValue( fileItem.get(  ) );
+                image.setMimeType( fileItem.getContentType(  ) );
+            }
+            else
+            {
+                image.setValue( null );
+            }
+
+            image.setWidth( 500 );
+            image.setHeight( 500 );
+
+            ImageHome.create( image, _plugin );
+        }
+
+        Map<String, String> mapParameters = new HashMap<String, String>(  );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName + ANCHOR_IMAGES );
+
+        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
+    }
+
+    /**
+      * Manages the removal form of a image whose identifier is in the http
+      * request
+      *
+      * @param request The Http request
+      * @return the html code to confirm
+      */
+    @Action( ACTION_CONFIRM_REMOVE_IMAGE )
+    public XPage getConfirmRemoveImage( HttpServletRequest request )
+        throws SiteMessageException
+    {
+        int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_IMAGE_ID ) );
+        UrlItem url = new UrlItem( JSP_PAGE_PORTAL );
+        url.addParameter( Constants.PARAMETER_PAGE, Constants.PLUGIN_NAME );
+        url.addParameter( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) );
+        url.addParameter( Constants.PARAMETER_ACTION, ACTION_REMOVE_IMAGE );
+        url.addParameter( Constants.PARAMETER_IMAGE_ID, nId );
+
+        SiteMessageService.setMessage( request, MESSAGE_CONFIRM_REMOVE_IMAGE, SiteMessage.TYPE_CONFIRMATION,
+            url.getUrl(  ) );
+
+        return null;
+    }
+
+    /**
+     * Handles the removal form of a image
+     *
+     * @param request The Http request
+     * @return the jsp URL to display the form to manage images
+     * @throws UserNotSignedException if the user is not signed
+     */
+    @Action( ACTION_REMOVE_IMAGE )
+    public XPage doRemoveImage( HttpServletRequest request ) throws UserNotSignedException
+    {
+        checkUser( request );
+        int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_IMAGE_ID ) );
+        ImageHome.remove( nId, _plugin );
+        addInfo( MESSAGE_IMAGE_REMOVED, getLocale( request ) );
+
+        Map<String, String> mapParameters = new HashMap<String, String>(  );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) + ANCHOR_IMAGES );
+
+        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
+    }
+
+    /**
+      * Manages the removal form of a image whose identifier is in the http
+      * request
+      *
+      * @param request The Http request
+      * @return the html code to confirm
+      */
+    @Action( ACTION_CONFIRM_REMOVE_VERSION )
+    public XPage getConfirmRemoveVersion( HttpServletRequest request )
+        throws SiteMessageException
+    {
+        int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_TOPIC_VERSION_ID ) );
+        UrlItem url = new UrlItem( JSP_PAGE_PORTAL );
+        url.addParameter( Constants.PARAMETER_PAGE, Constants.PLUGIN_NAME );
+        url.addParameter( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) );
+        url.addParameter( Constants.PARAMETER_ACTION, ACTION_REMOVE_VERSION );
+        url.addParameter( Constants.PARAMETER_TOPIC_VERSION_ID , nId );
+
+        SiteMessageService.setMessage( request, MESSAGE_CONFIRM_REMOVE_VERSION, SiteMessage.TYPE_CONFIRMATION,
+            url.getUrl(  ) );
+
+        return null;
+    }
+
+    /**
+     * Handles the removal form of a image
+     *
+     * @param request The Http request
+     * @return the jsp URL to display the form to manage images
+     * @throws UserNotSignedException if the user is not signed
+     */
+    @Action( ACTION_REMOVE_VERSION )
+    public XPage doRemoveVersion( HttpServletRequest request ) throws UserNotSignedException
+    {
+        checkUser( request );
+        int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_TOPIC_VERSION_ID ) );
+        TopicVersionHome.remove( nId, _plugin );
+        addInfo( MESSAGE_VERSION_REMOVED, getLocale( request ) );
+
+        Map<String, String> mapParameters = new HashMap<String, String>(  );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME )  );
+
+        return redirect( request, VIEW_HISTORY, mapParameters );
+    }
+
+
     /////////////////////  Utils ////////////////////////////
     /**
      * Check the connected user
@@ -590,163 +739,6 @@ public class WikiApp extends MVCApplication
 
         return listTopic;
     }
-
-    /**
-     * Delete a wikipage
-     *
-     * @param request The HTTP Request
-     * @return The redirect URL
-     * @throws UserNotSignedException if user not connected
-     */
-    @Action( ACTION_DELETE_PAGE )
-    public XPage doDeletePage( HttpServletRequest request )
-        throws UserNotSignedException
-    {
-        checkUser( request );
-
-        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
-        TopicHome.remove( topic.getIdTopic(  ), _plugin );
-
-        return redirectView( request, VIEW_HOME );
-    }
-
-    /**
-     * Create a wikipage
-     *
-     * @param request The HTTP Request
-     * @return The redirect URL
-     * @throws SiteMessageException if an error occurs
-     * @throws UserNotSignedException if user not connected
-     */
-    @Action( ACTION_CREATE_PAGE )
-    public XPage doCreatePage( HttpServletRequest request )
-        throws SiteMessageException, UserNotSignedException
-    {
-        LuteceUser user = checkUser( request );
-        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE );
-        String strContent = request.getParameter( Constants.PARAMETER_CONTENT );
-        String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE );
-        String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE );
-
-        if ( TopicHome.findByPrimaryKey( strPageName, _plugin ) != null )
-        {
-            SiteMessageService.setMessage( request, Constants.MESSAGE_PAGE_ALREADY_EXISTS, SiteMessage.TYPE_STOP );
-        }
-
-        Topic topic = new Topic(  );
-        topic.setPageName( WikiUtils.normalize( strPageName ) );
-        topic.setPageTitle( strPageTitle );
-        topic.setViewRole( strViewRole );
-        topic.setViewRole( strEditRole );
-
-        Topic newTopic = TopicHome.create( topic, _plugin );
-        TopicVersion version = new TopicVersion(  );
-        version.setEditComment( "" );
-        version.setLuteceUserId( user.getName(  ) );
-        TopicVersionHome.create( version, _plugin );
-        TopicVersionHome.modifyContentOnly( newTopic.getIdTopic(  ), user.getName(  ), "", strContent, 0, _plugin );
-
-        Map<String, String> mapParameters = new HashMap<String, String>(  );
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
-
-        return redirect( request, VIEW_PAGE, mapParameters );
-    }
-
-    @Action( ACTION_UPLOAD_IMAGE )
-    public XPage doUploadImage( HttpServletRequest request )
-    {
-        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        String strName = request.getParameter( Constants.PARAMETER_IMAGE_NAME );
-        String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
-        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
-        FileItem fileItem = multipartRequest.getFile( Constants.PARAMETER_IMAGE_FILE );
-        Image image = new Image(  );
-        boolean bError = false;
-
-        if ( ( fileItem == null ) || ( fileItem.getName(  ) == null ) || "".equals( fileItem.getName(  ) ) )
-        {
-            bError = true;
-            addError( MESSAGE_FILE_MANDATORY, request.getLocale(  ) );
-        }
-
-        if ( ( strName == null ) || strName.trim(  ).equals( "" ) )
-        {
-            bError = true;
-            addError( MESSAGE_NAME_MANDATORY, request.getLocale(  ) );
-        }
-
-        if ( !bError )
-        {
-            image.setName( strName );
-            image.setTopicId( Integer.parseInt( strTopicId ) );
-
-            if ( ( fileItem != null ) && ( fileItem.getName(  ) != null ) && !"".equals( fileItem.getName(  ) ) )
-            {
-                image.setValue( fileItem.get(  ) );
-                image.setMimeType( fileItem.getContentType(  ) );
-            }
-            else
-            {
-                image.setValue( null );
-            }
-
-            image.setWidth( 500 );
-            image.setHeight( 500 );
-
-            ImageHome.create( image, _plugin );
-        }
-
-        Map<String, String> mapParameters = new HashMap<String, String>(  );
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName + ANCHOR_IMAGES );
-
-        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
-    }
-
-    /**
-      * Manages the removal form of a image whose identifier is in the http
-      * request
-      *
-      * @param request The Http request
-      * @return the html code to confirm
-      */
-    @Action( ACTION_CONFIRM_REMOVE_IMAGE )
-    public XPage getConfirmRemoveImage( HttpServletRequest request )
-        throws SiteMessageException
-    {
-        int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_IMAGE_ID ) );
-        UrlItem url = new UrlItem( JSP_PAGE_PORTAL );
-        url.addParameter( Constants.PARAMETER_PAGE, Constants.PLUGIN_NAME );
-        url.addParameter( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) );
-        url.addParameter( Constants.PARAMETER_ACTION, ACTION_REMOVE_IMAGE );
-        url.addParameter( Constants.PARAMETER_IMAGE_ID, nId );
-
-        SiteMessageService.setMessage( request, MESSAGE_CONFIRM_REMOVE_IMAGE, SiteMessage.TYPE_CONFIRMATION,
-            url.getUrl(  ) );
-
-        return null;
-    }
-
-    /**
-     * Handles the removal form of a image
-     *
-     * @param request The Http request
-     * @return the jsp URL to display the form to manage images
-     */
-    @Action( ACTION_REMOVE_IMAGE )
-    public XPage doRemoveImage( HttpServletRequest request )
-    {
-        int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_IMAGE_ID ) );
-        ImageHome.remove( nId, _plugin );
-        addInfo( MESSAGE_IMAGE_REMOVED, getLocale( request ) );
-
-        Map<String, String> mapParameters = new HashMap<String, String>(  );
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) + ANCHOR_IMAGES );
-
-        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
-    }
-
 
     /**
      * Build the page title

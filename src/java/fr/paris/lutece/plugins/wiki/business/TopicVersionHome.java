@@ -90,6 +90,16 @@ public final class TopicVersionHome
         _dao.delete( nTopicVersionId, plugin );
     }
 
+    /**
+     * Remove all topicVersions for a given topic
+     * @param nTopicId The Topic Id
+     * @param plugin the Plugin
+     */
+    static void removeByTopic(int nTopicId, Plugin plugin)
+    {
+         _dao.deleteByTopic( nTopicId, plugin );
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Finders
 

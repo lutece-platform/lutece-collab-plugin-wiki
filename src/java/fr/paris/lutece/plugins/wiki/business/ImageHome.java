@@ -104,6 +104,18 @@ public final class ImageHome
         _dao.delete( nIdImage, plugin );
     }
 
+    /**
+     *  remove all images associated to a given topic
+     *
+     * @param  nTopicId The Topic ID
+     * @param plugin the Plugin
+     *
+     */
+    public static void removeByTopic(int nTopicId, Plugin plugin)
+    {
+        _dao.deleteByTopic( nTopicId, plugin );
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Finders
 
