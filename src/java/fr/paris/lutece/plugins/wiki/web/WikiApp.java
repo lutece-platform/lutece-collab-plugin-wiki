@@ -148,10 +148,10 @@ public class WikiApp extends MVCApplication
     private static final String MESSAGE_CONFIRM_REMOVE_IMAGE = "wiki.message.confirmRemoveImage";
     private static final String MESSAGE_NAME_MANDATORY = "wiki.message.error.name.notNull";
     private static final String MESSAGE_FILE_MANDATORY = "wiki.message.error.file.notNull";
+    private static final String ANCHOR_IMAGES = "#images";
 
     // private fields
     private final Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
-    private boolean _bInit;
     private String _strCurrentPageIndex;
     private int _nDefaultItemsPerPage;
     private int _nItemsPerPage;
@@ -280,7 +280,7 @@ public class WikiApp extends MVCApplication
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
         mapParameters.put( Constants.PARAMETER_PAGE_TITLE, URLEncoder.encode( strPageTitle, "UTF-8" ) );
 
-        return redirect( request, VIEW_CREATE_PAGE, mapParameters );
+        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
     }
 
     /**
@@ -365,6 +365,45 @@ public class WikiApp extends MVCApplication
         page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
 
         return page;
+    }
+
+    /**
+     * Modify a wikipage
+     *
+     * @param request The HTTP Request
+     * @return The redirect URL
+     * @throws UserNotSignedException If user not connected
+     */
+    @Action( ACTION_MODIFY_PAGE )
+    public XPage doModifyPage( HttpServletRequest request )
+        throws UserNotSignedException
+    {
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE );
+        String strContent = request.getParameter( Constants.PARAMETER_CONTENT );
+        String strPreviousVersionId = request.getParameter( Constants.PARAMETER_PREVIOUS_VERSION_ID );
+        String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
+        String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT );
+        String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE );
+        String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE );
+
+        LuteceUser user = checkUser( request );
+        int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
+        int nTopicId = Integer.parseInt( strTopicId );
+        TopicVersionHome.modifyContentOnly( nTopicId, user.getName(  ), strComment, strContent, nPreviousVersionId,
+            _plugin );
+
+        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
+
+        topic.setPageTitle( strPageTitle );
+        topic.setViewRole( strViewRole );
+        topic.setEditRole( strEditRole );
+        TopicHome.update( topic, _plugin );
+
+        Map<String, String> mapParameters = new HashMap<String, String>(  );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+
+        return redirect( request, VIEW_PAGE, mapParameters );
     }
 
     /**
@@ -660,7 +699,7 @@ public class WikiApp extends MVCApplication
         }
 
         Map<String, String> mapParameters = new HashMap<String, String>(  );
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName + ANCHOR_IMAGES );
 
         return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
     }
@@ -703,64 +742,11 @@ public class WikiApp extends MVCApplication
         addInfo( MESSAGE_IMAGE_REMOVED, getLocale( request ) );
 
         Map<String, String> mapParameters = new HashMap<String, String>(  );
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) + ANCHOR_IMAGES );
 
         return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
     }
 
-    /**
-     * Modify a wikipage
-     *
-     * @param request The HTTP Request
-     * @return The redirect URL
-     * @throws UserNotSignedException If user not connected
-     */
-    @Action( ACTION_MODIFY_PAGE )
-    public XPage doModifyPage( HttpServletRequest request )
-        throws UserNotSignedException
-    {
-        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE );
-        String strContent = request.getParameter( Constants.PARAMETER_CONTENT );
-        String strPreviousVersionId = request.getParameter( Constants.PARAMETER_PREVIOUS_VERSION_ID );
-        String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
-        String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT );
-        String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE );
-        String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE );
-
-        LuteceUser user = checkUser( request );
-        int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
-        int nTopicId = Integer.parseInt( strTopicId );
-        TopicVersionHome.modifyContentOnly( nTopicId, user.getName(  ), strComment, strContent, nPreviousVersionId,
-            _plugin );
-
-        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
-
-        topic.setPageTitle( strPageTitle );
-        topic.setViewRole( strViewRole );
-        topic.setEditRole( strEditRole );
-        TopicHome.update( topic, _plugin );
-
-        Map<String, String> mapParameters = new HashMap<String, String>(  );
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
-
-        return redirect( request, VIEW_PAGE, mapParameters );
-    }
-
-    /**
-     * Initialise the XPage
-     *
-     * @param request The HTTP request
-     */
-    private void init( HttpServletRequest request )
-    {
-        if ( !_bInit )
-        {
-            String strWebappUrl = AppPathService.getBaseUrl( request ) + AppPathService.getPortalUrl(  );
-            LuteceWikiParser.setPortalUrl( strWebappUrl );
-            _bInit = true;
-        }
-    }
 
     /**
      * Build the page title

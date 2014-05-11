@@ -33,13 +33,13 @@
  */
 package fr.paris.lutece.plugins.wiki.service.parser;
 
-import fr.paris.lutece.plugins.wiki.business.ImageHome;
 import fr.paris.lutece.plugins.wiki.business.Topic;
 import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.web.Constants;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import static ys.wikiparser.Utils.*;
 
@@ -59,7 +59,6 @@ public class LuteceWikiParser extends WikiParser
 {
     private static final String PROPERTY_TABLE_CLASS = "wiki.parser.tableClass";
     private static final String PROPERTY_IMAGE_CLASS = "wiki.parser.imageClass";
-    private static String _strPortalUrl = "jsp/site/Portal.jsp";
 
     /**
      * Constructor
@@ -82,15 +81,6 @@ public class LuteceWikiParser extends WikiParser
         strRender = strRender.replaceAll( "\\[/code]", "</pre></div>" );
 
         return strRender;
-    }
-
-    /**
-     * Set the portal URL
-     * @param strUrl The URL
-     */
-    public static void setPortalUrl( String strUrl )
-    {
-        _strPortalUrl = strUrl;
     }
 
     /**
@@ -191,7 +181,7 @@ public class LuteceWikiParser extends WikiParser
         {
             Plugin plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
             Topic topic = TopicHome.findByPrimaryKey( escapeHTML( escapeURL( link[0] ) ), plugin );
-            String strAction = Constants.PARAMETER_ACTION_VIEW;
+            String strAction;
             String strColorBegin = "";
             String strColorEnd = "";
             String strTopicName = link[0];
@@ -209,7 +199,7 @@ public class LuteceWikiParser extends WikiParser
             }
 
             sb.append( "<a href=\"" );
-            sb.append( _strPortalUrl );
+            sb.append( AppPathService.getPortalUrl(  ) );
             sb.append( "?page=wiki&page_name=" );
             sb.append( escapeHTML( unescapeHTML( link[0] ) ) );
             sb.append( strAction );
