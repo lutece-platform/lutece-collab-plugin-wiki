@@ -345,9 +345,9 @@ public class WikiParser
                         endNowiki--; // omit the very last '\n'
                     }
 
-                    sb.append( "<pre>" );
+                    //sb.append( "<pre>" );
                     appendNowiki( wikiText.substring( startNowiki, endNowiki ) );
-                    sb.append( "</pre>\n" );
+                    //sb.append( "</pre>\n" );
                     pos = endPos;
 
                     return true;
@@ -847,9 +847,9 @@ nextChar:
                                     sb.append( "</p>" ); // break the paragraph because XHTML does not allow <pre> children of <p>
                                 }
 
-                                sb.append( "<pre>" );
+                                //sb.append( "<pre>" );
                                 appendNowiki( wikiText.substring( startNowiki, endNowiki ) );
-                                sb.append( "</pre>\n" );
+                                //sb.append( "</pre>\n" );
 
                                 if ( context == ContextType.PARAGRAPH )
                                 {

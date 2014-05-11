@@ -59,6 +59,10 @@ public class LuteceWikiParser extends WikiParser
 {
     private static final String PROPERTY_TABLE_CLASS = "wiki.parser.tableClass";
     private static final String PROPERTY_IMAGE_CLASS = "wiki.parser.imageClass";
+    private static final String PROPERTY_PRE_CLASS = "wiki.parser.preClass";
+    private static final String CLASS_TABLE = AppPropertiesService.getProperty( PROPERTY_TABLE_CLASS );
+    private static final String CLASS_IMAGE = AppPropertiesService.getProperty( PROPERTY_IMAGE_CLASS );
+    private static final String CLASS_PRE = AppPropertiesService.getProperty( PROPERTY_PRE_CLASS );
 
     /**
      * Constructor
@@ -68,7 +72,7 @@ public class LuteceWikiParser extends WikiParser
     {
         super(  );
         HEADING_LEVEL_SHIFT = 0;
-        setTableClass( AppPropertiesService.getProperty( PROPERTY_TABLE_CLASS ) );
+        setTableClass( CLASS_TABLE );
         parse( strWikiText );
     }
 
@@ -77,8 +81,6 @@ public class LuteceWikiParser extends WikiParser
         String strRender = strHTML.replaceAll( "\\[lt;", "&lt;" );
         strRender = strRender.replaceAll( "\\[gt;", "&gt;" );
         strRender = strRender.replaceAll( "\\[nbsp;", "&nbsp;" );
-        strRender = strRender.replaceAll( "\\[code]", "<div class=\"code\"><pre class=\"prettyprint\">" );
-        strRender = strRender.replaceAll( "\\[/code]", "</pre></div>" );
 
         return strRender;
     }
@@ -129,7 +131,7 @@ public class LuteceWikiParser extends WikiParser
 
             sb.append( "<img src=\"image?resource_type=wiki_image&id=" ).append( nImageId ).append( "\" alt=\"" );
             sb.append( strAlt ).append( "\" title=\"" ).append( strAlt ).append( "\" " );
-            sb.append( " class=\"" ).append( AppPropertiesService.getProperty( PROPERTY_IMAGE_CLASS ) ).append( "\" " );
+            sb.append( " class=\"" ).append( CLASS_IMAGE ).append( "\" " );
 
             if ( strWidth != null )
             {
@@ -250,5 +252,12 @@ public class LuteceWikiParser extends WikiParser
 
             return null;
         }
+    }
+    
+
+    @Override
+    protected void appendNowiki(String strText )
+    {
+        sb.append("<pre class=\"").append( CLASS_PRE ).append( "\" >").append( escapeHTML( replaceString( replaceString( strText, "~{{{", "{{{" ), "~}}}", "}}}" ) )  ).append("</pre>");
     }
 }
