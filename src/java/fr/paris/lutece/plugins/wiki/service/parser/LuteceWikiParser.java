@@ -78,9 +78,13 @@ public class LuteceWikiParser extends WikiParser
 
     private static String renderSpecific( String strHTML )
     {
-        String strRender = strHTML.replaceAll( "\\[lt;", "&lt;" );
+        String strRender = strHTML;
+        strRender = strRender.replaceAll( "\\[lt;", "&lt;" );
         strRender = strRender.replaceAll( "\\[gt;", "&gt;" );
         strRender = strRender.replaceAll( "\\[nbsp;", "&nbsp;" );
+        strRender = strRender.replaceAll( "\\[quot;", "&quot;" );
+        strRender = strRender.replaceAll( "\\[amp;", "&amp;" );
+        strRender = strRender.replaceAll( "\\[hashmark;", "#" );
 
         return strRender;
     }

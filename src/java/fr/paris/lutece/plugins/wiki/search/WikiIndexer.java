@@ -38,6 +38,7 @@ import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.business.TopicVersionHome;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceWikiParser;
+import fr.paris.lutece.plugins.wiki.web.Constants;
 import fr.paris.lutece.portal.service.content.XPageAppService;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
@@ -47,18 +48,15 @@ import fr.paris.lutece.portal.service.search.SearchIndexer;
 import fr.paris.lutece.portal.service.search.SearchItem;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.url.UrlItem;
-
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
-
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -105,7 +103,8 @@ public class WikiIndexer implements SearchIndexer
         {
             UrlItem urlSubject = new UrlItem( strPortalUrl );
             urlSubject.addParameter( XPageAppService.PARAM_XPAGE_APP, PLUGIN_NAME );
-            urlSubject.addParameter( PARAMETER_PAGE_NAME, topic.getPageName(  ) );
+            urlSubject.addParameter( Constants.PARAMETER_PAGE_NAME, topic.getPageName(  ) );
+            urlSubject.addParameter( Constants.PARAMETER_VIEW, Constants.VIEW_PAGE );
 
             org.apache.lucene.document.Document docSubject = getDocument( topic, urlSubject.getUrl(  ), plugin );
             listDocs.add( docSubject );
