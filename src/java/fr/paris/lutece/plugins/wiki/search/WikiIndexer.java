@@ -240,7 +240,7 @@ public class WikiIndexer implements SearchIndexer
             strWikiContent = latestTopicVersion.getWikiContent(  );
         }
 
-        String strWikiResult = new LuteceWikiParser( strWikiContent ).toString(  ) + " " + topic.getPageName(  );
+        String strWikiResult = new LuteceWikiParser( strWikiContent , null ).toString(  ) + " " + topic.getPageName(  );
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, TextField.TYPE_NOT_STORED ) );
 
         String strDate = DateTools.dateToString( latestTopicVersion.getDateEdition(  ), DateTools.Resolution.DAY );
