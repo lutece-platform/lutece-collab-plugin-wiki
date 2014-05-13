@@ -76,6 +76,7 @@ public class WikiParser
     protected int HEADING_LEVEL_SHIFT = 1; // make =h2, ==h3, ...
     protected String HEADING_ID_PREFIX = null;
     private String _strTableClass = "";
+    private String _strTocClass = "toc";
 
     protected WikiParser(  )
     {
@@ -91,6 +92,11 @@ public class WikiParser
     protected void setTableClass( String strClass )
     {
         _strTableClass = strClass;
+    }
+
+    protected void setTocClass( String strClass )
+    {
+        _strTocClass = strClass;
     }
 
     public static String renderXHTML( String wikiText )
@@ -297,7 +303,7 @@ public class WikiParser
             // count heading level
             for ( hc = 1; ( hc < 6 ) && ( ( pos + hc ) < wikiLength ) && ( wikiChars[pos + hc] == '=' ); hc++ )
                 ;
-
+            
             if ( ( pos + hc ) >= wikiLength )
             {
                 return false;
@@ -1074,7 +1080,7 @@ nextChar:
     {
         if ( "TOC".equals( text ) )
         {
-            sb.append( "<<<TOC>>>" ); // put TOC placeholder for replacing it later with real TOC
+            sb.append( "!!!TOC!!!" ); // put TOC placeholder for replacing it later with real TOC
         }
         else
         {
@@ -1185,7 +1191,7 @@ nextChar:
             toc.append( "</li>\n<li>" );
         }
 
-        toc.append( "<a href='#" + anchorId + "'>" + text + "</a>" );
+        toc.append( "<a href='#page_url#" + anchorId + "'>" + text + "</a>" );
     }
 
     protected void completeTOC(  )
@@ -1197,9 +1203,9 @@ nextChar:
         }
 
         int idx;
-        String tocDiv = "<div class='toc'>" + toc.toString(  ) + "</div>";
+        String tocDiv = "<div class=\"" + _strTocClass + "\">" + toc.toString(  ) + "</div>";
 
-        while ( ( idx = sb.indexOf( "<<<TOC>>>" ) ) >= 0 )
+        while ( ( idx = sb.indexOf( "!!!TOC!!!" ) ) >= 0 )
         {
             sb.replace( idx, idx + 9, tocDiv );
         }

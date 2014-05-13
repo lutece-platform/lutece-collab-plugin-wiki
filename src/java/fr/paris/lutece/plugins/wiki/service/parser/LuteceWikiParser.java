@@ -60,23 +60,31 @@ public class LuteceWikiParser extends WikiParser
     private static final String PROPERTY_TABLE_CLASS = "wiki.parser.tableClass";
     private static final String PROPERTY_IMAGE_CLASS = "wiki.parser.imageClass";
     private static final String PROPERTY_PRE_CLASS = "wiki.parser.preClass";
+    private static final String PROPERTY_TOC_CLASS = "wiki.parser.tocClass";
     private static final String CLASS_TABLE = AppPropertiesService.getProperty( PROPERTY_TABLE_CLASS );
     private static final String CLASS_IMAGE = AppPropertiesService.getProperty( PROPERTY_IMAGE_CLASS );
     private static final String CLASS_PRE = AppPropertiesService.getProperty( PROPERTY_PRE_CLASS );
+    private static final String CLASS_TOC = AppPropertiesService.getProperty( PROPERTY_TOC_CLASS );
 
+    private String _strPageUrl;
+    
     /**
      * Constructor
      * @param strWikiText The wiki text
+     * @param strPageUrl
      */
-    public LuteceWikiParser( String strWikiText )
+    public LuteceWikiParser( String strWikiText, String strPageUrl )
     {
         super(  );
         HEADING_LEVEL_SHIFT = 0;
         setTableClass( CLASS_TABLE );
+        setTocClass( CLASS_TOC );
         parse( strWikiText );
+        _strPageUrl = strPageUrl;
     }
 
-    private static String renderSpecific( String strHTML )
+
+    private String renderSpecific( String strHTML )
     {
         String strRender = strHTML;
         strRender = strRender.replaceAll( "\\[lt;", "&lt;" );
@@ -85,6 +93,11 @@ public class LuteceWikiParser extends WikiParser
         strRender = strRender.replaceAll( "\\[quot;", "&quot;" );
         strRender = strRender.replaceAll( "\\[amp;", "&amp;" );
         strRender = strRender.replaceAll( "\\[hashmark;", "#" );
+        
+        if ( _strPageUrl != null )
+        {
+            strRender = strRender.replaceAll( "#page_url" , _strPageUrl );
+        }
 
         return strRender;
     }
@@ -96,7 +109,7 @@ public class LuteceWikiParser extends WikiParser
      */
     public static String renderXHTML( String strWikiText )
     {
-        return new LuteceWikiParser( strWikiText ).toString(  );
+        return new LuteceWikiParser( strWikiText , null ).toString(  );
     }
 
     @Override

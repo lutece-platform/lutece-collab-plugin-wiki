@@ -245,8 +245,7 @@ public class WikiApp extends MVCApplication
         Topic topic = getTopic( request, strPageName );
         TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
         fillUserData( version );
-
-        String strWikiResult = new LuteceWikiParser( version.getWikiContent(  ) ).toString(  );
+        String strWikiResult = new LuteceWikiParser( version.getWikiContent(  ) , getPageUrl (request ) ).toString(  );
         Map<String, Object> model = new HashMap<String, Object>(  );
         model.put( MARK_RESULT, strWikiResult );
         model.put( MARK_TOPIC, topic );
@@ -552,6 +551,7 @@ public class WikiApp extends MVCApplication
       *
       * @param request The Http request
       * @return the html code to confirm
+      * @throws fr.paris.lutece.portal.service.message.SiteMessageException
       */
     @Action( ACTION_CONFIRM_REMOVE_IMAGE )
     public XPage getConfirmRemoveImage( HttpServletRequest request )
@@ -597,6 +597,7 @@ public class WikiApp extends MVCApplication
       *
       * @param request The Http request
       * @return the html code to confirm
+      * @throws fr.paris.lutece.portal.service.message.SiteMessageException
       */
     @Action( ACTION_CONFIRM_REMOVE_VERSION )
     public XPage getConfirmRemoveVersion( HttpServletRequest request )
@@ -802,5 +803,10 @@ public class WikiApp extends MVCApplication
         }
 
         version.setUserPseudo( UserPreferencesService.instance(  ).getNickname( strUserId ) );
+    }
+    
+    private String  getPageUrl ( HttpServletRequest request )
+    {
+        return request.getRequestURI().substring(request.getContextPath().length() + 1) + "?" + request.getQueryString();
     }
 }
