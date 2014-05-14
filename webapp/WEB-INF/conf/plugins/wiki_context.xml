@@ -33,7 +33,7 @@
                 <value>&lt;div class="alert alert-info"&gt;&lt;span class="glyphicon glyphicon-info-sign" &gt;&lt;/span&gt;</value>
             </property>
             <property name="after">
-                <value>&lt;/div&lt;</value>
+                <value>&lt;/div&gt;</value>
             </property>
         </bean>
         <bean id="wiki.macroWarningBox" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
@@ -44,7 +44,7 @@
                 <value>&lt;div class="alert alert-danger"&gt;&lt;span class="glyphicon glyphicon-warning-sign" &gt;&lt;/span&gt;</value>
             </property>
             <property name="after">
-                <value>&lt;/div&lt;</value>
+                <value>&lt;/div&gt;</value>
             </property>
         </bean>
 </beans>
