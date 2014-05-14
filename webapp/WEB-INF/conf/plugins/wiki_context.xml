@@ -12,4 +12,39 @@
 
         <!-- Extend resource service -->
         <bean id="wiki.extendableResourceService" class="fr.paris.lutece.plugins.wiki.service.WikiExtendableResourceService" />
+        
+        <!-- Macros -->
+        <bean id="wiki.macroDefault" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
+            <property name="name">
+                <value>code</value>
+            </property>
+            <property name="before">
+                <value>&lt;pre class="prettyprint"&gt;</value>
+            </property>
+            <property name="after">
+                <value>&lt;/pre&lt;</value>
+            </property>
+        </bean>
+        <bean id="wiki.macroInfoBox" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
+            <property name="name">
+                <value>info</value>
+            </property>
+            <property name="before">
+                <value>&lt;div class="alert alert-info"&gt;&lt;span class="glyphicon glyphicon-info-sign" &gt;&lt;/span&gt;</value>
+            </property>
+            <property name="after">
+                <value>&lt;/div&lt;</value>
+            </property>
+        </bean>
+        <bean id="wiki.macroWarningBox" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
+            <property name="name">
+                <value>warning</value>
+            </property>
+            <property name="before">
+                <value>&lt;div class="alert alert-danger"&gt;&lt;span class="glyphicon glyphicon-warning-sign" &gt;&lt;/span&gt;</value>
+            </property>
+            <property name="after">
+                <value>&lt;/div&lt;</value>
+            </property>
+        </bean>
 </beans>

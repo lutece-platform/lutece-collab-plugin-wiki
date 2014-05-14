@@ -67,6 +67,7 @@ public class LuteceWikiParser extends WikiParser
     private static final String CLASS_TOC = AppPropertiesService.getProperty( PROPERTY_TOC_CLASS );
 
     private String _strPageUrl;
+    private static WikiMacroService _macroService = new WikiMacroService();
     
     /**
      * Constructor
@@ -287,6 +288,7 @@ public class LuteceWikiParser extends WikiParser
     @Override
     protected void appendNowiki(String strText )
     {
-        sb.append("<pre class=\"").append( CLASS_PRE ).append( "\" >").append( escapeHTML( replaceString( replaceString( strText, "~{{{", "{{{" ), "~}}}", "}}}" ) )  ).append("</pre>");
+        String strMacro = escapeHTML( replaceString ( replaceString( strText, "~{{{", "{{{" ), "~}}}", "}}}" ) );
+        sb.append( _macroService.processMacro( strMacro ) );
     }
 }
