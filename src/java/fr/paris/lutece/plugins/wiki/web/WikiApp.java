@@ -329,7 +329,10 @@ public class WikiApp extends MVCApplication
         Topic topic = getTopic( request, strPageName );
         TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
         List<Image> listImages = ImageHome.findByTopic( topic.getIdTopic(  ), _plugin );
-        topicVersion.setWikiContent( LuteceWikiParser.renderWiki( topicVersion.getWikiContent() ));
+        if( topicVersion != null )
+        {
+            topicVersion.setWikiContent( LuteceWikiParser.renderWiki( topicVersion.getWikiContent() ));
+        }
         Map<String, Object> model = getModel(  );
         model.put( MARK_TOPIC, topic );
         model.put( MARK_LATEST_VERSION, topicVersion );
