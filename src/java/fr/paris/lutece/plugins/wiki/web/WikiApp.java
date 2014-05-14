@@ -98,7 +98,6 @@ public class WikiApp extends MVCApplication
 {
     public static final int ACTION_VIEW = 1;
     private static final String TEMPLATE_MODIFY_WIKI = "skin/plugins/wiki/modify_page.html";
-    private static final String TEMPLATE_CREATE_WIKI = "skin/plugins/wiki/create_page.html";
     private static final String TEMPLATE_VIEW_WIKI = "skin/plugins/wiki/view_page.html";
     private static final String TEMPLATE_VIEW_HISTORY_WIKI = "skin/plugins/wiki/history_page.html";
     private static final String TEMPLATE_VIEW_DIFF_TOPIC_WIKI = "skin/plugins/wiki/diff_topic.html";
@@ -330,6 +329,7 @@ public class WikiApp extends MVCApplication
         Topic topic = getTopic( request, strPageName );
         TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
         List<Image> listImages = ImageHome.findByTopic( topic.getIdTopic(  ), _plugin );
+        topicVersion.setWikiContent( LuteceWikiParser.renderWiki( topicVersion.getWikiContent() ));
         Map<String, Object> model = getModel(  );
         model.put( MARK_TOPIC, topic );
         model.put( MARK_LATEST_VERSION, topicVersion );

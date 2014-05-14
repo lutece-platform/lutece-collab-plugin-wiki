@@ -1,5 +1,5 @@
 <div class="row">
-    <form method="post" action="jsp/site/Portal.jsp">
+    <form method="post" id="form_wiki" action="jsp/site/Portal.jsp">
         <div class="row">
             <input type="hidden" name="page" value="wiki" />
             <input type="hidden" name="page_name" value="${topic.pageName}" />
@@ -64,13 +64,13 @@
                     <label for="modification_comment"><span class="glyphicon glyphicon-comment"></span> &nbsp; #i18n{wiki.modify_page.labelComment} :</label>
                     <input class="form-control" type="text" name="modification_comment"/>
                 </div>
-                <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}">
+                <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}" onclick="validate()">
                     <span class="glyphicon glyphicon-save"></span> &nbsp; #i18n{wiki.modify_page.buttonModify}
                 </button>
             </div>
             <div class="col-sm-6 well">
                 <fieldset>
-                    <legend><span class="glyphicon glyphicon-user"></span> &nbsp; Droits d'accès</legend>
+                    <legend><span class="glyphicon glyphicon-user"></span> &nbsp; #i18n{wiki.modify_page.titleRole}</legend>
                     <div class="form-group">
                         <label class="col-sm-6" for="roles_list">#i18n{wiki.modify_page.labelViewRole} :</label>
                         <div class="col-sm-6">
@@ -112,6 +112,24 @@
     </script>
 
     <script type="text/javascript">
+        function replaceAll(find, replace, str) 
+        {
+            return str.replace(new RegExp(find, 'g'), replace);
+        }
+        
+        function validate()
+        {
+            var content = document.getElementById( "wiki").value;
+            content = replaceAll( '<' , '[lt;' , content );
+            content = replaceAll( '>' , '[gt;' , content );
+            content = replaceAll( '"' , '[quot;' , content );
+            content = replaceAll( '&nbsp;' , '[nbsp;' , content );
+            content = replaceAll( '&' , '[amp;' , content );
+            content = replaceAll( '#' , '[hashmark;' , content );
+            document.getElementById( "wiki").value = content;
+            return true;
+        }
+        
         jQuery(document).ready(function() {
             $("#btn-delete").click(function() {
                 $("#div-confirm-delete").show("slow");

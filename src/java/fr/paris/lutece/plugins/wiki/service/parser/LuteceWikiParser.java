@@ -102,6 +102,18 @@ public class LuteceWikiParser extends WikiParser
         return strRender;
     }
 
+    public static String renderWiki( String strSource )
+    {
+        String strRender = strSource;
+        strRender = strRender.replaceAll( "\\[lt;",  "<" );
+        strRender = strRender.replaceAll( "\\[gt;",  ">" );
+        strRender = strRender.replaceAll( "\\[nbsp;",  "&nbsp;" );
+        strRender = strRender.replaceAll( "\\[quot;",  "\"" );
+        strRender = strRender.replaceAll( "\\[amp;",  "&" );
+        strRender = strRender.replaceAll( "\\[hashmark;",  "#" );
+        return strRender;
+    }
+
     /**
      * Render XHTML from wiki text
      * @param strWikiText The wiki text
