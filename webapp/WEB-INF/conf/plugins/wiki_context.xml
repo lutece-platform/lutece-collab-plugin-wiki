@@ -22,7 +22,7 @@
                 <value>&lt;pre class="prettyprint"&gt;</value>
             </property>
             <property name="after">
-                <value>&lt;/pre&lt;</value>
+                <value>&lt;/pre&gt;</value>
             </property>
         </bean>
         <bean id="wiki.macroInfoBox" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
