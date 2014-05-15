@@ -1,3 +1,18 @@
+
+#syntax_help {
+    font-size: 85%;
+}
+
+#syntax_help td {
+    line-height: 1.1;
+}
+
+#syntax_help hr {
+    margin-top: 5px;
+    margin-bottom: 3px;
+}
+
+
 /*
  * Styles for the HTML Diff
  */
@@ -16,7 +31,7 @@ span.diff-html-removed {
 
 span.diff-html-changed {
   background: url(../images/diffunderline.gif) bottom repeat-x;
-  *background-color: #c6c6fd; /* light blue */
+  background-color: #c6c6fd; /* light blue */
   cursor: pointer;
 }
 
