@@ -27,15 +27,31 @@
 .wiki .markItUpButton8 a {
 	background-image:url(images/list-bullet.png);
 }
+
+/*
 .wiki .markItUpButton9 a {
 	background-image:url(images/list-numeric.png);
 }
-.wiki .markItUpButton10 a {
+*/
+
+.wiki .markItUpButton9 a {
 	background-image:url(images/image.png);
 }
-.wiki .markItUpButton11 a {
+.wiki .markItUpButton10 a {
 	background-image:url(images/link.png);
 }
-.wiki .markItUpButton12 a {
+.wiki .markItUpButton11 a {
 	background-image:url(images/url.png);
+}
+.wiki .markItUpButton12 a {
+	background-image:url(images/toc.png);
+}
+.wiki .markItUpButton13 a {
+	background-image:url(images/code.png);
+}
+.wiki .markItUpButton14 a {
+	background-image:url(images/info-box.png);
+}
+.wiki .markItUpButton15 a {
+	background-image:url(images/warning.png);
 }
