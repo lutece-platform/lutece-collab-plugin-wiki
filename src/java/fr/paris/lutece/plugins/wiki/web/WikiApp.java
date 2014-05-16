@@ -107,6 +107,8 @@ public class WikiApp extends MVCApplication
     private static final String PROPERTY_PATH_SEARCH = "wiki.path.search";
     private static final String PROPERTY_TITLE_SEARCH = "wiki.title.search";
     private static final String PROPERTY_PATH_MODIFY = "wiki.path.labelModify";
+    private static final String PROPERTY_PATH_HISTORY = "wiki.path.labelHistory";
+    private static final String PROPERTY_PATH_DIFF = "wiki.path.labelDiff";
     private static final String MARK_TOPIC = "topic";
     private static final String MARK_LIST_TOPIC = "list_topic";
     private static final String MARK_LATEST_VERSION = "lastVersion";
@@ -337,9 +339,9 @@ public class WikiApp extends MVCApplication
             Integer.toString( topic.getIdTopic(  ) ), Topic.RESOURCE_TYPE );
 
         XPage page = getXPage( TEMPLATE_MODIFY_WIKI, request.getLocale(  ), model );
-        page.setTitle( getPageTitle( strPageName ) );
+        page.setTitle( getPageTitle( topic.getPageTitle() ) );
 
-        String strPath = strPageName + I18nService.getLocalizedString( PROPERTY_PATH_MODIFY, request.getLocale(  ) );
+        String strPath = topic.getPageTitle() + I18nService.getLocalizedString( PROPERTY_PATH_MODIFY, request.getLocale(  ) );
         page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
 
         return page;
@@ -405,8 +407,9 @@ public class WikiApp extends MVCApplication
         model.put( MARK_TOPIC, topic );
 
         XPage page = getXPage( TEMPLATE_VIEW_HISTORY_WIKI, request.getLocale(  ), model );
-        page.setTitle( getPageTitle( strPageName ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
+        page.setTitle( getPageTitle( topic.getPageTitle() ) );
+        String strPath = topic.getPageTitle() + I18nService.getLocalizedString( PROPERTY_PATH_HISTORY, request.getLocale(  ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
 
         return page;
     }
@@ -431,8 +434,9 @@ public class WikiApp extends MVCApplication
 
         XPage page = new XPage(  );
         page.setContent( viewTopicDiff( request, strPageName, topic, nNewTopicVersion, nOldTopicVersion ) );
-        page.setTitle( getPageTitle( strPageName ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
+        page.setTitle( getPageTitle( topic.getPageTitle() ) );
+        String strPath = topic.getPageTitle() + I18nService.getLocalizedString( PROPERTY_PATH_DIFF, request.getLocale(  ) );
+        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
 
         return page;
     }

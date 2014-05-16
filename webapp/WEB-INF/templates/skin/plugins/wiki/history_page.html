@@ -28,18 +28,18 @@
                         <th><span class="glyphicon glyphicon-comment"></span> #i18n{wiki.history_page.tableHeader.comment}</th>
                         <th>#i18n{portal.util.labelActions}</th>
                     </tr>
-                    <#list listTopicVersion as lastVersion >
+                    <#list listTopicVersion as version >
                     <tr>
-                        <td><input name="new_version" id="new_version" type="radio" value="${lastVersion.idTopicVersion}"></td>
-                        <td><input name="old_version" id="old_version" type="radio" value="${lastVersion.idTopicVersion}"></td>
-                        <td>${lastVersion.dateEdition}</td>
+                        <td><input name="new_version" id="new_version" type="radio" value="${version.idTopicVersion}" <#if version_index == 0> checked </#if> ></td>
+                        <td><input name="old_version" id="old_version" type="radio" value="${version.idTopicVersion}" <#if version_index == 1> checked </#if> ></td>
+                        <td>${version.dateEdition}</td>
                         <td>
-                            <img class="avatar-small" src="${lastVersion.userAvatarUrl!''}" alt="avatar" />
-                            ${lastVersion.userName!''} ${lastVersion.userPseudo!''}
+                            <img class="avatar-small" src="${version.userAvatarUrl!''}" alt="avatar" />
+                            ${version.userName!''} ${version.userPseudo!''}
                         </td>
-                        <td>${lastVersion.editComment}</td>
+                        <td>${version.editComment}</td>
                         <td>
-                            <a href="jsp/site/Portal.jsp?page=wiki&action=confirmRemoveVersion&id_topic_version=${lastVersion.idTopicVersion}&page_name=${topic.pageName}" class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}">
+                            <a href="jsp/site/Portal.jsp?page=wiki&action=confirmRemoveVersion&id_topic_version=${version.idTopicVersion}&page_name=${topic.pageName}" class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}">
                                 <span class="glyphicon glyphicon-trash"></span>
                             </a>
                         </td>
