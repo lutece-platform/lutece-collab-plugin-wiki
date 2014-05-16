@@ -41,8 +41,8 @@ import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.business.TopicVersionHome;
 import fr.paris.lutece.plugins.wiki.service.DiffService;
+import fr.paris.lutece.plugins.wiki.service.WikiService;
 import fr.paris.lutece.plugins.wiki.service.WikiUtils;
-import fr.paris.lutece.plugins.wiki.service.parser.LuteceWikiParser;
 import fr.paris.lutece.plugins.wiki.utils.auth.WikiAnonymousUser;
 import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.business.role.RoleHome;
@@ -74,20 +74,15 @@ import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.html.Paginator;
 import fr.paris.lutece.util.url.UrlItem;
 import fr.paris.lutece.util.xml.XmlUtil;
-
-import org.apache.commons.fileupload.FileItem;
-
 import java.io.UnsupportedEncodingException;
-
 import java.net.URLEncoder;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.fileupload.FileItem;
 
 
 /**
@@ -244,9 +239,9 @@ public class WikiApp extends MVCApplication
         Topic topic = getTopic( request, strPageName );
         TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
         fillUserData( version );
-        String strWikiResult = new LuteceWikiParser( version.getWikiContent(  ) , getPageUrl (request ) ).toString(  );
+        String strWikiPage = WikiService.instance().getWikiPage( strPageName, version , getPageUrl (request ) );
         Map<String, Object> model = new HashMap<String, Object>(  );
-        model.put( MARK_RESULT, strWikiResult );
+        model.put( MARK_RESULT, strWikiPage );
         model.put( MARK_TOPIC, topic );
         model.put( MARK_LATEST_VERSION, version );
 
@@ -331,7 +326,7 @@ public class WikiApp extends MVCApplication
         List<Image> listImages = ImageHome.findByTopic( topic.getIdTopic(  ), _plugin );
         if( topicVersion != null )
         {
-            topicVersion.setWikiContent( LuteceWikiParser.renderWiki( topicVersion.getWikiContent() ));
+            topicVersion.setWikiContent( WikiService.renderEditor( topicVersion ));
         }
         Map<String, Object> model = getModel(  );
         model.put( MARK_TOPIC, topic );
@@ -435,7 +430,7 @@ public class WikiApp extends MVCApplication
         int nOldTopicVersion = Integer.parseInt( strOldVersion );
 
         XPage page = new XPage(  );
-        page.setContent( viewTopicDiff( request, topic, nNewTopicVersion, nOldTopicVersion ) );
+        page.setContent( viewTopicDiff( request, strPageName, topic, nNewTopicVersion, nOldTopicVersion ) );
         page.setTitle( getPageTitle( strPageName ) );
         page.setXmlExtendedPathLabel( getXmlExtendedPath( strPageName ) );
 
@@ -451,14 +446,14 @@ public class WikiApp extends MVCApplication
      * @param nOldTopicVersion The old version
      * @return The page
      */
-    private String viewTopicDiff( HttpServletRequest request, Topic topic, int nNewTopicVersion, int nOldTopicVersion )
+    private String viewTopicDiff( HttpServletRequest request, String strPageName, Topic topic, int nNewTopicVersion, int nOldTopicVersion )
     {
         int nPrevTopicVersion = ( nOldTopicVersion == 0 ) ? nNewTopicVersion : nOldTopicVersion;
         TopicVersion newTopicVersion = TopicVersionHome.findByPrimaryKey( nNewTopicVersion, _plugin );
         TopicVersion oldTopicVersion = TopicVersionHome.findByPrimaryKey( nPrevTopicVersion, _plugin );
 
-        String strNewHtml = LuteceWikiParser.renderXHTML( newTopicVersion.getWikiContent(  ) );
-        String strOldHtml = LuteceWikiParser.renderXHTML( oldTopicVersion.getWikiContent(  ) );
+        String strNewHtml = WikiService.instance().getWikiPage( strPageName, newTopicVersion );
+        String strOldHtml = WikiService.instance().getWikiPage( strPageName, oldTopicVersion );
         String strDiff = DiffService.getDiff( strOldHtml, strNewHtml );
 
         Map<String, Object> model = new HashMap<String, Object>(  );
