@@ -47,6 +47,7 @@ import fr.paris.lutece.plugins.wiki.utils.auth.WikiAnonymousUser;
 import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.business.role.RoleHome;
 import fr.paris.lutece.portal.service.content.XPageAppService;
+import fr.paris.lutece.portal.service.datastore.DatastoreService;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.SiteMessage;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
@@ -70,10 +71,10 @@ import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
 import fr.paris.lutece.portal.web.resource.ExtendableResourcePluginActionManager;
 import fr.paris.lutece.portal.web.upload.MultipartHttpServletRequest;
 import fr.paris.lutece.portal.web.xpages.XPage;
+import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.html.Paginator;
 import fr.paris.lutece.util.url.UrlItem;
-import fr.paris.lutece.util.xml.XmlUtil;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -135,9 +136,6 @@ public class WikiApp extends MVCApplication
     private static final String ACTION_REMOVE_VERSION = "removeVersion";
     private static final String ACTION_CONFIRM_REMOVE_VERSION = "confirmRemoveVersion";
     private static final String ACTION_UPLOAD_IMAGE = "uploadImage";
-    private static final String TAG_PAGE_LINK = "page_link";
-    private static final String TAG_PAGE_NAME = "page-name";
-    private static final String TAG_PAGE_URL = "page-url";
     private static final String JSP_PAGE_PORTAL = "jsp/site/Portal.jsp";
     private static final String MESSAGE_IMAGE_REMOVED = "wiki.message.image.removed";
     private static final String MESSAGE_CONFIRM_REMOVE_IMAGE = "wiki.message.confirmRemoveImage";
@@ -146,6 +144,10 @@ public class WikiApp extends MVCApplication
     private static final String MESSAGE_CONFIRM_REMOVE_VERSION = "wiki.message.confirmRemoveVersion";
     private static final String MESSAGE_VERSION_REMOVED = "wiki.message.version.removed";
     private static final String ANCHOR_IMAGES = "#images";
+    private static final String DSKEY_WIKI_ROOT_LABEL = "wiki.site_property.path.rootLabel";
+    private static final String DSKEY_WIKI_ROOT_PAGENAME = "wiki.site_property.path.rootPageName";
+    private static final String URL_DEFAULT = "page=wiki";
+    private static final String URL_VIEW_PAGE = "page=wiki&amp;view=page&amp;page_name=";
 
     // private fields
     private final Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
@@ -164,8 +166,8 @@ public class WikiApp extends MVCApplication
     {
         XPage page = getTopicsListPage( request );
         page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_LIST, request.getLocale(  ) ) ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_LIST,
-                    request.getLocale(  ) ) ) );
+        page.setExtendedPathLabel( getExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_LIST,
+                    request.getLocale(  ) ) , null ) );
 
         return page;
     }
@@ -205,8 +207,8 @@ public class WikiApp extends MVCApplication
 
         XPage page = getXPage( TEMPLATE_SEARCH_WIKI, request.getLocale(  ), model );
         page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_SEARCH, request.getLocale(  ) ) ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_SEARCH,
-                    request.getLocale(  ) ) ) );
+        page.setExtendedPathLabel( getExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_SEARCH,
+                    request.getLocale(  ) ) , null ) );
 
         return page;
     }
@@ -249,7 +251,7 @@ public class WikiApp extends MVCApplication
 
         XPage page = getXPage( TEMPLATE_VIEW_WIKI, request.getLocale(  ), model );
         page.setTitle( getPageTitle( topic.getPageTitle(  ) ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( topic.getPageTitle(  ) ) );
+        page.setExtendedPathLabel( getExtendedPath( topic.getPageTitle(  ) , strPageName ) );
 
         return page;
     }
@@ -342,7 +344,7 @@ public class WikiApp extends MVCApplication
         page.setTitle( getPageTitle( topic.getPageTitle() ) );
 
         String strPath = topic.getPageTitle() + I18nService.getLocalizedString( PROPERTY_PATH_MODIFY, request.getLocale(  ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
+        page.setExtendedPathLabel( getExtendedPath( strPath , strPageName ) );
 
         return page;
     }
@@ -409,7 +411,7 @@ public class WikiApp extends MVCApplication
         XPage page = getXPage( TEMPLATE_VIEW_HISTORY_WIKI, request.getLocale(  ), model );
         page.setTitle( getPageTitle( topic.getPageTitle() ) );
         String strPath = topic.getPageTitle() + I18nService.getLocalizedString( PROPERTY_PATH_HISTORY, request.getLocale(  ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
+        page.setExtendedPathLabel( getExtendedPath( strPath , strPageName ) );
 
         return page;
     }
@@ -436,7 +438,7 @@ public class WikiApp extends MVCApplication
         page.setContent( viewTopicDiff( request, strPageName, topic, nNewTopicVersion, nOldTopicVersion ) );
         page.setTitle( getPageTitle( topic.getPageTitle() ) );
         String strPath = topic.getPageTitle() + I18nService.getLocalizedString( PROPERTY_PATH_DIFF, request.getLocale(  ) );
-        page.setXmlExtendedPathLabel( getXmlExtendedPath( strPath ) );
+        page.setExtendedPathLabel( getExtendedPath( strPath , strPageName ) );
 
         return page;
     }
@@ -758,36 +760,47 @@ public class WikiApp extends MVCApplication
 
         return sbPath.toString(  );
     }
-
+    
+    
     /**
-     * Build XML path infos
+     * Build the extended path
      *
+     * @param strPageTitle The page title
      * @param strPageName The page name
-     * @return The XML that content path info
+     * @return The list that content path info
      */
-    private String getXmlExtendedPath( String strPageName )
+    private ReferenceList getExtendedPath( String strPageTitle , String strPageName  )
     {
-        StringBuffer sbXml = new StringBuffer(  );
-        XmlUtil.beginElement( sbXml, TAG_PAGE_LINK );
-        XmlUtil.addElement( sbXml, TAG_PAGE_NAME, AppPropertiesService.getProperty( PROPERTY_PAGE_PATH ) );
-        XmlUtil.addElement( sbXml, TAG_PAGE_URL, "page=wiki" );
-        XmlUtil.endElement( sbXml, TAG_PAGE_LINK );
-        XmlUtil.beginElement( sbXml, TAG_PAGE_LINK );
-        XmlUtil.addElement( sbXml, TAG_PAGE_NAME, strPageName );
-        XmlUtil.addElement( sbXml, TAG_PAGE_URL, "" );
-        XmlUtil.endElement( sbXml, TAG_PAGE_LINK );
-
-        return sbXml.toString(  );
+        String strWikiRootLabel = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_LABEL, AppPropertiesService.getProperty( PROPERTY_PAGE_PATH ) );
+        String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, AppPropertiesService.getProperty( URL_DEFAULT ) );
+ 
+        ReferenceList list = new ReferenceList();
+        if( strPageName == null || !strPageName.equals( strWikiRootPageName ) )
+        {
+            String strWikiRootUrl = URL_VIEW_PAGE + strWikiRootPageName;
+            list.addItem( strWikiRootLabel, strWikiRootUrl );
+        }
+        list.addItem( strPageTitle , "" );
+        return list;
     }
-
-    private void fillUsersData( Collection<TopicVersion> listTopicVersions )
+    
+    
+    /**
+     * Fill all versions with users infos
+     * @param listVersions The version
+     */
+    private void fillUsersData( Collection<TopicVersion> listVersions )
     {
-        for ( TopicVersion version : listTopicVersions )
+        for ( TopicVersion version : listVersions )
         {
             fillUserData( version );
         }
     }
 
+    /**
+     * Fill the version with users infos
+     * @param version The version
+     */
     private void fillUserData( TopicVersion version )
     {
         String strUserId = version.getLuteceUserId(  );
@@ -807,6 +820,11 @@ public class WikiApp extends MVCApplication
         version.setUserPseudo( UserPreferencesService.instance(  ).getNickname( strUserId ) );
     }
     
+    /**
+     * Gets the current page URL from the request
+     * @param request The request
+     * @return The URL
+     */
     private String  getPageUrl ( HttpServletRequest request )
     {
         return request.getRequestURI().substring(request.getContextPath().length() + 1) + "?" + request.getQueryString();

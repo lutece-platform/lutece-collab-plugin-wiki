@@ -47,4 +47,7 @@
                 <value>&lt;/div&gt;</value>
             </property>
         </bean>
+        
+        <!-- Site properties group -->
+        <bean id="wiki.siteProperties" class="fr.paris.lutece.plugins.wiki.service.WikiSitePropertiesGroup" />
 </beans>
