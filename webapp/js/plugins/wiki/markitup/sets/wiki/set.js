@@ -26,7 +26,7 @@ myWikiSettings = {
         {name:'Url', openWith:'[[[![Url:!:http://]!]|', closeWith:']]', placeHolder:'Your text to link here...' },
         {name:'Table of Content', key:'T', openWith:'!!!TOC!!!', closeWith:'', placeHolder:'' },
         {separator:'---------------' },
-        {name:'Code', key:'C', openWith:'{{{ code | ', closeWith:' }}}', placeHolder:'Your code here...' },
+        {name:'Format Code', key:'F', openWith:'{{{ code | ', closeWith:' }}}', placeHolder:'Your code here...' },
         {name:'Info box', key:'N', openWith:'{{{ info | ', closeWith:' }}}', placeHolder:'Your info text here...' },
         {name:'Warning box', key:'W', openWith:'{{{ warning | ', closeWith:' }}}', placeHolder:'Your warning text here...' },
     ]
