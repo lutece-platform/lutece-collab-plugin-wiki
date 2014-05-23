@@ -356,6 +356,9 @@ public class WikiApp extends MVCApplication
         model.put( MARK_LATEST_VERSION, topicVersion );
         model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList(  ) );
         model.put( MARK_IMAGES_LIST, listImages );
+        model.put( MARK_EDIT_ROLE , hasEditRole( request , topic ));
+        model.put( MARK_ADMIN_ROLE , hasAdminRole( request ));
+
         ExtendableResourcePluginActionManager.fillModel( request, null, model,
             Integer.toString( topic.getIdTopic(  ) ), Topic.RESOURCE_TYPE );
 
