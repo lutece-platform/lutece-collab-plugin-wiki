@@ -121,6 +121,8 @@ public class WikiApp extends MVCApplication
     private static final String MARK_PAGINATOR = "paginator";
     private static final String MARK_NB_ITEMS_PER_PAGE = "nb_items_per_page";
     private static final String MARK_IMAGES_LIST = "images_list";
+    private static final String MARK_EDIT_ROLE = "has_edit_role";
+    private static final String MARK_ADMIN_ROLE = "has_admin_role";
     private static final String VIEW_HOME = "home";
     private static final String VIEW_PAGE = "page";
     private static final String VIEW_MODIFY_PAGE = "modifyPage";
@@ -146,8 +148,16 @@ public class WikiApp extends MVCApplication
     private static final String ANCHOR_IMAGES = "#images";
     private static final String DSKEY_WIKI_ROOT_LABEL = "wiki.site_property.path.rootLabel";
     private static final String DSKEY_WIKI_ROOT_PAGENAME = "wiki.site_property.path.rootPageName";
+    private static final String DSKEY_ROLE_ADMIN = "wiki.site_property.role.admin";
+    private static final String DSKEY_ROLE_EDIT = "wiki.site_property.role.edit";
+    private static final String DSKEY_ROLE_VIEW = "wiki.site_property.role.view";
+    private static final String DEFAULT_ROLE_ADMIN = "wiki_admin";
+    private static final String DEFAULT_ROLE_EDIT = Page.ROLE_NONE;
+    private static final String DEFAULT_ROLE_VIEW = Page.ROLE_NONE;
     private static final String URL_DEFAULT = "page=wiki";
     private static final String URL_VIEW_PAGE = "page=wiki&amp;view=page&amp;page_name=";
+    private static final int MODE_VIEW = 0;
+    private static final int MODE_EDIT = 1;
 
     // private fields
     private final Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
@@ -240,7 +250,7 @@ public class WikiApp extends MVCApplication
     public XPage view( HttpServletRequest request ) throws SiteMessageException
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = getTopic( request, strPageName );
+        Topic topic = getTopic( request, strPageName, MODE_VIEW );
         TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
         fillUserData( version );
         String strWikiPage = WikiService.instance().getWikiPage( strPageName, version , getPageUrl (request ) );
@@ -248,6 +258,8 @@ public class WikiApp extends MVCApplication
         model.put( MARK_RESULT, strWikiPage );
         model.put( MARK_TOPIC, topic );
         model.put( MARK_LATEST_VERSION, version );
+        model.put( MARK_EDIT_ROLE , hasEditRole( request , topic ));
+        model.put( MARK_ADMIN_ROLE , hasAdminRole( request ));
 
         XPage page = getXPage( TEMPLATE_VIEW_WIKI, request.getLocale(  ), model );
         page.setTitle( getPageTitle( topic.getPageTitle(  ) ) );
@@ -280,11 +292,11 @@ public class WikiApp extends MVCApplication
             topic = new Topic();
             topic.setPageName( strPageName );
             topic.setPageTitle( strPageTitle );
-            topic.setViewRole( Page.ROLE_NONE );
-            topic.setViewRole( Page.ROLE_NONE );
+            
+            topic.setViewRole( DatastoreService.getDataValue( DSKEY_ROLE_VIEW, DEFAULT_ROLE_VIEW ) );
+            topic.setEditRole( DatastoreService.getDataValue( DSKEY_ROLE_EDIT, DEFAULT_ROLE_EDIT ) );
 
             TopicHome.create( topic, _plugin );
-            
         }
 
         Map<String, String> mapParameters = new HashMap<String, String>(  );
@@ -308,10 +320,17 @@ public class WikiApp extends MVCApplication
         checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
+
         Map<String, String> mapParameters = new HashMap<String, String>(  );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, URLEncoder.encode( strPageName, "UTF-8" ) );
 
+        if( ! hasEditRole(request, topic))
+        {
+            return redirect( request, VIEW_PAGE, mapParameters );
+        }
         return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
+
     }
 
     /**
@@ -325,7 +344,7 @@ public class WikiApp extends MVCApplication
     public XPage modify( HttpServletRequest request ) throws SiteMessageException
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = getTopic( request, strPageName );
+        Topic topic = getTopic( request, strPageName , MODE_EDIT );
         TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
         List<Image> listImages = ImageHome.findByTopic( topic.getIdTopic(  ), _plugin );
         if( topicVersion != null )
@@ -372,15 +391,19 @@ public class WikiApp extends MVCApplication
         LuteceUser user = checkUser( request );
         int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
         int nTopicId = Integer.parseInt( strTopicId );
-        TopicVersionHome.modifyContentOnly( nTopicId, user.getName(  ), strComment, strContent, nPreviousVersionId,
-            _plugin );
-
+        
         Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
 
-        topic.setPageTitle( strPageTitle );
-        topic.setViewRole( strViewRole );
-        topic.setEditRole( strEditRole );
-        TopicHome.update( topic, _plugin );
+        if( hasEditRole(request, topic))
+        {
+            TopicVersionHome.modifyContentOnly( nTopicId, user.getName(  ), strComment, strContent, nPreviousVersionId,
+                _plugin );
+
+            topic.setPageTitle( strPageTitle );
+            topic.setViewRole( strViewRole );
+            topic.setEditRole( strEditRole );
+            TopicHome.update( topic, _plugin );
+        }
 
         Map<String, String> mapParameters = new HashMap<String, String>(  );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
@@ -400,13 +423,15 @@ public class WikiApp extends MVCApplication
         throws SiteMessageException
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = getTopic( request, strPageName );
+        Topic topic = getTopic( request, strPageName , MODE_VIEW );
         Map<String, Object> model = getModel(  );
         Collection<TopicVersion> listTopicVersions = TopicVersionHome.findAllVersions( topic.getIdTopic(  ), _plugin );
 
         fillUsersData( listTopicVersions );
         model.put( MARK_LIST_TOPIC_VERSION, listTopicVersions );
         model.put( MARK_TOPIC, topic );
+        model.put( MARK_EDIT_ROLE , hasEditRole( request , topic ));
+        model.put( MARK_ADMIN_ROLE , hasAdminRole( request ));
 
         XPage page = getXPage( TEMPLATE_VIEW_HISTORY_WIKI, request.getLocale(  ), model );
         page.setTitle( getPageTitle( topic.getPageTitle() ) );
@@ -428,7 +453,7 @@ public class WikiApp extends MVCApplication
         throws SiteMessageException
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = getTopic( request, strPageName );
+        Topic topic = getTopic( request, strPageName , MODE_VIEW );
         String strNewVersion = request.getParameter( Constants.PARAMETER_NEW_VERSION );
         String strOldVersion = request.getParameter( Constants.PARAMETER_OLD_VERSION );
         int nNewTopicVersion = Integer.parseInt( strNewVersion );
@@ -487,8 +512,12 @@ public class WikiApp extends MVCApplication
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
-        TopicHome.remove( topic.getIdTopic(  ), _plugin );
-
+        
+        // Requires Admin role 
+        if( hasAdminRole( request ))
+        {
+            TopicHome.remove( topic.getIdTopic(  ), _plugin );
+        }
         return redirectView( request, VIEW_HOME );
     }
 
@@ -631,9 +660,14 @@ public class WikiApp extends MVCApplication
     public XPage doRemoveVersion( HttpServletRequest request ) throws UserNotSignedException
     {
         checkUser( request );
-        int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_TOPIC_VERSION_ID ) );
-        TopicVersionHome.remove( nId, _plugin );
-        addInfo( MESSAGE_VERSION_REMOVED, getLocale( request ) );
+        
+        // requires admin role
+        if( hasAdminRole(request))
+        {
+            int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_TOPIC_VERSION_ID ) );
+            TopicVersionHome.remove( nId, _plugin );
+            addInfo( MESSAGE_VERSION_REMOVED, getLocale( request ) );
+        }
 
         Map<String, String> mapParameters = new HashMap<String, String>(  );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME )  );
@@ -677,10 +711,11 @@ public class WikiApp extends MVCApplication
      *
      * @param request The HTTP request
      * @param strPageName The page name
+     * @param nMode The mode VIEW vs EDIT
      * @return The topic
      * @throws SiteMessageException If an error occurs
      */
-    private Topic getTopic( HttpServletRequest request, String strPageName )
+    private Topic getTopic( HttpServletRequest request, String strPageName, int nMode )
         throws SiteMessageException
     {
         Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
@@ -691,13 +726,27 @@ public class WikiApp extends MVCApplication
         }
         else
         {
-            String strRole = topic.getViewRole(  );
+            String strRole;
+            String strMessage;
+            switch( nMode )
+            {
+                case MODE_EDIT:
+                    strRole = topic.getEditRole(  );
+                    strMessage = Constants.MESSAGE_USER_NOT_IN_ROLE;
+                    break;
+                case MODE_VIEW:
+                default:
+                    strRole = topic.getViewRole(  );
+                    strMessage = Constants.MESSAGE_USER_NOT_IN_ROLE;
+                    break;
+            }
+            
 
             if ( SecurityService.isAuthenticationEnable(  ) && ( !Page.ROLE_NONE.equals( strRole ) ) )
             {
                 if ( !SecurityService.getInstance(  ).isUserInRole( request, strRole ) )
                 {
-                    SiteMessageService.setMessage( request, Constants.MESSAGE_USER_NOT_IN_ROLE, SiteMessage.TYPE_STOP );
+                    SiteMessageService.setMessage( request, strMessage, SiteMessage.TYPE_STOP );
                 }
             }
         }
@@ -828,5 +877,38 @@ public class WikiApp extends MVCApplication
     private String  getPageUrl ( HttpServletRequest request )
     {
         return request.getRequestURI().substring(request.getContextPath().length() + 1) + "?" + request.getQueryString();
+    }
+
+    /**
+     * Checks if the user has the edit role for the given topic
+     * @param request The request
+     * @param topic The topic
+     * @return true if he has otherwise false
+     */
+    private boolean hasEditRole(HttpServletRequest request, Topic topic)
+    {
+        if ( SecurityService.isAuthenticationEnable(  ) )
+        {
+            if ( !Page.ROLE_NONE.equals( topic.getEditRole() ) )                    
+            {
+                return SecurityService.getInstance().isUserInRole(request, topic.getEditRole() );
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks if the user has the admin role
+     * @param request The request
+     * @return true if he has otherwise false
+     */
+    private boolean hasAdminRole( HttpServletRequest request )
+    {
+        if ( SecurityService.isAuthenticationEnable(  ) )
+        {
+            String strAdminRole = DatastoreService.getDataValue( DSKEY_ROLE_ADMIN , DEFAULT_ROLE_ADMIN );
+            return SecurityService.getInstance().isUserInRole( request, strAdminRole );
+        }
+        return false;
     }
 }

@@ -9,9 +9,11 @@
 <div class="row">
     <div class="col-sm-12">
         <div class="btn-group btn-group-xs pull-right">
+            <#if has_edit_role >
             <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&action=editPage&page_name=${topic.pageName}" title="#i18n{wiki.menu.edit}">
                 <span class="glyphicon glyphicon-edit"></span> #i18n{wiki.menu.edit}
             </a>
+            </#if>
             <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=history&page_name=${topic.pageName}" title="#i18n{wiki.menu.history}">
                 <span class="glyphicon glyphicon-list"></span> #i18n{wiki.menu.history}
             </a>

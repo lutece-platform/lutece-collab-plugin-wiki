@@ -26,7 +26,9 @@
                         <th><span class="glyphicon glyphicon-calendar"></span> #i18n{wiki.history_page.tableHeader.date}</th>
                         <th><span class="glyphicon glyphicon-user"></span> #i18n{wiki.history_page.tableHeader.author}</th>
                         <th><span class="glyphicon glyphicon-comment"></span> #i18n{wiki.history_page.tableHeader.comment}</th>
-                        <th>#i18n{portal.util.labelActions}</th>
+                        <#if has_edit_role >
+                            <th>#i18n{portal.util.labelActions}</th>
+                        </#if>
                     </tr>
                     <#list listTopicVersion as version >
                     <tr>
@@ -38,11 +40,13 @@
                             ${version.userName!''} ${version.userPseudo!''}
                         </td>
                         <td>${version.editComment}</td>
+                        <#if has_admin_role >
                         <td>
                             <a href="jsp/site/Portal.jsp?page=wiki&action=confirmRemoveVersion&id_topic_version=${version.idTopicVersion}&page_name=${topic.pageName}" class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}">
                                 <span class="glyphicon glyphicon-trash"></span>
                             </a>
                         </td>
+                        </#if>
                     </tr>
                     </#list>
                 </table>

@@ -17,9 +17,11 @@
                     <button name="view_page" class="btn btn-default" type="submit" title="#i18n{portal.util.labelCancel}">
                         <span class="glyphicon glyphicon-remove"></span>
                     </button>
-                    <button id="btn-delete" class="btn btn-default" type="button" title="#i18n{portal.util.labelDelete}">
+                    <#if has_admin_role >
+                    <button id="btn-delete" class="btn btn-danger" type="button" title="#i18n{portal.util.labelDelete}">
                         <span class="glyphicon glyphicon-trash"></span>
                     </button>
+                    </#if>
                     <button id="btn-help" class="btn btn-default" type="button" title="#i18n{wiki.menu.help}">
                         <span class="glyphicon glyphicon-question-sign"></span>
                     </button>
@@ -93,61 +95,61 @@
 
 <#include "image_fragment.html" />
 
-    <script type="text/javascript">
-        jQuery(document).ready(function() {
-            $("#btn-help").click(function() {
-                $("#help").toggle("slow");
-                this.blur();
-                if ($("#main-panel").hasClass("col-sm-7"))
-                {
-                    $("#main-panel").removeClass("col-sm-7");
-                    $("#main-panel").addClass("col-sm-12");
-                }
-                else
-                {
-                    $("#main-panel").removeClass("col-sm-12");
-                    $("#main-panel").addClass("col-sm-7");
-                }
-            });
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        $("#btn-help").click(function() {
+            $("#help").toggle("slow");
+            this.blur();
+            if ($("#main-panel").hasClass("col-sm-7"))
+            {
+                $("#main-panel").removeClass("col-sm-7");
+                $("#main-panel").addClass("col-sm-12");
+            }
+            else
+            {
+                $("#main-panel").removeClass("col-sm-12");
+                $("#main-panel").addClass("col-sm-7");
+            }
         });
-    </script>
+    });
+</script>
 
-    <script type="text/javascript">
-        function replaceAll(find, replace, str) 
-        {
-            return str.replace(new RegExp(find, 'g'), replace);
-        }
-        
-        function validate()
-        {
-            var content = document.getElementById( "wiki").value;
-            content = replaceAll( '<' , '[lt;' , content );
-            content = replaceAll( '>' , '[gt;' , content );
-            content = replaceAll( '"' , '[quot;' , content );
-            content = replaceAll( '&nbsp;' , '[nbsp;' , content );
-            content = replaceAll( '&' , '[amp;' , content );
-            content = replaceAll( '#' , '[hashmark;' , content );
-            document.getElementById( "wiki").value = content;
-            return true;
-        }
-        
-        jQuery(document).ready(function() {
-            $("#btn-delete").click(function() {
-                $("#div-confirm-delete").show("slow");
-            });
-            $("#btn-delete-cancel").click(function() {
-                $("#div-confirm-delete").hide("slow");
-            });
+<script type="text/javascript">
+    function replaceAll(find, replace, str) 
+    {
+        return str.replace(new RegExp(find, 'g'), replace);
+    }
 
+    function validate()
+    {
+        var content = document.getElementById( "wiki").value;
+        content = replaceAll( '<' , '[lt;' , content );
+        content = replaceAll( '>' , '[gt;' , content );
+        content = replaceAll( '"' , '[quot;' , content );
+        content = replaceAll( '&nbsp;' , '[nbsp;' , content );
+        content = replaceAll( '&' , '[amp;' , content );
+        content = replaceAll( '#' , '[hashmark;' , content );
+        document.getElementById( "wiki").value = content;
+        return true;
+    }
+
+    jQuery(document).ready(function() {
+        $("#btn-delete").click(function() {
+            $("#div-confirm-delete").show("slow");
         });
-    </script>
-
-
-    <!-- Markipup integration -->
-    <script type="text/javascript" src="js/plugins/wiki/markitup/jquery.markitup.js"></script>
-    <script type="text/javascript" src="js/plugins/wiki/markitup/sets/wiki/set.js"></script>
-    <script language="javascript">
-        $(document).ready(function() {
-            $('#wiki').markItUp(myWikiSettings);
+        $("#btn-delete-cancel").click(function() {
+            $("#div-confirm-delete").hide("slow");
         });
-    </script>
+
+    });
+</script>
+
+
+<!-- Markipup integration -->
+<script type="text/javascript" src="js/plugins/wiki/markitup/jquery.markitup.js"></script>
+<script type="text/javascript" src="js/plugins/wiki/markitup/sets/wiki/set.js"></script>
+<script language="javascript">
+    $(document).ready(function() {
+        $('#wiki').markItUp(myWikiSettings);
+    });
+</script>
