@@ -173,79 +173,24 @@
 </div>
 
 
-<script type="text/javascript">
-    function replaceAll(find, replace, str) 
-    {
-        return str.replace(new RegExp(find, 'g'), replace);
-    }
-
-    function validate()
-    {
-        var content = document.getElementById( "wiki").value;
-        content = replaceAll( '<' , '[lt;' , content );
-        content = replaceAll( '>' , '[gt;' , content );
-        content = replaceAll( '"' , '[quot;' , content );
-        content = replaceAll( '&nbsp;' , '[nbsp;' , content );
-        content = replaceAll( '&' , '[amp;' , content );
-        content = replaceAll( '#' , '[hashmark;' , content );
-        document.getElementById( "wiki").value = content;
-        return true;
-    }
-
-    jQuery(document).ready(function() {
-        $("#btn-delete").click(function() {
-            $("#div-confirm-delete").show("slow");
-        });
-        $("#btn-delete-cancel").click(function() {
-            $("#div-confirm-delete").hide("slow");
-        });
-
-    });
-</script>
-
-
 <!-- Markipup integration -->
 <script type="text/javascript" src="js/plugins/wiki/markitup/jquery.markitup.js"></script>
 <script type="text/javascript" src="js/plugins/wiki/markitup/sets/wiki/set.js"></script>
 <script type="text/javascript" src="js/plugins/wiki/jquery/jquery.form.js"></script>
 
 
-<script language="javascript">
-
-    function updateImages()
-    {
-        $.get( 'servlet/plugins/wiki/images', { "topic_id" : ${topic.idTopic} } , function( data ){ 
-            populateImages($( "#table-images" ) , data )
-        });
-    };
-    
-    function populateImages(select, data) {
-    select.html('');
-    var items = [];
-    $.each(data, function (id , image ) {
-        items.push( '<tr>' );
-        items.push( '<td><img src="image?resource_type=wiki_image&id=' + image.id + '" alt="' + image.name + '" height="40px"</td>' );
-        items.push( '<td>' + image.name + '</td>' );
-        items.push( '<td>' );
-        items.push( '{{' + image.id + '|' + image.name + '}}<br/> ' );
-        items.push( '{{' + image.id + '|' + image.name + '|<em>width</em>|<em>height</em>}}' );
-        items.push( '</td>' );
-        items.push( '<td>' );
-        items.push( '<a data-title="' + image.id + '" data-toggle="modal" data-target="#confirm-delete-image" href="#" class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}">' );
-        items.push( '<span class="glyphicon glyphicon-trash"></span>' );
-        items.push( '</a>' );
-        items.push( '</td>' );
-        items.push( '</tr>' );
-    });  
-    select.append(items.join(''));
-}
-    
-    updateImages();
-</script>
 
 <script language="javascript">
 
     $(document).ready(function() {
+        
+        $("#btn-delete").click(function() {
+            $("#div-confirm-delete").show("slow");
+        });
+
+        $("#btn-delete-cancel").click(function() {
+            $("#div-confirm-delete").hide("slow");
+        });
         
         // Help block management
         $("#btn-help").click(function() {
@@ -303,9 +248,9 @@
         // Delete image post
         var formDeleteImage = $('#ajax-form-image-delete');
         var buttonDeleteImage = $('#btn-image-delete'); // delete button
-        var modalConfirmDeleteImage = ${'#confirm-delete-image'};
+        var modalConfirmDeleteImage = $('#confirm-delete-image');
 
-        b.click(function(){
+        buttonDeleteImage.click(function(){
             // implement with ajaxForm Plugin
             formDeleteImage.ajaxForm({
                 beforeSend: function(){
@@ -324,7 +269,59 @@
             });
         });
          
+        updateImages();
     });
    
 </script>
+
+<script language="javascript">
+
+    function replaceAll(find, replace, str) 
+    {
+        return str.replace(new RegExp(find, 'g'), replace);
+    };
+
+    function validate()
+    {
+        var content = document.getElementById( "wiki").value;
+        content = replaceAll( '<' , '[lt;' , content );
+        content = replaceAll( '>' , '[gt;' , content );
+        content = replaceAll( '"' , '[quot;' , content );
+        content = replaceAll( '&nbsp;' , '[nbsp;' , content );
+        content = replaceAll( '&' , '[amp;' , content );
+        content = replaceAll( '#' , '[hashmark;' , content );
+        document.getElementById( "wiki").value = content;
+        return true;
+    };
+    
+    function updateImages()
+    {
+        $.get( 'servlet/plugins/wiki/images', { topic_id: ${topic.idTopic} } , function( data ){ 
+            populateImages($( "#table-images" ) , data )
+        });
+    };
+    
+    function populateImages(select, data) {
+        select.html('');
+        var items = [];
+        $.each(data, function (id , image ) {
+            items.push( '<tr>' );
+            items.push( '<td><img src="image?resource_type=wiki_image&id=' + image.id + '" alt="' + image.name + '" height="40px"</td>' );
+            items.push( '<td>' + image.name + '</td>' );
+            items.push( '<td>' );
+            items.push( '{{' + image.id + '|' + image.name + '}}<br/> ' );
+            items.push( '{{' + image.id + '|' + image.name + '|<em>width</em>|<em>height</em>}}' );
+            items.push( '</td>' );
+            items.push( '<td>' );
+            items.push( '<a data-title="' + image.id + '" data-toggle="modal" data-target="#confirm-delete-image" href="#" class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}">' );
+            items.push( '<span class="glyphicon glyphicon-trash"></span>' );
+            items.push( '</a>' );
+            items.push( '</td>' );
+            items.push( '</tr>' );
+        });  
+        select.append(items.join(''));
+    };
+    
+</script>
+
 
