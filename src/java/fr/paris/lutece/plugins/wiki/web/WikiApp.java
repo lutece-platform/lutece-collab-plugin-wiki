@@ -321,10 +321,14 @@ public class WikiApp extends MVCApplication
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
 
+        if( topic == null )
+        {
+            return redirect( request, VIEW_HOME );
+         }
         Map<String, String> mapParameters = new HashMap<String, String>(  );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, URLEncoder.encode( strPageName, "UTF-8" ) );
-
-        if( ! hasEditRole(request, topic))
+        
+        if( ! hasEditRole(request, topic ) )
         {
             return redirect( request, VIEW_PAGE, mapParameters );
         }
