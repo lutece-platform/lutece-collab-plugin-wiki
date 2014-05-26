@@ -137,7 +137,6 @@ public class WikiApp extends MVCApplication
     private static final String ACTION_REMOVE_VERSION = "removeVersion";
     private static final String ACTION_CONFIRM_REMOVE_VERSION = "confirmRemoveVersion";
     private static final String ACTION_UPLOAD_IMAGE = "uploadImage";
-    private static final String JSP_PAGE_PORTAL = "jsp/site/Portal.jsp";
     private static final String MESSAGE_IMAGE_REMOVED = "wiki.message.image.removed";
     private static final String MESSAGE_CONFIRM_REMOVE_IMAGE = "wiki.message.confirmRemoveImage";
     private static final String MESSAGE_NAME_MANDATORY = "wiki.message.error.name.notNull";
@@ -349,7 +348,6 @@ public class WikiApp extends MVCApplication
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName , MODE_EDIT );
         TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
-        List<Image> listImages = ImageHome.findByTopic( topic.getIdTopic(  ), _plugin );
         if( topicVersion != null )
         {
             topicVersion.setWikiContent( WikiService.renderEditor( topicVersion ));
@@ -523,7 +521,8 @@ public class WikiApp extends MVCApplication
         {
             TopicHome.remove( topic.getIdTopic(  ), _plugin );
         }
-        return redirectView( request, VIEW_HOME );
+        
+        return redirectWikiRoot( request );
     }
 
     /**
@@ -596,7 +595,7 @@ public class WikiApp extends MVCApplication
         throws SiteMessageException
     {
         int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_IMAGE_ID ) );
-        UrlItem url = new UrlItem( JSP_PAGE_PORTAL );
+        UrlItem url = new UrlItem( AppPathService.getPortalUrl() );
         url.addParameter( Constants.PARAMETER_PAGE, Constants.PLUGIN_NAME );
         url.addParameter( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) );
         url.addParameter( Constants.PARAMETER_ACTION, ACTION_REMOVE_IMAGE );
@@ -642,7 +641,7 @@ public class WikiApp extends MVCApplication
         throws SiteMessageException
     {
         int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_TOPIC_VERSION_ID ) );
-        UrlItem url = new UrlItem( JSP_PAGE_PORTAL );
+        UrlItem url = new UrlItem( AppPathService.getPortalUrl() );
         url.addParameter( Constants.PARAMETER_PAGE, Constants.PLUGIN_NAME );
         url.addParameter( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) );
         url.addParameter( Constants.PARAMETER_ACTION, ACTION_REMOVE_VERSION );
@@ -916,4 +915,22 @@ public class WikiApp extends MVCApplication
         }
         return false;
     }
+    
+    /**
+     * Redirect to wiki's root URL
+     * @return The XPage
+     */
+    private XPage redirectWikiRoot(HttpServletRequest request)
+    {
+        String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, "" );
+        if( ! strWikiRootPageName.equals( "" ) )
+        {
+            Map<String, String> mapParameters = new HashMap<String, String>(  );
+            mapParameters.put( Constants.PARAMETER_PAGE_NAME, strWikiRootPageName );
+
+            return redirect( request, VIEW_PAGE, mapParameters );
+        }
+        return redirect( request, VIEW_HOME );
+    }
+    
 }
