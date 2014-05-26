@@ -96,7 +96,7 @@
 <a name="images"></a>
 <hr>
 <div class="row" >
-    <h3><span class="glyphicon glyphicon-picture"></span> &nbsp; #i18n{wiki.image_fragment.titleImages}</h3>
+    <h3><span class="glyphicon glyphicon-picture"></span> &nbsp; #i18n{wiki.modify_page.titleImages}</h3>
 </div>
 
 <div class="row">
@@ -105,9 +105,9 @@
         <table class="table table-condensed table-stripend">
             <thead>
                 <tr>
-                    <th>#i18n{wiki.image_fragment.colImage}</th>
-                    <th>#i18n{wiki.image_fragment.colDescription}</th>
-                    <th>#i18n{wiki.image_fragment.colPasteEditor}</th>
+                    <th>#i18n{wiki.modify_page.colImage}</th>
+                    <th>#i18n{wiki.modify_page.colDescription}</th>
+                    <th>#i18n{wiki.modify_page.colPasteEditor}</th>
                     <th>#i18n{portal.util.labelActions}</th>
                 </tr>
             </thead>
@@ -117,31 +117,31 @@
         </table>
     </div>
     <div class="col-sm-6 well">
-        <form id="form-upload" action="jsp/site/Portal.jsp" method="post" enctype="multipart/form-data" >
+        <form id="ajax-form-upload" action="jsp/site/Portal.jsp" method="post" enctype="multipart/form-data" >
             <input type="hidden" name="page" value="wiki" />
             <input type="hidden" name="page_name" value="${topic.pageName}" />
             <input type="hidden" name="action" value="uploadImage" />
             <input type="hidden" name="topic_id" value="${topic.idTopic}" />
             <fieldset>
-                <legend><span class="glyphicon glyphicon-plus"></span> &nbsp; #i18n{wiki.image_fragment.titleAddImage}</legend>
+                <legend><span class="glyphicon glyphicon-plus"></span> &nbsp; #i18n{wiki.modify_page.titleAddImage}</legend>
                 <@messages errors=errors />
                 <!-- loader.gif -->
                 <img style="display:none" id="loader" src="loader.gif" alt="Loading...." title="Loading...." />
                 <div class="form-group">
-                    <label class="col-sm-4" for="name">#i18n{wiki.image_fragment.labelFile}&nbsp;: </label>
+                    <label class="col-sm-4" for="name">#i18n{wiki.modify_page.labelFile}&nbsp;: </label>
                     <div class="col-sm-8">
                         <input class="form-control" name="image_file" type="file" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-4" for="name">#i18n{wiki.image_fragment.labelDescription}&nbsp;: </label>
+                    <label class="col-sm-4" for="name">#i18n{wiki.modify_page.labelDescription}&nbsp;: </label>
                     <div class="col-sm-8">
                         <input class="form-control" name="image_name" type="text" />
                     </div>
                 </div>
                 <div class="form-group">
-                    <button id="btn-upload" class="btn btn-primary" name="name" type="submit" >
-                        <span class="glyphicon glyphicon-upload"></span> &nbsp; #i18n{wiki.image_fragment.buttonUpload}
+                    <button id="btn-image-upload" class="btn btn-primary" name="name" type="submit" >
+                        <span class="glyphicon glyphicon-upload"></span> &nbsp; #i18n{wiki.modify_page.buttonUpload}
                     </button>
                 </div>
             </fieldset>
@@ -149,24 +149,29 @@
     </div>
 </div>
 
-<script type="text/javascript">
-    jQuery(document).ready(function() {
-        $("#btn-help").click(function() {
-            $("#help").toggle("slow");
-            this.blur();
-            if ($("#main-panel").hasClass("col-sm-7"))
-            {
-                $("#main-panel").removeClass("col-sm-7");
-                $("#main-panel").addClass("col-sm-12");
-            }
-            else
-            {
-                $("#main-panel").removeClass("col-sm-12");
-                $("#main-panel").addClass("col-sm-7");
-            }
-        });
-    });
-</script>
+<div class="modal fade" id="confirm-delete-image" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                #i18n{wiki.message.confirmTitle}
+            </div>
+            <div class="modal-body">
+                #i18n{wiki.message.confirmRemoveImage}
+            </div>
+            <div class="modal-footer">
+                <form id="ajax-form-image-delete" action="jsp/site/Portal.jsp" method="post" >
+                    <input type="hidden" name="page" value="wiki" />
+                    <input type="hidden" name="page_name" value="${topic.pageName}" />
+                    <input type="hidden" name="action" value="removeImage" />
+                    <input id="id-image-to-remove" type="hidden" name="id_image" value="" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">#i18n{portal.util.labelCancel}</button>
+                    <button id="btn-image-delete" type="submit" class="btn btn-danger" >#i18n{portal.util.labelDelete}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script type="text/javascript">
     function replaceAll(find, replace, str) 
@@ -206,7 +211,6 @@
 
 
 <script language="javascript">
-    var images = [ { "id" : 1 , "name" : "image1" } , { "id" : 2 , "name" : "image2" } ];
 
     function updateImages()
     {
@@ -227,7 +231,7 @@
         items.push( '{{' + image.id + '|' + image.name + '|<em>width</em>|<em>height</em>}}' );
         items.push( '</td>' );
         items.push( '<td>' );
-        items.push( '<a href="jsp/site/Portal.jsp?page=wiki&action=confirmRemoveImage&id_image=' + image.id + '&page_name=${topic.pageName}" class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}">' );
+        items.push( '<a data-title="' + image.id + '" data-toggle="modal" data-target="#confirm-delete-image" href="#" class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}">' );
         items.push( '<span class="glyphicon glyphicon-trash"></span>' );
         items.push( '</a>' );
         items.push( '</td>' );
@@ -242,13 +246,31 @@
 <script language="javascript">
 
     $(document).ready(function() {
+        
+        // Help block management
+        $("#btn-help").click(function() {
+            $("#help").toggle("slow");
+            this.blur();
+            if ($("#main-panel").hasClass("col-sm-7"))
+            {
+                $("#main-panel").removeClass("col-sm-7");
+                $("#main-panel").addClass("col-sm-12");
+            }
+            else
+            {
+                $("#main-panel").removeClass("col-sm-12");
+                $("#main-panel").addClass("col-sm-7");
+            }
+        });
+        
         // MarkitUp
         $('#wiki').markItUp(myWikiSettings);
+
         
         // Image upload ajax form
-        var f = $('#form-upload');
+        var f = $('#ajax-form-upload');
         var l = $('#loader'); // loder.gif image
-        var b = $('#btn-upload'); // upload button
+        var b = $('#btn-image-upload'); // upload button
         var p = $('#preview'); // preview area
 
         b.click(function(){
@@ -272,7 +294,37 @@
                 }
             });
         });
+        
+        // Delete Image confirmation
+        $('#confirm-delete-image').on('show.bs.modal', function(e) {
+            $(this).find('#id-image-to-remove').attr('value', $(e.relatedTarget).data('title'));
+        });
+        
+        // Delete image post
+        var formDeleteImage = $('#ajax-form-image-delete');
+        var buttonDeleteImage = $('#btn-image-delete'); // delete button
+        var modalConfirmDeleteImage = ${'#confirm-delete-image'};
+
+        b.click(function(){
+            // implement with ajaxForm Plugin
+            formDeleteImage.ajaxForm({
+                beforeSend: function(){
+                  buttonDeleteImage.attr('disabled', 'disabled');
+                },
+                success: function(e){
+                  f.resetForm();
+                  buttonDeleteImage.removeAttr('disabled');
+                  modalConfirmDeleteImage.modal('hide');
+                  updateImages();
+                },
+                error: function(e){
+                  buttonDeleteImage.removeAttr('disabled');
+                  modalConfirmDeleteImage.modal('hide');
+                }
+            });
+        });
+         
     });
-    
+   
 </script>
 

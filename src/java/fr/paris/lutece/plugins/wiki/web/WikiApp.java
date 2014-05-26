@@ -120,7 +120,6 @@ public class WikiApp extends MVCApplication
     private static final String MARK_QUERY = "query";
     private static final String MARK_PAGINATOR = "paginator";
     private static final String MARK_NB_ITEMS_PER_PAGE = "nb_items_per_page";
-    private static final String MARK_IMAGES_LIST = "images_list";
     private static final String MARK_EDIT_ROLE = "has_edit_role";
     private static final String MARK_ADMIN_ROLE = "has_admin_role";
     private static final String VIEW_HOME = "home";
@@ -355,7 +354,6 @@ public class WikiApp extends MVCApplication
         model.put( MARK_TOPIC, topic );
         model.put( MARK_LATEST_VERSION, topicVersion );
         model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList(  ) );
-        model.put( MARK_IMAGES_LIST, listImages );
         model.put( MARK_EDIT_ROLE , hasEditRole( request , topic ));
         model.put( MARK_ADMIN_ROLE , hasAdminRole( request ));
 
