@@ -83,6 +83,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
 
 
@@ -128,6 +130,7 @@ public class WikiApp extends MVCApplication
     private static final String VIEW_HISTORY = "history";
     private static final String VIEW_SEARCH = "search";
     private static final String VIEW_DIFF = "diff";
+    private static final String VIEW_LIST_IMAGES = "listImages";
     private static final String ACTION_NEW_PAGE = "newPage";
     private static final String ACTION_EDIT_PAGE = "editPage";
     private static final String ACTION_MODIFY_PAGE = "modifyPage";
@@ -677,6 +680,28 @@ public class WikiApp extends MVCApplication
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME )  );
 
         return redirect( request, VIEW_HISTORY, mapParameters );
+    }
+    
+    @View( VIEW_LIST_IMAGES )
+    public XPage viewListImages( HttpServletRequest request )
+    {
+        String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
+        JSONArray array = new JSONArray();
+
+        if( strTopicId != null )
+        {
+            int nTopicId = Integer.parseInt(strTopicId);
+            List<Image> list = ImageHome.findByTopic( nTopicId , _plugin );
+            for( Image image : list )
+            {
+                JSONObject jsonImage = new JSONObject();
+                jsonImage.accumulate( "id", image.getId() );
+                jsonImage.accumulate( "name", image.getName() );
+                array.add( jsonImage );
+            }
+        }
+        return responseJSON( array.toString() ); 
+        
     }
 
 

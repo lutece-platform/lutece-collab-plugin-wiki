@@ -227,7 +227,7 @@
     
     function updateImages()
     {
-        $.get( 'servlet/plugins/wiki/images', { topic_id: ${topic.idTopic} } , function( data ){ 
+        $.get( 'jsp/site/Portal.jsp', { page: "wiki", view: "listImages", topic_id: ${topic.idTopic} } , function( data ){ 
             populateImages($( "#table-images" ) , data )
         });
     };

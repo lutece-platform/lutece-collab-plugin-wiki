@@ -49,14 +49,4 @@
         </application>
     </applications>
     
-    <!-- servlets -->
-    <servlets>
-        <servlet>
-            <servlet-name>wikiAjaxImage</servlet-name>
-            <url-pattern>/servlet/plugins/wiki/images</url-pattern>
-            <servlet-class>fr.paris.lutece.plugins.wiki.web.AjaxImageServlet</servlet-class>
-        </servlet>
-    </servlets>
-
-
 </plug-in>
