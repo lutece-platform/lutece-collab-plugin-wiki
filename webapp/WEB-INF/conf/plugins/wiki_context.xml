@@ -98,7 +98,7 @@
                 <value>jumbotron</value>
             </property>
             <property name="format">
-                <value>&lt;div class="jumbotron" &gt;&lt;h1&gt;{0} &nbsp; &lt;small&gt;{1}&lt;/small&gt;&lt;/h1&gt;&lt;p&gt;{2}&lt;/p&gt;&lt;/div&gt;</value>
+                <value>&lt;div class="jumbotron" &gt;&lt;h1&gt;{0} &lt;small&gt;{1}&lt;/small&gt;&lt;/h1&gt;&lt;p&gt;{2}&lt;/p&gt;&lt;/div&gt;</value>
             </property>
         </bean>
         
