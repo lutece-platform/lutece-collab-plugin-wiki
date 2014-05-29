@@ -13,6 +13,22 @@
         <!-- Extend resource service -->
         <bean id="wiki.extendableResourceService" class="fr.paris.lutece.plugins.wiki.service.WikiExtendableResourceService" />
         
+        <!-- Parser Options -->
+        <bean id="wiki.parser.options" class="fr.paris.lutece.plugins.wiki.service.parser.ParserOptions" >
+            <property name="tableClass">
+                <value>table table-condensed table-striped table-bordered</value>
+            </property>
+            <property name="imageClass">
+                <value>img-responsive</value>
+            </property>
+            <property name="sizedImageClass">
+                <value></value>
+            </property>
+            <property name="tocClass">
+                <value>well</value>
+            </property>
+        </bean>
+        
         <!-- Macros -->
         <bean id="wiki.macroDefault" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
             <property name="name">

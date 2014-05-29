@@ -38,9 +38,9 @@ import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.web.Constants;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
+import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPathService;
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import static ys.wikiparser.Utils.*;
 
 import ys.wikiparser.WikiParser;
@@ -57,17 +57,11 @@ import java.net.URLEncoder;
  */
 public class LuteceWikiParser extends WikiParser
 {
-    private static final String PROPERTY_TABLE_CLASS = "wiki.parser.tableClass";
-    private static final String PROPERTY_IMAGE_CLASS = "wiki.parser.imageClass";
-    private static final String PROPERTY_PRE_CLASS = "wiki.parser.preClass";
-    private static final String PROPERTY_TOC_CLASS = "wiki.parser.tocClass";
-    private static final String CLASS_TABLE = AppPropertiesService.getProperty( PROPERTY_TABLE_CLASS );
-    private static final String CLASS_IMAGE = AppPropertiesService.getProperty( PROPERTY_IMAGE_CLASS );
-    private static final String CLASS_PRE = AppPropertiesService.getProperty( PROPERTY_PRE_CLASS );
-    private static final String CLASS_TOC = AppPropertiesService.getProperty( PROPERTY_TOC_CLASS );
+    private static final String BEAN_PARSER_OPTIONS = "wiki.parser.options";
 
     private String _strPageUrl;
     private static WikiMacroService _macroService = new WikiMacroService();
+    private static ParserOptions _options = SpringContextService.getBean( BEAN_PARSER_OPTIONS );
     
     /**
      * Constructor
@@ -78,8 +72,8 @@ public class LuteceWikiParser extends WikiParser
     {
         super(  );
         HEADING_LEVEL_SHIFT = 0;
-        setTableClass( CLASS_TABLE );
-        setTocClass( CLASS_TOC );
+        setTableClass( _options.getTableClass() );
+        setTocClass( _options.getTocClass() );
         parse( strWikiText );
         _strPageUrl = strPageUrl;
     }
@@ -161,7 +155,15 @@ public class LuteceWikiParser extends WikiParser
 
             sb.append( "<img src=\"image?resource_type=wiki_image&id=" ).append( nImageId ).append( "\" alt=\"" );
             sb.append( strAlt ).append( "\" title=\"" ).append( strAlt ).append( "\" " );
-            sb.append( " class=\"" ).append( CLASS_IMAGE ).append( "\" " );
+            
+            if( link.length < 2 )
+            {
+                sb.append( " class=\"" ).append( _options.getImageClass() ).append( "\" " );
+            }
+            else
+            {
+                sb.append( " class=\"" ).append( _options.getSizedImageClass() ).append( "\" " );
+            }
 
             if ( strWidth != null )
             {
