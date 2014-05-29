@@ -12,7 +12,7 @@
     <icon-url>images/admin/skin/plugins/wiki/wiki.png</icon-url>
     <copyright/>
     <core-version-dependency>
-        <min-core-version>2.2.4</min-core-version>
+        <min-core-version>5.0.0</min-core-version>
         <max-core-version/>
     </core-version-dependency>
     <db-pool-required>1</db-pool-required>
@@ -32,13 +32,12 @@
         <css-stylesheet>wiki/wiki.css</css-stylesheet>
         <css-stylesheet>wiki/markitup/style.css</css-stylesheet>
         <css-stylesheet>wiki/markitup/wiki/style.css</css-stylesheet>
-        <css-stylesheet>wiki/prettify/prettify.css</css-stylesheet>
     </css-stylesheets>
     
     <!-- Specific plugin CSS stylesheet -->
     <javascript-files>
         <javascript-files-scope>xpage</javascript-files-scope>  
-        <javascript-file>wiki/prettify/run_prettify.js</javascript-file>
+        <javascript-file>wiki/prettify/run_prettify.js?skin=#dskey{wiki.site_property.prettify.skin}</javascript-file>
     </javascript-files>
 
     <!-- XPages parameters -->
