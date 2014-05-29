@@ -32,75 +32,35 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.wiki.service.parser;
 
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /**
- * Text Wrapper Macro
+ * TextFormatMacro Test
  */
-public class TextWrapperMacro implements WikiMacro
+public class TextFormatMacroTest
 {
-    private String _strName;
-    private String _strBefore;
-    private String _strAfter;
     
-    /**
-     * Sets the macro name
-     * @param strName The macro name 
-     */
-    public void setName( String strName )
-    {
-        _strName = strName;
-    }
+
 
     /**
-     * {@inheritDoc }
+     * Test of processText method, of class TextFormatMacro.
      */
-    @Override
-    public String getName()
+    @Test
+    public void testProcessText()
     {
-        return _strName;
+        System.out.println("processText");
+        String strText = " default | My Label";
+        String strFormat = "<span class=\"label label-{0}\">{1}</span>";
+        TextFormatMacro instance = new TextFormatMacro();
+        instance.setFormat(strFormat);
+        String strExpectedResult = "<span class=\"label label-default\">My Label</span>";
+        String strResult = instance.processText(strText);
+        System.out.println( strResult );
+        assertEquals(strExpectedResult, strResult);
     }
 
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public String processText( String strText )
-    {
-        return _strBefore + strText.trim() + _strAfter;
-    }
-
-    /**
-     * @return the Before Text
-     */
-    public String getBefore()
-    {
-        return _strBefore;
-    }
-
-    /**
-     * @param strBefore the Before text to set
-     */
-    public void setBefore(String strBefore)
-    {
-        _strBefore = strBefore;
-    }
-
-    /**
-     * @return the After text
-     */
-    public String getAfter()
-    {
-        return _strAfter;
-    }
-
-    /**
-     * @param strAfter the After text to set
-     */
-    public void setAfter(String strAfter)
-    {
-        _strAfter = strAfter;
-    }
     
 }

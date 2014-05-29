@@ -35,14 +35,15 @@
 
 package fr.paris.lutece.plugins.wiki.service.parser;
 
+import java.text.MessageFormat;
+
 /**
  * Text Wrapper Macro
  */
-public class TextWrapperMacro implements WikiMacro
+public class TextFormatMacro implements WikiMacro
 {
     private String _strName;
-    private String _strBefore;
-    private String _strAfter;
+    private String _strFormat;
     
     /**
      * Sets the macro name
@@ -68,39 +69,28 @@ public class TextWrapperMacro implements WikiMacro
     @Override
     public String processText( String strText )
     {
-        return _strBefore + strText.trim() + _strAfter;
+        String[] args = strText.split( "\\|" );
+        for( int i = 0 ; i < args.length ; i++ )
+        {
+            args[i] = args[i].trim();
+        }
+        return MessageFormat.format( _strFormat, (Object[]) args);
     }
 
     /**
-     * @return the Before Text
+     * @return the Format Text
      */
-    public String getBefore()
+    public String getFormat()
     {
-        return _strBefore;
+        return _strFormat;
     }
 
     /**
-     * @param strBefore the Before text to set
+     * @param strFormat the Format text to set
      */
-    public void setBefore(String strBefore)
+    public void setFormat(String strFormat)
     {
-        _strBefore = strBefore;
-    }
-
-    /**
-     * @return the After text
-     */
-    public String getAfter()
-    {
-        return _strAfter;
-    }
-
-    /**
-     * @param strAfter the After text to set
-     */
-    public void setAfter(String strAfter)
-    {
-        _strAfter = strAfter;
+        _strFormat = strFormat;
     }
     
 }
