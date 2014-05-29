@@ -75,15 +75,15 @@
                 <fieldset>
                     <legend><span class="glyphicon glyphicon-user"></span> &nbsp; #i18n{wiki.modify_page.titleRole}</legend>
                     <div class="form-group">
-                        <label class="col-sm-6" for="roles_list">#i18n{wiki.modify_page.labelViewRole} :</label>
-                        <div class="col-sm-6">
+                        <label class="col-sm-5" for="roles_list">#i18n{wiki.modify_page.labelViewRole} :</label>
+                        <div class="col-sm-5">
                             <@comboSorted name="view_role" default_value="${topic.viewRole}" items=page_roles_list />
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="col-sm-6" for="roles_list">#i18n{wiki.modify_page.labelEditRole} :</label>
-                        <div class="col-sm-6">
+                        <label class="col-sm-5" for="roles_list">#i18n{wiki.modify_page.labelEditRole} :</label>
+                        <div class="col-sm-5">
                             <@comboSorted name="edit_role" default_value="${topic.editRole}" items=page_roles_list />
                         </div>
                     </div>
