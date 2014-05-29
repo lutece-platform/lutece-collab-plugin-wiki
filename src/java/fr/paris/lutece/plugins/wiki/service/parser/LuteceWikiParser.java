@@ -156,7 +156,7 @@ public class LuteceWikiParser extends WikiParser
             sb.append( "<img src=\"image?resource_type=wiki_image&id=" ).append( nImageId ).append( "\" alt=\"" );
             sb.append( strAlt ).append( "\" title=\"" ).append( strAlt ).append( "\" " );
             
-            if( link.length < 2 )
+            if( link.length < 3 )
             {
                 sb.append( " class=\"" ).append( _options.getImageClass() ).append( "\" " );
             }

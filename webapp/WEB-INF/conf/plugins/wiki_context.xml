@@ -46,7 +46,7 @@
                 <value>info</value>
             </property>
             <property name="before">
-                <value>&lt;div class="alert alert-info"&gt;&lt;span class="glyphicon glyphicon-info-sign" &gt;&lt;/span&gt;</value>
+                <value>&lt;div class="alert alert-info"&gt;&lt;span class="glyphicon glyphicon-info-sign" &gt;&lt;/span&gt; </value>
             </property>
             <property name="after">
                 <value>&lt;/div&gt;</value>
@@ -57,7 +57,7 @@
                 <value>warning</value>
             </property>
             <property name="before">
-                <value>&lt;div class="alert alert-danger"&gt;&lt;span class="glyphicon glyphicon-warning-sign" &gt;&lt;/span&gt;</value>
+                <value>&lt;div class="alert alert-danger"&gt;&lt;span class="glyphicon glyphicon-warning-sign" &gt;&lt;/span&gt; </value>
             </property>
             <property name="after">
                 <value>&lt;/div&gt;</value>
