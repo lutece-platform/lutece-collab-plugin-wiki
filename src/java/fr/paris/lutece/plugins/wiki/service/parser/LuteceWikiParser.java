@@ -138,11 +138,14 @@ public class LuteceWikiParser extends WikiParser
             String strAlt = "illustration";
             String strWidth = null;
             String strHeight = null;
+            String strAlign = null;
 
             int nImageId = Integer.parseInt( link[0].trim(  ) );
 
             switch ( link.length )
             {
+                case 5:
+                    strAlign = link[4].trim(  );
                 case 4:
                     strHeight = link[3].trim(  );
 
@@ -173,6 +176,11 @@ public class LuteceWikiParser extends WikiParser
             if ( strHeight != null )
             {
                 sb.append( " height=\"" ).append( strHeight ).append( "\" " );
+            }
+
+            if ( strAlign != null )
+            {
+                sb.append( " align=\"" ).append( strAlign ).append( "\" " );
             }
 
             sb.append( " />" );
