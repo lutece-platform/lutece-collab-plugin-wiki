@@ -42,7 +42,7 @@ import fr.paris.lutece.portal.service.resource.IExtendableResource;
  */
 public class Topic implements IExtendableResource
 {
-    public static final String RESOURCE_TYPE = "wiki";
+    public static final String RESOURCE_TYPE = "WIKI";
 
     // Variables declarations 
     private int _nIdTopic;

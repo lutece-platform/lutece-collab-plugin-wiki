@@ -124,6 +124,7 @@ public class WikiApp extends MVCApplication
     private static final String MARK_NB_ITEMS_PER_PAGE = "nb_items_per_page";
     private static final String MARK_EDIT_ROLE = "has_edit_role";
     private static final String MARK_ADMIN_ROLE = "has_admin_role";
+    private static final String MARK_EXTEND = "isExtendInstalled";
     private static final String VIEW_HOME = "home";
     private static final String VIEW_PAGE = "page";
     private static final String VIEW_MODIFY_PAGE = "modifyPage";
@@ -157,6 +158,7 @@ public class WikiApp extends MVCApplication
     private static final String DEFAULT_ROLE_VIEW = Page.ROLE_NONE;
     private static final String URL_DEFAULT = "page=wiki";
     private static final String URL_VIEW_PAGE = "page=wiki&amp;view=page&amp;page_name=";
+    private static final String PLUGIN_EXTEND = "extend";
     private static final int MODE_VIEW = 0;
     private static final int MODE_EDIT = 1;
 
@@ -261,7 +263,7 @@ public class WikiApp extends MVCApplication
         model.put( MARK_LATEST_VERSION, version );
         model.put( MARK_EDIT_ROLE , hasEditRole( request , topic ));
         model.put( MARK_ADMIN_ROLE , hasAdminRole( request ));
-
+        model.put( MARK_EXTEND , isExtend() );
         XPage page = getXPage( TEMPLATE_VIEW_WIKI, request.getLocale(  ), model );
         page.setTitle( getPageTitle( topic.getPageTitle(  ) ) );
         page.setExtendedPathLabel( getExtendedPath( topic.getPageTitle(  ) , strPageName ) );
@@ -957,5 +959,15 @@ public class WikiApp extends MVCApplication
         }
         return redirect( request, VIEW_HOME );
     }
+
+    /**
+     * Return if the plugin Extend is available
+     * @return true if extend is installed and activated otherwise false
+     */
+    private boolean isExtend()
+    {
+        Plugin plugin = PluginService.getPlugin( PLUGIN_EXTEND );
+        return  (( plugin != null ) && plugin.isInstalled() );
+   }
     
 }

@@ -1,8 +1,13 @@
 <div class="row">
     <div class="col-sm-12">
         <div class="pull-right">
-            <small>${lastVersion.dateEdition} ${lastVersion.userName!''} ${lastVersion.userPseudo!''}</small>
+            <small>${lastVersion.dateEdition} ${lastVersion.userName!''} ${lastVersion.userPseudo!''} 
             <img class="avatar-mini" src="${lastVersion.userAvatarUrl!''}" alt="avatar" />
+            <#if isExtendInstalled?? && isExtendInstalled >
+                &nbsp;<span class="glyphicon glyphicon-eye-open"></span> 
+                @Extender[${topic.idTopic},WIKI,hit,{show:true}]@
+            </#if>
+            </small>
         </div>
     </div>
 </div>
@@ -18,17 +23,16 @@
                 <span class="glyphicon glyphicon-list"></span> #i18n{wiki.menu.history}
             </a>
         </div>
-        <#if isExtendInstalled?? && isExtendInstalled >
-            @Extender[${topic.idTopic},wiki,opengraph]@
-        </#if>
         <div>
            ${result}
         </div>
         <#if isExtendInstalled?? && isExtendInstalled >
-            @Extender[${topic.idTopic},wiki,hit,{show:true}]@
-            @Extender[${topic.idTopic},wiki,feedback]@
-            @Extender[${topic.idTopic},wiki,rating,{show:"all"}]@
-            @Extender[${topic.idTopic},wiki,comment]@
+            <div class="pull-right">
+                @Extender[${topic.idTopic},WIKI,opengraph]@
+            </div>
+            @Extender[${topic.idTopic},WIKI,feedback]@
+            @Extender[${topic.idTopic},WIKI,rating,{show:"all"}]@
+            @Extender[${topic.idTopic},WIKI,comment]@
         </#if>
     </div>
 </div>
