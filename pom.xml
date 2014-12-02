@@ -66,9 +66,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <scm>
-        <connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/collaboration/plugin-wiki</connection>
-        <developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/collaboration/plugin-wiki</developerConnection>
-        <url>http://dev.lutece.paris.fr/viewvc/lutece/portal/trunk/plugins/collaboration/plugin-wiki</url>
+        <connection>scm:git:https://github.com/lutece-platform/lutece-collab-plugin-wiki.git</connection>
+        <developerConnection>scm:git:https://github.com/lutece-platform/lutece-collab-plugin-wiki.git</developerConnection>
+        <url>https://github.com/lutece-platform/lutece-collab-plugin-wiki.git</url>
     </scm>
     <build>
         <plugins>
