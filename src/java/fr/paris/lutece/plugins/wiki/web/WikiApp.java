@@ -255,6 +255,14 @@ public class WikiApp extends MVCApplication
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_VIEW );
         TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
+        if( version == null )
+        {
+            UrlItem url = new UrlItem( AppPathService.getBaseUrl( request ) + AppPathService.getPortalUrl() );
+            url.addParameter( Constants.PARAMETER_PAGE, Constants.PLUGIN_NAME );
+            url.addParameter( Constants.PARAMETER_ACTION, ACTION_NEW_PAGE );
+            url.addParameter( Constants.PARAMETER_PAGE_NAME, strPageName );
+            return redirect( request, url.getUrl() );
+        }
         fillUserData( version );
         String strWikiPage = WikiService.instance().getWikiPage( strPageName, version , getPageUrl (request ) );
         Map<String, Object> model = new HashMap<String, Object>(  );
