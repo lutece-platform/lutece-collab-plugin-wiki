@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-
 /**
  * WikiSearchEngine
  */
@@ -69,50 +68,52 @@ public class WikiSearchEngine implements SearchEngine
 {
     /**
      * Return search results
-     * @param strQuery The search query
-     * @param request The HTTP request
+     * 
+     * @param strQuery
+     *            The search query
+     * @param request
+     *            The HTTP request
      * @return Results as a collection of SearchResult
      */
     @Override
     public List<SearchResult> getSearchResults( String strQuery, HttpServletRequest request )
     {
-        ArrayList<SearchItem> listResults = new ArrayList<SearchItem>(  );
+        ArrayList<SearchItem> listResults = new ArrayList<SearchItem>( );
         IndexSearcher searcher;
 
         try
         {
-            IndexReader ir = DirectoryReader.open( IndexationService.getDirectoryIndex(  ) );
+            IndexReader ir = DirectoryReader.open( IndexationService.getDirectoryIndex( ) );
             searcher = new IndexSearcher( ir );
 
-            BooleanQuery query = new BooleanQuery(  );
+            BooleanQuery query = new BooleanQuery( );
 
             // Contents
             if ( ( strQuery != null ) && !strQuery.equals( "" ) )
             {
-                QueryParser parser = new QueryParser( IndexationService.LUCENE_INDEX_VERSION,
-                        SearchItem.FIELD_CONTENTS, IndexationService.getAnalyser(  ) );
+                QueryParser parser = new QueryParser( IndexationService.LUCENE_INDEX_VERSION, SearchItem.FIELD_CONTENTS, IndexationService.getAnalyser( ) );
                 query.add( parser.parse( strQuery ), BooleanClause.Occur.MUST );
             }
 
             // Type
-            Query queryType = new TermQuery( new Term( SearchItem.FIELD_TYPE, WikiIndexer.getDocumentType(  ) ) );
+            Query queryType = new TermQuery( new Term( SearchItem.FIELD_TYPE, WikiIndexer.getDocumentType( ) ) );
             query.add( queryType, BooleanClause.Occur.MUST );
 
             // Get results documents
             TopDocs topDocs = searcher.search( query, LuceneSearchEngine.MAX_RESPONSES );
-            ScoreDoc[] hits = topDocs.scoreDocs;
+            ScoreDoc [ ] hits = topDocs.scoreDocs;
 
             for ( int i = 0; i < hits.length; i++ )
             {
-                int docId = hits[i].doc;
+                int docId = hits [i].doc;
                 Document document = searcher.doc( docId );
                 SearchItem si = new SearchItem( document );
                 listResults.add( si );
             }
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
-            AppLogService.error( e.getMessage(  ), e );
+            AppLogService.error( e.getMessage( ), e );
         }
 
         return convertList( listResults );
@@ -120,32 +121,33 @@ public class WikiSearchEngine implements SearchEngine
 
     /**
      * Convert a list of Lucene items into a list of generic search items
-     * @param listSource The list of Lucene items
+     * 
+     * @param listSource
+     *            The list of Lucene items
      * @return A list of generic search items
      */
     private List<SearchResult> convertList( List<SearchItem> listSource )
     {
-        List<SearchResult> listDest = new ArrayList<SearchResult>(  );
+        List<SearchResult> listDest = new ArrayList<SearchResult>( );
 
         for ( SearchItem item : listSource )
         {
-            SearchResult result = new SearchResult(  );
-            result.setId( item.getId(  ) );
+            SearchResult result = new SearchResult( );
+            result.setId( item.getId( ) );
 
             try
             {
-                result.setDate( DateTools.stringToDate( item.getDate(  ) ) );
+                result.setDate( DateTools.stringToDate( item.getDate( ) ) );
             }
-            catch ( ParseException e )
+            catch( ParseException e )
             {
-                AppLogService.error( "Bad Date Format for indexed item \"" + item.getTitle(  ) + "\" : " +
-                    e.getMessage(  ) );
+                AppLogService.error( "Bad Date Format for indexed item \"" + item.getTitle( ) + "\" : " + e.getMessage( ) );
             }
 
-            result.setUrl( item.getUrl(  ) );
-            result.setTitle( item.getTitle(  ) );
-            result.setSummary( item.getSummary(  ) );
-            result.setType( item.getType(  ) );
+            result.setUrl( item.getUrl( ) );
+            result.setTitle( item.getTitle( ) );
+            result.setSummary( item.getSummary( ) );
+            result.setType( item.getType( ) );
             listDest.add( result );
         }
 

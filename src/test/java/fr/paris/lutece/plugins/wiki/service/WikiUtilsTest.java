@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ public class WikiUtilsTest
      * Test of normalize method, of class WikiUtils.
      */
     @Test
-    public void testNormalize(  )
+    public void testNormalize( )
     {
         System.out.println( "normalize" );
 

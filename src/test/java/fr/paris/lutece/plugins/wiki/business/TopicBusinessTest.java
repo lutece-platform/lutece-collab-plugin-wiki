@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.test.LuteceTestCase;
 
-
 public class TopicBusinessTest extends LuteceTestCase
 {
     private final static int IDTOPIC1 = 1;
@@ -53,12 +52,12 @@ public class TopicBusinessTest extends LuteceTestCase
     private final static String EDITROLE1 = "EDITROLE1";
     private final static String EDITROLE2 = "EDITROLE2";
 
-    public void testBusiness(  )
+    public void testBusiness( )
     {
         Plugin plugin = PluginService.getPlugin( "wiki" );
 
         // Initialize an object
-        Topic topic = new Topic(  );
+        Topic topic = new Topic( );
         topic.setIdTopic( IDTOPIC1 );
         topic.setNamespace( NAMESPACE1 );
         topic.setPageName( PAGENAME1 );
@@ -69,13 +68,13 @@ public class TopicBusinessTest extends LuteceTestCase
         // Create test
         TopicHome.create( topic, plugin );
 
-        Topic topicStored = TopicHome.findByPrimaryKey( topic.getIdTopic(  ), plugin );
-        assertEquals( topicStored.getIdTopic(  ), topic.getIdTopic(  ) );
-        assertEquals( topicStored.getNamespace(  ), topic.getNamespace(  ) );
-        assertEquals( topicStored.getPageName(  ), topic.getPageName(  ) );
-        assertEquals( topicStored.getPageTitle(  ), topic.getPageTitle(  ) );
-        assertEquals( topicStored.getViewRole(  ), topic.getViewRole(  ) );
-        assertEquals( topicStored.getEditRole(  ), topic.getEditRole(  ) );
+        Topic topicStored = TopicHome.findByPrimaryKey( topic.getIdTopic( ), plugin );
+        assertEquals( topicStored.getIdTopic( ), topic.getIdTopic( ) );
+        assertEquals( topicStored.getNamespace( ), topic.getNamespace( ) );
+        assertEquals( topicStored.getPageName( ), topic.getPageName( ) );
+        assertEquals( topicStored.getPageTitle( ), topic.getPageTitle( ) );
+        assertEquals( topicStored.getViewRole( ), topic.getViewRole( ) );
+        assertEquals( topicStored.getEditRole( ), topic.getEditRole( ) );
 
         // Update test
         topic.setIdTopic( IDTOPIC2 );
@@ -86,20 +85,20 @@ public class TopicBusinessTest extends LuteceTestCase
         topic.setEditRole( EDITROLE2 );
 
         TopicHome.update( topic, plugin );
-        topicStored = TopicHome.findByPrimaryKey( topic.getIdTopic(  ), plugin );
-        assertEquals( topicStored.getIdTopic(  ), topic.getIdTopic(  ) );
-        assertEquals( topicStored.getNamespace(  ), topic.getNamespace(  ) );
-        assertEquals( topicStored.getPageName(  ), topic.getPageName(  ) );
-        assertEquals( topicStored.getPageTitle(  ), topic.getPageTitle(  ) );
-        assertEquals( topicStored.getViewRole(  ), topic.getViewRole(  ) );
-        assertEquals( topicStored.getEditRole(  ), topic.getEditRole(  ) );
+        topicStored = TopicHome.findByPrimaryKey( topic.getIdTopic( ), plugin );
+        assertEquals( topicStored.getIdTopic( ), topic.getIdTopic( ) );
+        assertEquals( topicStored.getNamespace( ), topic.getNamespace( ) );
+        assertEquals( topicStored.getPageName( ), topic.getPageName( ) );
+        assertEquals( topicStored.getPageTitle( ), topic.getPageTitle( ) );
+        assertEquals( topicStored.getViewRole( ), topic.getViewRole( ) );
+        assertEquals( topicStored.getEditRole( ), topic.getEditRole( ) );
 
         // List test
         TopicHome.getTopicsList( plugin );
 
         // Delete test
-        TopicHome.remove( topic.getIdTopic(  ), plugin );
-        topicStored = TopicHome.findByPrimaryKey( topic.getIdTopic(  ), plugin );
+        TopicHome.remove( topic.getIdTopic( ), plugin );
+        topicStored = TopicHome.findByPrimaryKey( topic.getIdTopic( ), plugin );
         assertNull( topicStored );
     }
 }

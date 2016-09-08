@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
 /**
  *
  * @author pierre
@@ -23,7 +22,7 @@ public class DiffServiceTest
      * Test of getDiff method, of class DiffService.
      */
     @Test
-    public void testGetDiff(  )
+    public void testGetDiff( )
     {
         System.out.println( "getDiff" );
 
@@ -33,6 +32,6 @@ public class DiffServiceTest
         String result = DiffService.getDiff( strOld, strNew );
         System.out.println( result );
 
-        //        assertEquals(expResult, result);
+        // assertEquals(expResult, result);
     }
 }

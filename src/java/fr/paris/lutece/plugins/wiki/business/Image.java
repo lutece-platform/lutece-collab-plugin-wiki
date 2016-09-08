@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.wiki.business;
 
-
 /**
  *
  * Image
@@ -43,24 +42,26 @@ public class Image
 {
     private int _nId;
     private String _strName;
-    private byte[] _byValue;
+    private byte [ ] _byValue;
     private String _strMimeType;
     private int _nTopicId;
     private int _nWidth;
     private int _nHeight;
 
     /**
-    *
-    * @return the id of the image
-    */
-    public int getId(  )
+     *
+     * @return the id of the image
+     */
+    public int getId( )
     {
         return _nId;
     }
 
     /**
      * set the id of the image
-     * @param idImage the id of the image
+     * 
+     * @param idImage
+     *            the id of the image
      */
     public void setId( int idImage )
     {
@@ -72,7 +73,7 @@ public class Image
      *
      * @return the image name
      */
-    public String getName(  )
+    public String getName( )
     {
         return _strName;
     }
@@ -80,7 +81,8 @@ public class Image
     /**
      * Set the image name
      *
-     * @param strName the image name
+     * @param strName
+     *            the image name
      */
     public void setName( String strName )
     {
@@ -89,34 +91,40 @@ public class Image
 
     /**
      * get the image file value
+     * 
      * @return the image file value
      */
-    public byte[] getValue(  )
+    public byte [ ] getValue( )
     {
         return _byValue;
     }
 
     /**
      * set the image file value
-     * @param value the file value
+     * 
+     * @param value
+     *            the file value
      */
-    public void setValue( byte[] value )
+    public void setValue( byte [ ] value )
     {
         _byValue = value;
     }
 
     /**
      * the image mime type
+     * 
      * @return the image mime type
      */
-    public String getMimeType(  )
+    public String getMimeType( )
     {
         return _strMimeType;
     }
 
     /**
      * set the image mime type
-     * @param mimeType the image mime type
+     * 
+     * @param mimeType
+     *            the image mime type
      */
     public void setMimeType( String mimeType )
     {
@@ -126,13 +134,14 @@ public class Image
     /**
      * @return the image height
      */
-    public int getTopicId(  )
+    public int getTopicId( )
     {
         return _nTopicId;
     }
 
     /**
-     * @param height the  image height
+     * @param height
+     *            the image height
      */
     public void setTopicId( int height )
     {
@@ -142,13 +151,14 @@ public class Image
     /**
      * @return the image height
      */
-    public int getHeight(  )
+    public int getHeight( )
     {
         return _nHeight;
     }
 
     /**
-     * @param height the  image height
+     * @param height
+     *            the image height
      */
     public void setHeight( int height )
     {
@@ -158,13 +168,14 @@ public class Image
     /**
      * @return the image width
      */
-    public int getWidth(  )
+    public int getWidth( )
     {
         return _nWidth;
     }
 
     /**
-     * @param width the image width
+     * @param width
+     *            the image width
      */
     public void setWidth( int width )
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.wiki.service.parser;
 
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -50,75 +49,81 @@ public class WikiMacroService
     private static boolean _bInit;
     private static Map<String, WikiMacro> _mapMacros;
     private static WikiMacro _macroDefault;
-    
+
     /**
      * Service Initialization
      */
     private synchronized void init( )
     {
         List<WikiMacro> listMacros = SpringContextService.getBeansOfType( WikiMacro.class );
-        _mapMacros = new HashMap<String, WikiMacro>();
-        AppLogService.info( "Wiki - initializing macros ...");
-        for( WikiMacro macro : listMacros )
+        _mapMacros = new HashMap<String, WikiMacro>( );
+        AppLogService.info( "Wiki - initializing macros ..." );
+        for ( WikiMacro macro : listMacros )
         {
-            _mapMacros.put( macro.getName() , macro );
-            AppLogService.info( "Wiki - New macro '" + macro.getName() + "' registered" );
+            _mapMacros.put( macro.getName( ), macro );
+            AppLogService.info( "Wiki - New macro '" + macro.getName( ) + "' registered" );
         }
         _macroDefault = SpringContextService.getBean( BEAN_MACRO_DEFAULT );
         _bInit = true;
     }
-    
+
     /**
      * Service processing
-     * @param strText The Text to process
+     * 
+     * @param strText
+     *            The Text to process
      * @return The output text
      */
     public String processMacro( String strText )
     {
-        if( !_bInit )
+        if ( !_bInit )
         {
-            init();
+            init( );
         }
-        String strMacro = getMacroName( strText  );
-        if( strMacro != null )
+        String strMacro = getMacroName( strText );
+        if ( strMacro != null )
         {
             WikiMacro macro = _mapMacros.get( strMacro );
-            if( macro != null )
+            if ( macro != null )
             {
                 return macro.processText( getMacroTextValue( strText ) );
             }
         }
-        return _macroDefault.processText(strText);
+        return _macroDefault.processText( strText );
     }
 
     /**
-     * Extract the the name of the macro from the text 
-     * @param strText The Text
+     * Extract the the name of the macro from the text
+     * 
+     * @param strText
+     *            The Text
      * @return The macro name or null if not found
      */
     private String getMacroName( String strText )
     {
         int nPos = strText.indexOf( "|" );
-        if( nPos > 0 )
+        if ( nPos > 0 )
         {
-            return strText.substring( 0, nPos ).trim().toLowerCase();
+            return strText.substring( 0, nPos ).trim( ).toLowerCase( );
         }
         return null;
     }
-    
+
     /**
      * Extract the text of the macro
-     * @param strText The Text
+     * 
+     * @param strText
+     *            The Text
      * @return The text value of the macro
      */
     private String getMacroTextValue( String strText )
     {
         int nPos = strText.indexOf( "|" );
-        if( nPos > 0 )
+        if ( nPos > 0 )
         {
             return strText.substring( nPos + 1 );
         }
         return "";
     }
-    
+
 }

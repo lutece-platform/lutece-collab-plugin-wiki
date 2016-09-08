@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.wiki.service;
 
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
@@ -45,79 +44,87 @@ import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
 public class WikiService extends AbstractCacheableService
 {
     private static final String SERVICE_CACHE_NAME = "Wiki Cache Service";
-    
+
     private static WikiService _singleton;
 
-    
     /** Private Constructor */
-    private WikiService()
+    private WikiService( )
     {
-        initCache();
+        initCache( );
     }
-    
+
     /**
      * {@inheritDoc }
      */
     @Override
-    public String getName()
+    public String getName( )
     {
         return SERVICE_CACHE_NAME;
     }
-    
+
     /**
      * Returns the unique instance
+     * 
      * @return The instance
      */
-    public static synchronized WikiService instance()
+    public static synchronized WikiService instance( )
     {
-        if( _singleton == null )
+        if ( _singleton == null )
         {
-            _singleton = new WikiService();
+            _singleton = new WikiService( );
         }
         return _singleton;
     }
-    
+
     /**
      * Get the Wiki page in HTML format
-     * @param strPageName The page name
-     * @param version The content version
-     * @param strPageUrl tHe page URL
+     * 
+     * @param strPageName
+     *            The page name
+     * @param version
+     *            The content version
+     * @param strPageUrl
+     *            tHe page URL
      * @return The HTML code
      */
-    public synchronized String getWikiPage( String strPageName , TopicVersion version , String strPageUrl )
+    public synchronized String getWikiPage( String strPageName, TopicVersion version, String strPageUrl )
     {
-        StringBuilder sbKey = new StringBuilder();
-        sbKey.append( strPageName ).append( "[" ).append( version.getIdTopicVersion() ).append("]");
-        sbKey.append( (( strPageUrl != null) ? "[Url]" : "[noUrl]" ));
-        String strPageContent = (String) getFromCache( sbKey.toString() );
-        if( strPageContent == null )
+        StringBuilder sbKey = new StringBuilder( );
+        sbKey.append( strPageName ).append( "[" ).append( version.getIdTopicVersion( ) ).append( "]" );
+        sbKey.append( ( ( strPageUrl != null ) ? "[Url]" : "[noUrl]" ) );
+        String strPageContent = (String) getFromCache( sbKey.toString( ) );
+        if ( strPageContent == null )
         {
-            strPageContent = new LuteceWikiParser( version.getWikiContent(  ) , strPageUrl ).toString(  );
-            putInCache( sbKey.toString(), strPageContent );
+            strPageContent = new LuteceWikiParser( version.getWikiContent( ), strPageUrl ).toString( );
+            putInCache( sbKey.toString( ), strPageContent );
         }
         return strPageContent;
     }
-    
+
     /**
      * Get the Wiki page in HTML format
-     * @param strPageName The page name
-     * @param version The content version
+     * 
+     * @param strPageName
+     *            The page name
+     * @param version
+     *            The content version
      * @return The HTML code
      */
-    public synchronized String getWikiPage( String strPageName , TopicVersion version )
+    public synchronized String getWikiPage( String strPageName, TopicVersion version )
     {
-        return getWikiPage(strPageName, version, null );
+        return getWikiPage( strPageName, version, null );
     }
-    
+
     /**
      * Render the wiki content for the editor (convert special characters)
-     * @param version The version
+     * 
+     * @param version
+     *            The version
      * @return The content
      */
-    public static String renderEditor(TopicVersion version)
+    public static String renderEditor( TopicVersion version )
     {
-        return LuteceWikiParser.renderWiki( version.getWikiContent() );
+        return LuteceWikiParser.renderWiki( version.getWikiContent( ) );
     }
-    
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,13 +35,12 @@ package fr.paris.lutece.plugins.wiki.business;
 
 import java.sql.Timestamp;
 
-
 /**
  * This is the business class for the object TopicVersion
  */
 public class TopicVersion
 {
-    // Variables declarations 
+    // Variables declarations
     private int _nIdTopicVersion;
     private String _strEditComment;
     private int _nIdTopic;
@@ -55,16 +54,19 @@ public class TopicVersion
 
     /**
      * Returns the IdTopicVersion
+     * 
      * @return The IdTopicVersion
      */
-    public int getIdTopicVersion(  )
+    public int getIdTopicVersion( )
     {
         return _nIdTopicVersion;
     }
 
     /**
      * Sets the IdTopicVersion
-     * @param nIdTopicVersion The IdTopicVersion
+     * 
+     * @param nIdTopicVersion
+     *            The IdTopicVersion
      */
     public void setIdTopicVersion( int nIdTopicVersion )
     {
@@ -73,16 +75,19 @@ public class TopicVersion
 
     /**
      * Returns the EditComment
+     * 
      * @return The EditComment
      */
-    public String getEditComment(  )
+    public String getEditComment( )
     {
         return _strEditComment;
     }
 
     /**
      * Sets the EditComment
-     * @param strEditComment The EditComment
+     * 
+     * @param strEditComment
+     *            The EditComment
      */
     public void setEditComment( String strEditComment )
     {
@@ -91,16 +96,19 @@ public class TopicVersion
 
     /**
      * Returns the EditComment
+     * 
      * @return The EditComment
      */
-    public String getWikiContent(  )
+    public String getWikiContent( )
     {
         return _strWikiContent;
     }
 
     /**
      * Sets the EditComment
-     * @param strWikiContent The content
+     * 
+     * @param strWikiContent
+     *            The content
      */
     public void setWikiContent( String strWikiContent )
     {
@@ -109,16 +117,19 @@ public class TopicVersion
 
     /**
      * Returns the IdTopic
+     * 
      * @return The IdTopic
      */
-    public int getIdTopic(  )
+    public int getIdTopic( )
     {
         return _nIdTopic;
     }
 
     /**
      * Sets the IdTopic
-     * @param nIdTopic The IdTopic
+     * 
+     * @param nIdTopic
+     *            The IdTopic
      */
     public void setIdTopic( int nIdTopic )
     {
@@ -127,16 +138,19 @@ public class TopicVersion
 
     /**
      * Returns the LuteceUserId
+     * 
      * @return The LuteceUserId
      */
-    public String getLuteceUserId(  )
+    public String getLuteceUserId( )
     {
         return _strLuteceUserId;
     }
 
     /**
      * Sets the LuteceUserId
-     * @param strLuteceUserId The LuteceUserId
+     * 
+     * @param strLuteceUserId
+     *            The LuteceUserId
      */
     public void setLuteceUserId( String strLuteceUserId )
     {
@@ -145,16 +159,19 @@ public class TopicVersion
 
     /**
      * Returns the DateEdition
+     * 
      * @return The DateEdition
      */
-    public Timestamp getDateEdition(  )
+    public Timestamp getDateEdition( )
     {
         return _strDateEdition;
     }
 
     /**
      * Sets the DateEdition
-     * @param timestamp The DateEdition
+     * 
+     * @param timestamp
+     *            The DateEdition
      */
     public void setDateEdition( Timestamp timestamp )
     {
@@ -163,16 +180,19 @@ public class TopicVersion
 
     /**
      * Returns the IdTopicVersionPrevious
+     * 
      * @return The IdTopicVersionPrevious
      */
-    public int getIdTopicVersionPrevious(  )
+    public int getIdTopicVersionPrevious( )
     {
         return _nIdTopicVersionPrevious;
     }
 
     /**
      * Sets the IdTopicVersionPrevious
-     * @param nIdTopicVersionPrevious The IdTopicVersionPrevious
+     * 
+     * @param nIdTopicVersionPrevious
+     *            The IdTopicVersionPrevious
      */
     public void setIdTopicVersionPrevious( int nIdTopicVersionPrevious )
     {
@@ -181,16 +201,19 @@ public class TopicVersion
 
     /**
      * Returns the UserPseudo
+     * 
      * @return The UserPseudo
      */
-    public String getUserPseudo(  )
+    public String getUserPseudo( )
     {
         return _strUserPseudo;
     }
 
     /**
      * Sets the UserPseudo
-     * @param strUserPseudo The UserPseudo
+     * 
+     * @param strUserPseudo
+     *            The UserPseudo
      */
     public void setUserPseudo( String strUserPseudo )
     {
@@ -199,16 +222,19 @@ public class TopicVersion
 
     /**
      * Returns the UserName
+     * 
      * @return The UserName
      */
-    public String getUserName(  )
+    public String getUserName( )
     {
         return _strUserName;
     }
 
     /**
      * Sets the UserName
-     * @param strUserName The UserName
+     * 
+     * @param strUserName
+     *            The UserName
      */
     public void setUserName( String strUserName )
     {
@@ -217,16 +243,19 @@ public class TopicVersion
 
     /**
      * Returns the UserAvatarUrl
+     * 
      * @return The UserAvatarUrl
      */
-    public String getUserAvatarUrl(  )
+    public String getUserAvatarUrl( )
     {
         return _strUserAvatarUrl;
     }
 
     /**
      * Sets the UserAvatarUrl
-     * @param strUserAvatarUrl The UserAvatarUrl
+     * 
+     * @param strUserAvatarUrl
+     *            The UserAvatarUrl
      */
     public void setUserAvatarUrl( String strUserAvatarUrl )
     {

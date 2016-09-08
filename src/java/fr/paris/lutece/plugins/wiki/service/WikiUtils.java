@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@ package fr.paris.lutece.plugins.wiki.service;
 
 import java.text.Normalizer;
 
-
 /**
  * WikiUtils
  */
@@ -47,6 +46,6 @@ public final class WikiUtils
         strNormalized = strNormalized.replaceAll( "\\p{M}", "" );
         strNormalized = strNormalized.replaceAll( "[^\\w]", "_" );
 
-        return strNormalized.toLowerCase(  );
+        return strNormalized.toLowerCase( );
     }
 }

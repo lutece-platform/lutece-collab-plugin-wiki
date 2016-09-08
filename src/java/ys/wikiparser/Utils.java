@@ -29,7 +29,6 @@ package ys.wikiparser;
 
 import java.util.*;
 
-
 public class Utils
 {
     private static HashMap<String, Character> entities = null;
@@ -39,9 +38,9 @@ public class Utils
     {
         // From MediaWiki: "._\\/~%-+&#?!=()@"
         // From http://www.ietf.org/rfc/rfc2396.txt :
-        //   reserved:   ";/?:@&=+$,"
-        //   unreserved: "-_.!~*'()"
-        //   delim:      "%#"
+        // reserved: ";/?:@&=+$,"
+        // unreserved: "-_.!~*'()"
+        // delim: "%#"
         if ( isLatinLetterOrDigit( c ) )
         {
             return true;
@@ -56,9 +55,8 @@ public class Utils
     }
 
     /**
-     * Filters text so there are no '\r' chars in it ("\r\n" -&gt; "\n"; then "\r" -&gt; "\n").
-     * Most importantly makes all blank lines (lines with only spaces) exactly like this: "\n\n".
-     * WikiParser relies on that.
+     * Filters text so there are no '\r' chars in it ("\r\n" -&gt; "\n"; then "\r" -&gt; "\n"). Most importantly makes all blank lines (lines with only spaces)
+     * exactly like this: "\n\n". WikiParser relies on that.
      *
      * @param text
      * @return filtered text
@@ -70,58 +68,60 @@ public class Utils
             return "";
         }
 
-        text = text.trim(  );
+        text = text.trim( );
 
-        int length = text.length(  );
-        char[] chars = new char[length];
+        int length = text.length( );
+        char [ ] chars = new char [ length];
         text.getChars( 0, length, chars, 0 );
 
-        StringBuilder sb = new StringBuilder(  );
+        StringBuilder sb = new StringBuilder( );
         boolean blankLine = true;
-        StringBuilder spaces = new StringBuilder(  );
+        StringBuilder spaces = new StringBuilder( );
 
         for ( int p = 0; p < length; p++ )
         {
-            char c = chars[p];
+            char c = chars [p];
 
             if ( c == '\r' )
             { // "\r\n" -> "\n"; then "\r" -> "\n"
 
-                if ( ( ( p + 1 ) < length ) && ( chars[p + 1] == '\n' ) )
+                if ( ( ( p + 1 ) < length ) && ( chars [p + 1] == '\n' ) )
                 {
                     p++;
                 }
 
                 sb.append( '\n' );
-                spaces.delete( 0, spaces.length(  ) ); // discard spaces if there is nothing else on the line
+                spaces.delete( 0, spaces.length( ) ); // discard spaces if there is nothing else on the line
                 blankLine = true;
-            }
-            else if ( c == '\n' )
-            {
-                sb.append( c );
-                spaces.delete( 0, spaces.length(  ) ); // discard spaces if there is nothing else on the line
-                blankLine = true;
-            }
-            else if ( blankLine )
-            {
-                if ( c <= ' ' /* && c!='\n'*/ )
-                {
-                    spaces.append( c );
-                }
-                else
-                {
-                    sb.append( spaces );
-                    blankLine = false;
-                    sb.append( c );
-                }
             }
             else
-            {
-                sb.append( c );
-            }
+                if ( c == '\n' )
+                {
+                    sb.append( c );
+                    spaces.delete( 0, spaces.length( ) ); // discard spaces if there is nothing else on the line
+                    blankLine = true;
+                }
+                else
+                    if ( blankLine )
+                    {
+                        if ( c <= ' ' /* && c!='\n' */)
+                        {
+                            spaces.append( c );
+                        }
+                        else
+                        {
+                            sb.append( spaces );
+                            blankLine = false;
+                            sb.append( c );
+                        }
+                    }
+                    else
+                    {
+                        sb.append( c );
+                    }
         }
 
-        return sb.toString(  );
+        return sb.toString( );
     }
 
     public static String escapeHTML( String s )
@@ -131,8 +131,8 @@ public class Utils
             return "";
         }
 
-        StringBuffer sb = new StringBuffer( s.length(  ) + 100 );
-        int length = s.length(  );
+        StringBuffer sb = new StringBuffer( s.length( ) + 100 );
+        int length = s.length( );
 
         for ( int i = 0; i < length; i++ )
         {
@@ -142,36 +142,40 @@ public class Utils
             {
                 sb.append( "&lt;" );
             }
-            else if ( '>' == ch )
-            {
-                sb.append( "&gt;" );
-            }
-            else if ( '&' == ch )
-            {
-                sb.append( "&amp;" );
-            }
-            else if ( '\'' == ch )
-            {
-                sb.append( "&#39;" );
-            }
-            else if ( '"' == ch )
-            {
-                sb.append( "&quot;" );
-            }
             else
-            {
-                sb.append( ch );
-            }
+                if ( '>' == ch )
+                {
+                    sb.append( "&gt;" );
+                }
+                else
+                    if ( '&' == ch )
+                    {
+                        sb.append( "&amp;" );
+                    }
+                    else
+                        if ( '\'' == ch )
+                        {
+                            sb.append( "&#39;" );
+                        }
+                        else
+                            if ( '"' == ch )
+                            {
+                                sb.append( "&quot;" );
+                            }
+                            else
+                            {
+                                sb.append( ch );
+                            }
         }
 
-        return sb.toString(  );
+        return sb.toString( );
     }
 
-    private static synchronized HashMap<String, Character> getHtmlEntities(  )
+    private static synchronized HashMap<String, Character> getHtmlEntities( )
     {
         if ( entities == null )
         {
-            entities = new HashMap<String, Character>(  );
+            entities = new HashMap<String, Character>( );
             entities.put( "lt", '<' );
             entities.put( "gt", '>' );
             entities.put( "amp", '&' );
@@ -208,9 +212,9 @@ public class Utils
             return value;
         }
 
-        HashMap<String, Character> ent = getHtmlEntities(  );
-        StringBuffer sb = new StringBuffer(  );
-        final int length = value.length(  );
+        HashMap<String, Character> ent = getHtmlEntities( );
+        StringBuffer sb = new StringBuffer( );
+        final int length = value.length( );
 
         for ( int i = 0; i < length; i++ )
         {
@@ -236,10 +240,10 @@ public class Utils
                     }
                     else
                     {
-                        synchronized ( ent )
+                        synchronized( ent )
                         {
                             Character ceObj = ent.get( value.substring( i + 1, i1 ) );
-                            ce = ( ceObj == null ) ? 0 : ceObj.charValue(  );
+                            ce = ( ceObj == null ) ? 0 : ceObj.charValue( );
                         }
                     }
                 }
@@ -260,7 +264,7 @@ public class Utils
             }
         }
 
-        return sb.toString(  );
+        return sb.toString( );
     }
 
     static public int atoi( String s )
@@ -269,7 +273,7 @@ public class Utils
         {
             return Integer.parseInt( s );
         }
-        catch ( Throwable ex )
+        catch( Throwable ex )
         {
             return 0;
         }
@@ -281,7 +285,7 @@ public class Utils
         {
             return Integer.parseInt( s, base );
         }
-        catch ( Throwable ex )
+        catch( Throwable ex )
         {
             return 0;
         }
@@ -289,8 +293,8 @@ public class Utils
 
     public static String replaceString( String str, String from, String to )
     {
-        StringBuffer buf = new StringBuffer(  );
-        int flen = from.length(  );
+        StringBuffer buf = new StringBuffer( );
+        int flen = from.length( );
         int i1 = 0;
         int i2 = 0;
 
@@ -303,10 +307,10 @@ public class Utils
 
         buf.append( str.substring( i1 ) );
 
-        return buf.toString(  );
+        return buf.toString( );
     }
 
-    public static String[] split( String s, char separator )
+    public static String [ ] split( String s, char separator )
     {
         // this is meant to be faster than String.split() when separator is not regexp
         if ( s == null )
@@ -314,7 +318,7 @@ public class Utils
             return null;
         }
 
-        ArrayList<String> parts = new ArrayList<String>(  );
+        ArrayList<String> parts = new ArrayList<String>( );
         int beginIndex = 0;
         int endIndex;
 
@@ -326,16 +330,17 @@ public class Utils
 
         parts.add( s.substring( beginIndex ) );
 
-        String[] a = new String[parts.size(  )];
+        String [ ] a = new String [ parts.size( )];
 
         return parts.toArray( a );
     }
 
     /**
-     * Translates all non-basic-latin-letters characters into latin ones for use in URLs etc.
-     * Here is the implementation for cyrillic (Russian) alphabet. Unknown characters are omitted.
+     * Translates all non-basic-latin-letters characters into latin ones for use in URLs etc. Here is the implementation for cyrillic (Russian) alphabet.
+     * Unknown characters are omitted.
      *
-     * @param s string to be translated
+     * @param s
+     *            string to be translated
      * @return translated string
      */
     public static String translit( String s )
@@ -345,17 +350,16 @@ public class Utils
             return "";
         }
 
-        StringBuilder sb = new StringBuilder( s.length(  ) + 100 );
-        final int length = s.length(  );
-        final int translitTableLength = translitTable.length(  );
+        StringBuilder sb = new StringBuilder( s.length( ) + 100 );
+        final int length = s.length( );
+        final int translitTableLength = translitTable.length( );
 
         for ( int i = 0; i < length; i++ )
         {
             char ch = s.charAt( i );
 
-            //System.err.println("ch="+(int)ch);
-            if ( ( ( ch >= 'à' ) && ( ch <= 'ÿ' ) ) || ( ( ch >= 'À' ) && ( ch <= 'ß' ) ) || ( ch == '¸' ) ||
-                    ( ch == '¨' ) )
+            // System.err.println("ch="+(int)ch);
+            if ( ( ( ch >= 'à' ) && ( ch <= 'ÿ' ) ) || ( ( ch >= 'À' ) && ( ch <= 'ß' ) ) || ( ch == '¸' ) || ( ch == '¨' ) )
             {
                 int idx = translitTable.indexOf( ch );
                 char c;
@@ -366,8 +370,7 @@ public class Utils
                     {
                         c = translitTable.charAt( idx );
 
-                        if ( ( ( c >= 'à' ) && ( c <= 'ÿ' ) ) || ( ( c >= 'À' ) && ( c <= 'ß' ) ) || ( c == '¸' ) ||
-                                ( c == '¨' ) )
+                        if ( ( ( c >= 'à' ) && ( c <= 'ÿ' ) ) || ( ( c >= 'À' ) && ( c <= 'ß' ) ) || ( c == '¸' ) || ( c == '¨' ) )
                         {
                             break;
                         }
@@ -382,7 +385,7 @@ public class Utils
             }
         }
 
-        return sb.toString(  );
+        return sb.toString( );
     }
 
     public static String emptyToNull( String s )
@@ -402,6 +405,6 @@ public class Utils
 
     public static boolean isEmpty( String s )
     {
-        return ( ( s == null ) || ( s.length(  ) == 0 ) );
+        return ( ( s == null ) || ( s.length( ) == 0 ) );
     }
 }

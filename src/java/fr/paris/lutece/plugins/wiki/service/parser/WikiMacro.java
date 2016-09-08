@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.wiki.service.parser;
 
 /**
@@ -42,15 +41,18 @@ public interface WikiMacro
 {
     /**
      * Gets the macro name
+     * 
      * @return The macro name
      */
-    String getName();
-    
+    String getName( );
+
     /**
      * Process a given text
-     * @param strText The text
-     * @return The text processed 
+     * 
+     * @param strText
+     *            The text
+     * @return The text processed
      */
     String processText( String strText );
-    
+
 }

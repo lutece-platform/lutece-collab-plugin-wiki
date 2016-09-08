@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,6 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.Collection;
 
-
 /**
  * This class provides instances management methods (create, find, ...) for TopicVersion objects
  */
@@ -50,15 +49,18 @@ public final class TopicVersionHome
     /**
      * Private constructor - this class need not be instantiated
      */
-    private TopicVersionHome(  )
+    private TopicVersionHome( )
     {
     }
 
     /**
      * Create an instance of the topicVersion class
-     * @param topicVersion The instance of the TopicVersion which contains the informations to store
-     * @param plugin the Plugin
-     * @return The  instance of topicVersion which has been created with its primary key.
+     * 
+     * @param topicVersion
+     *            The instance of the TopicVersion which contains the informations to store
+     * @param plugin
+     *            the Plugin
+     * @return The instance of topicVersion which has been created with its primary key.
      */
     public static TopicVersion create( TopicVersion topicVersion, Plugin plugin )
     {
@@ -69,9 +71,12 @@ public final class TopicVersionHome
 
     /**
      * Update of the topicVersion which is specified in parameter
-     * @param topicVersion The instance of the TopicVersion which contains the data to store
-     * @param plugin the Plugin
-     * @return The instance of the  topicVersion which has been updated
+     * 
+     * @param topicVersion
+     *            The instance of the TopicVersion which contains the data to store
+     * @param plugin
+     *            the Plugin
+     * @return The instance of the topicVersion which has been updated
      */
     public static TopicVersion update( TopicVersion topicVersion, Plugin plugin )
     {
@@ -82,8 +87,11 @@ public final class TopicVersionHome
 
     /**
      * Remove the topicVersion whose identifier is specified in parameter
-     * @param nTopicVersionId The topicVersion Id
-     * @param plugin the Plugin
+     * 
+     * @param nTopicVersionId
+     *            The topicVersion Id
+     * @param plugin
+     *            the Plugin
      */
     public static void remove( int nTopicVersionId, Plugin plugin )
     {
@@ -92,21 +100,27 @@ public final class TopicVersionHome
 
     /**
      * Remove all topicVersions for a given topic
-     * @param nTopicId The Topic Id
-     * @param plugin the Plugin
+     * 
+     * @param nTopicId
+     *            The Topic Id
+     * @param plugin
+     *            the Plugin
      */
-    static void removeByTopic(int nTopicId, Plugin plugin)
+    static void removeByTopic( int nTopicId, Plugin plugin )
     {
-         _dao.deleteByTopic( nTopicId, plugin );
+        _dao.deleteByTopic( nTopicId, plugin );
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // Finders
 
     /**
      * Returns an instance of a topicVersion whose identifier is specified in parameter
-     * @param nKey The topicVersion primary key
-     * @param plugin the Plugin
+     * 
+     * @param nKey
+     *            The topicVersion primary key
+     * @param plugin
+     *            the Plugin
      * @return an instance of TopicVersion
      */
     public static TopicVersion findByPrimaryKey( int nKey, Plugin plugin )
@@ -116,7 +130,9 @@ public final class TopicVersionHome
 
     /**
      * Load the data of all the topicVersion objects and returns them in form of a collection
-     * @param plugin the Plugin
+     * 
+     * @param plugin
+     *            the Plugin
      * @return the collection which contains the data of all the topicVersion objects
      */
     public static Collection<TopicVersion> getTopicVersionsList( Plugin plugin )
@@ -126,23 +142,32 @@ public final class TopicVersionHome
 
     /**
      * Modify the topic's content
-     * @param nTopicId The topic ID
-     * @param strUserName The username
-     * @param strComment The comment
-     * @param strContent The content
-     * @param nPreviousVersion The prvious version
-     * @param plugin The plugin
+     * 
+     * @param nTopicId
+     *            The topic ID
+     * @param strUserName
+     *            The username
+     * @param strComment
+     *            The comment
+     * @param strContent
+     *            The content
+     * @param nPreviousVersion
+     *            The prvious version
+     * @param plugin
+     *            The plugin
      */
-    public static void modifyContentOnly( int nTopicId, String strUserName, String strComment, String strContent,
-        int nPreviousVersion, Plugin plugin )
+    public static void modifyContentOnly( int nTopicId, String strUserName, String strComment, String strContent, int nPreviousVersion, Plugin plugin )
     {
         _dao.modifyTopicVersion( nTopicId, strUserName, strComment, strContent, nPreviousVersion, plugin );
     }
 
     /**
      * Find the last version
-     * @param idTopic The topic id
-     * @param plugin The plugin
+     * 
+     * @param idTopic
+     *            The topic id
+     * @param plugin
+     *            The plugin
      * @return The topic version
      */
     public static TopicVersion findLastVersion( int idTopic, Plugin plugin )
@@ -152,8 +177,11 @@ public final class TopicVersionHome
 
     /**
      * Find all versions
-     * @param idTopic The topic id
-     * @param plugin The plugin
+     * 
+     * @param idTopic
+     *            The topic id
+     * @param plugin
+     *            The plugin
      * @return A collection of topic version
      */
     public static Collection<TopicVersion> findAllVersions( int idTopic, Plugin plugin )

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,6 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.Locale;
 
-
 /**
  * Wiki Extendable Resource Service
  */
@@ -81,7 +80,7 @@ public class WikiExtendableResourceService implements IExtendableResourceService
 
             return TopicHome.findByPrimaryKey( nIdTopic, _plugin );
         }
-        catch ( NumberFormatException e )
+        catch( NumberFormatException e )
         {
             return null;
         }
@@ -91,7 +90,7 @@ public class WikiExtendableResourceService implements IExtendableResourceService
      * {@inheritDoc }
      */
     @Override
-    public String getResourceType(  )
+    public String getResourceType( )
     {
         return Topic.RESOURCE_TYPE;
     }
@@ -117,12 +116,12 @@ public class WikiExtendableResourceService implements IExtendableResourceService
 
             if ( topic != null )
             {
-                UrlItem urlItem = new UrlItem( AppPathService.getPortalUrl(  ) );
+                UrlItem urlItem = new UrlItem( AppPathService.getPortalUrl( ) );
                 urlItem.addParameter( PARAMETER_PAGE, Constants.PLUGIN_NAME );
                 urlItem.addParameter( PARAMETER_ACTION, WikiApp.ACTION_VIEW );
-                urlItem.addParameter( Constants.PARAMETER_PAGE_NAME, topic.getPageName(  ) );
+                urlItem.addParameter( Constants.PARAMETER_PAGE_NAME, topic.getPageName( ) );
 
-                return urlItem.getUrl(  );
+                return urlItem.getUrl( );
             }
         }
 

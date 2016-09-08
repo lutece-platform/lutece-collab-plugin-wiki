@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ package fr.paris.lutece.plugins.wiki.service.parser;
 public class ParserOptions
 {
 
-    // Variables declarations 
+    // Variables declarations
 
     private String _strTableClass;
     private String _strImageClass;
@@ -51,7 +51,7 @@ public class ParserOptions
      *
      * @return The TableClass
      */
-    public String getTableClass()
+    public String getTableClass( )
     {
         return _strTableClass;
     }
@@ -59,9 +59,10 @@ public class ParserOptions
     /**
      * Sets the TableClass
      *
-     * @param strTableClass The TableClass
+     * @param strTableClass
+     *            The TableClass
      */
-    public void setTableClass(String strTableClass)
+    public void setTableClass( String strTableClass )
     {
         _strTableClass = strTableClass;
     }
@@ -71,7 +72,7 @@ public class ParserOptions
      *
      * @return The ImageClass
      */
-    public String getImageClass()
+    public String getImageClass( )
     {
         return _strImageClass;
     }
@@ -79,9 +80,10 @@ public class ParserOptions
     /**
      * Sets the ImageClass
      *
-     * @param strImageClass The ImageClass
+     * @param strImageClass
+     *            The ImageClass
      */
-    public void setImageClass(String strImageClass)
+    public void setImageClass( String strImageClass )
     {
         _strImageClass = strImageClass;
     }
@@ -91,7 +93,7 @@ public class ParserOptions
      *
      * @return The SizedImageClass
      */
-    public String getSizedImageClass()
+    public String getSizedImageClass( )
     {
         return _strSizedImageClass;
     }
@@ -99,9 +101,10 @@ public class ParserOptions
     /**
      * Sets the SizedImageClass
      *
-     * @param strSizedImageClass The SizedImageClass
+     * @param strSizedImageClass
+     *            The SizedImageClass
      */
-    public void setSizedImageClass(String strSizedImageClass)
+    public void setSizedImageClass( String strSizedImageClass )
     {
         _strSizedImageClass = strSizedImageClass;
     }
@@ -111,7 +114,7 @@ public class ParserOptions
      *
      * @return The TocClass
      */
-    public String getTocClass()
+    public String getTocClass( )
     {
         return _strTocClass;
     }
@@ -119,9 +122,10 @@ public class ParserOptions
     /**
      * Sets the TocClass
      *
-     * @param strTocClass The TocClass
+     * @param strTocClass
+     *            The TocClass
      */
-    public void setTocClass(String strTocClass)
+    public void setTocClass( String strTocClass )
     {
         _strTocClass = strTocClass;
     }

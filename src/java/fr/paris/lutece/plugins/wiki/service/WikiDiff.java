@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,6 @@ import java.io.Serializable;
 
 import java.util.List;
 
-
 /**
  * Wiki Diff
  *
@@ -61,15 +60,18 @@ public class WikiDiff implements Serializable
     /**
      * Constructor
      */
-    public WikiDiff(  )
+    public WikiDiff( )
     {
     }
 
     /**
      *
-     * @param strOldText Old Text
-     * @param strNewText New Text
-     * @param nPosition Position
+     * @param strOldText
+     *            Old Text
+     * @param strNewText
+     *            New Text
+     * @param nPosition
+     *            Position
      */
     public WikiDiff( String strOldText, String strNewText, int nPosition )
     {
@@ -80,25 +82,29 @@ public class WikiDiff implements Serializable
 
     /**
      * Gets changes
+     * 
      * @return true if there is changes
      */
-    public boolean getChange(  )
+    public boolean getChange( )
     {
         return !StringUtils.equals( _strOldText, _strNewText );
     }
 
     /**
      * Gets new text
+     * 
      * @return The new text
      */
-    public String getNewText(  )
+    public String getNewText( )
     {
         return _strNewText;
     }
 
     /**
      * Sets new text
-     * @param strNewText The new text
+     * 
+     * @param strNewText
+     *            The new text
      */
     public void setNewText( String strNewText )
     {
@@ -107,16 +113,19 @@ public class WikiDiff implements Serializable
 
     /**
      * Gets old text
+     * 
      * @return The old text
      */
-    public String getOldText(  )
+    public String getOldText( )
     {
         return _strOldText;
     }
 
     /**
      * Sets old text
-     * @param strOldText The old text
+     * 
+     * @param strOldText
+     *            The old text
      */
     public void setOldText( String strOldText )
     {
@@ -125,16 +134,19 @@ public class WikiDiff implements Serializable
 
     /**
      * Gets the position
+     * 
      * @return The position
      */
-    public int getPosition(  )
+    public int getPosition( )
     {
         return _nPosition;
     }
 
     /**
      * Sets the position
-     * @param nPosition The position
+     * 
+     * @param nPosition
+     *            The position
      */
     public void setPosition( int nPosition )
     {
@@ -143,16 +155,19 @@ public class WikiDiff implements Serializable
 
     /**
      * Gets diffs
+     * 
      * @return The diffs
      */
-    public List<WikiDiff> getSubDiffs(  )
+    public List<WikiDiff> getSubDiffs( )
     {
         return _listSubDiffs;
     }
 
     /**
      * Sets the diffs list
-     * @param liistSubDiffs The list
+     * 
+     * @param liistSubDiffs
+     *            The list
      */
     public void setSubDiffs( List<WikiDiff> liistSubDiffs )
     {

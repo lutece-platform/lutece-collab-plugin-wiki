@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,6 @@ import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.web.constants.Parameters;
 import fr.paris.lutece.util.url.UrlItem;
 
-
 /**
  * Service for Url entry types. Provide ImageResource managemenent
  *
@@ -51,20 +50,20 @@ import fr.paris.lutece.util.url.UrlItem;
 public class ImageService implements ImageResourceProvider
 {
     private static final String PLUGIN_NAME = "wiki";
-    private static ImageService _singleton = new ImageService(  );
+    private static ImageService _singleton = new ImageService( );
     private static final String IMAGE_RESOURCE_TYPE_ID = "wiki_image";
 
     /**
      * Creates a new instance of ImageService
      */
-    ImageService(  )
+    ImageService( )
     {
     }
 
     /**
      * Initializes the service
      */
-    public void register(  )
+    public void register( )
     {
         ImageResourceManager.registerProvider( this );
     }
@@ -74,16 +73,18 @@ public class ImageService implements ImageResourceProvider
      *
      * @return The unique instance
      */
-    public static ImageService getInstance(  )
+    public static ImageService getInstance( )
     {
         return _singleton;
     }
 
     /**
-    * Return the Resource id
-    * @param nIdResource The resource identifier
-    * @return The Resource Image
-    */
+     * Return the Resource id
+     * 
+     * @param nIdResource
+     *            The resource identifier
+     * @return The Resource Image
+     */
     @Override
     public ImageResource getImageResource( int nIdResource )
     {
@@ -92,9 +93,9 @@ public class ImageService implements ImageResourceProvider
 
         if ( image != null )
         {
-            ImageResource imageResource = new ImageResource(  );
-            imageResource.setImage( image.getValue(  ) );
-            imageResource.setMimeType( image.getMimeType(  ) );
+            ImageResource imageResource = new ImageResource( );
+            imageResource.setImage( image.getValue( ) );
+            imageResource.setMimeType( image.getMimeType( ) );
 
             return imageResource;
         }
@@ -104,26 +105,29 @@ public class ImageService implements ImageResourceProvider
 
     /**
      * Return the Resource Type id
+     * 
      * @return The Resource Type Id
      */
     @Override
-    public String getResourceTypeId(  )
+    public String getResourceTypeId( )
     {
         return IMAGE_RESOURCE_TYPE_ID;
     }
 
     /**
      * Management of the image associated to the {@link EntryUrl}
-     * @param nEntryUrl The {@link EntryUrl} identifier
+     * 
+     * @param nEntryUrl
+     *            The {@link EntryUrl} identifier
      * @return The url of the resource
      */
     public static String getResourceImageEntryUrl( int nEntryUrl )
     {
-        String strResourceType = ImageService.getInstance(  ).getResourceTypeId(  );
+        String strResourceType = ImageService.getInstance( ).getResourceTypeId( );
         UrlItem url = new UrlItem( Parameters.IMAGE_SERVLET );
         url.addParameter( Parameters.RESOURCE_TYPE, strResourceType );
         url.addParameter( Parameters.RESOURCE_ID, Integer.toString( nEntryUrl ) );
 
-        return url.getUrlWithEntity(  );
+        return url.getUrlWithEntity( );
     }
 }

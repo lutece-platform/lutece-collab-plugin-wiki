@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,25 +42,22 @@ import static org.junit.Assert.*;
  */
 public class TextFormatMacroTest
 {
-    
-
 
     /**
      * Test of processText method, of class TextFormatMacro.
      */
     @Test
-    public void testProcessText()
+    public void testProcessText( )
     {
-        System.out.println("processText");
+        System.out.println( "processText" );
         String strText = " default | My Label";
         String strFormat = "<span class=\"label label-{0}\">{1}</span>";
-        TextFormatMacro instance = new TextFormatMacro();
-        instance.setFormat(strFormat);
+        TextFormatMacro instance = new TextFormatMacro( );
+        instance.setFormat( strFormat );
         String strExpectedResult = "<span class=\"label label-default\">My Label</span>";
-        String strResult = instance.processText(strText);
+        String strResult = instance.processText( strText );
         System.out.println( strResult );
-        assertEquals(strExpectedResult, strResult);
+        assertEquals( strExpectedResult, strResult );
     }
 
-    
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,9 +38,8 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.List;
 
-
 /**
- * This class provides instances management methods (create, find, ...) for Image  objects
+ * This class provides instances management methods (create, find, ...) for Image objects
  */
 public final class ImageHome
 {
@@ -50,15 +49,17 @@ public final class ImageHome
     /**
      * Private constructor - this class need not be instantiated
      */
-    private ImageHome(  )
+    private ImageHome( )
     {
     }
 
     /**
      * Creation of an instance of image
      *
-     * @param image The instance of image which contains the informations to store
-     * @param plugin the plugin
+     * @param image
+     *            The instance of image which contains the informations to store
+     * @param plugin
+     *            the plugin
      *
      *
      *
@@ -71,8 +72,10 @@ public final class ImageHome
     /**
      * Update of image which is specified in parameter
      *
-     * @param image  The instance of image which contains the informations to update
-     * @param plugin the Plugin
+     * @param image
+     *            The instance of image which contains the informations to update
+     * @param plugin
+     *            the Plugin
      *
      */
     public static void update( Image image, Plugin plugin )
@@ -83,8 +86,10 @@ public final class ImageHome
     /**
      * Update metatdata of image which is specified in parameter
      *
-     * @param image  The instance of image which contains the informations to update
-     * @param plugin the Plugin
+     * @param image
+     *            The instance of image which contains the informations to update
+     * @param plugin
+     *            the Plugin
      *
      */
     public static void updateMetadata( Image image, Plugin plugin )
@@ -93,10 +98,12 @@ public final class ImageHome
     }
 
     /**
-     *  remove image which is specified in parameter
+     * remove image which is specified in parameter
      *
-     * @param  nIdImage The image key to remove
-     * @param plugin the Plugin
+     * @param nIdImage
+     *            The image key to remove
+     * @param plugin
+     *            the Plugin
      *
      */
     public static void remove( int nIdImage, Plugin plugin )
@@ -105,26 +112,31 @@ public final class ImageHome
     }
 
     /**
-     *  remove all images associated to a given topic
+     * remove all images associated to a given topic
      *
-     * @param  nTopicId The Topic ID
-     * @param plugin the Plugin
+     * @param nTopicId
+     *            The Topic ID
+     * @param plugin
+     *            the Plugin
      *
      */
-    public static void removeByTopic(int nTopicId, Plugin plugin)
+    public static void removeByTopic( int nTopicId, Plugin plugin )
     {
         _dao.deleteByTopic( nTopicId, plugin );
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // Finders
 
     /**
-         * Load the image Object
-         * @param nIdImage the image id
-         * @param plugin the plugin
-         * @return the Image Object
-         */
+     * Load the image Object
+     * 
+     * @param nIdImage
+     *            the image id
+     * @param plugin
+     *            the plugin
+     * @return the Image Object
+     */
     public static Image findByPrimaryKey( int nIdImage, Plugin plugin )
     {
         return _dao.load( nIdImage, plugin );
@@ -132,7 +144,9 @@ public final class ImageHome
 
     /**
      * return the list of all image
-     * @param plugin the plugin
+     * 
+     * @param plugin
+     *            the plugin
      * @return a list of image
      */
     public static List<Image> getListImages( Plugin plugin )
@@ -142,8 +156,11 @@ public final class ImageHome
 
     /**
      * Find images for a given topic
-     * @param nIdTopic The topic ID
-     * @param plugin The plugin
+     * 
+     * @param nIdTopic
+     *            The topic ID
+     * @param plugin
+     *            The plugin
      * @return The list
      */
     public static List<Image> findByTopic( int nIdTopic, Plugin plugin )

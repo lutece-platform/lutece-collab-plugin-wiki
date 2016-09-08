@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@ package fr.paris.lutece.plugins.wiki.business;
 import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.service.resource.IExtendableResource;
 
-
 /**
  * This is the business class for the object Topic
  */
@@ -44,7 +43,7 @@ public class Topic implements IExtendableResource
 {
     public static final String RESOURCE_TYPE = "WIKI";
 
-    // Variables declarations 
+    // Variables declarations
     private int _nIdTopic;
     private int _nNamespace;
     private String _strPageName;
@@ -54,16 +53,19 @@ public class Topic implements IExtendableResource
 
     /**
      * Returns the IdTopic
+     * 
      * @return The IdTopic
      */
-    public int getIdTopic(  )
+    public int getIdTopic( )
     {
         return _nIdTopic;
     }
 
     /**
      * Sets the IdTopic
-     * @param nIdTopic The IdTopic
+     * 
+     * @param nIdTopic
+     *            The IdTopic
      */
     public void setIdTopic( int nIdTopic )
     {
@@ -72,16 +74,19 @@ public class Topic implements IExtendableResource
 
     /**
      * Returns the Namespace
+     * 
      * @return The Namespace
      */
-    public int getNamespace(  )
+    public int getNamespace( )
     {
         return _nNamespace;
     }
 
     /**
      * Sets the Namespace
-     * @param nNamespace The Namespace
+     * 
+     * @param nNamespace
+     *            The Namespace
      */
     public void setNamespace( int nNamespace )
     {
@@ -90,16 +95,19 @@ public class Topic implements IExtendableResource
 
     /**
      * Returns the PageName
+     * 
      * @return The PageName
      */
-    public String getPageName(  )
+    public String getPageName( )
     {
         return _strPageName;
     }
 
     /**
      * Sets the PageName
-     * @param strPageName The PageName
+     * 
+     * @param strPageName
+     *            The PageName
      */
     public void setPageName( String strPageName )
     {
@@ -108,16 +116,19 @@ public class Topic implements IExtendableResource
 
     /**
      * Returns the PageTitle
+     * 
      * @return The PageTitle
      */
-    public String getPageTitle(  )
+    public String getPageTitle( )
     {
         return _strPageTitle;
     }
 
     /**
      * Sets the PageTitle
-     * @param strPageTitle The PageTitle
+     * 
+     * @param strPageTitle
+     *            The PageTitle
      */
     public void setPageTitle( String strPageTitle )
     {
@@ -126,16 +137,19 @@ public class Topic implements IExtendableResource
 
     /**
      * Returns the ViewRole
+     * 
      * @return The ViewRole
      */
-    public String getViewRole(  )
+    public String getViewRole( )
     {
         return _strViewRole;
     }
 
     /**
      * Sets the ViewRole
-     * @param strViewRole The ViewRole
+     * 
+     * @param strViewRole
+     *            The ViewRole
      */
     public void setViewRole( String strViewRole )
     {
@@ -144,16 +158,19 @@ public class Topic implements IExtendableResource
 
     /**
      * Returns the EditRole
+     * 
      * @return The EditRole
      */
-    public String getEditRole(  )
+    public String getEditRole( )
     {
         return _strEditRole;
     }
 
     /**
      * Sets the EditRole
-     * @param strEditRole The EditRole
+     * 
+     * @param strEditRole
+     *            The EditRole
      */
     public void setEditRole( String strEditRole )
     {
@@ -164,7 +181,7 @@ public class Topic implements IExtendableResource
      * {@inheritDoc }
      */
     @Override
-    public String getIdExtendableResource(  )
+    public String getIdExtendableResource( )
     {
         return Integer.toString( _nIdTopic );
     }
@@ -173,7 +190,7 @@ public class Topic implements IExtendableResource
      * {@inheritDoc }
      */
     @Override
-    public String getExtendableResourceType(  )
+    public String getExtendableResourceType( )
     {
         return RESOURCE_TYPE;
     }
@@ -182,7 +199,7 @@ public class Topic implements IExtendableResource
      * {@inheritDoc }
      */
     @Override
-    public String getExtendableResourceName(  )
+    public String getExtendableResourceName( )
     {
         return _strPageName;
     }
@@ -191,7 +208,7 @@ public class Topic implements IExtendableResource
      * {@inheritDoc }
      */
     @Override
-    public String getExtendableResourceDescription(  )
+    public String getExtendableResourceDescription( )
     {
         return "";
     }
@@ -200,7 +217,7 @@ public class Topic implements IExtendableResource
      * {@inheritDoc }
      */
     @Override
-    public String getExtendableResourceImageUrl(  )
+    public String getExtendableResourceImageUrl( )
     {
         return null;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,6 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 
-
 /**
  * Wiki Indexer
  *
@@ -81,7 +80,7 @@ public class WikiIndexer implements SearchIndexer
      * {@inheritDoc }
      */
     @Override
-    public String getDescription(  )
+    public String getDescription( )
     {
         return AppPropertiesService.getProperty( PROPERTY_INDEXER_DESCRIPTION );
     }
@@ -90,10 +89,9 @@ public class WikiIndexer implements SearchIndexer
      * {@inheritDoc }
      */
     @Override
-    public List<Document> getDocuments( String strDocument )
-        throws IOException, InterruptedException, SiteMessageException
+    public List<Document> getDocuments( String strDocument ) throws IOException, InterruptedException, SiteMessageException
     {
-        List<org.apache.lucene.document.Document> listDocs = new ArrayList<org.apache.lucene.document.Document>(  );
+        List<org.apache.lucene.document.Document> listDocs = new ArrayList<org.apache.lucene.document.Document>( );
         String strPortalUrl = AppPropertiesService.getProperty( PROPERTY_PAGE_BASE_URL );
         Plugin plugin = PluginService.getPlugin( PLUGIN_NAME );
 
@@ -103,10 +101,10 @@ public class WikiIndexer implements SearchIndexer
         {
             UrlItem urlSubject = new UrlItem( strPortalUrl );
             urlSubject.addParameter( XPageAppService.PARAM_XPAGE_APP, PLUGIN_NAME );
-            urlSubject.addParameter( Constants.PARAMETER_PAGE_NAME, topic.getPageName(  ) );
+            urlSubject.addParameter( Constants.PARAMETER_PAGE_NAME, topic.getPageName( ) );
             urlSubject.addParameter( Constants.PARAMETER_VIEW, Constants.VIEW_PAGE );
 
-            org.apache.lucene.document.Document docSubject = getDocument( topic, urlSubject.getUrl(  ), plugin );
+            org.apache.lucene.document.Document docSubject = getDocument( topic, urlSubject.getUrl( ), plugin );
             listDocs.add( docSubject );
         }
 
@@ -117,7 +115,7 @@ public class WikiIndexer implements SearchIndexer
      * {@inheritDoc }
      */
     @Override
-    public String getName(  )
+    public String getName( )
     {
         return AppPropertiesService.getProperty( PROPERTY_INDEXER_NAME );
     }
@@ -126,7 +124,7 @@ public class WikiIndexer implements SearchIndexer
      * {@inheritDoc }
      */
     @Override
-    public String getVersion(  )
+    public String getVersion( )
     {
         return AppPropertiesService.getProperty( PROPERTY_INDEXER_VERSION );
     }
@@ -135,7 +133,7 @@ public class WikiIndexer implements SearchIndexer
      * {@inheritDoc }
      */
     @Override
-    public void indexDocuments(  ) throws IOException, InterruptedException, SiteMessageException
+    public void indexDocuments( ) throws IOException, InterruptedException, SiteMessageException
     {
         Plugin plugin = PluginService.getPlugin( PLUGIN_NAME );
 
@@ -149,14 +147,13 @@ public class WikiIndexer implements SearchIndexer
      * {@inheritDoc }
      */
     @Override
-    public boolean isEnable(  )
+    public boolean isEnable( )
     {
         boolean bReturn = false;
         String strEnable = AppPropertiesService.getProperty( PROPERTY_INDEXER_ENABLE );
 
-        if ( ( strEnable != null ) &&
-                ( strEnable.equalsIgnoreCase( Boolean.TRUE.toString(  ) ) || strEnable.equals( ENABLE_VALUE_TRUE ) ) &&
-                PluginService.isPluginEnable( PLUGIN_NAME ) )
+        if ( ( strEnable != null ) && ( strEnable.equalsIgnoreCase( Boolean.TRUE.toString( ) ) || strEnable.equals( ENABLE_VALUE_TRUE ) )
+                && PluginService.isPluginEnable( PLUGIN_NAME ) )
         {
             bReturn = true;
         }
@@ -166,9 +163,13 @@ public class WikiIndexer implements SearchIndexer
 
     /**
      * Indexe the topic
-     * @param topic The topic
-     * @throws IOException if an IO error occurs
-     * @throws InterruptedException if a Thread error occurs
+     * 
+     * @param topic
+     *            The topic
+     * @throws IOException
+     *             if an IO error occurs
+     * @throws InterruptedException
+     *             if a Thread error occurs
      */
     public void indexTopic( Topic topic ) throws IOException, InterruptedException
     {
@@ -177,17 +178,17 @@ public class WikiIndexer implements SearchIndexer
 
         UrlItem urlSubject = new UrlItem( strPortalUrl );
         urlSubject.addParameter( XPageAppService.PARAM_XPAGE_APP, PLUGIN_NAME );
-        urlSubject.addParameter( PARAMETER_PAGE_NAME, topic.getPageName(  ) );
+        urlSubject.addParameter( PARAMETER_PAGE_NAME, topic.getPageName( ) );
 
         org.apache.lucene.document.Document docTopic = null;
 
         try
         {
-            docTopic = getDocument( topic, urlSubject.getUrl(  ), plugin );
+            docTopic = getDocument( topic, urlSubject.getUrl( ), plugin );
         }
-        catch ( Exception e )
+        catch( Exception e )
         {
-            String strMessage = "Topic ID : " + topic.getIdTopic(  );
+            String strMessage = "Topic ID : " + topic.getIdTopic( );
             IndexationService.error( this, e, strMessage );
         }
 
@@ -199,18 +200,23 @@ public class WikiIndexer implements SearchIndexer
 
     /**
      * Get a document for indexing
-     * @param topic The topic
-     * @param strUrl The URL
-     * @param plugin The plugin
+     * 
+     * @param topic
+     *            The topic
+     * @param strUrl
+     *            The URL
+     * @param plugin
+     *            The plugin
      * @return The document
-     * @throws IOException if an IO error occurs
-     * @throws InterruptedException if a Thread error occurs
+     * @throws IOException
+     *             if an IO error occurs
+     * @throws InterruptedException
+     *             if a Thread error occurs
      */
-    public static org.apache.lucene.document.Document getDocument( Topic topic, String strUrl, Plugin plugin )
-        throws IOException, InterruptedException
+    public static org.apache.lucene.document.Document getDocument( Topic topic, String strUrl, Plugin plugin ) throws IOException, InterruptedException
     {
         // make a new, empty document
-        org.apache.lucene.document.Document doc = new org.apache.lucene.document.Document(  );
+        org.apache.lucene.document.Document doc = new org.apache.lucene.document.Document( );
 
         FieldType ft = new FieldType( StringField.TYPE_STORED );
         ft.setOmitNorms( false );
@@ -228,31 +234,30 @@ public class WikiIndexer implements SearchIndexer
         // This field is not stored with question/answer, it is indexed, but it
         // is not
         // tokenized prior to indexing.
-        String strIdSubject = String.valueOf( topic.getPageName(  ) );
+        String strIdSubject = String.valueOf( topic.getPageName( ) );
         doc.add( new Field( SearchItem.FIELD_UID, strIdSubject + "_" + SHORT_NAME_TOPIC, ftNotStored ) );
 
-        TopicVersion latestTopicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), plugin );
+        TopicVersion latestTopicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ), plugin );
         String strWikiContent = "";
 
-        if ( ( latestTopicVersion != null ) && ( latestTopicVersion.getWikiContent(  ) != null ) &&
-                !latestTopicVersion.getWikiContent(  ).equals( "" ) )
+        if ( ( latestTopicVersion != null ) && ( latestTopicVersion.getWikiContent( ) != null ) && !latestTopicVersion.getWikiContent( ).equals( "" ) )
         {
-            strWikiContent = latestTopicVersion.getWikiContent(  );
+            strWikiContent = latestTopicVersion.getWikiContent( );
         }
 
-        String strWikiResult = new LuteceWikiParser( strWikiContent , null ).toString(  ) + " " + topic.getPageName(  );
+        String strWikiResult = new LuteceWikiParser( strWikiContent, null ).toString( ) + " " + topic.getPageName( );
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, TextField.TYPE_NOT_STORED ) );
 
-        String strDate = DateTools.dateToString( latestTopicVersion.getDateEdition(  ), DateTools.Resolution.DAY );
+        String strDate = DateTools.dateToString( latestTopicVersion.getDateEdition( ), DateTools.Resolution.DAY );
         doc.add( new Field( SearchItem.FIELD_DATE, strDate, ft ) );
 
         // Add the subject name as a separate Text field, so that it can be
         // searched separately.
-        doc.add( new Field( SearchItem.FIELD_TITLE, topic.getPageTitle(  ), ft ) );
+        doc.add( new Field( SearchItem.FIELD_TITLE, topic.getPageTitle( ), ft ) );
 
-        doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType(  ), ft ) );
+        doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType( ), ft ) );
 
-        doc.add( new Field( SearchItem.FIELD_ROLE, topic.getViewRole(  ), ft ) );
+        doc.add( new Field( SearchItem.FIELD_ROLE, topic.getViewRole( ), ft ) );
 
         return doc;
     }
@@ -261,10 +266,10 @@ public class WikiIndexer implements SearchIndexer
      * {@inheritDoc}
      */
     @Override
-    public List<String> getListType(  )
+    public List<String> getListType( )
     {
-        List<String> listType = new ArrayList<String>(  );
-        listType.add( getDocumentType(  ) );
+        List<String> listType = new ArrayList<String>( );
+        listType.add( getDocumentType( ) );
 
         return listType;
     }
@@ -273,16 +278,17 @@ public class WikiIndexer implements SearchIndexer
      * {@inheritDoc}
      */
     @Override
-    public String getSpecificSearchAppUrl(  )
+    public String getSpecificSearchAppUrl( )
     {
         return JSP_SEARCH_WIKI;
     }
 
     /**
      * Get Lucene index document type
+     * 
      * @return The document type
      */
-    public static String getDocumentType(  )
+    public static String getDocumentType( )
     {
         return AppPropertiesService.getProperty( PROPERTY_DOCUMENT_TYPE );
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.wiki.service.parser;
 
 import java.text.MessageFormat;
@@ -44,10 +43,12 @@ public class TextFormatMacro implements WikiMacro
 {
     private String _strName;
     private String _strFormat;
-    
+
     /**
      * Sets the macro name
-     * @param strName The macro name 
+     * 
+     * @param strName
+     *            The macro name
      */
     public void setName( String strName )
     {
@@ -58,7 +59,7 @@ public class TextFormatMacro implements WikiMacro
      * {@inheritDoc }
      */
     @Override
-    public String getName()
+    public String getName( )
     {
         return _strName;
     }
@@ -69,28 +70,29 @@ public class TextFormatMacro implements WikiMacro
     @Override
     public String processText( String strText )
     {
-        String[] args = strText.split( "\\|" );
-        for( int i = 0 ; i < args.length ; i++ )
+        String [ ] args = strText.split( "\\|" );
+        for ( int i = 0; i < args.length; i++ )
         {
-            args[i] = args[i].trim();
+            args [i] = args [i].trim( );
         }
-        return MessageFormat.format( _strFormat, (Object[]) args);
+        return MessageFormat.format( _strFormat, (Object [ ]) args );
     }
 
     /**
      * @return the Format Text
      */
-    public String getFormat()
+    public String getFormat( )
     {
         return _strFormat;
     }
 
     /**
-     * @param strFormat the Format text to set
+     * @param strFormat
+     *            the Format text to set
      */
-    public void setFormat(String strFormat)
+    public void setFormat( String strFormat )
     {
         _strFormat = strFormat;
     }
-    
+
 }

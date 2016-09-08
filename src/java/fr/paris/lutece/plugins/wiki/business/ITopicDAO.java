@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,55 +37,71 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 
 import java.util.Collection;
 
-
 /**
-* ITopicDAO Interface
-*/
+ * ITopicDAO Interface
+ */
 public interface ITopicDAO
 {
     /**
      * Insert a new record in the table.
-     * @param topic instance of the Topic object to inssert
-     * @param plugin the Plugin
+     * 
+     * @param topic
+     *            instance of the Topic object to inssert
+     * @param plugin
+     *            the Plugin
      */
     void insert( Topic topic, Plugin plugin );
 
     /**
-    * Update the record in the table
-    * @param topic the reference of the Topic
-    * @param plugin the Plugin
-    */
+     * Update the record in the table
+     * 
+     * @param topic
+     *            the reference of the Topic
+     * @param plugin
+     *            the Plugin
+     */
     void store( Topic topic, Plugin plugin );
 
     /**
      * Delete a record from the table
-     * @param nIdTopic int identifier of the Topic to delete
-     * @param plugin the Plugin
+     * 
+     * @param nIdTopic
+     *            int identifier of the Topic to delete
+     * @param plugin
+     *            the Plugin
      */
     void delete( int nIdTopic, Plugin plugin );
 
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // Finders
 
     /**
      * Load the data from the table
-     * @param nKey The key
-     * @param plugin the Plugin
+     * 
+     * @param nKey
+     *            The key
+     * @param plugin
+     *            the Plugin
      * @return The instance of the topic
      */
     Topic load( int nKey, Plugin plugin );
 
     /**
-    * Load the data of all the topic objects and returns them as a collection
-    * @param plugin the Plugin
-    * @return The collection which contains the data of all the topic objects
-    */
+     * Load the data of all the topic objects and returns them as a collection
+     * 
+     * @param plugin
+     *            the Plugin
+     * @return The collection which contains the data of all the topic objects
+     */
     Collection<Topic> selectTopicsList( Plugin plugin );
 
     /**
      * Load a topic
-     * @param strTopicName The topic name
-     * @param plugin The plugin
+     * 
+     * @param strTopicName
+     *            The topic name
+     * @param plugin
+     *            The plugin
      * @return The topic
      */
     Topic load( String strTopicName, Plugin plugin );

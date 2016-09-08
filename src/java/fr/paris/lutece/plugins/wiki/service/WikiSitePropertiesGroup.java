@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,32 +45,31 @@ public class WikiSitePropertiesGroup implements ILocalizedSitePropertiesGroup
     private static final String KEY_DESCRIPTION = "wiki.site_properties_group.description";
     private static final String PREFIX = "wiki.site_property.";
 
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public String getNameKey( )
+    {
+        return KEY_NAME;
+    }
 
     /**
      * {@inheritDoc }
      */
     @Override
-    public String getNameKey()
-    {
-        return KEY_NAME;
-    }
-    
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public String getDescriptionKey()
+    public String getDescriptionKey( )
     {
         return KEY_DESCRIPTION;
     }
 
-     /**
+    /**
      * {@inheritDoc }
      */
-   @Override
-    public String getDatastoreKeysPrefix()
+    @Override
+    public String getDatastoreKeysPrefix( )
     {
         return PREFIX;
     }
-    
- }
+
+}

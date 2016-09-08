@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,6 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
-
 /**
  * Diff Service
  */
@@ -72,43 +71,43 @@ public class DiffService
 
     public static String getDiff( String strOld, String strNew )
     {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(  );
-        String[] css = new String[] {  };
+        ByteArrayOutputStream baos = new ByteArrayOutputStream( );
+        String [ ] css = new String [ ] { };
 
         try
         {
-            SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance(  );
+            SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance( );
 
-            TransformerHandler result = tf.newTransformerHandler(  );
+            TransformerHandler result = tf.newTransformerHandler( );
             result.setResult( new StreamResult( baos ) );
 
-            XslFilter filter = new XslFilter(  );
+            XslFilter filter = new XslFilter( );
 
             ContentHandler postProcess = filter.xsl( result, XSL_OUTPUT );
-            Locale locale = Locale.getDefault(  );
+            Locale locale = Locale.getDefault( );
             String prefix = "diff";
 
-            HtmlCleaner cleaner = new HtmlCleaner(  );
+            HtmlCleaner cleaner = new HtmlCleaner( );
 
             InputSource oldSource = new InputSource( new StringReader( strOld ) );
             InputSource newSource = new InputSource( new StringReader( strNew ) );
 
-            DomTreeBuilder oldHandler = new DomTreeBuilder(  );
+            DomTreeBuilder oldHandler = new DomTreeBuilder( );
             cleaner.cleanAndParse( oldSource, oldHandler );
             System.out.print( "." );
 
             TextNodeComparator leftComparator = new TextNodeComparator( oldHandler, locale );
 
-            DomTreeBuilder newHandler = new DomTreeBuilder(  );
+            DomTreeBuilder newHandler = new DomTreeBuilder( );
             cleaner.cleanAndParse( newSource, newHandler );
             System.out.print( "." );
 
             TextNodeComparator rightComparator = new TextNodeComparator( newHandler, locale );
 
-            postProcess.startDocument(  );
-            postProcess.startElement( "", "diffreport", "diffreport", new AttributesImpl(  ) );
+            postProcess.startDocument( );
+            postProcess.startElement( "", "diffreport", "diffreport", new AttributesImpl( ) );
             doCSS( css, postProcess );
-            postProcess.startElement( "", "diff", "diff", new AttributesImpl(  ) );
+            postProcess.startElement( "", "diff", "diff", new AttributesImpl( ) );
 
             HtmlSaxDiffOutput output = new HtmlSaxDiffOutput( postProcess, prefix );
 
@@ -117,22 +116,22 @@ public class DiffService
             System.out.print( "." );
             postProcess.endElement( "", "diff", "diff" );
             postProcess.endElement( "", "diffreport", "diffreport" );
-            postProcess.endDocument(  );
+            postProcess.endDocument( );
         }
-        catch ( TransformerConfigurationException ex )
+        catch( TransformerConfigurationException ex )
         {
-            AppLogService.error( "DiffService Error : " + ex.getMessage(  ), ex );
+            AppLogService.error( "DiffService Error : " + ex.getMessage( ), ex );
         }
-        catch ( IOException ex )
+        catch( IOException ex )
         {
-            AppLogService.error( "DiffService Error : " + ex.getMessage(  ), ex );
+            AppLogService.error( "DiffService Error : " + ex.getMessage( ), ex );
         }
-        catch ( SAXException ex )
+        catch( SAXException ex )
         {
-            AppLogService.error( "DiffService Error : " + ex.getMessage(  ), ex );
+            AppLogService.error( "DiffService Error : " + ex.getMessage( ), ex );
         }
 
-        String strOutput = baos.toString(  );
+        String strOutput = baos.toString( );
 
         // Remove XML header
         strOutput = strOutput.substring( strOutput.indexOf( ">" ) + 1 );
@@ -140,14 +139,13 @@ public class DiffService
         return strOutput;
     }
 
-    private static void doCSS( String[] css, ContentHandler handler )
-        throws SAXException
+    private static void doCSS( String [ ] css, ContentHandler handler ) throws SAXException
     {
-        handler.startElement( "", "css", "css", new AttributesImpl(  ) );
+        handler.startElement( "", "css", "css", new AttributesImpl( ) );
 
         for ( String cssLink : css )
         {
-            AttributesImpl attr = new AttributesImpl(  );
+            AttributesImpl attr = new AttributesImpl( );
             attr.addAttribute( "", "href", "href", "CDATA", cssLink );
             attr.addAttribute( "", "type", "type", "CDATA", "text/css" );
             attr.addAttribute( "", "rel", "rel", "CDATA", "stylesheet" );

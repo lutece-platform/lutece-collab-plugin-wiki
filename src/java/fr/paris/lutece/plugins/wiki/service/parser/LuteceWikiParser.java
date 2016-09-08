@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
-
 /**
  * Lutece Wiki Parser
  */
@@ -60,24 +59,25 @@ public class LuteceWikiParser extends WikiParser
     private static final String BEAN_PARSER_OPTIONS = "wiki.parser.options";
 
     private String _strPageUrl;
-    private static WikiMacroService _macroService = new WikiMacroService();
+    private static WikiMacroService _macroService = new WikiMacroService( );
     private static ParserOptions _options = SpringContextService.getBean( BEAN_PARSER_OPTIONS );
-    
+
     /**
      * Constructor
-     * @param strWikiText The wiki text
+     * 
+     * @param strWikiText
+     *            The wiki text
      * @param strPageUrl
      */
     public LuteceWikiParser( String strWikiText, String strPageUrl )
     {
-        super(  );
+        super( );
         HEADING_LEVEL_SHIFT = 0;
-        setTableClass( _options.getTableClass() );
-        setTocClass( _options.getTocClass() );
+        setTableClass( _options.getTableClass( ) );
+        setTocClass( _options.getTocClass( ) );
         parse( strWikiText );
         _strPageUrl = strPageUrl;
     }
-
 
     private String renderSpecific( String strHTML )
     {
@@ -88,10 +88,10 @@ public class LuteceWikiParser extends WikiParser
         strRender = strRender.replaceAll( "\\[quot;", "&quot;" );
         strRender = strRender.replaceAll( "\\[amp;", "&amp;" );
         strRender = strRender.replaceAll( "\\[hashmark;", "#" );
-        
+
         if ( _strPageUrl != null )
         {
-            strRender = strRender.replaceAll( "#page_url" , _strPageUrl );
+            strRender = strRender.replaceAll( "#page_url", _strPageUrl );
         }
 
         return strRender;
@@ -100,72 +100,76 @@ public class LuteceWikiParser extends WikiParser
     public static String renderWiki( String strSource )
     {
         String strRender = strSource;
-        strRender = strRender.replaceAll( "\\[lt;",  "<" );
-        strRender = strRender.replaceAll( "\\[gt;",  ">" );
-        strRender = strRender.replaceAll( "\\[nbsp;",  "&nbsp;" );
-        strRender = strRender.replaceAll( "\\[quot;",  "\"" );
-        strRender = strRender.replaceAll( "\\[amp;",  "&" );
-        strRender = strRender.replaceAll( "\\[hashmark;",  "#" );
+        strRender = strRender.replaceAll( "\\[lt;", "<" );
+        strRender = strRender.replaceAll( "\\[gt;", ">" );
+        strRender = strRender.replaceAll( "\\[nbsp;", "&nbsp;" );
+        strRender = strRender.replaceAll( "\\[quot;", "\"" );
+        strRender = strRender.replaceAll( "\\[amp;", "&" );
+        strRender = strRender.replaceAll( "\\[hashmark;", "#" );
         return strRender;
     }
 
     /**
      * Render XHTML from wiki text
-     * @param strWikiText The wiki text
+     * 
+     * @param strWikiText
+     *            The wiki text
      * @return The XHTML code
      */
     public static String renderXHTML( String strWikiText )
     {
-        return new LuteceWikiParser( strWikiText , null ).toString(  );
+        return new LuteceWikiParser( strWikiText, null ).toString( );
     }
 
     @Override
-    public String toString(  )
+    public String toString( )
     {
-        return renderSpecific( super.toString(  ) );
+        return renderSpecific( super.toString( ) );
     }
 
     /**
      * Append image
-     * @param strText The text
+     * 
+     * @param strText
+     *            The text
      */
     @Override
     protected void appendImage( String strText )
     {
         try
         {
-            String[] link = split( strText, '|' );
+            String [ ] link = split( strText, '|' );
             String strAlt = "illustration";
             String strWidth = null;
             String strHeight = null;
             String strAlign = null;
 
-            int nImageId = Integer.parseInt( link[0].trim(  ) );
+            int nImageId = Integer.parseInt( link [0].trim( ) );
 
-            switch ( link.length )
+            switch( link.length )
             {
                 case 5:
-                    strAlign = link[4].trim(  );
+                    strAlign = link [4].trim( );
                 case 4:
-                    strHeight = link[3].trim(  );
+                    strHeight = link [3].trim( );
 
                 case 3:
-                    strWidth = link[2].trim(  );
+                    strWidth = link [2].trim( );
 
                 case 2:
-                    strAlt = link[1].trim(  );
+                    strAlt = link [1].trim( );
             }
 
             sb.append( "<img src=\"image?resource_type=wiki_image&id=" ).append( nImageId ).append( "\" alt=\"" );
             sb.append( strAlt ).append( "\" title=\"" ).append( strAlt ).append( "\" " );
-            
-            if( link.length < 3 )
+
+            if ( link.length < 3 )
             {
-                sb.append( " class=\"" ).append( _options.getImageClass() ).append( "\" " );
+                sb.append( " class=\"" ).append( _options.getImageClass( ) ).append( "\" " );
             }
             else
             {
-                sb.append( " class=\"" ).append( _options.getSizedImageClass() ).append( "\" " );
+                sb.append( " class=\"" ).append( _options.getSizedImageClass( ) ).append( "\" " );
             }
 
             if ( strWidth != null )
@@ -185,7 +189,7 @@ public class LuteceWikiParser extends WikiParser
 
             sb.append( " />" );
         }
-        catch ( NumberFormatException e )
+        catch( NumberFormatException e )
         {
             super.appendImage( strText );
         }
@@ -193,40 +197,41 @@ public class LuteceWikiParser extends WikiParser
 
     /**
      * Append link
-     * @param strText The text
+     * 
+     * @param strText
+     *            The text
      */
     @Override
     protected void appendLink( String strText )
     {
-        String[] link = split( strText, '|' );
+        String [ ] link = split( strText, '|' );
         URI uri = null;
 
         try
         { // validate URI
-            uri = new URI( link[0].trim(  ) );
+            uri = new URI( link [0].trim( ) );
         }
-        catch ( URISyntaxException e )
+        catch( URISyntaxException e )
         {
-            AppLogService.error( "LuteceWikiParser : Error appenlink : " + e.getMessage(  ), e );
+            AppLogService.error( "LuteceWikiParser : Error appenlink : " + e.getMessage( ), e );
         }
 
-        if ( ( uri != null ) && uri.isAbsolute(  ) )
+        if ( ( uri != null ) && uri.isAbsolute( ) )
         {
             sb.append( "<a href=\"" );
-            sb.append( escapeHTML( uri.toString(  ) ) );
+            sb.append( escapeHTML( uri.toString( ) ) );
             sb.append( "\" rel=\"nofollow\">" );
-            sb.append( escapeHTML( unescapeHTML( ( ( link.length >= 2 ) && !isEmpty( link[1].trim(  ) ) ) ? link[1]
-                                                                                                          : link[0] ) ) );
+            sb.append( escapeHTML( unescapeHTML( ( ( link.length >= 2 ) && !isEmpty( link [1].trim( ) ) ) ? link [1] : link [0] ) ) );
             sb.append( "</a>" );
         }
         else
         {
             Plugin plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
-            Topic topic = TopicHome.findByPrimaryKey( escapeHTML( escapeURL( link[0] ) ), plugin );
+            Topic topic = TopicHome.findByPrimaryKey( escapeHTML( escapeURL( link [0] ) ), plugin );
             String strAction;
             String strColorBegin = "";
             String strColorEnd = "";
-            String strTopicName = link[0];
+            String strTopicName = link [0];
 
             if ( topic == null )
             {
@@ -236,19 +241,18 @@ public class LuteceWikiParser extends WikiParser
             }
             else
             {
-                strTopicName = topic.getPageTitle(  );
+                strTopicName = topic.getPageTitle( );
                 strAction = "&view=page";
             }
 
             sb.append( "<a href=\"" );
-            sb.append( AppPathService.getPortalUrl(  ) );
+            sb.append( AppPathService.getPortalUrl( ) );
             sb.append( "?page=wiki&page_name=" );
-            sb.append( escapeHTML( unescapeHTML( link[0] ) ) );
+            sb.append( escapeHTML( unescapeHTML( link [0] ) ) );
             sb.append( strAction );
             sb.append( " \" title=\"Wikipedia link\">" );
             sb.append( strColorBegin );
-            sb.append( escapeHTML( unescapeHTML( ( ( link.length >= 2 ) && !isEmpty( link[1].trim(  ) ) ) ? link[1]
-                                                                                                          : strTopicName ) ) );
+            sb.append( escapeHTML( unescapeHTML( ( ( link.length >= 2 ) && !isEmpty( link [1].trim( ) ) ) ? link [1] : strTopicName ) ) );
             sb.append( strColorEnd );
             sb.append( "</a>" );
         }
@@ -256,7 +260,9 @@ public class LuteceWikiParser extends WikiParser
 
     /**
      * Append a macro
-     * @param strText The text
+     * 
+     * @param strText
+     *            The text
      */
     @Override
     protected void appendMacro( String strText )
@@ -265,19 +271,22 @@ public class LuteceWikiParser extends WikiParser
         {
             super.appendMacro( strText ); // use default
         }
-        else if ( "My-macro".equals( strText ) )
-        {
-            sb.append( "{{ My macro output }}" );
-        }
         else
-        {
-            super.appendMacro( strText );
-        }
+            if ( "My-macro".equals( strText ) )
+            {
+                sb.append( "{{ My macro output }}" );
+            }
+            else
+            {
+                super.appendMacro( strText );
+            }
     }
 
     /**
      * Encode URL
-     * @param strURL the URL
+     * 
+     * @param strURL
+     *            the URL
      * @return The encoded URL
      */
     private static String escapeURL( String strURL )
@@ -286,19 +295,18 @@ public class LuteceWikiParser extends WikiParser
         {
             return URLEncoder.encode( strURL, "utf-8" );
         }
-        catch ( UnsupportedEncodingException e )
+        catch( UnsupportedEncodingException e )
         {
-            AppLogService.error( "LuteceWikiParser : Error escaping Url : " + e.getMessage(  ), e );
+            AppLogService.error( "LuteceWikiParser : Error escaping Url : " + e.getMessage( ), e );
 
             return null;
         }
     }
-    
 
     @Override
-    protected void appendNowiki(String strText )
+    protected void appendNowiki( String strText )
     {
-        String strMacro = escapeHTML( replaceString ( replaceString( strText, "~{{{", "{{{" ), "~}}}", "}}}" ) );
+        String strMacro = escapeHTML( replaceString( replaceString( strText, "~{{{", "{{{" ), "~}}}", "}}}" ) );
         sb.append( _macroService.processMacro( strMacro ) );
     }
 }

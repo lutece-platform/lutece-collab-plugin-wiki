@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,6 @@ import fr.paris.lutece.util.sql.DAOUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 /**
  * This class provides Data Access methods for Topic objects
  */
@@ -56,19 +55,21 @@ public final class TopicDAO implements ITopicDAO
 
     /**
      * Generates a new primary key
-     * @param plugin The Plugin
+     * 
+     * @param plugin
+     *            The Plugin
      * @return The new primary key
      */
     public int newPrimaryKey( Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
         int nKey;
 
-        daoUtil.next(  );
+        daoUtil.next( );
         nKey = daoUtil.getInt( 1 ) + 1;
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return nKey;
     }
@@ -83,15 +84,15 @@ public final class TopicDAO implements ITopicDAO
 
         topic.setIdTopic( newPrimaryKey( plugin ) );
 
-        daoUtil.setInt( 1, topic.getIdTopic(  ) );
-        daoUtil.setInt( 2, topic.getNamespace(  ) );
-        daoUtil.setString( 3, topic.getPageName(  ) );
-        daoUtil.setString( 4, topic.getPageTitle(  ) );
-        daoUtil.setString( 5, topic.getViewRole(  ) );
-        daoUtil.setString( 6, topic.getEditRole(  ) );
+        daoUtil.setInt( 1, topic.getIdTopic( ) );
+        daoUtil.setInt( 2, topic.getNamespace( ) );
+        daoUtil.setString( 3, topic.getPageName( ) );
+        daoUtil.setString( 4, topic.getPageTitle( ) );
+        daoUtil.setString( 5, topic.getViewRole( ) );
+        daoUtil.setString( 6, topic.getEditRole( ) );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -102,13 +103,13 @@ public final class TopicDAO implements ITopicDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
         daoUtil.setInt( 1, nId );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
         Topic topic = null;
 
-        if ( daoUtil.next(  ) )
+        if ( daoUtil.next( ) )
         {
-            topic = new Topic(  );
+            topic = new Topic( );
 
             topic.setIdTopic( daoUtil.getInt( 1 ) );
             topic.setNamespace( daoUtil.getInt( 2 ) );
@@ -118,7 +119,7 @@ public final class TopicDAO implements ITopicDAO
             topic.setEditRole( daoUtil.getString( 6 ) );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return topic;
     }
@@ -131,8 +132,8 @@ public final class TopicDAO implements ITopicDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
         daoUtil.setInt( 1, nTopicId );
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -143,16 +144,16 @@ public final class TopicDAO implements ITopicDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
 
-        daoUtil.setInt( 1, topic.getIdTopic(  ) );
-        daoUtil.setInt( 2, topic.getNamespace(  ) );
-        daoUtil.setString( 3, topic.getPageName(  ) );
-        daoUtil.setString( 4, topic.getPageTitle(  ) );
-        daoUtil.setString( 5, topic.getViewRole(  ) );
-        daoUtil.setString( 6, topic.getEditRole(  ) );
-        daoUtil.setInt( 7, topic.getIdTopic(  ) );
+        daoUtil.setInt( 1, topic.getIdTopic( ) );
+        daoUtil.setInt( 2, topic.getNamespace( ) );
+        daoUtil.setString( 3, topic.getPageName( ) );
+        daoUtil.setString( 4, topic.getPageTitle( ) );
+        daoUtil.setString( 5, topic.getViewRole( ) );
+        daoUtil.setString( 6, topic.getEditRole( ) );
+        daoUtil.setInt( 7, topic.getIdTopic( ) );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -161,13 +162,13 @@ public final class TopicDAO implements ITopicDAO
     @Override
     public Collection<Topic> selectTopicsList( Plugin plugin )
     {
-        Collection<Topic> topicList = new ArrayList<Topic>(  );
+        Collection<Topic> topicList = new ArrayList<Topic>( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
-        while ( daoUtil.next(  ) )
+        while ( daoUtil.next( ) )
         {
-            Topic topic = new Topic(  );
+            Topic topic = new Topic( );
 
             topic.setIdTopic( daoUtil.getInt( 1 ) );
             topic.setNamespace( daoUtil.getInt( 2 ) );
@@ -179,7 +180,7 @@ public final class TopicDAO implements ITopicDAO
             topicList.add( topic );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return topicList;
     }
@@ -192,13 +193,13 @@ public final class TopicDAO implements ITopicDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_NAME, plugin );
         daoUtil.setString( 1, strTopicName );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
         Topic topic = null;
 
-        if ( daoUtil.next(  ) )
+        if ( daoUtil.next( ) )
         {
-            topic = new Topic(  );
+            topic = new Topic( );
 
             topic.setIdTopic( daoUtil.getInt( 1 ) );
             topic.setNamespace( daoUtil.getInt( 2 ) );
@@ -208,7 +209,7 @@ public final class TopicDAO implements ITopicDAO
             topic.setEditRole( daoUtil.getString( 6 ) );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return topic;
     }

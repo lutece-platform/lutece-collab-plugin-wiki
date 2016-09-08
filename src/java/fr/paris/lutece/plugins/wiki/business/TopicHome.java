@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,6 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.Collection;
 
-
 /**
  * This class provides instances management methods (create, find, ...) for Topic objects
  */
@@ -50,15 +49,18 @@ public final class TopicHome
     /**
      * Private constructor - this class need not be instantiated
      */
-    private TopicHome(  )
+    private TopicHome( )
     {
     }
 
     /**
      * Create an instance of the topic class
-     * @param topic The instance of the Topic which contains the informations to store
-     * @param plugin the Plugin
-     * @return The  instance of topic which has been created with its primary key.
+     * 
+     * @param topic
+     *            The instance of the Topic which contains the informations to store
+     * @param plugin
+     *            the Plugin
+     * @return The instance of topic which has been created with its primary key.
      */
     public static Topic create( Topic topic, Plugin plugin )
     {
@@ -69,9 +71,12 @@ public final class TopicHome
 
     /**
      * Update of the topic which is specified in parameter
-     * @param topic The instance of the Topic which contains the data to store
-     * @param plugin the Plugin
-     * @return The instance of the  topic which has been updated
+     * 
+     * @param topic
+     *            The instance of the Topic which contains the data to store
+     * @param plugin
+     *            the Plugin
+     * @return The instance of the topic which has been updated
      */
     public static Topic update( Topic topic, Plugin plugin )
     {
@@ -82,8 +87,11 @@ public final class TopicHome
 
     /**
      * Remove the topic whose identifier is specified in parameter
-     * @param nTopicId The topic Id
-     * @param plugin the Plugin
+     * 
+     * @param nTopicId
+     *            The topic Id
+     * @param plugin
+     *            the Plugin
      */
     public static void remove( int nTopicId, Plugin plugin )
     {
@@ -92,13 +100,16 @@ public final class TopicHome
         _dao.delete( nTopicId, plugin );
     }
 
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // Finders
 
     /**
      * Returns an instance of a topic whose identifier is specified in parameter
-     * @param nKey The topic primary key
-     * @param plugin the Plugin
+     * 
+     * @param nKey
+     *            The topic primary key
+     * @param plugin
+     *            the Plugin
      * @return an instance of Topic
      */
     public static Topic findByPrimaryKey( int nKey, Plugin plugin )
@@ -108,8 +119,11 @@ public final class TopicHome
 
     /**
      * Find a topic by it's primary key
-     * @param strTopicName The topic name
-     * @param plugin The plugin
+     * 
+     * @param strTopicName
+     *            The topic name
+     * @param plugin
+     *            The plugin
      * @return The topic
      */
     public static Topic findByPrimaryKey( String strTopicName, Plugin plugin )
@@ -119,7 +133,9 @@ public final class TopicHome
 
     /**
      * Load the data of all the topic objects and returns them in form of a collection
-     * @param plugin the Plugin
+     * 
+     * @param plugin
+     *            the Plugin
      * @return the collection which contains the data of all the topic objects
      */
     public static Collection<Topic> getTopicsList( Plugin plugin )

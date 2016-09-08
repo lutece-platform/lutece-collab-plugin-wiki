@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.wiki.service.parser;
 
 /**
@@ -43,10 +42,12 @@ public class TextWrapperMacro implements WikiMacro
     private String _strName;
     private String _strBefore;
     private String _strAfter;
-    
+
     /**
      * Sets the macro name
-     * @param strName The macro name 
+     * 
+     * @param strName
+     *            The macro name
      */
     public void setName( String strName )
     {
@@ -57,7 +58,7 @@ public class TextWrapperMacro implements WikiMacro
      * {@inheritDoc }
      */
     @Override
-    public String getName()
+    public String getName( )
     {
         return _strName;
     }
@@ -68,21 +69,22 @@ public class TextWrapperMacro implements WikiMacro
     @Override
     public String processText( String strText )
     {
-        return _strBefore + strText.trim() + _strAfter;
+        return _strBefore + strText.trim( ) + _strAfter;
     }
 
     /**
      * @return the Before Text
      */
-    public String getBefore()
+    public String getBefore( )
     {
         return _strBefore;
     }
 
     /**
-     * @param strBefore the Before text to set
+     * @param strBefore
+     *            the Before text to set
      */
-    public void setBefore(String strBefore)
+    public void setBefore( String strBefore )
     {
         _strBefore = strBefore;
     }
@@ -90,17 +92,18 @@ public class TextWrapperMacro implements WikiMacro
     /**
      * @return the After text
      */
-    public String getAfter()
+    public String getAfter( )
     {
         return _strAfter;
     }
 
     /**
-     * @param strAfter the After text to set
+     * @param strAfter
+     *            the After text to set
      */
-    public void setAfter(String strAfter)
+    public void setAfter( String strAfter )
     {
         _strAfter = strAfter;
     }
-    
+
 }

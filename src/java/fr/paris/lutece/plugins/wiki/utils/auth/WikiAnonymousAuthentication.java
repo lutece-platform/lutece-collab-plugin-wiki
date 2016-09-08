@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,6 @@ import javax.security.auth.login.LoginException;
 
 import javax.servlet.http.HttpServletRequest;
 
-
 /**
  * WikiAnonymousAuthentication
  */
@@ -53,7 +52,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public String getAuthServiceName(  )
+    public String getAuthServiceName( )
     {
         return "Anonymous Authentication";
     }
@@ -71,10 +70,9 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public LuteceUser login( String string, String string1, HttpServletRequest hsr )
-        throws LoginException, LoginRedirectException
+    public LuteceUser login( String string, String string1, HttpServletRequest hsr ) throws LoginException, LoginRedirectException
     {
-        return new WikiAnonymousUser(  );
+        return new WikiAnonymousUser( );
     }
 
     /**
@@ -89,9 +87,9 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public LuteceUser getAnonymousUser(  )
+    public LuteceUser getAnonymousUser( )
     {
-        return new WikiAnonymousUser(  );
+        return new WikiAnonymousUser( );
     }
 
     /**
@@ -107,7 +105,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public String[] getRolesByUser( LuteceUser lu )
+    public String [ ] getRolesByUser( LuteceUser lu )
     {
         return null;
     }
@@ -116,7 +114,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public boolean isExternalAuthentication(  )
+    public boolean isExternalAuthentication( )
     {
         return true;
     }
@@ -125,26 +123,27 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public boolean isDelegatedAuthentication(  )
+    public boolean isDelegatedAuthentication( )
     {
         return false;
     }
 
     /**
      * {@inheritDoc }
+     * 
      * @param hsr
      */
     @Override
     public LuteceUser getHttpAuthenticatedUser( HttpServletRequest hsr )
     {
-        return new WikiAnonymousUser(  );
+        return new WikiAnonymousUser( );
     }
 
     /**
      * {@inheritDoc }
      */
     @Override
-    public String getLoginPageUrl(  )
+    public String getLoginPageUrl( )
     {
         return "";
     }
@@ -153,7 +152,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public String getDoLoginUrl(  )
+    public String getDoLoginUrl( )
     {
         return "";
     }
@@ -162,7 +161,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public String getDoLogoutUrl(  )
+    public String getDoLogoutUrl( )
     {
         return "";
     }
@@ -171,7 +170,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public String getNewAccountPageUrl(  )
+    public String getNewAccountPageUrl( )
     {
         return "";
     }
@@ -180,7 +179,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public String getViewAccountPageUrl(  )
+    public String getViewAccountPageUrl( )
     {
         return "";
     }
@@ -189,7 +188,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public String getLostPasswordPageUrl(  )
+    public String getLostPasswordPageUrl( )
     {
         return "";
     }
@@ -198,7 +197,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public String getAccessDeniedTemplate(  )
+    public String getAccessDeniedTemplate( )
     {
         return "";
     }
@@ -207,7 +206,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public String getAccessControledTemplate(  )
+    public String getAccessControledTemplate( )
     {
         return "";
     }
@@ -216,7 +215,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public boolean isUsersListAvailable(  )
+    public boolean isUsersListAvailable( )
     {
         return false;
     }
@@ -225,7 +224,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public Collection<LuteceUser> getUsers(  )
+    public Collection<LuteceUser> getUsers( )
     {
         return null;
     }
@@ -243,7 +242,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public boolean isMultiAuthenticationSupported(  )
+    public boolean isMultiAuthenticationSupported( )
     {
         return false;
     }
@@ -252,7 +251,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public String getIconUrl(  )
+    public String getIconUrl( )
     {
         throw new UnsupportedOperationException( "Not supported yet." );
     }
@@ -261,7 +260,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public String getName(  )
+    public String getName( )
     {
         throw new UnsupportedOperationException( "Not supported yet." );
     }
@@ -270,7 +269,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public String getPluginName(  )
+    public String getPluginName( )
     {
         return "";
     }
@@ -297,7 +296,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc}
      */
     @Override
-    public String getLostLoginPageUrl(  )
+    public String getLostLoginPageUrl( )
     {
         return null;
     }
