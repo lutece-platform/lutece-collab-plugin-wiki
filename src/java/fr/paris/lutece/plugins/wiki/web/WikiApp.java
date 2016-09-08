@@ -126,6 +126,7 @@ public class WikiApp extends MVCApplication
     private static final String MARK_ADMIN_ROLE = "has_admin_role";
     private static final String MARK_EXTEND = "isExtendInstalled";
     private static final String VIEW_HOME = "home";
+    private static final String VIEW_LIST = "list";
     private static final String VIEW_PAGE = "page";
     private static final String VIEW_MODIFY_PAGE = "modifyPage";
     private static final String VIEW_HISTORY = "history";
@@ -178,6 +179,12 @@ public class WikiApp extends MVCApplication
     @View( value = VIEW_HOME, defaultView = true )
     public XPage home( HttpServletRequest request )
     {
+        return redirectWikiRoot( request );
+    }
+    
+    @View( VIEW_LIST )
+    public XPage getTopicsList( HttpServletRequest request )
+    {
         XPage page = getTopicsListPage( request );
         page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_LIST, request.getLocale(  ) ) ) );
         page.setExtendedPathLabel( getExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_LIST,
@@ -185,6 +192,7 @@ public class WikiApp extends MVCApplication
 
         return page;
     }
+    
 
     /**
      * Search page
@@ -971,7 +979,7 @@ public class WikiApp extends MVCApplication
 
             return redirect( request, VIEW_PAGE, mapParameters );
         }
-        return redirect( request, VIEW_HOME );
+        return redirect( request, VIEW_LIST );
     }
 
     /**
