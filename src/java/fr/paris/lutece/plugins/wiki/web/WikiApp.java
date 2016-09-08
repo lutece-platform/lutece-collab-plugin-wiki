@@ -147,6 +147,7 @@ public class WikiApp extends MVCApplication
     private static final String MESSAGE_FILE_MANDATORY = "wiki.message.error.file.notNull";
     private static final String MESSAGE_CONFIRM_REMOVE_VERSION = "wiki.message.confirmRemoveVersion";
     private static final String MESSAGE_VERSION_REMOVED = "wiki.message.version.removed";
+    private static final String MESSAGE_AUTHENTICATION_REQUIRED = "wiki.message.authenticationRequired";
     private static final String ANCHOR_IMAGES = "#images";
     private static final String DSKEY_WIKI_ROOT_LABEL = "wiki.site_property.path.rootLabel";
     private static final String DSKEY_WIKI_ROOT_PAGENAME = "wiki.site_property.path.rootPageName";
@@ -252,6 +253,10 @@ public class WikiApp extends MVCApplication
     @View( VIEW_PAGE )
     public XPage view( HttpServletRequest request ) throws SiteMessageException
     {
+        if( SecurityService.isAuthenticationEnable() == false )
+        {
+            SiteMessageService.setMessage( request, MESSAGE_AUTHENTICATION_REQUIRED, SiteMessage.TYPE_ERROR );
+        }
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_VIEW );
         TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic(  ), _plugin );
@@ -892,6 +897,7 @@ public class WikiApp extends MVCApplication
     private void fillUserData( TopicVersion version )
     {
         String strUserId = version.getLuteceUserId(  );
+       
         LuteceUser user = SecurityService.getInstance(  ).getUser( strUserId );
 
         if ( user != null )
