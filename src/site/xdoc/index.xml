@@ -1,13 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<properties>
-		<title>Plugin wiki</title>
-	</properties>
-	<body>
-		<section name="Plugin wiki">
-			<subsection name="Introduction">
-				Manage some pages as a wiki.
-			</subsection>
-		</section>
-	</body>
+    <properties>
+        <title>Plugin wiki</title>
+    </properties>
+    <body>
+        <section name="Plugin wiki">
+            <subsection name="Introduction">
+                <p>
+                    <b>Full featured WIKI : </b>
+                </p>
+                <p>
+                    <ul>
+                        <li>Use standard Wikicreole syntax</li>
+                        <li>Provide a very simple and efficient Wiki editor with removable Help panel</li>
+                        <li>Can be easily customized by macros to add new rendering features (such as Bootstrap Jumbotron !)</li>
+                    </ul>
+                </p>
+                <p>
+                    <b>Fully integrated to Lutece platform :</b>
+                </p>
+                <p>
+                    <ul>
+                        <li>Use MyLutece authentication and roles</li>
+                        <li>Compatible with Extend plugin and all its modules (comment, rating, hits, opengraph...)</li>
+                        <li>Support Lutece's avatar and pseudo features</li>
+                        <li>Use the graphical theme of the site. It will change the same way as all the site when the theme is modified.</li>
+                        <li>Code rendering skins can be managed into "Site's properties" </li>
+                    </ul>
+                </p>
+            </subsection>
+        </section>
+    </body>
 </document>
