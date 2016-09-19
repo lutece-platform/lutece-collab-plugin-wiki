@@ -1008,7 +1008,7 @@ public class WikiApp extends MVCApplication
 
             return redirect( request, VIEW_PAGE, mapParameters );
         }
-        return redirect( request, VIEW_LIST );
+        return redirectView( request, VIEW_LIST );
     }
 
     /**
