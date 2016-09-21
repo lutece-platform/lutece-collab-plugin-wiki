@@ -101,8 +101,8 @@ public class WikiIndexer implements SearchIndexer
         {
             UrlItem urlSubject = new UrlItem( strPortalUrl );
             urlSubject.addParameter( XPageAppService.PARAM_XPAGE_APP, PLUGIN_NAME );
-            urlSubject.addParameter( Constants.PARAMETER_PAGE_NAME, topic.getPageName( ) );
             urlSubject.addParameter( Constants.PARAMETER_VIEW, Constants.VIEW_PAGE );
+            urlSubject.addParameter( Constants.PARAMETER_PAGE_NAME, topic.getPageName() );
 
             org.apache.lucene.document.Document docSubject = getDocument( topic, urlSubject.getUrl( ), plugin );
             listDocs.add( docSubject );
@@ -178,6 +178,7 @@ public class WikiIndexer implements SearchIndexer
 
         UrlItem urlSubject = new UrlItem( strPortalUrl );
         urlSubject.addParameter( XPageAppService.PARAM_XPAGE_APP, PLUGIN_NAME );
+        urlSubject.addParameter( Constants.PARAMETER_VIEW, Constants.VIEW_PAGE );
         urlSubject.addParameter( PARAMETER_PAGE_NAME, topic.getPageName( ) );
 
         org.apache.lucene.document.Document docTopic = null;
