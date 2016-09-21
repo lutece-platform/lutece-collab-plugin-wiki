@@ -245,16 +245,17 @@ public class LuteceWikiParser extends WikiParser
                 strAction = "&view=page";
             }
 
-            sb.append( "<a href=\"" );
-            sb.append( AppPathService.getPortalUrl( ) );
-            sb.append( "?page=wiki&page_name=" );
-            sb.append( escapeHTML( unescapeHTML( link [0] ) ) );
-            sb.append( strAction );
-            sb.append( " \" title=\"Wikipedia link\">" );
-            sb.append( strColorBegin );
-            sb.append( escapeHTML( unescapeHTML( ( ( link.length >= 2 ) && !isEmpty( link [1].trim( ) ) ) ? link [1] : strTopicName ) ) );
-            sb.append( strColorEnd );
-            sb.append( "</a>" );
+            sb.append( "<a href=\"" )
+                    .append( AppPathService.getPortalUrl( ) )
+                    .append( "?page=wiki" )
+                    .append( strAction )
+                    .append( "&page_name=" )
+                    .append( escapeHTML( unescapeHTML( link [0] ) ) )
+                    .append( " \" title=\"Wikipedia link\">" )
+                    .append( strColorBegin )
+                    .append( escapeHTML( unescapeHTML( ( ( link.length >= 2 ) && !isEmpty( link [1].trim( ) ) ) ? link [1] : strTopicName ) ) )
+                    .append( strColorEnd )
+                    .append( "</a>" );
         }
     }
 
