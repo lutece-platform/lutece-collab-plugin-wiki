@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="form-group">
-                    <textarea id="wiki" class="form-control" name="content" rows="20" ><#if lastVersion??>${lastVersion.wikiContent}</#if></textarea>
+                    <textarea id="wiki" class="form-control" name="content" rows="20" ><#if lastVersion??>${lastVersion.wikiContent?html}</#if></textarea>
                 </div>
             </div>
             <div id="help" class="col-sm-4 pull-right" style="display:none">
