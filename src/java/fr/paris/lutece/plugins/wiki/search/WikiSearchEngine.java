@@ -86,21 +86,21 @@ public class WikiSearchEngine implements SearchEngine
             IndexReader reader = DirectoryReader.open( IndexationService.getDirectoryIndex( ) );
             searcher = new IndexSearcher( reader );
 
-            BooleanQuery query = new BooleanQuery( );
+            BooleanQuery.Builder queryBuilder = new BooleanQuery.Builder( );
 
             // Contents
             if ( ( strQuery != null ) && !strQuery.equals( "" ) )
             {
-                QueryParser parser = new QueryParser( IndexationService.LUCENE_INDEX_VERSION, SearchItem.FIELD_CONTENTS, IndexationService.getAnalyser( ) );
-                query.add( parser.parse( strQuery ), BooleanClause.Occur.MUST );
+                QueryParser parser = new QueryParser( SearchItem.FIELD_CONTENTS, IndexationService.getAnalyser( ) );
+                queryBuilder.add( parser.parse( strQuery ), BooleanClause.Occur.MUST );
             }
 
             // Type
             Query queryType = new TermQuery( new Term( SearchItem.FIELD_TYPE, WikiIndexer.getDocumentType( ) ) );
-            query.add( queryType, BooleanClause.Occur.MUST );
+            queryBuilder.add( queryType, BooleanClause.Occur.MUST );
 
             // Get results documents
-            TopDocs topDocs = searcher.search( query, LuceneSearchEngine.MAX_RESPONSES );
+            TopDocs topDocs = searcher.search( queryBuilder.build( ), LuceneSearchEngine.MAX_RESPONSES );
             ScoreDoc [ ] hits = topDocs.scoreDocs;
 
             for ( int i = 0; i < hits.length; i++ )
