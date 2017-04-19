@@ -241,9 +241,13 @@ public class WikiIndexer implements SearchIndexer
         TopicVersion latestTopicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ), plugin );
         String strWikiContent = "";
 
-        if ( ( latestTopicVersion != null ) && ( latestTopicVersion.getWikiContent( ) != null ) && !latestTopicVersion.getWikiContent( ).equals( "" ) )
+        if ( latestTopicVersion != null ) 
         {
-            strWikiContent = latestTopicVersion.getWikiContent( );
+            for( String strLocale : latestTopicVersion.getWikiContents().keySet() )
+            {
+                // FIXME manage indexes for multi-language
+                strWikiContent += latestTopicVersion.getWikiContent( strLocale ).getWikiContent();
+            }
         }
 
         String strWikiResult = new LuteceWikiParser( strWikiContent, null ).toString( ) + " " + topic.getPageName( );

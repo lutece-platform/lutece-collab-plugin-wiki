@@ -37,6 +37,7 @@ package fr.paris.lutece.plugins.wiki.service;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceWikiParser;
 import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
+import java.util.Locale;
 
 /**
  * Wiki Service
@@ -87,15 +88,17 @@ public class WikiService extends AbstractCacheableService
      *            tHe page URL
      * @return The HTML code
      */
-    public synchronized String getWikiPage( String strPageName, TopicVersion version, String strPageUrl )
+    public synchronized String getWikiPage( String strPageName, TopicVersion version, String strPageUrl , Locale locale )
     {
         StringBuilder sbKey = new StringBuilder( );
         sbKey.append( strPageName ).append( "[" ).append( version.getIdTopicVersion( ) ).append( "]" );
         sbKey.append( ( ( strPageUrl != null ) ? "[Url]" : "[noUrl]" ) );
+        sbKey.append( ":").append( locale.getLanguage() );
         String strPageContent = (String) getFromCache( sbKey.toString( ) );
         if ( strPageContent == null )
         {
-            strPageContent = new LuteceWikiParser( version.getWikiContent( ), strPageUrl ).toString( );
+            String strContent = version.getWikiContent( locale.getLanguage() ).getWikiContent();
+            strPageContent = new LuteceWikiParser( strContent , strPageUrl ).toString( );
             putInCache( sbKey.toString( ), strPageContent );
         }
         return strPageContent;
@@ -110,9 +113,9 @@ public class WikiService extends AbstractCacheableService
      *            The content version
      * @return The HTML code
      */
-    public synchronized String getWikiPage( String strPageName, TopicVersion version )
+    public synchronized String getWikiPage( String strPageName, TopicVersion version , Locale locale )
     {
-        return getWikiPage( strPageName, version, null );
+        return getWikiPage( strPageName, version, null , locale );
     }
 
     /**
@@ -122,9 +125,9 @@ public class WikiService extends AbstractCacheableService
      *            The version
      * @return The content
      */
-    public static String renderEditor( TopicVersion version )
+    public static String renderEditor( TopicVersion version , Locale locale )
     {
-        return LuteceWikiParser.renderWiki( version.getWikiContent( ) );
+        return LuteceWikiParser.renderWiki( version.getWikiContent( locale.getLanguage() ).getWikiContent() );
     }
 
 }

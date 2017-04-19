@@ -40,6 +40,7 @@ import fr.paris.lutece.plugins.wiki.business.Topic;
 import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.business.TopicVersionHome;
+import fr.paris.lutece.plugins.wiki.business.WikiContent;
 import fr.paris.lutece.plugins.wiki.service.DiffService;
 import fr.paris.lutece.plugins.wiki.service.WikiService;
 import fr.paris.lutece.plugins.wiki.service.WikiUtils;
@@ -276,7 +277,7 @@ public class WikiApp extends MVCApplication
             return redirect( request, url.getUrl( ) );
         }
         fillUserData( version );
-        String strWikiPage = WikiService.instance( ).getWikiPage( strPageName, version, getPageUrl( request ) );
+        String strWikiPage = WikiService.instance( ).getWikiPage( strPageName, version, getPageUrl( request ) , request.getLocale() );
         Map<String, Object> model = new HashMap<String, Object>( );
         model.put( MARK_RESULT, strWikiPage );
         model.put( MARK_TOPIC, topic );
@@ -382,7 +383,8 @@ public class WikiApp extends MVCApplication
         TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ), _plugin );
         if ( topicVersion != null )
         {
-            topicVersion.setWikiContent( WikiService.renderEditor( topicVersion ) );
+            WikiContent content = topicVersion.getWikiContent( request.getLocale().getLanguage() );
+            content.setWikiContent( WikiService.renderEditor( topicVersion , request.getLocale() ) );
         }
         Map<String, Object> model = getModel( );
         model.put( MARK_TOPIC, topic );
@@ -523,8 +525,8 @@ public class WikiApp extends MVCApplication
         TopicVersion newTopicVersion = TopicVersionHome.findByPrimaryKey( nNewTopicVersion, _plugin );
         TopicVersion oldTopicVersion = TopicVersionHome.findByPrimaryKey( nPrevTopicVersion, _plugin );
 
-        String strNewHtml = WikiService.instance( ).getWikiPage( strPageName, newTopicVersion );
-        String strOldHtml = WikiService.instance( ).getWikiPage( strPageName, oldTopicVersion );
+        String strNewHtml = WikiService.instance( ).getWikiPage( strPageName, newTopicVersion, request.getLocale() );
+        String strOldHtml = WikiService.instance( ).getWikiPage( strPageName, oldTopicVersion, request.getLocale() );
         String strDiff = DiffService.getDiff( strOldHtml, strNewHtml );
 
         Map<String, Object> model = new HashMap<String, Object>( );

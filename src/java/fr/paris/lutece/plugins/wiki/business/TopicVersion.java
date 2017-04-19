@@ -34,6 +34,8 @@
 package fr.paris.lutece.plugins.wiki.business;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is the business class for the object TopicVersion
@@ -47,10 +49,10 @@ public class TopicVersion
     private String _strLuteceUserId;
     private Timestamp _strDateEdition;
     private int _nIdTopicVersionPrevious;
-    private String _strWikiContent;
     private String _strUserPseudo;
     private String _strUserAvatarUrl;
     private String _strUserName;
+    private Map<String, WikiContent> _mapWikiContent = new HashMap<>();
 
     /**
      * Returns the IdTopicVersion
@@ -95,24 +97,36 @@ public class TopicVersion
     }
 
     /**
-     * Returns the EditComment
+     * Returns the Wiki Content
      * 
+     * @param strLocale The locale
      * @return The EditComment
      */
-    public String getWikiContent( )
+    public WikiContent getWikiContent( String strLocale )
     {
-        return _strWikiContent;
+        return _mapWikiContent.get( strLocale );
     }
 
     /**
-     * Sets the EditComment
+     * Returns the Wiki Content
      * 
-     * @param strWikiContent
+     * @return The EditComment
+     */
+    public Map<String,WikiContent> getWikiContents()
+    {
+        return _mapWikiContent;
+    }
+
+    /**
+     * Sets the Wiki Content
+     * 
+     * @param strLocale The locale
+     * @param content 
      *            The content
      */
-    public void setWikiContent( String strWikiContent )
+    public void setWikiContent( String strLocale , WikiContent content )
     {
-        _strWikiContent = strWikiContent;
+        _mapWikiContent.put( strLocale, content );
     }
 
     /**

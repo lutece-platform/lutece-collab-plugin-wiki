@@ -51,11 +51,15 @@ public final class TopicVersionDAO implements ITopicVersionDAO
     private static final String SQL_QUERY_DELETE = "DELETE FROM wiki_topic_version WHERE id_topic_version = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE wiki_topic_version SET id_topic_version = ?, edit_comment = ?, id_topic = ?, lutece_user_id = ?, date_edition = ?, id_topic_version_previous = ? WHERE id_topic_version = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous FROM wiki_topic_version";
-    private static final String SQL_QUERY_INSERT_MODIFICATION = "INSERT INTO wiki_topic_version ( id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition,wiki_content, id_topic_version_previous ) VALUES ( ?, ?, ?, ?, ?, ?, ?)";
-    private static final String SQL_QUERY_SELECT_LAST_BY_TOPIC_ID = "SELECT id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous,wiki_content FROM wiki_topic_version WHERE id_topic = ?  ORDER BY  date_edition DESC LIMIT 1";
-    private static final String SQL_QUERY_SELECT_BY_TOPIC_ID = "SELECT id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous,wiki_content FROM wiki_topic_version WHERE id_topic = ?  ORDER BY  date_edition DESC ";
+    private static final String SQL_QUERY_INSERT_MODIFICATION = "INSERT INTO wiki_topic_version ( id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous ) VALUES ( ?, ?, ?, ?, ?, ?, ?)";
+    private static final String SQL_QUERY_SELECT_LAST_BY_TOPIC_ID = "SELECT id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous FROM wiki_topic_version WHERE id_topic = ?  ORDER BY  date_edition DESC LIMIT 1";
+    private static final String SQL_QUERY_SELECT_BY_TOPIC_ID = "SELECT id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous FROM wiki_topic_version WHERE id_topic = ?  ORDER BY  date_edition DESC ";
     private static final String SQL_QUERY_DELETE_BY_TOPIC_ID = "DELETE FROM wiki_topic_version WHERE id_topic = ? ";
 
+    private static final String SQL_QUERY_SELECT_CONTENT = "SELECT id_topic_version, locale, page_title, wiki_content FROM wiki_topic_version_content WHERE id_topic_version = ?";
+    private static final String SQL_QUERY_INSERT_CONTENT = "INSERT INTO wiki_topic_version_content ( id_topic_version, locale, page_title, wiki_content ) VALUES ( ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_DELETE_CONTENT = "DELETE FROM wiki_topic_version_content WHERE id_topic_version = ? ";
+    
     /**
      * Generates a new primary key
      * 
@@ -96,6 +100,18 @@ public final class TopicVersionDAO implements ITopicVersionDAO
 
         daoUtil.executeUpdate( );
         daoUtil.free( );
+        
+        for( String strLocale : topicVersion.getWikiContents().keySet() )
+        {
+            WikiContent content = topicVersion.getWikiContent( strLocale );
+            daoUtil = new DAOUtil( SQL_QUERY_INSERT_CONTENT , plugin );
+            daoUtil.setInt( 1 , topicVersion.getIdTopicVersion( ) );
+            daoUtil.setString( 2 , strLocale );
+            daoUtil.setString( 3 , content.getPageTitle() );
+            daoUtil.setString( 4 , content.getWikiContent() );
+            daoUtil.executeUpdate( );
+            daoUtil.free( );
+        }
     }
 
     /**
@@ -120,7 +136,6 @@ public final class TopicVersionDAO implements ITopicVersionDAO
             topicVersion.setLuteceUserId( daoUtil.getString( 4 ) );
             topicVersion.setDateEdition( daoUtil.getTimestamp( 5 ) );
             topicVersion.setIdTopicVersionPrevious( daoUtil.getInt( 6 ) );
-            topicVersion.setWikiContent( daoUtil.getString( 7 ) );
         }
 
         daoUtil.free( );
@@ -242,7 +257,6 @@ public final class TopicVersionDAO implements ITopicVersionDAO
             topicVersion.setLuteceUserId( daoUtil.getString( 4 ) );
             topicVersion.setDateEdition( daoUtil.getTimestamp( 5 ) );
             topicVersion.setIdTopicVersionPrevious( daoUtil.getInt( 6 ) );
-            topicVersion.setWikiContent( daoUtil.getString( 7 ) );
         }
 
         daoUtil.free( );

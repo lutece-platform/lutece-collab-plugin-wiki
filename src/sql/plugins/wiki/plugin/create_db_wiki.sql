@@ -8,7 +8,6 @@ CREATE TABLE wiki_topic (
 id_topic INT DEFAULT '0' NOT NULL,
 namespace INT DEFAULT '0' NOT NULL,
 page_name VARCHAR(100) DEFAULT '' NOT NULL,
-page_title VARCHAR(100) DEFAULT '' NOT NULL,
 page_view_role VARCHAR(50) DEFAULT '' NOT NULL,
 page_edit_role VARCHAR(50) DEFAULT '' NOT NULL,
   PRIMARY KEY (id_topic)
@@ -29,6 +28,21 @@ CREATE TABLE wiki_topic_version (
   wiki_content LONG VARCHAR,
     PRIMARY KEY (id_topic_version)
 );
+
+
+--
+-- Structure for table wiki_topic_version
+--
+
+DROP TABLE IF EXISTS wiki_topic_version_content;
+CREATE TABLE wiki_topic_version_content (
+  id_topic_version INT DEFAULT '0' NOT NULL,
+  locale VARCHAR(50) DEFAULT '' NOT NULL,
+  page_title VARCHAR(100) DEFAULT '' NOT NULL,
+  wiki_content LONG VARCHAR,
+    PRIMARY KEY (id_topic_version , locale )
+);
+
 
 ---
 -- Structure for table wiki_image --
