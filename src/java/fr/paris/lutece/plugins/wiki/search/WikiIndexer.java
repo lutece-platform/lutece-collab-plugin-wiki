@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,7 @@ public class WikiIndexer implements SearchIndexer
             UrlItem urlSubject = new UrlItem( strPortalUrl );
             urlSubject.addParameter( XPageAppService.PARAM_XPAGE_APP, PLUGIN_NAME );
             urlSubject.addParameter( Constants.PARAMETER_VIEW, Constants.VIEW_PAGE );
-            urlSubject.addParameter( Constants.PARAMETER_PAGE_NAME, topic.getPageName() );
+            urlSubject.addParameter( Constants.PARAMETER_PAGE_NAME, topic.getPageName( ) );
 
             org.apache.lucene.document.Document docSubject = getDocument( topic, urlSubject.getUrl( ), plugin );
             listDocs.add( docSubject );

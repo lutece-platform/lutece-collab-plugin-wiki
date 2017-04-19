@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -245,17 +245,10 @@ public class LuteceWikiParser extends WikiParser
                 strAction = "&view=page";
             }
 
-            sb.append( "<a href=\"" )
-                    .append( AppPathService.getPortalUrl( ) )
-                    .append( "?page=wiki" )
-                    .append( strAction )
-                    .append( "&page_name=" )
-                    .append( escapeHTML( unescapeHTML( link [0] ) ) )
-                    .append( " \" title=\"Wikipedia link\">" )
-                    .append( strColorBegin )
+            sb.append( "<a href=\"" ).append( AppPathService.getPortalUrl( ) ).append( "?page=wiki" ).append( strAction ).append( "&page_name=" )
+                    .append( escapeHTML( unescapeHTML( link [0] ) ) ).append( " \" title=\"Wikipedia link\">" ).append( strColorBegin )
                     .append( escapeHTML( unescapeHTML( ( ( link.length >= 2 ) && !isEmpty( link [1].trim( ) ) ) ? link [1] : strTopicName ) ) )
-                    .append( strColorEnd )
-                    .append( "</a>" );
+                    .append( strColorEnd ).append( "</a>" );
         }
     }
 
