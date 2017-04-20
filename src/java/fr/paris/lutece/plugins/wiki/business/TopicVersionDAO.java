@@ -56,7 +56,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO
     private static final String SQL_QUERY_SELECT_BY_TOPIC_ID = "SELECT id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous FROM wiki_topic_version WHERE id_topic = ?  ORDER BY  date_edition DESC ";
     private static final String SQL_QUERY_DELETE_BY_TOPIC_ID = "DELETE FROM wiki_topic_version WHERE id_topic = ? ";
 
-    private static final String SQL_QUERY_SELECT_CONTENT = "SELECT id_topic_version, locale, page_title, wiki_content FROM wiki_topic_version_content WHERE id_topic_version = ?";
+    private static final String SQL_QUERY_SELECT_CONTENT = "SELECT locale, page_title, wiki_content FROM wiki_topic_version_content WHERE id_topic_version = ?";
     private static final String SQL_QUERY_INSERT_CONTENT = "INSERT INTO wiki_topic_version_content ( id_topic_version, locale, page_title, wiki_content ) VALUES ( ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE_CONTENT = "DELETE FROM wiki_topic_version_content WHERE id_topic_version = ? ";
     
@@ -139,10 +139,31 @@ public final class TopicVersionDAO implements ITopicVersionDAO
         }
 
         daoUtil.free( );
-
+        
+        fillContent( topicVersion );
+        
         return topicVersion;
     }
 
+    private void fillContent( TopicVersion topicVersion )
+    {
+        DAOUtil daoUtil = new DAOUtil(SQL_QUERY_SELECT_CONTENT );
+        daoUtil.setInt( 1, topicVersion.getIdTopicVersion() );
+        daoUtil.executeQuery( );
+        while ( daoUtil.next( ) )
+        {
+            WikiContent content = new WikiContent( );
+            
+            String strLanguage = daoUtil.getString( 1 );
+            content.setPageTitle( daoUtil.getString( 2 ) );
+            content.setWikiContent( daoUtil.getString( 3 ) );
+            topicVersion.setWikiContent( strLanguage, content );
+        }
+        daoUtil.free( );
+        
+    }
+            
+            
     /**
      * {@inheritDoc }
      */
@@ -207,6 +228,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO
             topicVersion.setLuteceUserId( daoUtil.getString( 4 ) );
             topicVersion.setDateEdition( daoUtil.getTimestamp( 5 ) );
             topicVersion.setIdTopicVersionPrevious( daoUtil.getInt( 6 ) );
+            fillContent( topicVersion );
 
             topicVersionList.add( topicVersion );
         }
@@ -261,6 +283,8 @@ public final class TopicVersionDAO implements ITopicVersionDAO
 
         daoUtil.free( );
 
+        fillContent( topicVersion );
+
         return topicVersion;
     }
 
@@ -285,6 +309,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO
             topicVersion.setLuteceUserId( daoUtil.getString( 4 ) );
             topicVersion.setDateEdition( daoUtil.getTimestamp( 5 ) );
             topicVersion.setIdTopicVersionPrevious( daoUtil.getInt( 6 ) );
+            fillContent( topicVersion );
 
             topicVersionList.add( topicVersion );
         }

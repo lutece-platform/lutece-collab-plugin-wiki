@@ -37,7 +37,7 @@
     <!-- Specific plugin CSS stylesheet -->
     <javascript-files>
         <javascript-files-scope>xpage</javascript-files-scope>  
-        <javascript-file>wiki/prettify/run_prettify.js?skin=#dskey{wiki.site_property.prettify.skin}</javascript-file>
+        <javascript-file>wiki/prettify/run_prettify.js?skin=desert</javascript-file>
     </javascript-files>
 
     <!-- XPages parameters -->

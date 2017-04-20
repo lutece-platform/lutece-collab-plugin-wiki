@@ -44,15 +44,37 @@
                     </div>
                 </div>
 
-                <h1>#i18n{wiki.menu.edit} <small> ${topic.pageTitle} [${topic.pageName}]</small></h1>
-
-                <div class="form-group">
-                    <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
-                    <input class="form-control" type="text" name="page_title" value="${topic.pageTitle}" maxlength="100"/>
-                </div>
-
-                <div class="form-group">
-                    <textarea id="wiki" class="form-control" name="content" rows="20" ><#if lastVersion??>${lastVersion.wikiContent?html}</#if></textarea>
+               <h1>#i18n{wiki.menu.edit} <small> [${topic.pageName}] </small></h1>
+               <#assign locales_list = ["fr", "en"]>
+                
+                <ul class="nav nav-tabs" role="tablist" >
+                <#list locales_list as locale>
+                <li role="presentation" <#if locale?index = 0 >class="active" </#if>><a href="#tab-${locale}" data-toggle="tab" >${locale}</a></li>
+                </#list>
+                </ul>
+                    
+                <div class="tab-content">    
+                <#list locales_list as locale>
+                <div id="tab-${locale}" class="tab-pane <#if locale?index = 0 >active</#if>"  role="tabpanel" >
+                    <#if lastVersion.getWikiContent( locale )??>
+                        <div class="form-group">
+                            <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
+                            <input class="form-control" type="text" name="page_title_${locale}" value="${lastVersion.getWikiContent( locale ).pageTitle}" maxlength="100"/>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="wiki-${locale}" class="form-control" name="content_${locale}" rows="20" ><#if lastVersion??>${lastVersion.getWikiContent( locale ).wikiContent?html}</#if></textarea>
+                        </div>
+                    <#else>
+                        <div class="form-group">
+                            <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
+                            <input class="form-control" type="text" name="page_title_${locale}" value="" maxlength="100"/>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="wiki-${locale}" class="form-control" name="content_${locale}" rows="20" ></textarea>
+                        </div>
+                    </#if>
+                </div>    
+                </#list>
                 </div>
             </div>
             <div id="help" class="col-sm-4 pull-right" style="display:none">
@@ -252,7 +274,7 @@
         });  
         select.append(items.join(''));
     };
-    
+
 </script>
 
 
@@ -277,8 +299,12 @@
             }
         });
         
+        
         // MarkitUp
-        $('#wiki').markItUp(myWikiSettings);
+        
+        <#list locales_list as locale>
+        $('#wiki-${locale}').markItUp(myWikiSettings);
+        </#list>
 
         
         // Image upload ajax form
