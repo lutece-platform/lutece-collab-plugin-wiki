@@ -85,19 +85,21 @@ public class WikiService extends AbstractCacheableService
      * @param version
      *            The content version
      * @param strPageUrl
-     *            tHe page URL
+     *            The page URL
+     * @param strLanguage
+     *            The language
      * @return The HTML code
      */
-    public synchronized String getWikiPage( String strPageName, TopicVersion version, String strPageUrl , Locale locale )
+    public synchronized String getWikiPage( String strPageName, TopicVersion version, String strPageUrl , String strLanguage )
     {
         StringBuilder sbKey = new StringBuilder( );
         sbKey.append( strPageName ).append( "[" ).append( version.getIdTopicVersion( ) ).append( "]" );
         sbKey.append( ( ( strPageUrl != null ) ? "[Url]" : "[noUrl]" ) );
-        sbKey.append( ":").append( locale.getLanguage() );
+        sbKey.append( ":").append( strLanguage );
         String strPageContent = (String) getFromCache( sbKey.toString( ) );
         if ( strPageContent == null )
         {
-            String strContent = version.getWikiContent( locale.getLanguage() ).getWikiContent();
+            String strContent = version.getWikiContent( strLanguage ).getWikiContent();
             strPageContent = new LuteceWikiParser( strContent , strPageUrl ).toString( );
             putInCache( sbKey.toString( ), strPageContent );
         }
@@ -110,12 +112,14 @@ public class WikiService extends AbstractCacheableService
      * @param strPageName
      *            The page name
      * @param version
-     *            The content version
+     *            The topic version 
+     * @param strLanguage
+     *            The language
      * @return The HTML code
      */
-    public synchronized String getWikiPage( String strPageName, TopicVersion version , Locale locale )
+    public synchronized String getWikiPage( String strPageName, TopicVersion version , String strLanguage )
     {
-        return getWikiPage( strPageName, version, null , locale );
+        return getWikiPage( strPageName, version, null , strLanguage );
     }
 
     /**

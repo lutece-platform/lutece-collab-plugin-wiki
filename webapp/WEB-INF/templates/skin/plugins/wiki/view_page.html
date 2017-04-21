@@ -22,6 +22,11 @@
             <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=history&page_name=${topic.pageName}" title="#i18n{wiki.menu.history}">
                 <span class="glyphicon glyphicon-list"></span> #i18n{wiki.menu.history}
             </a>
+            <#list languages_list as language>
+            <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&action=changeLanguage&page_name=${topic.pageName}&language=${language}">
+                ${language}
+            </a>
+            </#list>
         </div>
         <div>
            ${result}

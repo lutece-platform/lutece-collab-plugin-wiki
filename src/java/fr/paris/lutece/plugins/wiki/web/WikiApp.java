@@ -85,6 +85,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
@@ -127,6 +128,7 @@ public class WikiApp extends MVCApplication
     private static final String MARK_ADMIN_ROLE = "has_admin_role";
     private static final String MARK_EXTEND = "isExtendInstalled";
     private static final String MARK_LANGUAGES_LIST = "languages_list";
+    private static final String PARAMETER_LANGUAGE = "language";
     private static final String VIEW_HOME = "home";
     private static final String VIEW_LIST = "list";
     private static final String VIEW_PAGE = "page";
@@ -144,6 +146,7 @@ public class WikiApp extends MVCApplication
     private static final String ACTION_REMOVE_VERSION = "removeVersion";
     private static final String ACTION_CONFIRM_REMOVE_VERSION = "confirmRemoveVersion";
     private static final String ACTION_UPLOAD_IMAGE = "uploadImage";
+    private static final String ACTION_CHANGE_LANGUAGE = "changeLanguage";
     private static final String MESSAGE_IMAGE_REMOVED = "wiki.message.image.removed";
     private static final String MESSAGE_CONFIRM_REMOVE_IMAGE = "wiki.message.confirmRemoveImage";
     private static final String MESSAGE_NAME_MANDATORY = "wiki.message.error.name.notNull";
@@ -163,6 +166,7 @@ public class WikiApp extends MVCApplication
     private static final String URL_DEFAULT = "page=wiki";
     private static final String URL_VIEW_PAGE = "page=wiki&amp;view=page&amp;page_name=";
     private static final String PLUGIN_EXTEND = "extend";
+    private static final String ATTRIBUTE_LANGUAGE = "WIKI.LANGUAGE";
     private static final int MODE_VIEW = 0;
     private static final int MODE_EDIT = 1;
 
@@ -279,7 +283,7 @@ public class WikiApp extends MVCApplication
             return redirect( request, url.getUrl( ) );
         }
         fillUserData( version );
-        String strWikiPage = WikiService.instance( ).getWikiPage( strPageName, version, getPageUrl( request ) , request.getLocale() );
+        String strWikiPage = WikiService.instance( ).getWikiPage( strPageName, version, getPageUrl( request ) , getLanguage( request ) );
         Map<String, Object> model = new HashMap<String, Object>( );
         model.put( MARK_RESULT, strWikiPage );
         model.put( MARK_TOPIC, topic );
@@ -287,6 +291,7 @@ public class WikiApp extends MVCApplication
         model.put( MARK_EDIT_ROLE, hasEditRole( request, topic ) );
         model.put( MARK_ADMIN_ROLE, hasAdminRole( request ) );
         model.put( MARK_EXTEND, isExtend( ) );
+        model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages() );
         XPage page = getXPage( TEMPLATE_VIEW_WIKI, request.getLocale( ), model );
         page.setTitle( getPageTitle( topic.getPageTitle( ) ) );
         page.setExtendedPathLabel( getExtendedPath( topic.getPageTitle( ), strPageName ) );
@@ -385,7 +390,7 @@ public class WikiApp extends MVCApplication
         TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ), _plugin );
         if ( topicVersion != null )
         {
-            WikiContent content = topicVersion.getWikiContent( request.getLocale().getLanguage() );
+            WikiContent content = topicVersion.getWikiContent( getLanguage( request ) );
             content.setWikiContent( WikiService.renderEditor( topicVersion , request.getLocale() ) );
         }
         Map<String, Object> model = getModel( );
@@ -539,8 +544,8 @@ public class WikiApp extends MVCApplication
         TopicVersion newTopicVersion = TopicVersionHome.findByPrimaryKey( nNewTopicVersion, _plugin );
         TopicVersion oldTopicVersion = TopicVersionHome.findByPrimaryKey( nPrevTopicVersion, _plugin );
 
-        String strNewHtml = WikiService.instance( ).getWikiPage( strPageName, newTopicVersion, request.getLocale() );
-        String strOldHtml = WikiService.instance( ).getWikiPage( strPageName, oldTopicVersion, request.getLocale() );
+        String strNewHtml = WikiService.instance( ).getWikiPage( strPageName, newTopicVersion, getLanguage( request ) );
+        String strOldHtml = WikiService.instance( ).getWikiPage( strPageName, oldTopicVersion, getLanguage( request ) );
         String strDiff = DiffService.getDiff( strOldHtml, strNewHtml );
 
         Map<String, Object> model = new HashMap<String, Object>( );
@@ -754,6 +759,25 @@ public class WikiApp extends MVCApplication
             }
         }
         return responseJSON( array.toString( ) );
+
+    }
+    
+    /**
+     * Change Language
+     * @param request The HTTP request
+     * @return The page
+     * @throws UserNotSignedException 
+     */
+    @Action( ACTION_CHANGE_LANGUAGE )
+    public XPage doChangeLanguage( HttpServletRequest request ) throws UserNotSignedException
+    {
+        String strLanguage = request.getParameter( PARAMETER_LANGUAGE );
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        setLanguage( request , strLanguage );
+        Map<String, String> mapParameters = new HashMap<String, String>( );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+
+        return redirect( request, VIEW_PAGE, mapParameters );
 
     }
 
@@ -1036,6 +1060,37 @@ public class WikiApp extends MVCApplication
     {
         Plugin plugin = PluginService.getPlugin( PLUGIN_EXTEND );
         return ( ( plugin != null ) && plugin.isInstalled( ) );
+    }
+
+    /**
+     * Store the current selected language in the user's session
+     * @param request The request
+     * @param strLanguage The language
+     */
+    private void setLanguage( HttpServletRequest request , String strLanguage )
+    {
+        HttpSession session = request.getSession( true );
+        session.setAttribute( ATTRIBUTE_LANGUAGE , strLanguage );
+    }
+    
+    /**
+     * Retrieve the current selected language from the user's session
+     * @param request The request
+     * @return The Language
+     */
+    private String getLanguage( HttpServletRequest request )
+    {
+        String strLanguage = null;
+        HttpSession session = request.getSession();
+        if( session != null )
+        {
+            strLanguage = (String) session.getAttribute( ATTRIBUTE_LANGUAGE );
+        }
+        if( strLanguage == null )
+        {
+            strLanguage =  WikiLocaleService.getLanguages().get( 0 );
+        }
+        return strLanguage;
     }
 
 }
