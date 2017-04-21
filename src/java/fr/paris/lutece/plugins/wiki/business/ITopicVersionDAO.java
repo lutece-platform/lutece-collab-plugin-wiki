@@ -53,16 +53,6 @@ public interface ITopicVersionDAO
     void insert( TopicVersion topicVersion, Plugin plugin );
 
     /**
-     * Update the record in the table
-     *
-     * @param topicVersion
-     *            the reference of the TopicVersion
-     * @param plugin
-     *            the Plugin
-     */
-    void store( TopicVersion topicVersion, Plugin plugin );
-
-    /**
      * Delete a record from the table
      *
      * @param nIdTopicVersion
@@ -97,20 +87,11 @@ public interface ITopicVersionDAO
     /**
      * Modify the topic version
      *
-     * @param nTopicId
-     *            The topic ID
-     * @param strUserName
-     *            The username
-     * @param strComment
-     *            The comment
-     * @param strContent
-     *            The content
-     * @param nPreviousVersion
-     *            The previous version
+     * @param topicVersion The topic version
      * @param plugin
      *            The plugin
      */
-    void modifyTopicVersion( int nTopicId, String strUserName, String strComment, String strContent, int nPreviousVersion, Plugin plugin );
+    void addTopicVersion( TopicVersion topicVersion , Plugin plugin );
 
     /**
      * Load last version

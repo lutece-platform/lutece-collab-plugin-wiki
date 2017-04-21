@@ -48,13 +48,13 @@
                <#assign locales_list = ["fr", "en"]>
                 
                 <ul class="nav nav-tabs" role="tablist" >
-                <#list locales_list as locale>
+                <#list languages_list as locale>
                 <li role="presentation" <#if locale?index = 0 >class="active" </#if>><a href="#tab-${locale}" data-toggle="tab" >${locale}</a></li>
                 </#list>
                 </ul>
                     
                 <div class="tab-content">    
-                <#list locales_list as locale>
+                <#list languages_list as locale>
                 <div id="tab-${locale}" class="tab-pane <#if locale?index = 0 >active</#if>"  role="tabpanel" >
                     <#if lastVersion.getWikiContent( locale )??>
                         <div class="form-group">
@@ -236,16 +236,23 @@
 
     function validate()
     {
-        var content = document.getElementById( "wiki").value;
+        <#list languages_list as locale>
+        escapeSpecialChars( 'wiki-${locale}' );
+        </#list>
+        return true;
+    };
+    
+    function escapeSpecialChars( id )
+    {
+        var content = document.getElementById( id ).value;
         content = replaceAll( '<' , '[lt;' , content );
         content = replaceAll( '>' , '[gt;' , content );
         content = replaceAll( '"' , '[quot;' , content );
         content = replaceAll( '&nbsp;' , '[nbsp;' , content );
         content = replaceAll( '&' , '[amp;' , content );
         content = replaceAll( '#' , '[hashmark;' , content );
-        document.getElementById( "wiki").value = content;
-        return true;
-    };
+        document.getElementById( id ).value = content;
+    }
     
     function updateImages()
     {
@@ -301,8 +308,7 @@
         
         
         // MarkitUp
-        
-        <#list locales_list as locale>
+        <#list languages_list as locale>
         $('#wiki-${locale}').markItUp(myWikiSettings);
         </#list>
 

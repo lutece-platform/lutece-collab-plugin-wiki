@@ -70,22 +70,6 @@ public final class TopicVersionHome
     }
 
     /**
-     * Update of the topicVersion which is specified in parameter
-     * 
-     * @param topicVersion
-     *            The instance of the TopicVersion which contains the data to store
-     * @param plugin
-     *            the Plugin
-     * @return The instance of the topicVersion which has been updated
-     */
-    public static TopicVersion update( TopicVersion topicVersion, Plugin plugin )
-    {
-        _dao.store( topicVersion, plugin );
-
-        return topicVersion;
-    }
-
-    /**
      * Remove the topicVersion whose identifier is specified in parameter
      * 
      * @param nTopicVersionId
@@ -143,22 +127,13 @@ public final class TopicVersionHome
     /**
      * Modify the topic's content
      * 
-     * @param nTopicId
-     *            The topic ID
-     * @param strUserName
-     *            The username
-     * @param strComment
-     *            The comment
-     * @param strContent
-     *            The content
-     * @param nPreviousVersion
-     *            The prvious version
+     * @param topicVersion The topic version
      * @param plugin
      *            The plugin
      */
-    public static void modifyContentOnly( int nTopicId, String strUserName, String strComment, String strContent, int nPreviousVersion, Plugin plugin )
+    public static void addTopicVersion( TopicVersion topicVersion , Plugin plugin )
     {
-        _dao.modifyTopicVersion( nTopicId, strUserName, strComment, strContent, nPreviousVersion, plugin );
+        _dao.addTopicVersion( topicVersion , plugin );
     }
 
     /**

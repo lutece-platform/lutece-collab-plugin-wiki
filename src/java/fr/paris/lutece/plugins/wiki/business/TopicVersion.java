@@ -124,7 +124,7 @@ public class TopicVersion
      * @param content 
      *            The content
      */
-    public void setWikiContent( String strLocale , WikiContent content )
+    public void addLocalizedWikiContent( String strLocale , WikiContent content )
     {
         _mapWikiContent.put( strLocale, content );
     }

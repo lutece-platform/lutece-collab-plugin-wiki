@@ -42,6 +42,7 @@ import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.business.TopicVersionHome;
 import fr.paris.lutece.plugins.wiki.business.WikiContent;
 import fr.paris.lutece.plugins.wiki.service.DiffService;
+import fr.paris.lutece.plugins.wiki.service.WikiLocaleService;
 import fr.paris.lutece.plugins.wiki.service.WikiService;
 import fr.paris.lutece.plugins.wiki.service.WikiUtils;
 import fr.paris.lutece.plugins.wiki.utils.auth.WikiAnonymousUser;
@@ -125,6 +126,7 @@ public class WikiApp extends MVCApplication
     private static final String MARK_EDIT_ROLE = "has_edit_role";
     private static final String MARK_ADMIN_ROLE = "has_admin_role";
     private static final String MARK_EXTEND = "isExtendInstalled";
+    private static final String MARK_LANGUAGES_LIST = "languages_list";
     private static final String VIEW_HOME = "home";
     private static final String VIEW_LIST = "list";
     private static final String VIEW_PAGE = "page";
@@ -392,6 +394,7 @@ public class WikiApp extends MVCApplication
         model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList( ) );
         model.put( MARK_EDIT_ROLE, hasEditRole( request, topic ) );
         model.put( MARK_ADMIN_ROLE, hasAdminRole( request ) );
+        model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages() );
 
         ExtendableResourcePluginActionManager.fillModel( request, null, model, Integer.toString( topic.getIdTopic( ) ), Topic.RESOURCE_TYPE );
 
@@ -416,26 +419,37 @@ public class WikiApp extends MVCApplication
     @Action( ACTION_MODIFY_PAGE )
     public XPage doModifyPage( HttpServletRequest request ) throws UserNotSignedException
     {
-        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE );
-        String strContent = request.getParameter( Constants.PARAMETER_CONTENT );
-        String strPreviousVersionId = request.getParameter( Constants.PARAMETER_PREVIOUS_VERSION_ID );
-        String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
-        String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT );
-        String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE );
-        String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE );
-
         LuteceUser user = checkUser( request );
-        int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
-        int nTopicId = Integer.parseInt( strTopicId );
+
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
 
         Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
 
         if ( hasEditRole( request, topic ) )
         {
-            TopicVersionHome.modifyContentOnly( nTopicId, user.getName( ), strComment, strContent, nPreviousVersionId, _plugin );
-
-            topic.setPageTitle( strPageTitle );
+            String strPreviousVersionId = request.getParameter( Constants.PARAMETER_PREVIOUS_VERSION_ID );
+            String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
+            String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT );
+            String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE );
+            String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE );
+            int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
+            int nTopicId = Integer.parseInt( strTopicId );
+            TopicVersion topicVersion = new TopicVersion();
+            topicVersion.setIdTopic( nTopicId );
+            topicVersion.setUserName( user.getName() );
+            topicVersion.setEditComment( strComment );
+            topicVersion.setIdTopicVersionPrevious( nPreviousVersionId );
+            for( String strLanguage : WikiLocaleService.getLanguages() )
+            {
+                String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
+                String strContent = request.getParameter( Constants.PARAMETER_CONTENT + "_" + strLanguage );
+                WikiContent content = new WikiContent();
+                content.setPageTitle( strPageTitle );
+                content.setWikiContent( strContent );
+                topicVersion.addLocalizedWikiContent( strLanguage, content );
+            }
+            
+            TopicVersionHome.addTopicVersion( topicVersion , _plugin );
             topic.setViewRole( strViewRole );
             topic.setEditRole( strEditRole );
             TopicHome.update( topic, _plugin );
