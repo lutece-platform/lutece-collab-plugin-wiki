@@ -33,7 +33,9 @@
  */
 package fr.paris.lutece.plugins.wiki.business;
 
+import fr.paris.lutece.plugins.wiki.web.Constants;
 import fr.paris.lutece.portal.service.plugin.Plugin;
+import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.List;
@@ -45,6 +47,7 @@ public final class ImageHome
 {
     // Static variable pointed at the DAO instance
     private static IImageDAO _dao = (IImageDAO) SpringContextService.getBean( "wiki.imageDAO" );
+    private static Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
 
     /**
      * Private constructor - this class need not be instantiated
@@ -58,15 +61,10 @@ public final class ImageHome
      *
      * @param image
      *            The instance of image which contains the informations to store
-     * @param plugin
-     *            the plugin
-     *
-     *
-     *
      */
-    public static void create( Image image, Plugin plugin )
+    public static void create( Image image )
     {
-        _dao.insert( image, plugin );
+        _dao.insert( image, _plugin );
     }
 
     /**
@@ -74,13 +72,10 @@ public final class ImageHome
      *
      * @param image
      *            The instance of image which contains the informations to update
-     * @param plugin
-     *            the Plugin
-     *
      */
-    public static void update( Image image, Plugin plugin )
+    public static void update( Image image )
     {
-        _dao.store( image, plugin );
+        _dao.store( image, _plugin );
     }
 
     /**
@@ -88,13 +83,10 @@ public final class ImageHome
      *
      * @param image
      *            The instance of image which contains the informations to update
-     * @param plugin
-     *            the Plugin
-     *
      */
-    public static void updateMetadata( Image image, Plugin plugin )
+    public static void updateMetadata( Image image )
     {
-        _dao.storeMetadata( image, plugin );
+        _dao.storeMetadata( image, _plugin );
     }
 
     /**
@@ -102,13 +94,10 @@ public final class ImageHome
      *
      * @param nIdImage
      *            The image key to remove
-     * @param plugin
-     *            the Plugin
-     *
      */
-    public static void remove( int nIdImage, Plugin plugin )
+    public static void remove( int nIdImage )
     {
-        _dao.delete( nIdImage, plugin );
+        _dao.delete( nIdImage, _plugin );
     }
 
     /**
@@ -116,13 +105,10 @@ public final class ImageHome
      *
      * @param nTopicId
      *            The Topic ID
-     * @param plugin
-     *            the Plugin
-     *
      */
-    public static void removeByTopic( int nTopicId, Plugin plugin )
+    public static void removeByTopic( int nTopicId )
     {
-        _dao.deleteByTopic( nTopicId, plugin );
+        _dao.deleteByTopic( nTopicId, _plugin );
     }
 
     // /////////////////////////////////////////////////////////////////////////
@@ -133,25 +119,21 @@ public final class ImageHome
      * 
      * @param nIdImage
      *            the image id
-     * @param plugin
-     *            the plugin
      * @return the Image Object
      */
-    public static Image findByPrimaryKey( int nIdImage, Plugin plugin )
+    public static Image findByPrimaryKey( int nIdImage )
     {
-        return _dao.load( nIdImage, plugin );
+        return _dao.load( nIdImage, _plugin );
     }
 
     /**
      * return the list of all image
      * 
-     * @param plugin
-     *            the plugin
      * @return a list of image
      */
-    public static List<Image> getListImages( Plugin plugin )
+    public static List<Image> getListImages()
     {
-        return _dao.selectAll( plugin );
+        return _dao.selectAll( _plugin );
     }
 
     /**
@@ -159,12 +141,10 @@ public final class ImageHome
      * 
      * @param nIdTopic
      *            The topic ID
-     * @param plugin
-     *            The plugin
      * @return The list
      */
-    public static List<Image> findByTopic( int nIdTopic, Plugin plugin )
+    public static List<Image> findByTopic( int nIdTopic )
     {
-        return _dao.selectByTopicId( nIdTopic, plugin );
+        return _dao.selectByTopicId( nIdTopic, _plugin );
     }
 }

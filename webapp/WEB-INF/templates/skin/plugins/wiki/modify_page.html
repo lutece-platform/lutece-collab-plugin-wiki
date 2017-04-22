@@ -49,14 +49,14 @@
                 
                 <ul class="nav nav-tabs" role="tablist" >
                 <#list languages_list as locale>
-                <li role="presentation" <#if locale?index = 0 >class="active" </#if>><a href="#tab-${locale}" data-toggle="tab" >${locale}</a></li>
+                <li role="presentation" <#if locale_index = 0 >class="active" </#if>><a href="#tab-${locale}" data-toggle="tab" >${locale}</a></li>
                 </#list>
                 </ul>
                     
                 <div class="tab-content">    
                 <#list languages_list as locale>
-                <div id="tab-${locale}" class="tab-pane <#if locale?index = 0 >active</#if>"  role="tabpanel" >
-                    <#if lastVersion.getWikiContent( locale )??>
+                <div id="tab-${locale}" class="tab-pane <#if locale_index = 0 >active</#if>"  role="tabpanel" >
+                    <#if lastVersion?? && lastVersion.getWikiContent( locale )??>
                         <div class="form-group">
                             <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
                             <input class="form-control" type="text" name="page_title_${locale}" value="${lastVersion.getWikiContent( locale ).pageTitle}" maxlength="100"/>

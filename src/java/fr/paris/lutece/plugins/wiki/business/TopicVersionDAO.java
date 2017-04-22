@@ -283,7 +283,10 @@ public final class TopicVersionDAO implements ITopicVersionDAO
 
         daoUtil.free( );
 
-        fillContent( topicVersion );
+        if( topicVersion != null )
+        {
+            fillContent( topicVersion );
+        }
 
         return topicVersion;
     }

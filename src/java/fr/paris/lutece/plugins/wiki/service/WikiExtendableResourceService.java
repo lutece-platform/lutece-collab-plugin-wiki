@@ -78,7 +78,7 @@ public class WikiExtendableResourceService implements IExtendableResourceService
         {
             int nIdTopic = Integer.parseInt( strIdResource );
 
-            return TopicHome.findByPrimaryKey( nIdTopic, _plugin );
+            return TopicHome.findByPrimaryKey( nIdTopic );
         }
         catch( NumberFormatException e )
         {
@@ -112,7 +112,7 @@ public class WikiExtendableResourceService implements IExtendableResourceService
     {
         if ( StringUtils.isNotEmpty( strIdResource ) && StringUtils.isNumeric( strIdResource ) )
         {
-            Topic topic = TopicHome.findByPrimaryKey( Integer.parseInt( strIdResource ), _plugin );
+            Topic topic = TopicHome.findByPrimaryKey( Integer.parseInt( strIdResource ) );
 
             if ( topic != null )
             {

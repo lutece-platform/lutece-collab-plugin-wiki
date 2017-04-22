@@ -128,6 +128,7 @@ public class WikiApp extends MVCApplication
     private static final String MARK_ADMIN_ROLE = "has_admin_role";
     private static final String MARK_EXTEND = "isExtendInstalled";
     private static final String MARK_LANGUAGES_LIST = "languages_list";
+    private static final String MARK_CURRENT_LANGUAGE = "current_language";
     private static final String PARAMETER_LANGUAGE = "language";
     private static final String VIEW_HOME = "home";
     private static final String VIEW_LIST = "list";
@@ -171,7 +172,6 @@ public class WikiApp extends MVCApplication
     private static final int MODE_EDIT = 1;
 
     // private fields
-    private final Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
     private String _strCurrentPageIndex;
     private int _nDefaultItemsPerPage;
     private int _nItemsPerPage;
@@ -273,7 +273,7 @@ public class WikiApp extends MVCApplication
         }
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_VIEW );
-        TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ), _plugin );
+        TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
         if ( version == null )
         {
             UrlItem url = new UrlItem( AppPathService.getBaseUrl( request ) + AppPathService.getPortalUrl( ) );
@@ -292,9 +292,10 @@ public class WikiApp extends MVCApplication
         model.put( MARK_ADMIN_ROLE, hasAdminRole( request ) );
         model.put( MARK_EXTEND, isExtend( ) );
         model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages() );
+        model.put(MARK_CURRENT_LANGUAGE, getLanguage(request));
         XPage page = getXPage( TEMPLATE_VIEW_WIKI, request.getLocale( ), model );
-        page.setTitle( getPageTitle( topic.getPageTitle( ) ) );
-        page.setExtendedPathLabel( getExtendedPath( topic.getPageTitle( ), strPageName ) );
+        page.setTitle( getPageTitle( getTopicTitle( request , topic ) ) );
+        page.setExtendedPathLabel( getExtendedPath( getTopicTitle( request , topic ), strPageName ) );
 
         return page;
     }
@@ -319,17 +320,15 @@ public class WikiApp extends MVCApplication
         String strPageTitle = strPageName;
         strPageName = WikiUtils.normalize( strPageName );
 
-        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName );
         if ( topic == null )
         {
             topic = new Topic( );
             topic.setPageName( strPageName );
-            topic.setPageTitle( strPageTitle );
-
             topic.setViewRole( DatastoreService.getDataValue( DSKEY_ROLE_VIEW, DEFAULT_ROLE_VIEW ) );
             topic.setEditRole( DatastoreService.getDataValue( DSKEY_ROLE_EDIT, DEFAULT_ROLE_EDIT ) );
 
-            TopicHome.create( topic, _plugin );
+            TopicHome.create( topic );
         }
 
         Map<String, String> mapParameters = new HashMap<String, String>( );
@@ -356,7 +355,7 @@ public class WikiApp extends MVCApplication
         checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName );
 
         if ( topic == null )
         {
@@ -387,7 +386,7 @@ public class WikiApp extends MVCApplication
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_EDIT );
-        TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ), _plugin );
+        TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
         if ( topicVersion != null )
         {
             WikiContent content = topicVersion.getWikiContent( getLanguage( request ) );
@@ -404,9 +403,9 @@ public class WikiApp extends MVCApplication
         ExtendableResourcePluginActionManager.fillModel( request, null, model, Integer.toString( topic.getIdTopic( ) ), Topic.RESOURCE_TYPE );
 
         XPage page = getXPage( TEMPLATE_MODIFY_WIKI, request.getLocale( ), model );
-        page.setTitle( getPageTitle( topic.getPageTitle( ) ) );
+        page.setTitle( getPageTitle( getTopicTitle( request , topic ) ) );
 
-        String strPath = topic.getPageTitle( ) + I18nService.getLocalizedString( PROPERTY_PATH_MODIFY, request.getLocale( ) );
+        String strPath = getTopicTitle( request , topic ) + I18nService.getLocalizedString( PROPERTY_PATH_MODIFY, request.getLocale( ) );
         page.setExtendedPathLabel( getExtendedPath( strPath, strPageName ) );
 
         return page;
@@ -428,7 +427,7 @@ public class WikiApp extends MVCApplication
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
 
-        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName );
 
         if ( hasEditRole( request, topic ) )
         {
@@ -454,10 +453,10 @@ public class WikiApp extends MVCApplication
                 topicVersion.addLocalizedWikiContent( strLanguage, content );
             }
             
-            TopicVersionHome.addTopicVersion( topicVersion , _plugin );
+            TopicVersionHome.addTopicVersion( topicVersion );
             topic.setViewRole( strViewRole );
             topic.setEditRole( strEditRole );
-            TopicHome.update( topic, _plugin );
+            TopicHome.update( topic );
         }
 
         Map<String, String> mapParameters = new HashMap<String, String>( );
@@ -481,7 +480,7 @@ public class WikiApp extends MVCApplication
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_VIEW );
         Map<String, Object> model = getModel( );
-        Collection<TopicVersion> listTopicVersions = TopicVersionHome.findAllVersions( topic.getIdTopic( ), _plugin );
+        Collection<TopicVersion> listTopicVersions = TopicVersionHome.findAllVersions( topic.getIdTopic( ) );
 
         fillUsersData( listTopicVersions );
         model.put( MARK_LIST_TOPIC_VERSION, listTopicVersions );
@@ -490,8 +489,8 @@ public class WikiApp extends MVCApplication
         model.put( MARK_ADMIN_ROLE, hasAdminRole( request ) );
 
         XPage page = getXPage( TEMPLATE_VIEW_HISTORY_WIKI, request.getLocale( ), model );
-        page.setTitle( getPageTitle( topic.getPageTitle( ) ) );
-        String strPath = topic.getPageTitle( ) + I18nService.getLocalizedString( PROPERTY_PATH_HISTORY, request.getLocale( ) );
+        page.setTitle( getPageTitle( getTopicTitle( request , topic ) ) );
+        String strPath = getTopicTitle( request , topic ) + I18nService.getLocalizedString( PROPERTY_PATH_HISTORY, request.getLocale( ) );
         page.setExtendedPathLabel( getExtendedPath( strPath, strPageName ) );
 
         return page;
@@ -518,8 +517,8 @@ public class WikiApp extends MVCApplication
 
         XPage page = new XPage( );
         page.setContent( viewTopicDiff( request, strPageName, topic, nNewTopicVersion, nOldTopicVersion ) );
-        page.setTitle( getPageTitle( topic.getPageTitle( ) ) );
-        String strPath = topic.getPageTitle( ) + I18nService.getLocalizedString( PROPERTY_PATH_DIFF, request.getLocale( ) );
+        page.setTitle( getPageTitle( getTopicTitle( request , topic ) ) );
+        String strPath = getTopicTitle( request , topic ) + I18nService.getLocalizedString( PROPERTY_PATH_DIFF, request.getLocale( ) );
         page.setExtendedPathLabel( getExtendedPath( strPath, strPageName ) );
 
         return page;
@@ -541,8 +540,8 @@ public class WikiApp extends MVCApplication
     private String viewTopicDiff( HttpServletRequest request, String strPageName, Topic topic, int nNewTopicVersion, int nOldTopicVersion )
     {
         int nPrevTopicVersion = ( nOldTopicVersion == 0 ) ? nNewTopicVersion : nOldTopicVersion;
-        TopicVersion newTopicVersion = TopicVersionHome.findByPrimaryKey( nNewTopicVersion, _plugin );
-        TopicVersion oldTopicVersion = TopicVersionHome.findByPrimaryKey( nPrevTopicVersion, _plugin );
+        TopicVersion newTopicVersion = TopicVersionHome.findByPrimaryKey( nNewTopicVersion );
+        TopicVersion oldTopicVersion = TopicVersionHome.findByPrimaryKey( nPrevTopicVersion );
 
         String strNewHtml = WikiService.instance( ).getWikiPage( strPageName, newTopicVersion, getLanguage( request ) );
         String strOldHtml = WikiService.instance( ).getWikiPage( strPageName, oldTopicVersion, getLanguage( request ) );
@@ -572,12 +571,12 @@ public class WikiApp extends MVCApplication
         checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName );
 
         // Requires Admin role
         if ( hasAdminRole( request ) )
         {
-            TopicHome.remove( topic.getIdTopic( ), _plugin );
+            TopicHome.remove( topic.getIdTopic( ) );
         }
 
         return redirectWikiRoot( request );
@@ -634,7 +633,7 @@ public class WikiApp extends MVCApplication
             image.setWidth( 500 );
             image.setHeight( 500 );
 
-            ImageHome.create( image, _plugin );
+            ImageHome.create( image );
         }
 
         Map<String, String> mapParameters = new HashMap<String, String>( );
@@ -680,7 +679,7 @@ public class WikiApp extends MVCApplication
     {
         checkUser( request );
         int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_IMAGE_ID ) );
-        ImageHome.remove( nId, _plugin );
+        ImageHome.remove( nId );
         addInfo( MESSAGE_IMAGE_REMOVED, getLocale( request ) );
 
         Map<String, String> mapParameters = new HashMap<String, String>( );
@@ -730,7 +729,7 @@ public class WikiApp extends MVCApplication
         if ( hasAdminRole( request ) )
         {
             int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_TOPIC_VERSION_ID ) );
-            TopicVersionHome.remove( nId, _plugin );
+            TopicVersionHome.remove( nId );
             addInfo( MESSAGE_VERSION_REMOVED, getLocale( request ) );
         }
 
@@ -749,7 +748,7 @@ public class WikiApp extends MVCApplication
         if ( strTopicId != null )
         {
             int nTopicId = Integer.parseInt( strTopicId );
-            List<Image> list = ImageHome.findByTopic( nTopicId, _plugin );
+            List<Image> list = ImageHome.findByTopic( nTopicId );
             for ( Image image : list )
             {
                 JSONObject jsonImage = new JSONObject( );
@@ -827,7 +826,7 @@ public class WikiApp extends MVCApplication
      */
     private Topic getTopic( HttpServletRequest request, String strPageName, int nMode ) throws SiteMessageException
     {
-        Topic topic = TopicHome.findByPrimaryKey( strPageName, _plugin );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName );
 
         if ( topic == null )
         {
@@ -871,7 +870,7 @@ public class WikiApp extends MVCApplication
      */
     private List<Topic> getTopicsForUser( HttpServletRequest request )
     {
-        Collection<Topic> listTopicAll = TopicHome.getTopicsList( _plugin );
+        Collection<Topic> listTopicAll = TopicHome.getTopicsList();
         List<Topic> listTopic;
 
         if ( SecurityService.isAuthenticationEnable( ) )
@@ -1092,5 +1091,27 @@ public class WikiApp extends MVCApplication
         }
         return strLanguage;
     }
+    
+    /**
+     * Return a topic title
+     * @param topic The topic
+     * @param strLanguage The language
+     * @return The title
+     */
+    private String getTopicTitle( Topic topic , String strLanguage )
+    {
+        TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic() );
+        return version.getWikiContent( strLanguage ).getPageTitle();
+    }
 
+    /**
+     * Return a topic title
+     * @param request The HTTP request
+     * @param topic The topic
+     * @return The title
+     */
+    private String getTopicTitle( HttpServletRequest request , Topic topic )
+    {
+        return getTopicTitle( topic, getLanguage(request) );
+    }
 }

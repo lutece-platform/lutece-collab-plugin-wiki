@@ -37,11 +37,11 @@ import fr.paris.lutece.plugins.wiki.business.Topic;
 import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.business.TopicVersionHome;
+import fr.paris.lutece.plugins.wiki.service.WikiLocaleService;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceWikiParser;
 import fr.paris.lutece.plugins.wiki.web.Constants;
 import fr.paris.lutece.portal.service.content.XPageAppService;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
-import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.search.IndexationService;
 import fr.paris.lutece.portal.service.search.SearchIndexer;
@@ -93,9 +93,8 @@ public class WikiIndexer implements SearchIndexer
     {
         List<org.apache.lucene.document.Document> listDocs = new ArrayList<org.apache.lucene.document.Document>( );
         String strPortalUrl = AppPropertiesService.getProperty( PROPERTY_PAGE_BASE_URL );
-        Plugin plugin = PluginService.getPlugin( PLUGIN_NAME );
 
-        Topic topic = TopicHome.findByPrimaryKey( Integer.parseInt( strDocument ), plugin );
+        Topic topic = TopicHome.findByPrimaryKey( Integer.parseInt( strDocument ) );
 
         if ( topic != null )
         {
@@ -104,8 +103,11 @@ public class WikiIndexer implements SearchIndexer
             urlSubject.addParameter( Constants.PARAMETER_VIEW, Constants.VIEW_PAGE );
             urlSubject.addParameter( Constants.PARAMETER_PAGE_NAME, topic.getPageName( ) );
 
-            org.apache.lucene.document.Document docSubject = getDocument( topic, urlSubject.getUrl( ), plugin );
-            listDocs.add( docSubject );
+            for( String strLanguage : WikiLocaleService.getLanguages() )
+            {
+                org.apache.lucene.document.Document docSubject = getDocument( topic, urlSubject.getUrl( ), strLanguage );
+                listDocs.add( docSubject );
+            }
         }
 
         return listDocs;
@@ -135,11 +137,12 @@ public class WikiIndexer implements SearchIndexer
     @Override
     public void indexDocuments( ) throws IOException, InterruptedException, SiteMessageException
     {
-        Plugin plugin = PluginService.getPlugin( PLUGIN_NAME );
-
-        for ( Topic topic : TopicHome.getTopicsList( plugin ) )
+        for ( Topic topic : TopicHome.getTopicsList() )
         {
-            indexTopic( topic );
+            for( String strLanguage : WikiLocaleService.getLanguages() )
+            {
+                indexTopic( topic , strLanguage );
+            }
         }
     }
 
@@ -171,10 +174,9 @@ public class WikiIndexer implements SearchIndexer
      * @throws InterruptedException
      *             if a Thread error occurs
      */
-    public void indexTopic( Topic topic ) throws IOException, InterruptedException
+    public void indexTopic( Topic topic , String strLanguage ) throws IOException, InterruptedException
     {
         String strPortalUrl = AppPropertiesService.getProperty( PROPERTY_PAGE_BASE_URL );
-        Plugin plugin = PluginService.getPlugin( PLUGIN_NAME );
 
         UrlItem urlSubject = new UrlItem( strPortalUrl );
         urlSubject.addParameter( XPageAppService.PARAM_XPAGE_APP, PLUGIN_NAME );
@@ -185,7 +187,7 @@ public class WikiIndexer implements SearchIndexer
 
         try
         {
-            docTopic = getDocument( topic, urlSubject.getUrl( ), plugin );
+            docTopic = getDocument( topic, urlSubject.getUrl( ) , strLanguage );
         }
         catch( Exception e )
         {
@@ -206,15 +208,13 @@ public class WikiIndexer implements SearchIndexer
      *            The topic
      * @param strUrl
      *            The URL
-     * @param plugin
-     *            The plugin
-     * @return The document
+      * @return The document
      * @throws IOException
      *             if an IO error occurs
      * @throws InterruptedException
      *             if a Thread error occurs
      */
-    public static org.apache.lucene.document.Document getDocument( Topic topic, String strUrl, Plugin plugin ) throws IOException, InterruptedException
+    public static org.apache.lucene.document.Document getDocument( Topic topic, String strUrl, String strLanguage ) throws IOException, InterruptedException
     {
         // make a new, empty document
         org.apache.lucene.document.Document doc = new org.apache.lucene.document.Document( );
@@ -238,7 +238,7 @@ public class WikiIndexer implements SearchIndexer
         String strIdSubject = String.valueOf( topic.getPageName( ) );
         doc.add( new Field( SearchItem.FIELD_UID, strIdSubject + "_" + SHORT_NAME_TOPIC, ftNotStored ) );
 
-        TopicVersion latestTopicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ), plugin );
+        TopicVersion latestTopicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
         String strWikiContent = "";
 
         if ( latestTopicVersion != null ) 
@@ -250,7 +250,8 @@ public class WikiIndexer implements SearchIndexer
             }
         }
 
-        String strWikiResult = new LuteceWikiParser( strWikiContent, null ).toString( ) + " " + topic.getPageName( );
+        String strWikiResult = new LuteceWikiParser( strWikiContent, null, strLanguage ).toString( ) + " " + topic.getPageName( );
+
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, TextField.TYPE_NOT_STORED ) );
 
         String strDate = DateTools.dateToString( latestTopicVersion.getDateEdition( ), DateTools.Resolution.DAY );
@@ -258,7 +259,7 @@ public class WikiIndexer implements SearchIndexer
 
         // Add the subject name as a separate Text field, so that it can be
         // searched separately.
-        doc.add( new Field( SearchItem.FIELD_TITLE, topic.getPageTitle( ), ft ) );
+        doc.add( new Field( SearchItem.FIELD_TITLE, latestTopicVersion.getWikiContent( strLanguage ).getPageTitle(), ft ) );
 
         doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType( ), ft ) );
 

@@ -23,9 +23,13 @@
                 <span class="glyphicon glyphicon-list"></span> #i18n{wiki.menu.history}
             </a>
             <#list languages_list as language>
-            <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&action=changeLanguage&page_name=${topic.pageName}&language=${language}">
-                ${language}
-            </a>
+              <#if language = current_language >
+                <span class="label label-info">${language}</span>
+              <#else>
+                    <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&action=changeLanguage&page_name=${topic.pageName}&language=${language}">
+                        ${language}
+                    </a>
+              </#if>
             </#list>
         </div>
         <div>

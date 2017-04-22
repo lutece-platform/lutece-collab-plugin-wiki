@@ -33,7 +33,9 @@
  */
 package fr.paris.lutece.plugins.wiki.business;
 
+import fr.paris.lutece.plugins.wiki.web.Constants;
 import fr.paris.lutece.portal.service.plugin.Plugin;
+import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.Collection;
@@ -45,6 +47,7 @@ public final class TopicHome
 {
     // Static variable pointed at the DAO instance
     private static ITopicDAO _dao = (ITopicDAO) SpringContextService.getBean( "wiki.topicDAO" );
+    private static Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
 
     /**
      * Private constructor - this class need not be instantiated
@@ -58,13 +61,11 @@ public final class TopicHome
      * 
      * @param topic
      *            The instance of the Topic which contains the informations to store
-     * @param plugin
-     *            the Plugin
      * @return The instance of topic which has been created with its primary key.
      */
-    public static Topic create( Topic topic, Plugin plugin )
+    public static Topic create( Topic topic )
     {
-        _dao.insert( topic, plugin );
+        _dao.insert( topic, _plugin );
 
         return topic;
     }
@@ -74,13 +75,11 @@ public final class TopicHome
      * 
      * @param topic
      *            The instance of the Topic which contains the data to store
-     * @param plugin
-     *            the Plugin
      * @return The instance of the topic which has been updated
      */
-    public static Topic update( Topic topic, Plugin plugin )
+    public static Topic update( Topic topic )
     {
-        _dao.store( topic, plugin );
+        _dao.store( topic, _plugin );
 
         return topic;
     }
@@ -90,14 +89,12 @@ public final class TopicHome
      * 
      * @param nTopicId
      *            The topic Id
-     * @param plugin
-     *            the Plugin
-     */
-    public static void remove( int nTopicId, Plugin plugin )
+    */
+    public static void remove( int nTopicId )
     {
-        TopicVersionHome.removeByTopic( nTopicId, plugin );
-        ImageHome.removeByTopic( nTopicId, plugin );
-        _dao.delete( nTopicId, plugin );
+        TopicVersionHome.removeByTopic( nTopicId );
+        ImageHome.removeByTopic( nTopicId );
+        _dao.delete( nTopicId, _plugin );
     }
 
     // /////////////////////////////////////////////////////////////////////////
@@ -108,13 +105,11 @@ public final class TopicHome
      * 
      * @param nKey
      *            The topic primary key
-     * @param plugin
-     *            the Plugin
      * @return an instance of Topic
      */
-    public static Topic findByPrimaryKey( int nKey, Plugin plugin )
+    public static Topic findByPrimaryKey( int nKey )
     {
-        return _dao.load( nKey, plugin );
+        return _dao.load( nKey, _plugin );
     }
 
     /**
@@ -122,24 +117,20 @@ public final class TopicHome
      * 
      * @param strTopicName
      *            The topic name
-     * @param plugin
-     *            The plugin
      * @return The topic
      */
-    public static Topic findByPrimaryKey( String strTopicName, Plugin plugin )
+    public static Topic findByPrimaryKey( String strTopicName )
     {
-        return _dao.load( strTopicName, plugin );
+        return _dao.load( strTopicName, _plugin );
     }
 
     /**
      * Load the data of all the topic objects and returns them in form of a collection
      * 
-     * @param plugin
-     *            the Plugin
-     * @return the collection which contains the data of all the topic objects
+    * @return the collection which contains the data of all the topic objects
      */
-    public static Collection<Topic> getTopicsList( Plugin plugin )
+    public static Collection<Topic> getTopicsList()
     {
-        return _dao.selectTopicsList( plugin );
+        return _dao.selectTopicsList( _plugin );
     }
 }

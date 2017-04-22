@@ -45,8 +45,6 @@ public class TopicBusinessTest extends LuteceTestCase
     private final static int NAMESPACE2 = 2;
     private final static String PAGENAME1 = "PageName1";
     private final static String PAGENAME2 = "PageName2";
-    private final static String PAGETITLE1 = "PageTitle1";
-    private final static String PAGETITLE2 = "PageTitle2";
     private final static String VIEWROLE1 = "VIEWROLE1";
     private final static String VIEWROLE2 = "VIEWROLE2";
     private final static String EDITROLE1 = "EDITROLE1";
@@ -61,18 +59,16 @@ public class TopicBusinessTest extends LuteceTestCase
         topic.setIdTopic( IDTOPIC1 );
         topic.setNamespace( NAMESPACE1 );
         topic.setPageName( PAGENAME1 );
-        topic.setPageTitle( PAGETITLE1 );
         topic.setViewRole( VIEWROLE1 );
         topic.setEditRole( EDITROLE1 );
 
         // Create test
-        TopicHome.create( topic, plugin );
+        TopicHome.create( topic );
 
-        Topic topicStored = TopicHome.findByPrimaryKey( topic.getIdTopic( ), plugin );
+        Topic topicStored = TopicHome.findByPrimaryKey( topic.getIdTopic( ) );
         assertEquals( topicStored.getIdTopic( ), topic.getIdTopic( ) );
         assertEquals( topicStored.getNamespace( ), topic.getNamespace( ) );
         assertEquals( topicStored.getPageName( ), topic.getPageName( ) );
-        assertEquals( topicStored.getPageTitle( ), topic.getPageTitle( ) );
         assertEquals( topicStored.getViewRole( ), topic.getViewRole( ) );
         assertEquals( topicStored.getEditRole( ), topic.getEditRole( ) );
 
@@ -80,25 +76,23 @@ public class TopicBusinessTest extends LuteceTestCase
         topic.setIdTopic( IDTOPIC2 );
         topic.setNamespace( NAMESPACE2 );
         topic.setPageName( PAGENAME2 );
-        topic.setPageTitle( PAGETITLE2 );
         topic.setViewRole( VIEWROLE2 );
         topic.setEditRole( EDITROLE2 );
 
-        TopicHome.update( topic, plugin );
-        topicStored = TopicHome.findByPrimaryKey( topic.getIdTopic( ), plugin );
+        TopicHome.update( topic );
+        topicStored = TopicHome.findByPrimaryKey( topic.getIdTopic( ) );
         assertEquals( topicStored.getIdTopic( ), topic.getIdTopic( ) );
         assertEquals( topicStored.getNamespace( ), topic.getNamespace( ) );
         assertEquals( topicStored.getPageName( ), topic.getPageName( ) );
-        assertEquals( topicStored.getPageTitle( ), topic.getPageTitle( ) );
         assertEquals( topicStored.getViewRole( ), topic.getViewRole( ) );
         assertEquals( topicStored.getEditRole( ), topic.getEditRole( ) );
 
         // List test
-        TopicHome.getTopicsList( plugin );
+        TopicHome.getTopicsList();
 
         // Delete test
-        TopicHome.remove( topic.getIdTopic( ), plugin );
-        topicStored = TopicHome.findByPrimaryKey( topic.getIdTopic( ), plugin );
+        TopicHome.remove( topic.getIdTopic( ) );
+        topicStored = TopicHome.findByPrimaryKey( topic.getIdTopic( ) );
         assertNull( topicStored );
     }
 }

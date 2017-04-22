@@ -47,7 +47,6 @@ public class Topic implements IExtendableResource
     private int _nIdTopic;
     private int _nNamespace;
     private String _strPageName;
-    private String _strPageTitle;
     private String _strViewRole = Page.ROLE_NONE;
     private String _strEditRole = Page.ROLE_NONE;
 
@@ -112,27 +111,6 @@ public class Topic implements IExtendableResource
     public void setPageName( String strPageName )
     {
         _strPageName = strPageName;
-    }
-
-    /**
-     * Returns the PageTitle
-     * 
-     * @return The PageTitle
-     */
-    public String getPageTitle( )
-    {
-        return _strPageTitle;
-    }
-
-    /**
-     * Sets the PageTitle
-     * 
-     * @param strPageTitle
-     *            The PageTitle
-     */
-    public void setPageTitle( String strPageTitle )
-    {
-        _strPageTitle = strPageTitle;
     }
 
     /**

@@ -35,9 +35,9 @@ package fr.paris.lutece.plugins.wiki.service.parser;
 
 import fr.paris.lutece.plugins.wiki.business.Topic;
 import fr.paris.lutece.plugins.wiki.business.TopicHome;
+import fr.paris.lutece.plugins.wiki.business.TopicVersion;
+import fr.paris.lutece.plugins.wiki.business.TopicVersionHome;
 import fr.paris.lutece.plugins.wiki.web.Constants;
-import fr.paris.lutece.portal.service.plugin.Plugin;
-import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPathService;
@@ -59,6 +59,7 @@ public class LuteceWikiParser extends WikiParser
     private static final String BEAN_PARSER_OPTIONS = "wiki.parser.options";
 
     private String _strPageUrl;
+    private String _strLanguage;
     private static WikiMacroService _macroService = new WikiMacroService( );
     private static ParserOptions _options = SpringContextService.getBean( BEAN_PARSER_OPTIONS );
 
@@ -69,14 +70,15 @@ public class LuteceWikiParser extends WikiParser
      *            The wiki text
      * @param strPageUrl
      */
-    public LuteceWikiParser( String strWikiText, String strPageUrl )
+    public LuteceWikiParser( String strWikiText, String strPageUrl, String strLanguage )
     {
         super( );
         HEADING_LEVEL_SHIFT = 0;
+        _strPageUrl = strPageUrl;
+        _strLanguage = strLanguage;
         setTableClass( _options.getTableClass( ) );
         setTocClass( _options.getTocClass( ) );
         parse( strWikiText );
-        _strPageUrl = strPageUrl;
     }
 
     private String renderSpecific( String strHTML )
@@ -107,18 +109,6 @@ public class LuteceWikiParser extends WikiParser
         strRender = strRender.replaceAll( "\\[amp;", "&" );
         strRender = strRender.replaceAll( "\\[hashmark;", "#" );
         return strRender;
-    }
-
-    /**
-     * Render XHTML from wiki text
-     * 
-     * @param strWikiText
-     *            The wiki text
-     * @return The XHTML code
-     */
-    public static String renderXHTML( String strWikiText )
-    {
-        return new LuteceWikiParser( strWikiText, null ).toString( );
     }
 
     @Override
@@ -226,8 +216,7 @@ public class LuteceWikiParser extends WikiParser
         }
         else
         {
-            Plugin plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
-            Topic topic = TopicHome.findByPrimaryKey( escapeHTML( escapeURL( link [0] ) ), plugin );
+            Topic topic = TopicHome.findByPrimaryKey( escapeHTML( escapeURL( link [0] ) ) );
             String strAction;
             String strColorBegin = "";
             String strColorEnd = "";
@@ -241,7 +230,8 @@ public class LuteceWikiParser extends WikiParser
             }
             else
             {
-                strTopicName = topic.getPageTitle( );
+                TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic() );
+                strTopicName = version.getWikiContent( _strLanguage ).getPageTitle();
                 strAction = "&view=page";
             }
 

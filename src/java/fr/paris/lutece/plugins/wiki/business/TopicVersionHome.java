@@ -33,7 +33,9 @@
  */
 package fr.paris.lutece.plugins.wiki.business;
 
+import fr.paris.lutece.plugins.wiki.web.Constants;
 import fr.paris.lutece.portal.service.plugin.Plugin;
+import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.Collection;
@@ -45,6 +47,7 @@ public final class TopicVersionHome
 {
     // Static variable pointed at the DAO instance
     private static ITopicVersionDAO _dao = (ITopicVersionDAO) SpringContextService.getBean( "wiki.topicVersionDAO" );
+    private static Plugin _plugin = PluginService.getPlugin( Constants.PLUGIN_NAME );
 
     /**
      * Private constructor - this class need not be instantiated
@@ -58,13 +61,11 @@ public final class TopicVersionHome
      * 
      * @param topicVersion
      *            The instance of the TopicVersion which contains the informations to store
-     * @param plugin
-     *            the Plugin
      * @return The instance of topicVersion which has been created with its primary key.
      */
-    public static TopicVersion create( TopicVersion topicVersion, Plugin plugin )
+    public static TopicVersion create( TopicVersion topicVersion )
     {
-        _dao.insert( topicVersion, plugin );
+        _dao.insert( topicVersion, _plugin );
 
         return topicVersion;
     }
@@ -74,12 +75,10 @@ public final class TopicVersionHome
      * 
      * @param nTopicVersionId
      *            The topicVersion Id
-     * @param plugin
-     *            the Plugin
      */
-    public static void remove( int nTopicVersionId, Plugin plugin )
+    public static void remove( int nTopicVersionId )
     {
-        _dao.delete( nTopicVersionId, plugin );
+        _dao.delete( nTopicVersionId, _plugin );
     }
 
     /**
@@ -87,12 +86,10 @@ public final class TopicVersionHome
      * 
      * @param nTopicId
      *            The Topic Id
-     * @param plugin
-     *            the Plugin
      */
-    static void removeByTopic( int nTopicId, Plugin plugin )
+    static void removeByTopic( int nTopicId )
     {
-        _dao.deleteByTopic( nTopicId, plugin );
+        _dao.deleteByTopic( nTopicId, _plugin );
     }
 
     // /////////////////////////////////////////////////////////////////////////
@@ -103,37 +100,31 @@ public final class TopicVersionHome
      * 
      * @param nKey
      *            The topicVersion primary key
-     * @param plugin
-     *            the Plugin
      * @return an instance of TopicVersion
      */
-    public static TopicVersion findByPrimaryKey( int nKey, Plugin plugin )
+    public static TopicVersion findByPrimaryKey( int nKey )
     {
-        return _dao.load( nKey, plugin );
+        return _dao.load( nKey, _plugin );
     }
 
     /**
      * Load the data of all the topicVersion objects and returns them in form of a collection
      * 
-     * @param plugin
-     *            the Plugin
      * @return the collection which contains the data of all the topicVersion objects
      */
-    public static Collection<TopicVersion> getTopicVersionsList( Plugin plugin )
+    public static Collection<TopicVersion> getTopicVersionsList()
     {
-        return _dao.selectTopicVersionsList( plugin );
+        return _dao.selectTopicVersionsList( _plugin );
     }
 
     /**
      * Modify the topic's content
      * 
      * @param topicVersion The topic version
-     * @param plugin
-     *            The plugin
      */
-    public static void addTopicVersion( TopicVersion topicVersion , Plugin plugin )
+    public static void addTopicVersion( TopicVersion topicVersion  )
     {
-        _dao.addTopicVersion( topicVersion , plugin );
+        _dao.addTopicVersion( topicVersion , _plugin );
     }
 
     /**
@@ -141,13 +132,11 @@ public final class TopicVersionHome
      * 
      * @param idTopic
      *            The topic id
-     * @param plugin
-     *            The plugin
-     * @return The topic version
+    * @return The topic version
      */
-    public static TopicVersion findLastVersion( int idTopic, Plugin plugin )
+    public static TopicVersion findLastVersion( int idTopic )
     {
-        return _dao.loadLastVersion( idTopic, plugin );
+        return _dao.loadLastVersion( idTopic, _plugin );
     }
 
     /**
@@ -155,12 +144,10 @@ public final class TopicVersionHome
      * 
      * @param idTopic
      *            The topic id
-     * @param plugin
-     *            The plugin
      * @return A collection of topic version
      */
-    public static Collection<TopicVersion> findAllVersions( int idTopic, Plugin plugin )
+    public static Collection<TopicVersion> findAllVersions( int idTopic )
     {
-        return _dao.loadAllVersions( idTopic, plugin );
+        return _dao.loadAllVersions( idTopic, _plugin );
     }
 }

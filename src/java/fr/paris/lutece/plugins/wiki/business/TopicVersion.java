@@ -99,12 +99,12 @@ public class TopicVersion
     /**
      * Returns the Wiki Content
      * 
-     * @param strLocale The locale
+     * @param strLanguage The locale
      * @return The EditComment
      */
-    public WikiContent getWikiContent( String strLocale )
+    public WikiContent getWikiContent( String strLanguage )
     {
-        return _mapWikiContent.get( strLocale );
+        return _mapWikiContent.get( strLanguage );
     }
 
     /**
