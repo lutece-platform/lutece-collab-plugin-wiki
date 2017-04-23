@@ -131,7 +131,7 @@ public final class ImageHome
      * 
      * @return a list of image
      */
-    public static List<Image> getListImages()
+    public static List<Image> getListImages( )
     {
         return _dao.selectAll( _plugin );
     }

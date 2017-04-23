@@ -58,13 +58,6 @@ public class WikiDiff implements Serializable
     private List<WikiDiff> _listSubDiffs;
 
     /**
-     * Constructor
-     */
-    public WikiDiff( )
-    {
-    }
-
-    /**
      *
      * @param strOldText
      *            Old Text

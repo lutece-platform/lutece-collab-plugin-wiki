@@ -89,7 +89,7 @@ public final class TopicHome
      * 
      * @param nTopicId
      *            The topic Id
-    */
+     */
     public static void remove( int nTopicId )
     {
         TopicVersionHome.removeByTopic( nTopicId );
@@ -127,9 +127,9 @@ public final class TopicHome
     /**
      * Load the data of all the topic objects and returns them in form of a collection
      * 
-    * @return the collection which contains the data of all the topic objects
+     * @return the collection which contains the data of all the topic objects
      */
-    public static Collection<Topic> getTopicsList()
+    public static Collection<Topic> getTopicsList( )
     {
         return _dao.selectTopicsList( _plugin );
     }

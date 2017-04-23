@@ -83,8 +83,8 @@ public class WikiSearchEngine implements SearchEngine
 
         try
         {
-            IndexReader ir = DirectoryReader.open( IndexationService.getDirectoryIndex( ) );
-            searcher = new IndexSearcher( ir );
+            IndexReader reader = DirectoryReader.open( IndexationService.getDirectoryIndex( ) );
+            searcher = new IndexSearcher( reader );
 
             BooleanQuery query = new BooleanQuery( );
 
@@ -107,8 +107,8 @@ public class WikiSearchEngine implements SearchEngine
             {
                 int docId = hits [i].doc;
                 Document document = searcher.doc( docId );
-                SearchItem si = new SearchItem( document );
-                listResults.add( si );
+                SearchItem item = new SearchItem( document );
+                listResults.add( item );
             }
         }
         catch( Exception e )

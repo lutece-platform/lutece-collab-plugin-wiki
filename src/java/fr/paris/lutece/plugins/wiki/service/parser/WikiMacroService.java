@@ -53,18 +53,21 @@ public class WikiMacroService
     /**
      * Service Initialization
      */
-    private synchronized void init( )
+    private void init( )
     {
-        List<WikiMacro> listMacros = SpringContextService.getBeansOfType( WikiMacro.class );
-        _mapMacros = new HashMap<String, WikiMacro>( );
-        AppLogService.info( "Wiki - initializing macros ..." );
-        for ( WikiMacro macro : listMacros )
+        synchronized( WikiMacroService.class )
         {
-            _mapMacros.put( macro.getName( ), macro );
-            AppLogService.info( "Wiki - New macro '" + macro.getName( ) + "' registered" );
+            List<WikiMacro> listMacros = SpringContextService.getBeansOfType( WikiMacro.class );
+            _mapMacros = new HashMap<String, WikiMacro>( );
+            AppLogService.info( "Wiki - initializing macros ..." );
+            for ( WikiMacro macro : listMacros )
+            {
+                _mapMacros.put( macro.getName( ), macro );
+                AppLogService.info( "Wiki - New macro '" + macro.getName( ) + "' registered" );
+            }
+            _macroDefault = SpringContextService.getBean( BEAN_MACRO_DEFAULT );
+            _bInit = true;
         }
-        _macroDefault = SpringContextService.getBean( BEAN_MACRO_DEFAULT );
-        _bInit = true;
     }
 
     /**
@@ -101,7 +104,7 @@ public class WikiMacroService
      */
     private String getMacroName( String strText )
     {
-        int nPos = strText.indexOf( "|" );
+        int nPos = strText.indexOf( '|' );
         if ( nPos > 0 )
         {
             return strText.substring( 0, nPos ).trim( ).toLowerCase( );
@@ -118,7 +121,7 @@ public class WikiMacroService
      */
     private String getMacroTextValue( String strText )
     {
-        int nPos = strText.indexOf( "|" );
+        int nPos = strText.indexOf( '|' );
         if ( nPos > 0 )
         {
             return strText.substring( nPos + 1 );

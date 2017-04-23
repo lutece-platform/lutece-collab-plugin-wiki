@@ -87,11 +87,12 @@ public interface ITopicVersionDAO
     /**
      * Modify the topic version
      *
-     * @param topicVersion The topic version
+     * @param topicVersion
+     *            The topic version
      * @param plugin
      *            The plugin
      */
-    void addTopicVersion( TopicVersion topicVersion , Plugin plugin );
+    void addTopicVersion( TopicVersion topicVersion, Plugin plugin );
 
     /**
      * Load last version

@@ -81,9 +81,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import net.sf.json.JSONArray;
@@ -189,6 +189,11 @@ public class WikiApp extends MVCApplication
         return redirectWikiRoot( request );
     }
 
+    /**
+     * View List of all pages
+     * @param request The HTTP request
+     * @return The page
+     */
     @View( VIEW_LIST )
     public XPage getTopicsList( HttpServletRequest request )
     {
@@ -229,7 +234,7 @@ public class WikiApp extends MVCApplication
         model.put( MARK_RESULT, paginator.getPageItems( ) );
         model.put( MARK_QUERY, strQuery );
         model.put( MARK_PAGINATOR, paginator );
-        model.put( MARK_NB_ITEMS_PER_PAGE, "" + _nItemsPerPage );
+        model.put( MARK_NB_ITEMS_PER_PAGE, String.valueOf( _nItemsPerPage ) );
 
         XPage page = getXPage( TEMPLATE_SEARCH_WIKI, request.getLocale( ), model );
         page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_SEARCH, request.getLocale( ) ) ) );
@@ -267,7 +272,7 @@ public class WikiApp extends MVCApplication
     @View( VIEW_PAGE )
     public XPage view( HttpServletRequest request ) throws SiteMessageException
     {
-        if ( SecurityService.isAuthenticationEnable( ) == false )
+        if ( !SecurityService.isAuthenticationEnable( ) )
         {
             SiteMessageService.setMessage( request, MESSAGE_AUTHENTICATION_REQUIRED, SiteMessage.TYPE_ERROR );
         }
@@ -283,19 +288,19 @@ public class WikiApp extends MVCApplication
             return redirect( request, url.getUrl( ) );
         }
         fillUserData( version );
-        String strWikiPage = WikiService.instance( ).getWikiPage( strPageName, version, getPageUrl( request ) , getLanguage( request ) );
-        Map<String, Object> model = new HashMap<String, Object>( );
+        String strWikiPage = WikiService.instance( ).getWikiPage( strPageName, version, getPageUrl( request ), getLanguage( request ) );
+        Map<String, Object> model = getModel( );
         model.put( MARK_RESULT, strWikiPage );
         model.put( MARK_TOPIC, topic );
         model.put( MARK_LATEST_VERSION, version );
         model.put( MARK_EDIT_ROLE, hasEditRole( request, topic ) );
         model.put( MARK_ADMIN_ROLE, hasAdminRole( request ) );
         model.put( MARK_EXTEND, isExtend( ) );
-        model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages() );
-        model.put(MARK_CURRENT_LANGUAGE, getLanguage(request));
+        model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages( ) );
+        model.put( MARK_CURRENT_LANGUAGE, getLanguage( request ) );
         XPage page = getXPage( TEMPLATE_VIEW_WIKI, request.getLocale( ), model );
-        page.setTitle( getPageTitle( getTopicTitle( request , topic ) ) );
-        page.setExtendedPathLabel( getExtendedPath( getTopicTitle( request , topic ), strPageName ) );
+        page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
+        page.setExtendedPathLabel( getExtendedPath( getTopicTitle( request, topic ), strPageName ) );
 
         return page;
     }
@@ -331,7 +336,7 @@ public class WikiApp extends MVCApplication
             TopicHome.create( topic );
         }
 
-        Map<String, String> mapParameters = new HashMap<String, String>( );
+        Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
         mapParameters.put( Constants.PARAMETER_PAGE_TITLE, URLEncoder.encode( strPageTitle, "UTF-8" ) );
 
@@ -361,7 +366,7 @@ public class WikiApp extends MVCApplication
         {
             return redirect( request, VIEW_HOME );
         }
-        Map<String, String> mapParameters = new HashMap<String, String>( );
+        Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, URLEncoder.encode( strPageName, "UTF-8" ) );
 
         if ( !hasEditRole( request, topic ) )
@@ -389,8 +394,9 @@ public class WikiApp extends MVCApplication
         TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
         if ( topicVersion != null )
         {
-            WikiContent content = topicVersion.getWikiContent( getLanguage( request ) );
-            content.setWikiContent( WikiService.renderEditor( topicVersion , request.getLocale() ) );
+            String strLanguage = getLanguage( request );
+            WikiContent content = topicVersion.getWikiContent( strLanguage );
+            content.setWikiContent( WikiService.renderEditor( topicVersion, strLanguage ) );
         }
         Map<String, Object> model = getModel( );
         model.put( MARK_TOPIC, topic );
@@ -398,14 +404,14 @@ public class WikiApp extends MVCApplication
         model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList( ) );
         model.put( MARK_EDIT_ROLE, hasEditRole( request, topic ) );
         model.put( MARK_ADMIN_ROLE, hasAdminRole( request ) );
-        model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages() );
+        model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages( ) );
 
         ExtendableResourcePluginActionManager.fillModel( request, null, model, Integer.toString( topic.getIdTopic( ) ), Topic.RESOURCE_TYPE );
 
         XPage page = getXPage( TEMPLATE_MODIFY_WIKI, request.getLocale( ), model );
-        page.setTitle( getPageTitle( getTopicTitle( request , topic ) ) );
+        page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
 
-        String strPath = getTopicTitle( request , topic ) + I18nService.getLocalizedString( PROPERTY_PATH_MODIFY, request.getLocale( ) );
+        String strPath = getTopicTitle( request, topic ) + I18nService.getLocalizedString( PROPERTY_PATH_MODIFY, request.getLocale( ) );
         page.setExtendedPathLabel( getExtendedPath( strPath, strPageName ) );
 
         return page;
@@ -438,28 +444,28 @@ public class WikiApp extends MVCApplication
             String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE );
             int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
             int nTopicId = Integer.parseInt( strTopicId );
-            TopicVersion topicVersion = new TopicVersion();
+            TopicVersion topicVersion = new TopicVersion( );
             topicVersion.setIdTopic( nTopicId );
-            topicVersion.setUserName( user.getName() );
+            topicVersion.setUserName( user.getName( ) );
             topicVersion.setEditComment( strComment );
             topicVersion.setIdTopicVersionPrevious( nPreviousVersionId );
-            for( String strLanguage : WikiLocaleService.getLanguages() )
+            for ( String strLanguage : WikiLocaleService.getLanguages( ) )
             {
                 String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
                 String strContent = request.getParameter( Constants.PARAMETER_CONTENT + "_" + strLanguage );
-                WikiContent content = new WikiContent();
+                WikiContent content = new WikiContent( );
                 content.setPageTitle( strPageTitle );
                 content.setWikiContent( strContent );
                 topicVersion.addLocalizedWikiContent( strLanguage, content );
             }
-            
+
             TopicVersionHome.addTopicVersion( topicVersion );
             topic.setViewRole( strViewRole );
             topic.setEditRole( strEditRole );
             TopicHome.update( topic );
         }
 
-        Map<String, String> mapParameters = new HashMap<String, String>( );
+        Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
 
         return redirect( request, VIEW_PAGE, mapParameters );
@@ -489,8 +495,8 @@ public class WikiApp extends MVCApplication
         model.put( MARK_ADMIN_ROLE, hasAdminRole( request ) );
 
         XPage page = getXPage( TEMPLATE_VIEW_HISTORY_WIKI, request.getLocale( ), model );
-        page.setTitle( getPageTitle( getTopicTitle( request , topic ) ) );
-        String strPath = getTopicTitle( request , topic ) + I18nService.getLocalizedString( PROPERTY_PATH_HISTORY, request.getLocale( ) );
+        page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
+        String strPath = getTopicTitle( request, topic ) + I18nService.getLocalizedString( PROPERTY_PATH_HISTORY, request.getLocale( ) );
         page.setExtendedPathLabel( getExtendedPath( strPath, strPageName ) );
 
         return page;
@@ -517,8 +523,8 @@ public class WikiApp extends MVCApplication
 
         XPage page = new XPage( );
         page.setContent( viewTopicDiff( request, strPageName, topic, nNewTopicVersion, nOldTopicVersion ) );
-        page.setTitle( getPageTitle( getTopicTitle( request , topic ) ) );
-        String strPath = getTopicTitle( request , topic ) + I18nService.getLocalizedString( PROPERTY_PATH_DIFF, request.getLocale( ) );
+        page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
+        String strPath = getTopicTitle( request, topic ) + I18nService.getLocalizedString( PROPERTY_PATH_DIFF, request.getLocale( ) );
         page.setExtendedPathLabel( getExtendedPath( strPath, strPageName ) );
 
         return page;
@@ -529,6 +535,8 @@ public class WikiApp extends MVCApplication
      *
      * @param request
      *            The HTTP request
+     * @param strPageName 
+     *            The page name 
      * @param topic
      *            The topic
      * @param nNewTopicVersion
@@ -547,7 +555,7 @@ public class WikiApp extends MVCApplication
         String strOldHtml = WikiService.instance( ).getWikiPage( strPageName, oldTopicVersion, getLanguage( request ) );
         String strDiff = DiffService.getDiff( strOldHtml, strNewHtml );
 
-        Map<String, Object> model = new HashMap<String, Object>( );
+        Map<String, Object> model = getModel( );
         model.put( MARK_DIFF, strDiff );
         model.put( MARK_TOPIC, topic );
 
@@ -636,7 +644,7 @@ public class WikiApp extends MVCApplication
             ImageHome.create( image );
         }
 
-        Map<String, String> mapParameters = new HashMap<String, String>( );
+        Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName + ANCHOR_IMAGES );
 
         return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
@@ -648,7 +656,7 @@ public class WikiApp extends MVCApplication
      * @param request
      *            The Http request
      * @return the html code to confirm
-     * @throws fr.paris.lutece.portal.service.message.SiteMessageException
+     * @throws SiteMessageException A site message 
      */
     @Action( ACTION_CONFIRM_REMOVE_IMAGE )
     public XPage getConfirmRemoveImage( HttpServletRequest request ) throws SiteMessageException
@@ -682,7 +690,7 @@ public class WikiApp extends MVCApplication
         ImageHome.remove( nId );
         addInfo( MESSAGE_IMAGE_REMOVED, getLocale( request ) );
 
-        Map<String, String> mapParameters = new HashMap<String, String>( );
+        Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) + ANCHOR_IMAGES );
 
         return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
@@ -694,7 +702,7 @@ public class WikiApp extends MVCApplication
      * @param request
      *            The Http request
      * @return the html code to confirm
-     * @throws fr.paris.lutece.portal.service.message.SiteMessageException
+     * @throws SiteMessageException A site message 
      */
     @Action( ACTION_CONFIRM_REMOVE_VERSION )
     public XPage getConfirmRemoveVersion( HttpServletRequest request ) throws SiteMessageException
@@ -733,12 +741,17 @@ public class WikiApp extends MVCApplication
             addInfo( MESSAGE_VERSION_REMOVED, getLocale( request ) );
         }
 
-        Map<String, String> mapParameters = new HashMap<String, String>( );
+        Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) );
 
         return redirect( request, VIEW_HISTORY, mapParameters );
     }
 
+    /**
+     * Returns the image list as JSON
+     * @param request The HTTP request
+     * @return A JSON flow
+     */
     @View( VIEW_LIST_IMAGES )
     public XPage viewListImages( HttpServletRequest request )
     {
@@ -760,20 +773,22 @@ public class WikiApp extends MVCApplication
         return responseJSON( array.toString( ) );
 
     }
-    
+
     /**
      * Change Language
-     * @param request The HTTP request
+     * 
+     * @param request
+     *            The HTTP request
      * @return The page
-     * @throws UserNotSignedException 
+     * @throws UserNotSignedException
      */
     @Action( ACTION_CHANGE_LANGUAGE )
     public XPage doChangeLanguage( HttpServletRequest request ) throws UserNotSignedException
     {
         String strLanguage = request.getParameter( PARAMETER_LANGUAGE );
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        setLanguage( request , strLanguage );
-        Map<String, String> mapParameters = new HashMap<String, String>( );
+        setLanguage( request, strLanguage );
+        Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
 
         return redirect( request, VIEW_PAGE, mapParameters );
@@ -870,7 +885,7 @@ public class WikiApp extends MVCApplication
      */
     private List<Topic> getTopicsForUser( HttpServletRequest request )
     {
-        Collection<Topic> listTopicAll = TopicHome.getTopicsList();
+        Collection<Topic> listTopicAll = TopicHome.getTopicsList( );
         List<Topic> listTopic;
 
         if ( SecurityService.isAuthenticationEnable( ) )
@@ -912,9 +927,7 @@ public class WikiApp extends MVCApplication
     private String getPageTitle( String strPageName )
     {
         StringBuilder sbPath = new StringBuilder( );
-        sbPath.append( AppPropertiesService.getProperty( PROPERTY_PAGE_TITLE ) );
-        sbPath.append( " " );
-        sbPath.append( strPageName );
+        sbPath.append( AppPropertiesService.getProperty( PROPERTY_PAGE_TITLE ) ).append( ' ' ).append( strPageName );
 
         return sbPath.toString( );
     }
@@ -1019,7 +1032,7 @@ public class WikiApp extends MVCApplication
      * Checks if the user has the admin role
      * 
      * @param request
-     *            The request
+     *            The HTTP request
      * @return true if he has otherwise false
      */
     private boolean hasAdminRole( HttpServletRequest request )
@@ -1035,14 +1048,16 @@ public class WikiApp extends MVCApplication
     /**
      * Redirect to wiki's root URL
      * 
+     * @param request
+     *            The HTTP request
      * @return The XPage
      */
     private XPage redirectWikiRoot( HttpServletRequest request )
     {
         String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, "" );
-        if ( !strWikiRootPageName.equals( "" ) )
+        if ( !"".equals( strWikiRootPageName ) )
         {
-            Map<String, String> mapParameters = new HashMap<String, String>( );
+            Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
             mapParameters.put( Constants.PARAMETER_PAGE_NAME, strWikiRootPageName );
 
             return redirect( request, VIEW_PAGE, mapParameters );
@@ -1063,55 +1078,66 @@ public class WikiApp extends MVCApplication
 
     /**
      * Store the current selected language in the user's session
-     * @param request The request
-     * @param strLanguage The language
+     * 
+     * @param request
+     *            The request
+     * @param strLanguage
+     *            The language
      */
-    private void setLanguage( HttpServletRequest request , String strLanguage )
+    private void setLanguage( HttpServletRequest request, String strLanguage )
     {
         HttpSession session = request.getSession( true );
-        session.setAttribute( ATTRIBUTE_LANGUAGE , strLanguage );
+        session.setAttribute( ATTRIBUTE_LANGUAGE, strLanguage );
     }
-    
+
     /**
      * Retrieve the current selected language from the user's session
-     * @param request The request
+     * 
+     * @param request
+     *            The request
      * @return The Language
      */
     private String getLanguage( HttpServletRequest request )
     {
         String strLanguage = null;
-        HttpSession session = request.getSession();
-        if( session != null )
+        HttpSession session = request.getSession( );
+        if ( session != null )
         {
             strLanguage = (String) session.getAttribute( ATTRIBUTE_LANGUAGE );
         }
-        if( strLanguage == null )
+        if ( strLanguage == null )
         {
-            strLanguage =  WikiLocaleService.getLanguages().get( 0 );
+            strLanguage = WikiLocaleService.getLanguages( ).get( 0 );
         }
         return strLanguage;
-    }
-    
-    /**
-     * Return a topic title
-     * @param topic The topic
-     * @param strLanguage The language
-     * @return The title
-     */
-    private String getTopicTitle( Topic topic , String strLanguage )
-    {
-        TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic() );
-        return version.getWikiContent( strLanguage ).getPageTitle();
     }
 
     /**
      * Return a topic title
-     * @param request The HTTP request
-     * @param topic The topic
+     * 
+     * @param topic
+     *            The topic
+     * @param strLanguage
+     *            The language
      * @return The title
      */
-    private String getTopicTitle( HttpServletRequest request , Topic topic )
+    private String getTopicTitle( Topic topic, String strLanguage )
     {
-        return getTopicTitle( topic, getLanguage(request) );
+        TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+        return version.getWikiContent( strLanguage ).getPageTitle( );
+    }
+
+    /**
+     * Return a topic title
+     * 
+     * @param request
+     *            The HTTP request
+     * @param topic
+     *            The topic
+     * @return The title
+     */
+    private String getTopicTitle( HttpServletRequest request, Topic topic )
+    {
+        return getTopicTitle( topic, getLanguage( request ) );
     }
 }

@@ -79,7 +79,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public void logout( LuteceUser lu )
+    public void logout( LuteceUser user )
     {
     }
 
@@ -96,7 +96,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public boolean isUserInRole( LuteceUser lu, HttpServletRequest hsr, String string )
+    public boolean isUserInRole( LuteceUser user, HttpServletRequest request, String string )
     {
         return true;
     }
@@ -105,7 +105,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * {@inheritDoc }
      */
     @Override
-    public String [ ] getRolesByUser( LuteceUser lu )
+    public String [ ] getRolesByUser( LuteceUser user )
     {
         return null;
     }
@@ -134,7 +134,7 @@ public class WikiAnonymousAuthentication implements LuteceAuthentication
      * @param hsr
      */
     @Override
-    public LuteceUser getHttpAuthenticatedUser( HttpServletRequest hsr )
+    public LuteceUser getHttpAuthenticatedUser( HttpServletRequest request )
     {
         return new WikiAnonymousUser( );
     }

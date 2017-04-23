@@ -32,50 +32,54 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.wiki.business;
 
 /**
  * WikiContent
  */
-public class WikiContent 
+public class WikiContent
 {
-    // Variables declarations 
+    // Variables declarations
     private String _strPageTitle;
     private String _strWikiContent;
-    
-    
-       /**
-        * Returns the PageTitle
-        * @return The PageTitle
-        */ 
-    public String getPageTitle()
+
+    /**
+     * Returns the PageTitle
+     * 
+     * @return The PageTitle
+     */
+    public String getPageTitle( )
     {
         return _strPageTitle;
     }
-    
-       /**
-        * Sets the PageTitle
-        * @param strPageTitle The PageTitle
-        */ 
+
+    /**
+     * Sets the PageTitle
+     * 
+     * @param strPageTitle
+     *            The PageTitle
+     */
     public void setPageTitle( String strPageTitle )
     {
         _strPageTitle = strPageTitle;
     }
-    
-       /**
-        * Returns the WikiContent
-        * @return The WikiContent
-        */ 
-    public String getWikiContent()
+
+    /**
+     * Returns the WikiContent
+     * 
+     * @return The WikiContent
+     */
+    public String getWikiContent( )
     {
         return _strWikiContent;
     }
-    
-       /**
-        * Sets the WikiContent
-        * @param strWikiContent The WikiContent
-        */ 
+
+    /**
+     * Sets the WikiContent
+     * 
+     * @param strWikiContent
+     *            The WikiContent
+     */
     public void setWikiContent( String strWikiContent )
     {
         _strWikiContent = strWikiContent;

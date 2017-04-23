@@ -52,13 +52,6 @@ public class ImageService implements ImageResourceProvider
     private static final String IMAGE_RESOURCE_TYPE_ID = "wiki_image";
 
     /**
-     * Creates a new instance of ImageService
-     */
-    ImageService( )
-    {
-    }
-
-    /**
      * Initializes the service
      */
     public void register( )

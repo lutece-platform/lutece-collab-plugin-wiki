@@ -69,6 +69,9 @@ public class LuteceWikiParser extends WikiParser
      * @param strWikiText
      *            The wiki text
      * @param strPageUrl
+     *            The page URL
+     * @param strLanguage 
+     *            The language
      */
     public LuteceWikiParser( String strWikiText, String strPageUrl, String strLanguage )
     {
@@ -81,6 +84,11 @@ public class LuteceWikiParser extends WikiParser
         parse( strWikiText );
     }
 
+    /**
+     * Render specific HTML entities
+     * @param strHTML The HTML code to transform
+     * @return The transformed HTML
+     */
     private String renderSpecific( String strHTML )
     {
         String strRender = strHTML;
@@ -99,6 +107,11 @@ public class LuteceWikiParser extends WikiParser
         return strRender;
     }
 
+    /**
+     * Render specific entities
+     * @param strSource The source
+     * @return The source transformed
+     */
     public static String renderWiki( String strSource )
     {
         String strRender = strSource;
@@ -111,6 +124,9 @@ public class LuteceWikiParser extends WikiParser
         return strRender;
     }
 
+    /**
+     * {@inheritDoc } 
+     */
     @Override
     public String toString( )
     {
@@ -118,10 +134,7 @@ public class LuteceWikiParser extends WikiParser
     }
 
     /**
-     * Append image
-     * 
-     * @param strText
-     *            The text
+     * {@inheritDoc } 
      */
     @Override
     protected void appendImage( String strText )
@@ -186,10 +199,7 @@ public class LuteceWikiParser extends WikiParser
     }
 
     /**
-     * Append link
-     * 
-     * @param strText
-     *            The text
+     * {@inheritDoc } 
      */
     @Override
     protected void appendLink( String strText )
@@ -230,8 +240,8 @@ public class LuteceWikiParser extends WikiParser
             }
             else
             {
-                TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic() );
-                strTopicName = version.getWikiContent( _strLanguage ).getPageTitle();
+                TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+                strTopicName = version.getWikiContent( _strLanguage ).getPageTitle( );
                 strAction = "&view=page";
             }
 
@@ -243,10 +253,7 @@ public class LuteceWikiParser extends WikiParser
     }
 
     /**
-     * Append a macro
-     * 
-     * @param strText
-     *            The text
+     * {@inheritDoc } 
      */
     @Override
     protected void appendMacro( String strText )
@@ -287,6 +294,9 @@ public class LuteceWikiParser extends WikiParser
         }
     }
 
+    /**
+     * {@inheritDoc  } 
+     */
     @Override
     protected void appendNowiki( String strText )
     {

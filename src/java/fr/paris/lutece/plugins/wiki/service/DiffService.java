@@ -53,8 +53,6 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -65,10 +63,24 @@ import javax.xml.transform.stream.StreamResult;
 /**
  * Diff Service
  */
-public class DiffService
+public final class DiffService
 {
     private static final String XSL_OUTPUT = "fr/paris/lutece/plugins/wiki/service/output.xsl";
 
+    /** Private constuctor */
+    private DiffService( )
+    {
+    }
+
+    /**
+     * Get diff
+     * 
+     * @param strOld
+     *            Old version
+     * @param strNew
+     *            New version
+     * @return The diff
+     */
     public static String getDiff( String strOld, String strNew )
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream( );
@@ -76,9 +88,9 @@ public class DiffService
 
         try
         {
-            SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance( );
+            SAXTransformerFactory factory = (SAXTransformerFactory) TransformerFactory.newInstance( );
 
-            TransformerHandler result = tf.newTransformerHandler( );
+            TransformerHandler result = factory.newTransformerHandler( );
             result.setResult( new StreamResult( baos ) );
 
             XslFilter filter = new XslFilter( );
@@ -94,13 +106,11 @@ public class DiffService
 
             DomTreeBuilder oldHandler = new DomTreeBuilder( );
             cleaner.cleanAndParse( oldSource, oldHandler );
-            System.out.print( "." );
 
             TextNodeComparator leftComparator = new TextNodeComparator( oldHandler, locale );
 
             DomTreeBuilder newHandler = new DomTreeBuilder( );
             cleaner.cleanAndParse( newSource, newHandler );
-            System.out.print( "." );
 
             TextNodeComparator rightComparator = new TextNodeComparator( newHandler, locale );
 
@@ -113,20 +123,11 @@ public class DiffService
 
             HTMLDiffer differ = new HTMLDiffer( output );
             differ.diff( leftComparator, rightComparator );
-            System.out.print( "." );
             postProcess.endElement( "", "diff", "diff" );
             postProcess.endElement( "", "diffreport", "diffreport" );
             postProcess.endDocument( );
         }
-        catch( TransformerConfigurationException ex )
-        {
-            AppLogService.error( "DiffService Error : " + ex.getMessage( ), ex );
-        }
-        catch( IOException ex )
-        {
-            AppLogService.error( "DiffService Error : " + ex.getMessage( ), ex );
-        }
-        catch( SAXException ex )
+        catch( TransformerConfigurationException | IOException | SAXException ex )
         {
             AppLogService.error( "DiffService Error : " + ex.getMessage( ), ex );
         }
@@ -134,11 +135,17 @@ public class DiffService
         String strOutput = baos.toString( );
 
         // Remove XML header
-        strOutput = strOutput.substring( strOutput.indexOf( ">" ) + 1 );
+        strOutput = strOutput.substring( strOutput.indexOf( '>' ) + 1 );
 
         return strOutput;
     }
 
+    /**
+     * Process CSS
+     * @param css The CSS
+     * @param handler The Handler
+     * @throws SAXException if an error occurs
+     */
     private static void doCSS( String [ ] css, ContentHandler handler ) throws SAXException
     {
         handler.startElement( "", "css", "css", new AttributesImpl( ) );

@@ -91,7 +91,7 @@ public class WikiIndexer implements SearchIndexer
     @Override
     public List<Document> getDocuments( String strDocument ) throws IOException, InterruptedException, SiteMessageException
     {
-        List<org.apache.lucene.document.Document> listDocs = new ArrayList<org.apache.lucene.document.Document>( );
+        List<Document> listDocs = new ArrayList<Document>( );
         String strPortalUrl = AppPropertiesService.getProperty( PROPERTY_PAGE_BASE_URL );
 
         Topic topic = TopicHome.findByPrimaryKey( Integer.parseInt( strDocument ) );
@@ -103,9 +103,9 @@ public class WikiIndexer implements SearchIndexer
             urlSubject.addParameter( Constants.PARAMETER_VIEW, Constants.VIEW_PAGE );
             urlSubject.addParameter( Constants.PARAMETER_PAGE_NAME, topic.getPageName( ) );
 
-            for( String strLanguage : WikiLocaleService.getLanguages() )
+            for ( String strLanguage : WikiLocaleService.getLanguages( ) )
             {
-                org.apache.lucene.document.Document docSubject = getDocument( topic, urlSubject.getUrl( ), strLanguage );
+                Document docSubject = getDocument( topic, urlSubject.getUrl( ), strLanguage );
                 listDocs.add( docSubject );
             }
         }
@@ -137,11 +137,11 @@ public class WikiIndexer implements SearchIndexer
     @Override
     public void indexDocuments( ) throws IOException, InterruptedException, SiteMessageException
     {
-        for ( Topic topic : TopicHome.getTopicsList() )
+        for ( Topic topic : TopicHome.getTopicsList( ) )
         {
-            for( String strLanguage : WikiLocaleService.getLanguages() )
+            for ( String strLanguage : WikiLocaleService.getLanguages( ) )
             {
-                indexTopic( topic , strLanguage );
+                indexTopic( topic, strLanguage );
             }
         }
     }
@@ -169,12 +169,14 @@ public class WikiIndexer implements SearchIndexer
      * 
      * @param topic
      *            The topic
+     * @param strLanguage 
+     *            The language
      * @throws IOException
      *             if an IO error occurs
      * @throws InterruptedException
      *             if a Thread error occurs
      */
-    public void indexTopic( Topic topic , String strLanguage ) throws IOException, InterruptedException
+    public void indexTopic( Topic topic, String strLanguage ) throws IOException, InterruptedException
     {
         String strPortalUrl = AppPropertiesService.getProperty( PROPERTY_PAGE_BASE_URL );
 
@@ -183,11 +185,11 @@ public class WikiIndexer implements SearchIndexer
         urlSubject.addParameter( Constants.PARAMETER_VIEW, Constants.VIEW_PAGE );
         urlSubject.addParameter( PARAMETER_PAGE_NAME, topic.getPageName( ) );
 
-        org.apache.lucene.document.Document docTopic = null;
+        Document docTopic = null;
 
         try
         {
-            docTopic = getDocument( topic, urlSubject.getUrl( ) , strLanguage );
+            docTopic = getDocument( topic, urlSubject.getUrl( ), strLanguage );
         }
         catch( Exception e )
         {
@@ -208,19 +210,21 @@ public class WikiIndexer implements SearchIndexer
      *            The topic
      * @param strUrl
      *            The URL
-      * @return The document
+     * @param strLanguage 
+     *            The language
+     * @return The document
      * @throws IOException
      *             if an IO error occurs
      * @throws InterruptedException
      *             if a Thread error occurs
      */
-    public static org.apache.lucene.document.Document getDocument( Topic topic, String strUrl, String strLanguage ) throws IOException, InterruptedException
+    public static Document getDocument( Topic topic, String strUrl, String strLanguage ) throws IOException, InterruptedException
     {
         // make a new, empty document
-        org.apache.lucene.document.Document doc = new org.apache.lucene.document.Document( );
+        Document doc = new Document( );
 
-        FieldType ft = new FieldType( StringField.TYPE_STORED );
-        ft.setOmitNorms( false );
+        FieldType fieldType = new FieldType( StringField.TYPE_STORED );
+        fieldType.setOmitNorms( false );
 
         FieldType ftNotStored = new FieldType( StringField.TYPE_NOT_STORED );
         ftNotStored.setOmitNorms( false );
@@ -228,7 +232,7 @@ public class WikiIndexer implements SearchIndexer
         // Add the url as a field named "url". Use an UnIndexed field, so
         // that the url is just stored with the question/answer, but is not
         // searchable.
-        doc.add( new Field( SearchItem.FIELD_URL, strUrl, ft ) );
+        doc.add( new Field( SearchItem.FIELD_URL, strUrl, fieldType ) );
 
         // Add the uid as a field, so that index can be incrementally
         // maintained.
@@ -241,12 +245,12 @@ public class WikiIndexer implements SearchIndexer
         TopicVersion latestTopicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
         String strWikiContent = "";
 
-        if ( latestTopicVersion != null ) 
+        if ( latestTopicVersion != null )
         {
-            for( String strLocale : latestTopicVersion.getWikiContents().keySet() )
+            for ( String strLocale : latestTopicVersion.getWikiContents( ).keySet( ) )
             {
                 // FIXME manage indexes for multi-language
-                strWikiContent += latestTopicVersion.getWikiContent( strLocale ).getWikiContent();
+                strWikiContent += latestTopicVersion.getWikiContent( strLocale ).getWikiContent( );
             }
         }
 
@@ -255,15 +259,15 @@ public class WikiIndexer implements SearchIndexer
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, TextField.TYPE_NOT_STORED ) );
 
         String strDate = DateTools.dateToString( latestTopicVersion.getDateEdition( ), DateTools.Resolution.DAY );
-        doc.add( new Field( SearchItem.FIELD_DATE, strDate, ft ) );
+        doc.add( new Field( SearchItem.FIELD_DATE, strDate, fieldType ) );
 
         // Add the subject name as a separate Text field, so that it can be
         // searched separately.
-        doc.add( new Field( SearchItem.FIELD_TITLE, latestTopicVersion.getWikiContent( strLanguage ).getPageTitle(), ft ) );
+        doc.add( new Field( SearchItem.FIELD_TITLE, latestTopicVersion.getWikiContent( strLanguage ).getPageTitle( ), fieldType ) );
 
-        doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType( ), ft ) );
+        doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType( ), fieldType ) );
 
-        doc.add( new Field( SearchItem.FIELD_ROLE, topic.getViewRole( ), ft ) );
+        doc.add( new Field( SearchItem.FIELD_ROLE, topic.getViewRole( ), fieldType ) );
 
         return doc;
     }

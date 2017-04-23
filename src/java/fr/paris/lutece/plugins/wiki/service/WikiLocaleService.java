@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2015, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.wiki.service;
 
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -42,42 +41,47 @@ import java.util.List;
 /**
  * WikiLocaleService
  */
-public class WikiLocaleService 
+public final class WikiLocaleService
 {
     private static final String PROPERTY_LANGUAGES = "wiki.languages";
-    
+
     private static List _listLanguages;
-    
+
     /** Private constructor */
-    private WikiLocaleService()
+    private WikiLocaleService( )
     {
     }
-    
+
     /**
      * Gets available languages
+     * 
      * @return The languages list
      */
-    public static List<String> getLanguages()
+    public static List<String> getLanguages( )
     {
-        if( _listLanguages == null )
+        synchronized( WikiLocaleService.class )
         {
-            _listLanguages = initLanguages();
+            if ( _listLanguages == null )
+            {
+                _listLanguages = initLanguages( );
+            }
         }
         return _listLanguages;
     }
 
     /**
      * Initialize the languages list
+     * 
      * @return The languages list
      */
-    private static List<String> initLanguages()
+    private static List<String> initLanguages( )
     {
         String strLanguages = AppPropertiesService.getProperty( PROPERTY_LANGUAGES );
-        String[] languages = strLanguages.split( "," );
-        List<String> listLanguages = new ArrayList<>();
-        for( String strLanguage : languages )
+        String [ ] languages = strLanguages.split( "," );
+        List<String> listLanguages = new ArrayList<>( );
+        for ( String strLanguage : languages )
         {
-            listLanguages.add( strLanguage.trim() );
+            listLanguages.add( strLanguage.trim( ) );
         }
         return listLanguages;
     }

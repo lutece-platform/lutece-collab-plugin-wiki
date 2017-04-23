@@ -40,6 +40,13 @@ import java.text.Normalizer;
  */
 public final class WikiUtils
 {
+    /**
+     * Normalize technical page names
+     * 
+     * @param strSource
+     *            the source
+     * @return the normalized page name
+     */
     public static String normalize( String strSource )
     {
         String strNormalized = Normalizer.normalize( strSource, Normalizer.Form.NFKD );
@@ -48,4 +55,10 @@ public final class WikiUtils
 
         return strNormalized.toLowerCase( );
     }
+
+    /** Private constructor */
+    private WikiUtils( )
+    {
+    }
+
 }

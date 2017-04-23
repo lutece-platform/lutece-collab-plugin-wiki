@@ -52,7 +52,7 @@ public class TopicVersion
     private String _strUserPseudo;
     private String _strUserAvatarUrl;
     private String _strUserName;
-    private Map<String, WikiContent> _mapWikiContent = new HashMap<>();
+    private Map<String, WikiContent> _mapWikiContent = new HashMap<>( );
 
     /**
      * Returns the IdTopicVersion
@@ -99,7 +99,8 @@ public class TopicVersion
     /**
      * Returns the Wiki Content
      * 
-     * @param strLanguage The locale
+     * @param strLanguage
+     *            The locale
      * @return The EditComment
      */
     public WikiContent getWikiContent( String strLanguage )
@@ -112,7 +113,7 @@ public class TopicVersion
      * 
      * @return The EditComment
      */
-    public Map<String,WikiContent> getWikiContents()
+    public Map<String, WikiContent> getWikiContents( )
     {
         return _mapWikiContent;
     }
@@ -120,11 +121,12 @@ public class TopicVersion
     /**
      * Sets the Wiki Content
      * 
-     * @param strLocale The locale
-     * @param content 
+     * @param strLocale
+     *            The locale
+     * @param content
      *            The content
      */
-    public void addLocalizedWikiContent( String strLocale , WikiContent content )
+    public void addLocalizedWikiContent( String strLocale, WikiContent content )
     {
         _mapWikiContent.put( strLocale, content );
     }

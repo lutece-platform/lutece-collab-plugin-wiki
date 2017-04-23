@@ -58,7 +58,8 @@ public final class TopicVersionDAO implements ITopicVersionDAO
     private static final String SQL_QUERY_SELECT_CONTENT = "SELECT locale, page_title, wiki_content FROM wiki_topic_version_content WHERE id_topic_version = ?";
     private static final String SQL_QUERY_INSERT_CONTENT = "INSERT INTO wiki_topic_version_content ( id_topic_version, locale, page_title, wiki_content ) VALUES ( ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE_CONTENT = "DELETE FROM wiki_topic_version_content WHERE id_topic_version = ? ";
-    
+    private static final String SQL_QUERY_DELETE_CONTENT_BY_TOPIC_ID = "DELETE a.* FROM wiki_topic_version_content a, wiki_topic_version b WHERE a.id_topic_version = b.id_topic_version AND b.id_topic = ? ";
+
     /**
      * Generates a new primary key
      * 
@@ -99,15 +100,15 @@ public final class TopicVersionDAO implements ITopicVersionDAO
 
         daoUtil.executeUpdate( );
         daoUtil.free( );
-        
-        for( String strLocale : topicVersion.getWikiContents().keySet() )
+
+        for ( String strLocale : topicVersion.getWikiContents( ).keySet( ) )
         {
             WikiContent content = topicVersion.getWikiContent( strLocale );
-            daoUtil = new DAOUtil( SQL_QUERY_INSERT_CONTENT , plugin );
-            daoUtil.setInt( 1 , topicVersion.getIdTopicVersion( ) );
-            daoUtil.setString( 2 , strLocale );
-            daoUtil.setString( 3 , content.getPageTitle() );
-            daoUtil.setString( 4 , content.getWikiContent() );
+            daoUtil = new DAOUtil( SQL_QUERY_INSERT_CONTENT, plugin );
+            daoUtil.setInt( 1, topicVersion.getIdTopicVersion( ) );
+            daoUtil.setString( 2, strLocale );
+            daoUtil.setString( 3, content.getPageTitle( ) );
+            daoUtil.setString( 4, content.getWikiContent( ) );
             daoUtil.executeUpdate( );
             daoUtil.free( );
         }
@@ -138,31 +139,34 @@ public final class TopicVersionDAO implements ITopicVersionDAO
         }
 
         daoUtil.free( );
-        
+
         fillContent( topicVersion );
-        
+
         return topicVersion;
     }
 
+    /**
+     * Fill content
+     * @param topicVersion the version 
+     */
     private void fillContent( TopicVersion topicVersion )
     {
-        DAOUtil daoUtil = new DAOUtil(SQL_QUERY_SELECT_CONTENT );
-        daoUtil.setInt( 1, topicVersion.getIdTopicVersion() );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_CONTENT );
+        daoUtil.setInt( 1, topicVersion.getIdTopicVersion( ) );
         daoUtil.executeQuery( );
         while ( daoUtil.next( ) )
         {
             WikiContent content = new WikiContent( );
-            
+
             String strLanguage = daoUtil.getString( 1 );
             content.setPageTitle( daoUtil.getString( 2 ) );
             content.setWikiContent( daoUtil.getString( 3 ) );
             topicVersion.addLocalizedWikiContent( strLanguage, content );
         }
         daoUtil.free( );
-        
+
     }
-            
-            
+
     /**
      * {@inheritDoc }
      */
@@ -173,6 +177,12 @@ public final class TopicVersionDAO implements ITopicVersionDAO
         daoUtil.setInt( 1, nTopicVersionId );
         daoUtil.executeUpdate( );
         daoUtil.free( );
+
+        daoUtil = new DAOUtil( SQL_QUERY_DELETE_CONTENT, plugin );
+        daoUtil.setInt( 1, nTopicVersionId );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
+
     }
 
     /**
@@ -182,6 +192,11 @@ public final class TopicVersionDAO implements ITopicVersionDAO
     public void deleteByTopic( int nTopicId, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_BY_TOPIC_ID, plugin );
+        daoUtil.setInt( 1, nTopicId );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
+
+        daoUtil = new DAOUtil( SQL_QUERY_DELETE_CONTENT_BY_TOPIC_ID, plugin );
         daoUtil.setInt( 1, nTopicId );
         daoUtil.executeUpdate( );
         daoUtil.free( );
@@ -221,42 +236,44 @@ public final class TopicVersionDAO implements ITopicVersionDAO
      * {@inheritDoc }
      */
     @Override
-    public void addTopicVersion( TopicVersion topicVersion , Plugin plugin )
+    public void addTopicVersion( TopicVersion topicVersion, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_MODIFICATION, plugin );
         topicVersion.setIdTopicVersion( newPrimaryKey( plugin ) );
-        daoUtil.setInt( 1, topicVersion.getIdTopicVersion() );
-        daoUtil.setString( 2, topicVersion.getEditComment() );
-        daoUtil.setInt( 3, topicVersion.getIdTopic() );
-        daoUtil.setString( 4, topicVersion.getUserName() );
+        daoUtil.setInt( 1, topicVersion.getIdTopicVersion( ) );
+        daoUtil.setString( 2, topicVersion.getEditComment( ) );
+        daoUtil.setInt( 3, topicVersion.getIdTopic( ) );
+        daoUtil.setString( 4, topicVersion.getUserName( ) );
         daoUtil.setTimestamp( 5, new java.sql.Timestamp( new java.util.Date( ).getTime( ) ) );
-        daoUtil.setInt( 6, topicVersion.getIdTopicVersionPrevious() );
+        daoUtil.setInt( 6, topicVersion.getIdTopicVersionPrevious( ) );
 
         daoUtil.executeUpdate( );
         daoUtil.free( );
-        
+
         storeContent( topicVersion );
     }
 
     /**
      * Store the content of a Topic Version
-     * @param topicVersion The topic Version
+     * 
+     * @param topicVersion
+     *            The topic Version
      */
     private void storeContent( TopicVersion topicVersion )
     {
-        for( String strLanguage : topicVersion.getWikiContents().keySet() )
+        for ( String strLanguage : topicVersion.getWikiContents( ).keySet( ) )
         {
-            WikiContent content = topicVersion.getWikiContents().get( strLanguage );
-            DAOUtil daoUtil = new DAOUtil(SQL_QUERY_INSERT_CONTENT );
-            daoUtil.setInt( 1, topicVersion.getIdTopicVersion() );
-            daoUtil.setString( 2 , strLanguage );
-            daoUtil.setString( 3 , content.getPageTitle() );
-            daoUtil.setString( 4 , content.getWikiContent() );
+            WikiContent content = topicVersion.getWikiContents( ).get( strLanguage );
+            DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_CONTENT );
+            daoUtil.setInt( 1, topicVersion.getIdTopicVersion( ) );
+            daoUtil.setString( 2, strLanguage );
+            daoUtil.setString( 3, content.getPageTitle( ) );
+            daoUtil.setString( 4, content.getWikiContent( ) );
             daoUtil.executeUpdate( );
-            daoUtil.free();
-        }      
+            daoUtil.free( );
+        }
     }
-     
+
     /**
      * {@inheritDoc }
      */
@@ -283,7 +300,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO
 
         daoUtil.free( );
 
-        if( topicVersion != null )
+        if ( topicVersion != null )
         {
             fillContent( topicVersion );
         }

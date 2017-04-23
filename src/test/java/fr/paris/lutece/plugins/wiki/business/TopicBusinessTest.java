@@ -88,7 +88,7 @@ public class TopicBusinessTest extends LuteceTestCase
         assertEquals( topicStored.getEditRole( ), topic.getEditRole( ) );
 
         // List test
-        TopicHome.getTopicsList();
+        TopicHome.getTopicsList( );
 
         // Delete test
         TopicHome.remove( topic.getIdTopic( ) );

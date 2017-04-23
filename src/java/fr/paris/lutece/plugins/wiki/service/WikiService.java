@@ -42,7 +42,7 @@ import java.util.Locale;
 /**
  * Wiki Service
  */
-public class WikiService extends AbstractCacheableService
+public final class WikiService extends AbstractCacheableService
 {
     private static final String SERVICE_CACHE_NAME = "Wiki Cache Service";
 
@@ -68,11 +68,14 @@ public class WikiService extends AbstractCacheableService
      * 
      * @return The instance
      */
-    public static synchronized WikiService instance( )
+    public static WikiService instance( )
     {
-        if ( _singleton == null )
+        synchronized( WikiService.class )
         {
-            _singleton = new WikiService( );
+            if ( _singleton == null )
+            {
+                _singleton = new WikiService( );
+            }
         }
         return _singleton;
     }
@@ -90,18 +93,20 @@ public class WikiService extends AbstractCacheableService
      *            The language
      * @return The HTML code
      */
-    public synchronized String getWikiPage( String strPageName, TopicVersion version, String strPageUrl , String strLanguage )
+    public String getWikiPage( String strPageName, TopicVersion version, String strPageUrl, String strLanguage )
     {
         StringBuilder sbKey = new StringBuilder( );
-        sbKey.append( strPageName ).append( "[" ).append( version.getIdTopicVersion( ) ).append( "]" );
-        sbKey.append( ( ( strPageUrl != null ) ? "[Url]" : "[noUrl]" ) );
-        sbKey.append( ":").append( strLanguage );
+        sbKey.append( strPageName ).append( '[' ).append( version.getIdTopicVersion( ) ).append( ']' )
+                .append( ( ( strPageUrl != null ) ? "[Url]" : "[noUrl]" ) ).append( ':' ).append( strLanguage );
         String strPageContent = (String) getFromCache( sbKey.toString( ) );
-        if ( strPageContent == null )
+        synchronized( WikiService.class )
         {
-            String strContent = version.getWikiContent( strLanguage ).getWikiContent();
-            strPageContent = new LuteceWikiParser( strContent , strPageUrl , strLanguage ).toString( );
-            putInCache( sbKey.toString( ), strPageContent );
+            if ( strPageContent == null )
+            {
+                String strContent = version.getWikiContent( strLanguage ).getWikiContent( );
+                strPageContent = new LuteceWikiParser( strContent, strPageUrl, strLanguage ).toString( );
+                putInCache( sbKey.toString( ), strPageContent );
+            }
         }
         return strPageContent;
     }
@@ -112,14 +117,14 @@ public class WikiService extends AbstractCacheableService
      * @param strPageName
      *            The page name
      * @param version
-     *            The topic version 
+     *            The topic version
      * @param strLanguage
      *            The language
      * @return The HTML code
      */
-    public synchronized String getWikiPage( String strPageName, TopicVersion version , String strLanguage )
+    public String getWikiPage( String strPageName, TopicVersion version, String strLanguage )
     {
-        return getWikiPage( strPageName, version, null , strLanguage );
+        return getWikiPage( strPageName, version, null, strLanguage );
     }
 
     /**
@@ -127,11 +132,13 @@ public class WikiService extends AbstractCacheableService
      * 
      * @param version
      *            The version
+     * @param strLanguage
+     *            The Language
      * @return The content
      */
-    public static String renderEditor( TopicVersion version , Locale locale )
+    public static String renderEditor( TopicVersion version, String strLanguage )
     {
-        return LuteceWikiParser.renderWiki( version.getWikiContent( locale.getLanguage() ).getWikiContent() );
+        return LuteceWikiParser.renderWiki( version.getWikiContent( strLanguage ).getWikiContent( ) );
     }
 
 }

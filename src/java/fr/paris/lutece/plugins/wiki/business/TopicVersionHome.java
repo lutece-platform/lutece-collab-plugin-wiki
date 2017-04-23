@@ -112,7 +112,7 @@ public final class TopicVersionHome
      * 
      * @return the collection which contains the data of all the topicVersion objects
      */
-    public static Collection<TopicVersion> getTopicVersionsList()
+    public static Collection<TopicVersion> getTopicVersionsList( )
     {
         return _dao.selectTopicVersionsList( _plugin );
     }
@@ -120,11 +120,12 @@ public final class TopicVersionHome
     /**
      * Modify the topic's content
      * 
-     * @param topicVersion The topic version
+     * @param topicVersion
+     *            The topic version
      */
-    public static void addTopicVersion( TopicVersion topicVersion  )
+    public static void addTopicVersion( TopicVersion topicVersion )
     {
-        _dao.addTopicVersion( topicVersion , _plugin );
+        _dao.addTopicVersion( topicVersion, _plugin );
     }
 
     /**
@@ -132,7 +133,7 @@ public final class TopicVersionHome
      * 
      * @param idTopic
      *            The topic id
-    * @return The topic version
+     * @return The topic version
      */
     public static TopicVersion findLastVersion( int idTopic )
     {
