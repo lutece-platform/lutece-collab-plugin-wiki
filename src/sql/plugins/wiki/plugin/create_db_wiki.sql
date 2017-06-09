@@ -44,9 +44,9 @@ CREATE TABLE wiki_topic_version_content (
 );
 
 
----
--- Structure for table wiki_image --
----
+--
+-- Structure for table wiki_image
+--
 DROP TABLE IF EXISTS wiki_image;
 CREATE TABLE wiki_image
 (
