@@ -11,4 +11,5 @@ ENGINE=InnoDB;
 INSERT INTO wiki_topic_version_content SELECT wtv.id_topic_version,'fr',wt.page_title,wtv.wiki_content FROM wiki_topic_version wtv INNER JOIN wiki_topic wt ON wtv.id_topic = wt.id_topic;
 /* Init new table width EN locale from wiki inner content */
 INSERT INTO wiki_topic_version_content SELECT wtv.id_topic_version,'en',wt.page_title,wtv.wiki_content FROM wiki_topic_version wtv INNER JOIN wiki_topic wt ON wtv.id_topic = wt.id_topic;
-
+/* Update wiki_topic table structure remove page_title */
+ALTER TABLE wiki_topic DROP COLUMN page_title;
