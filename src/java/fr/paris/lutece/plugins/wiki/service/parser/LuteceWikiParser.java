@@ -241,8 +241,16 @@ public class LuteceWikiParser extends WikiParser
             else
             {
                 TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-                strTopicName = version.getWikiContent( _strLanguage ).getPageTitle( );
-                strAction = "&view=page";
+                if( version != null )
+                {
+                    strTopicName = version.getWikiContent( _strLanguage ).getPageTitle( );
+                    strAction = "&view=page";
+                }
+                else
+                {
+                    AppLogService.error( "LuteceWikiParser - Unable to find topic ID : " + topic.getIdTopic( ) );
+                    return;
+                }
             }
 
             sb.append( "<a href=\"" ).append( AppPathService.getPortalUrl( ) ).append( "?page=wiki" ).append( strAction ).append( "&page_name=" )
