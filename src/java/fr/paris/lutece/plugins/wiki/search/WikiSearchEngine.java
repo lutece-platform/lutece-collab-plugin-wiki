@@ -53,6 +53,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
 
 import java.text.ParseException;
 
@@ -81,9 +82,8 @@ public class WikiSearchEngine implements SearchEngine
         ArrayList<SearchItem> listResults = new ArrayList<SearchItem>( );
         IndexSearcher searcher;
 
-        try
+        try( Directory directory = IndexationService.getDirectoryIndex( ) ; IndexReader reader = DirectoryReader.open( directory ) ; )
         {
-            IndexReader reader = DirectoryReader.open( IndexationService.getDirectoryIndex( ) );
             searcher = new IndexSearcher( reader );
 
             BooleanQuery.Builder queryBuilder = new BooleanQuery.Builder( );
