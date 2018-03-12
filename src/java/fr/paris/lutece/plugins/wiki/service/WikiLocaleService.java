@@ -85,4 +85,21 @@ public final class WikiLocaleService
         }
         return listLanguages;
     }
+    
+    /**
+     * returns the default language
+     * 
+     * @return the default language
+     */
+    public static String getDefaultLanguage( )
+    {
+        synchronized( WikiLocaleService.class )
+        {
+            if ( _listLanguages == null )
+            {
+                _listLanguages = initLanguages( );
+            }
+        }
+        return (String)_listLanguages.get( 0 );
+    }
 }
