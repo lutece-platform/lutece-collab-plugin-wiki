@@ -1,4 +1,5 @@
 <div class="row">
+    <div class="container panel panel-default">
     <form method="post" id="form_wiki" action="jsp/site/Portal.jsp">
         <div class="row">
             <input type="hidden" name="page" value="wiki" />
@@ -47,7 +48,7 @@
                <h1>#i18n{wiki.menu.edit} <small> [${topic.pageName}] </small></h1>
                <#assign locales_list = ["fr", "en"]>
                 
-                <ul class="nav nav-tabs" role="tablist" >
+                <ul class="nav nav-tabs" role="tablist" id="navTabsWikiLanguages">
                 <#list languages_list as locale>
                 <li role="presentation" <#if locale_index = 0 >class="active" </#if>><a href="#tab-${locale}" data-toggle="tab" >${locale}</a></li>
                 </#list>
@@ -113,6 +114,8 @@
             </div>
         </div>
     </form>
+        
+    </div>    
 </div>
 
 <a name="images"></a>
