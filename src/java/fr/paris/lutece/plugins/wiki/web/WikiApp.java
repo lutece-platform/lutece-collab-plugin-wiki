@@ -89,6 +89,7 @@ import javax.servlet.http.HttpSession;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * This class provides a simple implementation of an XPage
@@ -1101,14 +1102,36 @@ public class WikiApp extends MVCApplication
     {
         String strLanguage = null;
         HttpSession session = request.getSession( );
-        if ( session != null )
+        
+        if ( request.getParameter( PARAMETER_LANGUAGE) != null)
         {
+            // consider the language parameter in the URL if exists
+            strLanguage = request.getParameter( PARAMETER_LANGUAGE );
+            session.setAttribute( ATTRIBUTE_LANGUAGE , strLanguage ) ;
+        }
+        else if ( session != null && !StringUtils.isBlank((String)session.getAttribute( ATTRIBUTE_LANGUAGE ) ) )
+        {
+            // consider the current session language 
             strLanguage = (String) session.getAttribute( ATTRIBUTE_LANGUAGE );
         }
+        else
+        {
+            // consider the browser language
+            strLanguage = request.getLocale( ).getLanguage( ).substring( 0, 2 );
+        }
+        
+        // check if the mandatory language is supported
+        for (String lang : WikiLocaleService.getLanguages( ) )
+        {
+            if ( lang.equals(strLanguage) ) return lang;
+        }
+        
         if ( strLanguage == null )
         {
-            strLanguage = WikiLocaleService.getLanguages( ).get( 0 );
+            // default
+            strLanguage = WikiLocaleService.getDefaultLanguage( ) ;
         }
+        
         return strLanguage;
     }
 
