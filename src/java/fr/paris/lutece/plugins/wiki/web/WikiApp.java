@@ -1147,7 +1147,15 @@ public class WikiApp extends MVCApplication
     private String getTopicTitle( Topic topic, String strLanguage )
     {
         TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-        return version.getWikiContent( strLanguage ).getPageTitle( );
+        if ( version !=null ) 
+        {
+            return version.getWikiContent( strLanguage ).getPageTitle( );
+        }
+        else
+        {
+            return topic.getPageName( );
+        }
+        
     }
 
     /**
