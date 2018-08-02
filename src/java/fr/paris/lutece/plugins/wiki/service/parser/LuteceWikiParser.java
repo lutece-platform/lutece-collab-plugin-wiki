@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.wiki.business.Topic;
 import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.business.TopicVersionHome;
+import fr.paris.lutece.plugins.wiki.business.WikiContent;
 import fr.paris.lutece.plugins.wiki.web.Constants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
@@ -243,8 +244,17 @@ public class LuteceWikiParser extends WikiParser
                 TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
                 if( version != null )
                 {
-                    strTopicName = version.getWikiContent( _strLanguage ).getPageTitle( );
-                    strAction = "&view=page";
+                    WikiContent content = version.getWikiContent( _strLanguage );
+                    if( content != null )
+                    {
+                        strTopicName = content.getPageTitle( );
+                        strAction = "&view=page";
+                    }
+                    else
+                    {
+                        AppLogService.error( "LuteceWikiParser - Unable to find content for topic " + topic.getIdTopic( ) + " and language " + _strLanguage );
+                        return;
+                    }
                 }
                 else
                 {
