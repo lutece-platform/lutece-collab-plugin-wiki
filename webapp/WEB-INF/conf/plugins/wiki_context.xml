@@ -79,7 +79,7 @@
                 <value>icon</value>
             </property>
             <property name="before">
-                <value>&lt;span class="glyphicon glyphicon-</value>
+                <value>&lt;span class="fa fa-</value>
             </property>
             <property name="after">
                 <value>" &gt;&lt;/span&gt;</value>
