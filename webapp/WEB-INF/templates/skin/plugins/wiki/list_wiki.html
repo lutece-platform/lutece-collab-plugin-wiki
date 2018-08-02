@@ -1,49 +1,51 @@
 <div class="row">
     <div class="col-sm-12">
-        <div class="btn-group btn-group-xs pull-right">
-            <button class="btn btn-default" id="btn-new-page" type="button" title="#i18n{wiki.list_wiki.buttonCreate}">
-               <span class="glyphicon glyphicon-plus-sign"></span>
-           </button>
-            <button class="btn btn-default" id="btn-search" type="button" title="#i18n{portal.util.labelSearch}" >
-                <span class="glyphicon glyphicon-search"></span>
-           </button>
-        </div>
+        <div class="container panel panel-default">
+            <div class="btn-group btn-group-xs pull-right">
+                <button class="btn btn-default" id="btn-new-page" type="button" title="#i18n{wiki.list_wiki.buttonCreate}">
+                   <span class="glyphicon glyphicon-plus-sign"></span>
+               </button>
+                <button class="btn btn-default" id="btn-search" type="button" title="#i18n{portal.util.labelSearch}" >
+                    <span class="glyphicon glyphicon-search"></span>
+               </button>
+            </div>
 
-        <div id="div-new-page" style="display:none">
-            <form class="form-search" action="jsp/site/Portal.jsp" method="post" >
-                <input type="hidden" name="page" value="wiki" />
-                <input type="hidden" name="action" value="newPage" />
-                
-                <div class="input-append">
-                    <input class="search-query col-sm-4" id="input-new-page" type="text" name="page_name" /> &nbsp;
-                    <button class="btn btn-primary btn-xs" type="submit" >
-                        <span class="glyphicon glyphicon-plus-sign"></span> #i18n{wiki.list_wiki.create}
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div id="div-new-page" style="display:none">
+                <form class="form-search" action="jsp/site/Portal.jsp" method="post" >
+                    <input type="hidden" name="page" value="wiki" />
+                    <input type="hidden" name="action" value="newPage" />
 
-        <div id="div-search" style="display:none">
-            <form class="form-search" action="" method="post">
-                <input type="hidden" name="view" value="search" />
-                #i18n{wiki.search_wiki.search} :
-                <div class="input-append">
-                    <input class="search-query" id="input-search" type="text" name="query" />
-                    <button class="btn btn-primary btn-xs" type="submit" >
-                        <span class="glyphicon glyphicon-search"></span>
-                    </button>
-                </div>
-            </form>
-        </div>
+                    <div class="input-append">
+                        <input class="search-query col-sm-4" id="input-new-page" type="text" name="page_name" /> &nbsp;
+                        <button class="btn btn-primary btn-xs" type="submit" >
+                            <span class="glyphicon glyphicon-plus-sign"></span> #i18n{wiki.list_wiki.create}
+                        </button>
+                    </div>
+                </form>
+            </div>
 
-        <h1>#i18n{wiki.list_wiki.title}</h1>
-        <ul>
-            <#list list_topic as topic>
-            <li>
-                <a href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}">${topic.pageTitle}</a>
-            </li>
-            </#list>
-        </ul>
+            <div id="div-search" style="display:none">
+                <form class="form-search" action="" method="post">
+                    <input type="hidden" name="view" value="search" />
+                    #i18n{wiki.search_wiki.search} :
+                    <div class="input-append">
+                        <input class="search-query" id="input-search" type="text" name="query" />
+                        <button class="btn btn-primary btn-xs" type="submit" >
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <h1>#i18n{wiki.list_wiki.title}</h1>
+            <ul>
+                <#list list_topic as topic>
+                <li>
+                    <a href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}">${topic.pageName}</a>
+                </li>
+                </#list>
+            </ul>
+        </div>
     </div>
 </div>
 
