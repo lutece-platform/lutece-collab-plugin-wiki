@@ -70,6 +70,7 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.util.mvc.xpage.MVCApplication;
 import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
+import fr.paris.lutece.portal.web.l10n.LocaleService;
 import fr.paris.lutece.portal.web.resource.ExtendableResourcePluginActionManager;
 import fr.paris.lutece.portal.web.upload.MultipartHttpServletRequest;
 import fr.paris.lutece.portal.web.xpages.XPage;
@@ -82,6 +83,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
@@ -90,6 +92,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.i18n.LocaleString;
 
 /**
  * This class provides a simple implementation of an XPage
@@ -168,7 +171,6 @@ public class WikiApp extends MVCApplication
     private static final String URL_DEFAULT = "page=wiki";
     private static final String URL_VIEW_PAGE = "page=wiki&amp;view=page&amp;page_name=";
     private static final String PLUGIN_EXTEND = "extend";
-    private static final String ATTRIBUTE_LANGUAGE = "WIKI.LANGUAGE";
     private static final int MODE_VIEW = 0;
     private static final int MODE_EDIT = 1;
 
@@ -199,8 +201,8 @@ public class WikiApp extends MVCApplication
     public XPage getTopicsList( HttpServletRequest request )
     {
         XPage page = getTopicsListPage( request );
-        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_LIST, request.getLocale( ) ) ) );
-        page.setExtendedPathLabel( getExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_LIST, request.getLocale( ) ), null ) );
+        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_LIST, LocaleService.getContextUserLocale( request ) ) ) );
+        page.setExtendedPathLabel( getExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_LIST, LocaleService.getContextUserLocale( request ) ), null ) );
 
         return page;
     }
@@ -237,9 +239,9 @@ public class WikiApp extends MVCApplication
         model.put( MARK_PAGINATOR, paginator );
         model.put( MARK_NB_ITEMS_PER_PAGE, String.valueOf( _nItemsPerPage ) );
 
-        XPage page = getXPage( TEMPLATE_SEARCH_WIKI, request.getLocale( ), model );
-        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_SEARCH, request.getLocale( ) ) ) );
-        page.setExtendedPathLabel( getExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_SEARCH, request.getLocale( ) ), null ) );
+        XPage page = getXPage( TEMPLATE_SEARCH_WIKI, getLocale( request ), model );
+        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_SEARCH, getLocale( request ) ) ) );
+        page.setExtendedPathLabel( getExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_SEARCH, getLocale( request ) ), null ) );
 
         return page;
     }
@@ -258,7 +260,7 @@ public class WikiApp extends MVCApplication
         Map<String, Object> model = getModel( );
         model.put( MARK_LIST_TOPIC, listTopic );
 
-        return getXPage( TEMPLATE_LIST_WIKI, request.getLocale( ), model );
+        return getXPage( TEMPLATE_LIST_WIKI, getLocale( request ), model );
     }
 
     /**
@@ -299,7 +301,7 @@ public class WikiApp extends MVCApplication
         model.put( MARK_EXTEND, isExtend( ) );
         model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages( ) );
         model.put( MARK_CURRENT_LANGUAGE, getLanguage( request ) );
-        XPage page = getXPage( TEMPLATE_VIEW_WIKI, request.getLocale( ), model );
+        XPage page = getXPage( TEMPLATE_VIEW_WIKI, getLocale( request ), model );
         page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
         page.setExtendedPathLabel( getExtendedPath( getTopicTitle( request, topic ), strPageName ) );
 
@@ -1087,8 +1089,9 @@ public class WikiApp extends MVCApplication
      */
     private void setLanguage( HttpServletRequest request, String strLanguage )
     {
-        HttpSession session = request.getSession( true );
-        session.setAttribute( ATTRIBUTE_LANGUAGE, strLanguage );
+        Locale userSelectedLocale = new Locale( strLanguage );
+        if ( LocaleService.isSupported( userSelectedLocale ) ) LocaleService.setUserSelectedLocale( request, userSelectedLocale );
+        
     }
 
     /**
@@ -1107,32 +1110,10 @@ public class WikiApp extends MVCApplication
         {
             // consider the language parameter in the URL if exists
             strLanguage = request.getParameter( PARAMETER_LANGUAGE );
-            session.setAttribute( ATTRIBUTE_LANGUAGE , strLanguage ) ;
-        }
-        else if ( session != null && !StringUtils.isBlank((String)session.getAttribute( ATTRIBUTE_LANGUAGE ) ) )
-        {
-            // consider the current session language 
-            strLanguage = (String) session.getAttribute( ATTRIBUTE_LANGUAGE );
-        }
-        else
-        {
-            // consider the browser language
-            strLanguage = request.getLocale( ).getLanguage( ).substring( 0, 2 );
+            setLanguage( request, strLanguage);
         }
         
-        // check if the mandatory language is supported
-        for (String lang : WikiLocaleService.getLanguages( ) )
-        {
-            if ( lang.equals(strLanguage) ) return lang;
-        }
-        
-        if ( strLanguage == null )
-        {
-            // default
-            strLanguage = WikiLocaleService.getDefaultLanguage( ) ;
-        }
-        
-        return strLanguage;
+        return LocaleService.getContextUserLocale( request ).getLanguage( );
     }
 
     /**
