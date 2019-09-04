@@ -1,7 +1,7 @@
+![](https://dev.lutece.paris.fr/jenkins/buildStatus/icon?job=collab-plugin-wiki-deploy)
+# Plugin wiki
 
-#Plugin wiki
-
-##Introduction
+## Introduction
 
  **Full featured WIKI :** 
 
@@ -24,7 +24,7 @@
 
 
 
-[Maven documentation and reports](http://dev.lutece.paris.fr/plugins/plugin-wiki/)
+[Maven documentation and reports](https://dev.lutece.paris.fr/plugins/plugin-wiki/)
 
 
 

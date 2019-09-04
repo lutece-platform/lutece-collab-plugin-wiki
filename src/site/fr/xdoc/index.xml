@@ -1,13 +1,34 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<properties>
-		<title>Plugin wiki</title>
-	</properties>
-	<body>
-		<section name="Plugin wiki">
-			<subsection name="Introduction">
-				Ce plugin permet de gérer des pages du portail Lutece comme un wiki.
-			</subsection>
-		</section>
-	</body>
+    <properties>
+        <title>Plugin wiki</title>
+    </properties>
+    <body>
+        <section name="Plugin wiki">
+            <subsection name="Introduction">
+                <p>
+                    <b>WIKI complet : </b>
+                </p>
+                <p>
+                    <ul>
+                        <li>Utilise la syntaxe du standard Wikicreole </li>
+                        <li>Fournit un éditeur Wiki très simple et efficace avec un panneau d'aide amovible</li>
+                        <li>Peut être facilement personnalisé par des macros pour ajouter de nouvelles fonctionnalités de rendu</li>
+                    </ul>
+                </p>
+                <p>
+                    <b>Entièrement intégré à la plate-forme Lutece :</b>
+                </p>
+                <p>
+                    <ul>
+                        <li>Utilise l'authentification et les rôles MyLutece</li>
+                        <li>Compatible avec le plugin Extend et tous ses modules (commentaire, notation, hits, opengraph...)</li>
+                        <li>Supporte les avatars et les pseudos de Lutece</li>
+                        <li>Utilise le thème graphique du site. Il changera de la même façon que tout le site lorsque le thème sera modifié</li>
+                        <li>Les skins de rendu de code peuvent être gérés dans "Propriétés du site" </li>
+                    </ul>
+                </p>
+            </subsection>
+        </section>
+    </body>
 </document>
