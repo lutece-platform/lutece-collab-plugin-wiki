@@ -10,7 +10,7 @@
     <groupId>fr.paris.lutece.plugins</groupId>
     <artifactId>plugin-wiki</artifactId>
     <packaging>lutece-plugin</packaging>
-    <version>3.0.1</version>
+    <version>3.0.2-SNAPSHOT</version>
     <name>Lutece wiki plugin</name>
 
     <repositories>
@@ -72,7 +72,7 @@
         <connection>scm:git:https://github.com/lutece-platform/lutece-collab-plugin-wiki.git</connection>
         <developerConnection>scm:git:https://github.com/lutece-platform/lutece-collab-plugin-wiki.git</developerConnection>
         <url>https://github.com/lutece-platform/lutece-collab-plugin-wiki.git</url>
-      <tag>plugin-wiki-3.0.1</tag>
+      <tag>lutece-collab-plugin-wiki-2.1.2</tag>
   </scm>
 
 </project>
