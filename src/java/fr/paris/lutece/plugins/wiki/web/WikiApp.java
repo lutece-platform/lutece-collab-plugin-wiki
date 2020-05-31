@@ -74,6 +74,7 @@ import fr.paris.lutece.portal.web.l10n.LocaleService;
 import fr.paris.lutece.portal.web.resource.ExtendableResourcePluginActionManager;
 import fr.paris.lutece.portal.web.upload.MultipartHttpServletRequest;
 import fr.paris.lutece.portal.web.xpages.XPage;
+import fr.paris.lutece.util.ReferenceItem;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.html.Paginator;
@@ -86,6 +87,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import net.sf.json.JSONArray;
@@ -120,6 +122,7 @@ public class WikiApp extends MVCApplication
     private static final String PROPERTY_PATH_DIFF = "wiki.path.labelDiff";
     private static final String MARK_TOPIC = "topic";
     private static final String MARK_LIST_TOPIC = "list_topic";
+    private static final String MARK_REFLIST_TOPIC = "reflist_topic";
     private static final String MARK_LATEST_VERSION = "lastVersion";
     private static final String MARK_DIFF = "diff";
     private static final String MARK_RESULT = "result";
@@ -202,7 +205,7 @@ public class WikiApp extends MVCApplication
     {
         XPage page = getTopicsListPage( request );
         page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_LIST, LocaleService.getContextUserLocale( request ) ) ) );
-        page.setExtendedPathLabel( getExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_LIST, LocaleService.getContextUserLocale( request ) ), null ) );
+        page.setExtendedPathLabel( getViewExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_LIST, LocaleService.getContextUserLocale( request ) ) ) );
 
         return page;
     }
@@ -241,7 +244,7 @@ public class WikiApp extends MVCApplication
 
         XPage page = getXPage( TEMPLATE_SEARCH_WIKI, getLocale( request ), model );
         page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_SEARCH, getLocale( request ) ) ) );
-        page.setExtendedPathLabel( getExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_SEARCH, getLocale( request ) ), null ) );
+        page.setExtendedPathLabel( getViewExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_SEARCH, getLocale( request ) ) ) );
 
         return page;
     }
@@ -303,7 +306,7 @@ public class WikiApp extends MVCApplication
         model.put( MARK_CURRENT_LANGUAGE, getLanguage( request ) );
         XPage page = getXPage( TEMPLATE_VIEW_WIKI, getLocale( request ), model );
         page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
-        page.setExtendedPathLabel( getExtendedPath( getTopicTitle( request, topic ), strPageName ) );
+        page.setExtendedPathLabel( getPageExtendedPath( topic, request ) );
 
         return page;
     }
@@ -335,6 +338,7 @@ public class WikiApp extends MVCApplication
             topic.setPageName( strPageName );
             topic.setViewRole( DatastoreService.getDataValue( DSKEY_ROLE_VIEW, DEFAULT_ROLE_VIEW ) );
             topic.setEditRole( DatastoreService.getDataValue( DSKEY_ROLE_EDIT, DEFAULT_ROLE_EDIT ) );
+            topic.setParentPageName( "" );
 
             TopicHome.create( topic );
         }
@@ -401,6 +405,10 @@ public class WikiApp extends MVCApplication
             WikiContent content = topicVersion.getWikiContent( strLanguage );
             content.setWikiContent( WikiService.renderEditor( topicVersion, strLanguage ) );
         }
+
+        ReferenceList topicRefList = getTopicsReferenceListForUser( request, true );
+        topicRefList.removeIf( x -> x.getCode( ).equals( topic.getPageName( ) ) );
+
         Map<String, Object> model = getModel( );
         model.put( MARK_TOPIC, topic );
         model.put( MARK_LATEST_VERSION, topicVersion );
@@ -408,14 +416,14 @@ public class WikiApp extends MVCApplication
         model.put( MARK_EDIT_ROLE, hasEditRole( request, topic ) );
         model.put( MARK_ADMIN_ROLE, hasAdminRole( request ) );
         model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages( ) );
+        model.put( MARK_REFLIST_TOPIC, topicRefList );
 
         ExtendableResourcePluginActionManager.fillModel( request, null, model, Integer.toString( topic.getIdTopic( ) ), Topic.RESOURCE_TYPE );
 
         XPage page = getXPage( TEMPLATE_MODIFY_WIKI, request.getLocale( ), model );
         page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
 
-        String strPath = getTopicTitle( request, topic ) + I18nService.getLocalizedString( PROPERTY_PATH_MODIFY, request.getLocale( ) );
-        page.setExtendedPathLabel( getExtendedPath( strPath, strPageName ) );
+        page.setExtendedPathLabel( getPageExtendedPath( topic, request ) );
 
         return page;
     }
@@ -445,6 +453,7 @@ public class WikiApp extends MVCApplication
             String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT );
             String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE );
             String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE );
+            String strParentPageName = request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME );
             int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
             int nTopicId = Integer.parseInt( strTopicId );
             TopicVersion topicVersion = new TopicVersion( );
@@ -465,6 +474,7 @@ public class WikiApp extends MVCApplication
             TopicVersionHome.addTopicVersion( topicVersion );
             topic.setViewRole( strViewRole );
             topic.setEditRole( strEditRole );
+            topic.setParentPageName( strParentPageName );
             TopicHome.update( topic );
         }
 
@@ -499,8 +509,7 @@ public class WikiApp extends MVCApplication
 
         XPage page = getXPage( TEMPLATE_VIEW_HISTORY_WIKI, request.getLocale( ), model );
         page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
-        String strPath = getTopicTitle( request, topic ) + I18nService.getLocalizedString( PROPERTY_PATH_HISTORY, request.getLocale( ) );
-        page.setExtendedPathLabel( getExtendedPath( strPath, strPageName ) );
+        page.setExtendedPathLabel( getPageExtendedPath( topic, request ) );
 
         return page;
     }
@@ -527,8 +536,7 @@ public class WikiApp extends MVCApplication
         XPage page = new XPage( );
         page.setContent( viewTopicDiff( request, strPageName, topic, nNewTopicVersion, nOldTopicVersion ) );
         page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
-        String strPath = getTopicTitle( request, topic ) + I18nService.getLocalizedString( PROPERTY_PATH_DIFF, request.getLocale( ) );
-        page.setExtendedPathLabel( getExtendedPath( strPath, strPageName ) );
+        page.setExtendedPathLabel( getPageExtendedPath( topic, request ) );
 
         return page;
     }
@@ -921,6 +929,31 @@ public class WikiApp extends MVCApplication
     }
 
     /**
+     * Return a reference list of pages for user
+     * 
+     * @param request
+     *            The HTTP request
+     * @param bFirstItem
+     *            True if the reference list must have a first empty default item
+     * @return The reference list
+     */
+    private ReferenceList getTopicsReferenceListForUser( HttpServletRequest request, boolean bFirstItem )
+    {
+        ReferenceList list = new ReferenceList( );
+
+        if ( bFirstItem )
+        {
+            list.addItem( "", "" );
+        }
+        for (Topic topic : getTopicsForUser( request ) )
+        {
+            list.addItem( topic.getPageName( ), getTopicTitle( request, topic ) );
+        }
+
+        return list;
+    }
+
+    /**
      * Build the page title
      *
      * @param strPageName
@@ -936,27 +969,90 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Build the extended path
+     * Build the extended path for views other than page
      *
-     * @param strPageTitle
-     *            The page title
-     * @param strPageName
-     *            The page name
+     * @param strViewTitle
+     *            The view title
      * @return The list that content path info
      */
-    private ReferenceList getExtendedPath( String strPageTitle, String strPageName )
+    private ReferenceList getViewExtendedPath( String strViewTitle )
     {
         String strWikiRootLabel = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_LABEL, AppPropertiesService.getProperty( PROPERTY_PAGE_PATH ) );
         String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, AppPropertiesService.getProperty( URL_DEFAULT ) );
 
         ReferenceList list = new ReferenceList( );
-        if ( strPageName == null || !strPageName.equals( strWikiRootPageName ) )
-        {
-            String strWikiRootUrl = URL_VIEW_PAGE + strWikiRootPageName;
-            list.addItem( strWikiRootLabel, strWikiRootUrl );
-        }
-        list.addItem( strPageTitle, "" );
+
+        list.addItem( strWikiRootLabel, URL_VIEW_PAGE + strWikiRootPageName );
+        list.addItem( strViewTitle, "" );
+
         return list;
+    }
+
+    /**
+     * Build the extended path for wiki page
+     *
+     * @param topic
+     *            The topic page
+     * @param request
+     *            The request
+     * @return The list that content path info
+     */
+    private ReferenceList getPageExtendedPath( Topic topic, HttpServletRequest request )
+    {
+        String strWikiRootLabel = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_LABEL, AppPropertiesService.getProperty( PROPERTY_PAGE_PATH ) );
+        String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, AppPropertiesService.getProperty( URL_DEFAULT ) );
+
+        ReferenceList list = new ReferenceList( );
+        ReferenceItem item;
+
+        if ( !topic.getPageName( ).equals( strWikiRootPageName ) )
+        {
+            list.addItem( getTopicTitle( request, topic ), "" );
+        }
+
+        while ( !topic.getParentPageName( ).isEmpty( ) &&
+                topic.getParentPageName( ) != null &&
+                !topic.getParentPageName( ).equals( strWikiRootPageName ) &&
+                !isNameInReferenceList( list, URL_VIEW_PAGE + topic.getParentPageName( ) ) )
+        {
+            topic = TopicHome.findByPrimaryKey( topic.getParentPageName( ) );
+
+            item = new ReferenceItem();
+            item.setCode( getTopicTitle( request, topic ) );
+            item.setName( URL_VIEW_PAGE + topic.getPageName( ) );
+
+            list.add( 0, item );
+        }
+
+        item = new ReferenceItem();
+        item.setCode( strWikiRootLabel );
+        item.setName( URL_VIEW_PAGE + strWikiRootPageName );
+
+        list.add( 0, item );
+
+        return list;
+    }
+
+    /**
+     * check if name is already in an item of the reference list
+     * 
+     * @param list
+     *            The reference list
+     * @param name
+     *            The name
+     * @return true if the name is in list and false otherwise
+     */
+    private boolean isNameInReferenceList( ReferenceList list, String name )
+    {
+        for ( ReferenceItem item : list )
+        {
+            if ( item.getName( ).equals( name ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

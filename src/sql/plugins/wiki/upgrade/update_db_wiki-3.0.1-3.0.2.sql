@@ -1,0 +1,1 @@
+ALTER TABLE wiki_topic ADD COLUMN parent_page_name VARCHAR(100) DEFAULT '' NOT NULL;

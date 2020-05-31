@@ -49,6 +49,7 @@ public class Topic implements IExtendableResource
     private String _strPageName;
     private String _strViewRole = Page.ROLE_NONE;
     private String _strEditRole = Page.ROLE_NONE;
+    private String _strParentPageName;
 
     /**
      * Returns the IdTopic
@@ -198,5 +199,26 @@ public class Topic implements IExtendableResource
     public String getExtendableResourceImageUrl( )
     {
         return null;
+    }
+
+    /**
+     * Returns the ParentPageName
+     * 
+     * @return The ParentPageName
+     */
+    public String getParentPageName( )
+    {
+        return _strParentPageName;
+    }
+
+    /**
+     * Sets the ParentPageName
+     * 
+     * @param strParentPageName
+     *            The ParentPageName
+     */
+    public void setParentPageName( String strParentPageName )
+    {
+        _strParentPageName = strParentPageName;
     }
 }
