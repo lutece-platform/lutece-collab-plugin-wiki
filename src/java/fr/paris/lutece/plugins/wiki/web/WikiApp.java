@@ -83,6 +83,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -456,6 +457,14 @@ public class WikiApp extends MVCApplication
             String strParentPageName = request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME );
             int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
             int nTopicId = Integer.parseInt( strTopicId );
+
+            if ( TopicHome.findByPrimaryKey( strParentPageName ) == null )
+            {
+                Map<String, String> mapAdditionnalsParameters = new HashMap<String,String>();
+                mapAdditionnalsParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+                return redirect( request, VIEW_MODIFY_PAGE, mapAdditionnalsParameters );
+            }
+
             TopicVersion topicVersion = new TopicVersion( );
             topicVersion.setIdTopic( nTopicId );
             topicVersion.setUserName( user.getName( ) );
@@ -472,6 +481,7 @@ public class WikiApp extends MVCApplication
             }
 
             TopicVersionHome.addTopicVersion( topicVersion );
+
             topic.setViewRole( strViewRole );
             topic.setEditRole( strEditRole );
             topic.setParentPageName( strParentPageName );
@@ -1010,18 +1020,22 @@ public class WikiApp extends MVCApplication
             list.addItem( getTopicTitle( request, topic ), "" );
         }
 
-        while ( !topic.getParentPageName( ).isEmpty( ) &&
+        while ( topic != null &&
+                !topic.getParentPageName( ).isEmpty( ) &&
                 topic.getParentPageName( ) != null &&
                 !topic.getParentPageName( ).equals( strWikiRootPageName ) &&
                 !isNameInReferenceList( list, URL_VIEW_PAGE + topic.getParentPageName( ) ) )
         {
             topic = TopicHome.findByPrimaryKey( topic.getParentPageName( ) );
 
-            item = new ReferenceItem();
-            item.setCode( getTopicTitle( request, topic ) );
-            item.setName( URL_VIEW_PAGE + topic.getPageName( ) );
+            if ( topic != null )
+            {
+                item = new ReferenceItem();
+                item.setCode( getTopicTitle( request, topic ) );
+                item.setName( URL_VIEW_PAGE + topic.getPageName( ) );
 
-            list.add( 0, item );
+                list.add( 0, item );
+            }
         }
 
         item = new ReferenceItem();
