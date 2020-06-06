@@ -240,7 +240,10 @@ public class LuteceWikiParser extends WikiParser
                     WikiContent content = version.getWikiContent( _strLanguage );
                     if( content != null )
                     {
-                        strTopicName = content.getPageTitle( );
+                        if ( !content.getPageTitle( ).isEmpty( ) )
+                        {
+                            strTopicName = content.getPageTitle( );
+                        }
                         strAction = "&view=page";
                     }
                     else
