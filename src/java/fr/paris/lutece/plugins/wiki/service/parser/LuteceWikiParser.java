@@ -77,7 +77,6 @@ public class LuteceWikiParser extends WikiParser
     public LuteceWikiParser( String strWikiText, String strPageUrl, String strLanguage )
     {
         super( );
-        HEADING_LEVEL_SHIFT = 0;
         _strPageUrl = strPageUrl;
         _strLanguage = strLanguage;
         setTableClass( _options.getTableClass( ) );

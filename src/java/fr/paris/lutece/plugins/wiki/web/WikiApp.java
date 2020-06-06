@@ -122,6 +122,7 @@ public class WikiApp extends MVCApplication
     private static final String PROPERTY_PATH_HISTORY = "wiki.path.labelHistory";
     private static final String PROPERTY_PATH_DIFF = "wiki.path.labelDiff";
     private static final String MARK_TOPIC = "topic";
+    private static final String MARK_TOPIC_TITLE = "topic_title";
     private static final String MARK_LIST_TOPIC = "list_topic";
     private static final String MARK_REFLIST_TOPIC = "reflist_topic";
     private static final String MARK_LATEST_VERSION = "lastVersion";
@@ -299,6 +300,7 @@ public class WikiApp extends MVCApplication
         Map<String, Object> model = getModel( );
         model.put( MARK_RESULT, strWikiPage );
         model.put( MARK_TOPIC, topic );
+        model.put( MARK_TOPIC_TITLE, getTopicTitle( request, topic ) );
         model.put( MARK_LATEST_VERSION, version );
         model.put( MARK_EDIT_ROLE, hasEditRole( request, topic ) );
         model.put( MARK_ADMIN_ROLE, hasAdminRole( request ) );
