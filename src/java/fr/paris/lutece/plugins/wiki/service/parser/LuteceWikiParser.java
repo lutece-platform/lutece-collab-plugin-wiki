@@ -82,7 +82,7 @@ public class LuteceWikiParser extends WikiParser
         _strLanguage = strLanguage;
         setTableClass( _options.getTableClass( ) );
         setTocClass( _options.getTocClass( ) );
-        parse( strWikiText );
+        parse( renderWiki( strWikiText ) );
     }
 
     /**
@@ -93,12 +93,6 @@ public class LuteceWikiParser extends WikiParser
     private String renderSpecific( String strHTML )
     {
         String strRender = strHTML;
-        strRender = strRender.replaceAll( "\\[lt;", "&lt;" );
-        strRender = strRender.replaceAll( "\\[gt;", "&gt;" );
-        strRender = strRender.replaceAll( "\\[nbsp;", "&nbsp;" );
-        strRender = strRender.replaceAll( "\\[quot;", "&quot;" );
-        strRender = strRender.replaceAll( "\\[amp;", "&amp;" );
-        strRender = strRender.replaceAll( "\\[hashmark;", "#" );
 
         if ( _strPageUrl != null )
         {
