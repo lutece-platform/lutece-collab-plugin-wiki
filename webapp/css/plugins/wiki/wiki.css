@@ -47,3 +47,15 @@ span.diff-html-conflict {
 .markItUpEditor {
     width: 100%;
 }
+
+.wiki_center {
+    text-align: center;
+}
+
+.wiki_indent {
+    margin-left: 1em;
+}
+
+.wiki_underline {
+    text-decoration: underline;
+}

@@ -45,7 +45,7 @@ public class WikiParser
     };
     private static final String LIST_CHARS = "*-#>:!";
     private static final String [ ] LIST_OPEN = {
-            "<ul><li>", "<ul><li>", "<ol><li>", "<blockquote>", "<div class='indent'>", "<div class='center'>"
+            "<ul><li>", "<ul><li>", "<ol><li>", "<blockquote>", "<div class='wiki_indent'>", "<div class='wiki_center'>"
     };
     private static final String [ ] LIST_CLOSE = {
             "</li></ul>\n", "</li></ul>\n", "</li></ol>\n", "</blockquote>\n", "</div>\n", "</div>\n"
@@ -55,7 +55,7 @@ public class WikiParser
             "**", "//", "__", "##"
     };
     private static final String [ ] FORMAT_TAG_OPEN = {
-            "<strong>", "<em>", "<span class=\"underline\">", "<tt>"
+            "<strong>", "<em>", "<span class=\"wiki_underline\">", "<tt>"
     };
     private static final String [ ] FORMAT_TAG_CLOSE = {
             "</strong>", "</em>", "</span>", "</tt>"
@@ -281,7 +281,7 @@ public class WikiParser
                         else
                             if ( listLevels [listLevel] == '!' )
                             {
-                                sb.append( "</div>\n<div class='center'>" );
+                                sb.append( "</div>\n<div class='wiki_center'>" );
                             }
                             else
                             {
