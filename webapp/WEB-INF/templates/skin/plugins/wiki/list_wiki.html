@@ -39,9 +39,9 @@
 
             <h1>#i18n{wiki.list_wiki.title}</h1>
             <ul>
-                <#list list_topic as topic>
+                <#list map_topic_title as page_name, page_title>
                 <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}">${topic.pageName}</a>
+                    <a href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${page_name}">${page_title}</a>
                 </li>
                 </#list>
             </ul>

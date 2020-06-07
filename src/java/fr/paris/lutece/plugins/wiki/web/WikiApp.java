@@ -123,8 +123,8 @@ public class WikiApp extends MVCApplication
     private static final String PROPERTY_PATH_DIFF = "wiki.path.labelDiff";
     private static final String MARK_TOPIC = "topic";
     private static final String MARK_TOPIC_TITLE = "topic_title";
-    private static final String MARK_LIST_TOPIC = "list_topic";
     private static final String MARK_REFLIST_TOPIC = "reflist_topic";
+    private static final String MARK_MAP_TOPIC_TITLE = "map_topic_title";
     private static final String MARK_LATEST_VERSION = "lastVersion";
     private static final String MARK_DIFF = "diff";
     private static final String MARK_RESULT = "result";
@@ -262,8 +262,15 @@ public class WikiApp extends MVCApplication
     {
         List<Topic> listTopic = getTopicsForUser( request );
 
+        Map<String, String> mapTopicTitle = new HashMap();
+
+        for ( Topic topic : listTopic )
+        {
+            mapTopicTitle.put( topic.getPageName( ), getTopicTitle( request, topic ) );
+        }
+
         Map<String, Object> model = getModel( );
-        model.put( MARK_LIST_TOPIC, listTopic );
+        model.put( MARK_MAP_TOPIC_TITLE, mapTopicTitle );
 
         return getXPage( TEMPLATE_LIST_WIKI, getLocale( request ), model );
     }
