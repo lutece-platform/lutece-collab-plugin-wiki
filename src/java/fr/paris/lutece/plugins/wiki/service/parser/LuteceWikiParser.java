@@ -33,6 +33,8 @@
  */
 package fr.paris.lutece.plugins.wiki.service.parser;
 
+import fr.paris.lutece.plugins.wiki.business.Image;
+import fr.paris.lutece.plugins.wiki.business.ImageHome;
 import fr.paris.lutece.plugins.wiki.business.Topic;
 import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
@@ -59,6 +61,7 @@ public class LuteceWikiParser extends WikiParser
 {
     private static final String BEAN_PARSER_OPTIONS = "wiki.parser.options";
 
+    private String _strPageName;
     private String _strPageUrl;
     private String _strLanguage;
     private static WikiMacroService _macroService = new WikiMacroService( );
@@ -74,9 +77,10 @@ public class LuteceWikiParser extends WikiParser
      * @param strLanguage 
      *            The language
      */
-    public LuteceWikiParser( String strWikiText, String strPageUrl, String strLanguage )
+    public LuteceWikiParser( String strWikiText, String strPageName, String strPageUrl, String strLanguage )
     {
         super( );
+        _strPageName = strPageName;
         _strPageUrl = strPageUrl;
         _strLanguage = strLanguage;
         setTableClass( _options.getTableClass( ) );
@@ -142,6 +146,14 @@ public class LuteceWikiParser extends WikiParser
             String strAlign = null;
 
             int nImageId = Integer.parseInt( link [0].trim( ) );
+
+            Topic topic = TopicHome.findByPrimaryKey( _strPageName );
+            Image image = ImageHome.findByPrimaryKey( nImageId );
+
+            if ( image == null || image.getTopicId( ) != topic.getIdTopic( ) )
+            {
+                return;
+            }
 
             switch( link.length )
             {

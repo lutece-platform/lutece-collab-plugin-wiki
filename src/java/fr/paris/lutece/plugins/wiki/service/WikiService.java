@@ -104,7 +104,7 @@ public final class WikiService extends AbstractCacheableService
             if ( strPageContent == null )
             {
                 String strContent = version.getWikiContent( strLanguage ).getWikiContent( );
-                strPageContent = new LuteceWikiParser( strContent, strPageUrl, strLanguage ).toString( );
+                strPageContent = new LuteceWikiParser( strContent, strPageName, strPageUrl, strLanguage ).toString( );
                 putInCache( sbKey.toString( ), strPageContent );
             }
         }

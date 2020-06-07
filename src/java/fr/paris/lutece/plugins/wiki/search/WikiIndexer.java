@@ -254,7 +254,7 @@ public class WikiIndexer implements SearchIndexer
             }
         }
 
-        String strWikiResult = new LuteceWikiParser( strWikiContent, null, strLanguage ).toString( ) + " " + topic.getPageName( );
+        String strWikiResult = new LuteceWikiParser( strWikiContent, topic.getPageName( ), null, strLanguage ).toString( ) + " " + topic.getPageName( );
 
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, TextField.TYPE_NOT_STORED ) );
 
