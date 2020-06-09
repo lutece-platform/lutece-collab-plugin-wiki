@@ -103,14 +103,15 @@ import org.bouncycastle.i18n.LocaleString;
 @Controller( xpageName = "wiki", pageTitleProperty = "wiki.pageTitle", pagePathProperty = "wiki.pagePathLabel" )
 public class WikiApp extends MVCApplication
 {
-    public static final int ACTION_VIEW = 1;
     private static final String TEMPLATE_MODIFY_WIKI = "skin/plugins/wiki/modify_page.html";
     private static final String TEMPLATE_VIEW_WIKI = "skin/plugins/wiki/view_page.html";
     private static final String TEMPLATE_VIEW_HISTORY_WIKI = "skin/plugins/wiki/history_page.html";
     private static final String TEMPLATE_VIEW_DIFF_TOPIC_WIKI = "skin/plugins/wiki/diff_topic.html";
     private static final String TEMPLATE_LIST_WIKI = "skin/plugins/wiki/list_wiki.html";
     private static final String TEMPLATE_SEARCH_WIKI = "skin/plugins/wiki/search_wiki.html";
+
     private static final String BEAN_SEARCH_ENGINE = "wiki.wikiSearchEngine";
+
     private static final String PROPERTY_PAGE_PATH = "wiki.pagePathLabel";
     private static final String PROPERTY_PAGE_TITLE = "wiki.pageTitle";
     private static final String PROPERTY_DEFAULT_RESULT_PER_PAGE = "wiki.search_wiki.itemsPerPage";
@@ -118,9 +119,7 @@ public class WikiApp extends MVCApplication
     private static final String PROPERTY_TITLE_LIST = "wiki.title.list";
     private static final String PROPERTY_PATH_SEARCH = "wiki.path.search";
     private static final String PROPERTY_TITLE_SEARCH = "wiki.title.search";
-    private static final String PROPERTY_PATH_MODIFY = "wiki.path.labelModify";
-    private static final String PROPERTY_PATH_HISTORY = "wiki.path.labelHistory";
-    private static final String PROPERTY_PATH_DIFF = "wiki.path.labelDiff";
+
     private static final String MARK_TOPIC = "topic";
     private static final String MARK_TOPIC_TITLE = "topic_title";
     private static final String MARK_REFLIST_TOPIC = "reflist_topic";
@@ -138,7 +137,9 @@ public class WikiApp extends MVCApplication
     private static final String MARK_EXTEND = "isExtendInstalled";
     private static final String MARK_LANGUAGES_LIST = "languages_list";
     private static final String MARK_CURRENT_LANGUAGE = "current_language";
+
     private static final String PARAMETER_LANGUAGE = "language";
+
     private static final String VIEW_HOME = "home";
     private static final String VIEW_LIST = "list";
     private static final String VIEW_PAGE = "page";
@@ -147,6 +148,7 @@ public class WikiApp extends MVCApplication
     private static final String VIEW_SEARCH = "search";
     private static final String VIEW_DIFF = "diff";
     private static final String VIEW_LIST_IMAGES = "listImages";
+
     private static final String ACTION_NEW_PAGE = "newPage";
     private static final String ACTION_EDIT_PAGE = "editPage";
     private static final String ACTION_MODIFY_PAGE = "modifyPage";
@@ -157,6 +159,7 @@ public class WikiApp extends MVCApplication
     private static final String ACTION_CONFIRM_REMOVE_VERSION = "confirmRemoveVersion";
     private static final String ACTION_UPLOAD_IMAGE = "uploadImage";
     private static final String ACTION_CHANGE_LANGUAGE = "changeLanguage";
+
     private static final String MESSAGE_IMAGE_REMOVED = "wiki.message.image.removed";
     private static final String MESSAGE_CONFIRM_REMOVE_IMAGE = "wiki.message.confirmRemoveImage";
     private static final String MESSAGE_NAME_MANDATORY = "wiki.message.error.name.notNull";
@@ -164,18 +167,26 @@ public class WikiApp extends MVCApplication
     private static final String MESSAGE_CONFIRM_REMOVE_VERSION = "wiki.message.confirmRemoveVersion";
     private static final String MESSAGE_VERSION_REMOVED = "wiki.message.version.removed";
     private static final String MESSAGE_AUTHENTICATION_REQUIRED = "wiki.message.authenticationRequired";
+
     private static final String ANCHOR_IMAGES = "#images";
+
     private static final String DSKEY_WIKI_ROOT_LABEL = "wiki.site_property.path.rootLabel";
     private static final String DSKEY_WIKI_ROOT_PAGENAME = "wiki.site_property.path.rootPageName";
     private static final String DSKEY_ROLE_ADMIN = "wiki.site_property.role.admin";
     private static final String DSKEY_ROLE_EDIT = "wiki.site_property.role.edit";
     private static final String DSKEY_ROLE_VIEW = "wiki.site_property.role.view";
+
     private static final String DEFAULT_ROLE_ADMIN = "wiki_admin";
     private static final String DEFAULT_ROLE_EDIT = Page.ROLE_NONE;
     private static final String DEFAULT_ROLE_VIEW = Page.ROLE_NONE;
-    private static final String URL_DEFAULT = "page=wiki";
+
+    private static final String PAGE_DEFAULT = "home";
     private static final String URL_VIEW_PAGE = "page=wiki&amp;view=page&amp;page_name=";
+
     private static final String PLUGIN_EXTEND = "extend";
+
+    public static final int ACTION_VIEW = 1;
+
     private static final int MODE_VIEW = 0;
     private static final int MODE_EDIT = 1;
 
@@ -192,20 +203,40 @@ public class WikiApp extends MVCApplication
      * @return The XPage
      */
     @View( value = VIEW_HOME, defaultView = true )
-    public XPage home( HttpServletRequest request )
+    public XPage getHome( HttpServletRequest request )
     {
-        return redirectWikiRoot( request );
+        String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, "" );
+        if ( !"".equals( strWikiRootPageName ) )
+        {
+            Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
+            mapParameters.put( Constants.PARAMETER_PAGE_NAME, strWikiRootPageName );
+
+            return redirect( request, VIEW_PAGE, mapParameters );
+        }
+        return redirectView( request, VIEW_LIST );
     }
 
     /**
-     * View List of all pages
+     * Gets list page of all wiki pages
      * @param request The HTTP request
      * @return The page
      */
     @View( VIEW_LIST )
     public XPage getTopicsList( HttpServletRequest request )
     {
-        XPage page = getTopicsListPage( request );
+        List<Topic> listTopic = getTopicsForUser( request );
+
+        Map<String, String> mapTopicTitle = new HashMap();
+
+        for ( Topic topic : listTopic )
+        {
+            mapTopicTitle.put( topic.getPageName( ), getTopicTitle( request, topic ) );
+        }
+
+        Map<String, Object> model = getModel( );
+        model.put( MARK_MAP_TOPIC_TITLE, mapTopicTitle );
+
+        XPage page = getXPage( TEMPLATE_LIST_WIKI, getLocale( request ), model );
         page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_LIST, LocaleService.getContextUserLocale( request ) ) ) );
         page.setExtendedPathLabel( getViewExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_LIST, LocaleService.getContextUserLocale( request ) ) ) );
 
@@ -213,14 +244,14 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Search page
+     * Gets the search page
      *
      * @param request
      *            The request
      * @return Thye XPage
      */
     @View( VIEW_SEARCH )
-    public XPage search( HttpServletRequest request )
+    public XPage getSearch( HttpServletRequest request )
     {
         String strQuery = request.getParameter( Constants.PARAMETER_QUERY );
         String strPortalUrl = AppPathService.getPortalUrl( );
@@ -252,31 +283,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Display all pages
-     *
-     * @param request
-     *            The HTTP request
-     * @return The page
-     */
-    private XPage getTopicsListPage( HttpServletRequest request )
-    {
-        List<Topic> listTopic = getTopicsForUser( request );
-
-        Map<String, String> mapTopicTitle = new HashMap();
-
-        for ( Topic topic : listTopic )
-        {
-            mapTopicTitle.put( topic.getPageName( ), getTopicTitle( request, topic ) );
-        }
-
-        Map<String, Object> model = getModel( );
-        model.put( MARK_MAP_TOPIC_TITLE, mapTopicTitle );
-
-        return getXPage( TEMPLATE_LIST_WIKI, getLocale( request ), model );
-    }
-
-    /**
-     * Display the view page
+     * Gets a wiki page
      *
      * @param request
      *            The HTTP request
@@ -285,7 +292,7 @@ public class WikiApp extends MVCApplication
      *             if an error occurs
      */
     @View( VIEW_PAGE )
-    public XPage view( HttpServletRequest request ) throws SiteMessageException
+    public XPage getTopic( HttpServletRequest request ) throws SiteMessageException
     {
         if ( !SecurityService.isAuthenticationEnable( ) )
         {
@@ -322,7 +329,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Create a new Page
+     * Creates a new Page
      *
      * @param request
      *            The request
@@ -333,7 +340,7 @@ public class WikiApp extends MVCApplication
      *             if an encoding exception occurs
      */
     @Action( ACTION_NEW_PAGE )
-    public XPage newPage( HttpServletRequest request ) throws UserNotSignedException, UnsupportedEncodingException
+    public XPage doCreateTopic( HttpServletRequest request ) throws UserNotSignedException, UnsupportedEncodingException
     {
         checkUser( request );
 
@@ -361,7 +368,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Display the Edit page
+     * Displays the Edit page
      * 
      * @param request
      *            The HTTP request
@@ -372,7 +379,7 @@ public class WikiApp extends MVCApplication
      *             if an encoding exception occurs
      */
     @Action( ACTION_EDIT_PAGE )
-    public XPage edit( HttpServletRequest request ) throws UserNotSignedException, UnsupportedEncodingException
+    public XPage doEditTopic( HttpServletRequest request ) throws UserNotSignedException, UnsupportedEncodingException
     {
         checkUser( request );
 
@@ -383,6 +390,7 @@ public class WikiApp extends MVCApplication
         {
             return redirect( request, VIEW_HOME );
         }
+
         Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, URLEncoder.encode( strPageName, "UTF-8" ) );
 
@@ -390,12 +398,12 @@ public class WikiApp extends MVCApplication
         {
             return redirect( request, VIEW_PAGE, mapParameters );
         }
-        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
 
+        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
     }
 
     /**
-     * Display the edit mode
+     * Displays the form to update a wiki page
      *
      * @param request
      *            The HTTP request
@@ -404,7 +412,7 @@ public class WikiApp extends MVCApplication
      *             if an exception occurs
      */
     @View( VIEW_MODIFY_PAGE )
-    public XPage modify( HttpServletRequest request ) throws SiteMessageException
+    public XPage getModifyTopic( HttpServletRequest request ) throws SiteMessageException
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_EDIT );
@@ -432,14 +440,13 @@ public class WikiApp extends MVCApplication
 
         XPage page = getXPage( TEMPLATE_MODIFY_WIKI, request.getLocale( ), model );
         page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
-
         page.setExtendedPathLabel( getPageExtendedPath( topic, request ) );
 
         return page;
     }
 
     /**
-     * Modify a wikipage
+     * Modifies a wiki page
      *
      * @param request
      *            The HTTP Request
@@ -448,12 +455,11 @@ public class WikiApp extends MVCApplication
      *             If user not connected
      */
     @Action( ACTION_MODIFY_PAGE )
-    public XPage doModifyPage( HttpServletRequest request ) throws UserNotSignedException
+    public XPage doModifyTopic( HttpServletRequest request ) throws UserNotSignedException
     {
         LuteceUser user = checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
 
         if ( hasEditRole( request, topic ) )
@@ -504,7 +510,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Display the history page
+     * Displays the history page
      *
      * @param request
      *            The HTTP request
@@ -513,7 +519,7 @@ public class WikiApp extends MVCApplication
      *             if an error occurs
      */
     @View( VIEW_HISTORY )
-    public XPage viewHistory( HttpServletRequest request ) throws SiteMessageException
+    public XPage getHistory( HttpServletRequest request ) throws SiteMessageException
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_VIEW );
@@ -534,7 +540,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Display the diff page
+     * Displays the diff page
      *
      * @param request
      *            The HTTP request
@@ -543,41 +549,17 @@ public class WikiApp extends MVCApplication
      *             if an error occurs
      */
     @View( VIEW_DIFF )
-    public XPage viewDiff( HttpServletRequest request ) throws SiteMessageException
+    public XPage getDiff( HttpServletRequest request ) throws SiteMessageException
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_VIEW );
+
         String strNewVersion = request.getParameter( Constants.PARAMETER_NEW_VERSION );
         String strOldVersion = request.getParameter( Constants.PARAMETER_OLD_VERSION );
         int nNewTopicVersion = Integer.parseInt( strNewVersion );
         int nOldTopicVersion = Integer.parseInt( strOldVersion );
-
-        XPage page = new XPage( );
-        page.setContent( viewTopicDiff( request, strPageName, topic, nNewTopicVersion, nOldTopicVersion ) );
-        page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
-        page.setExtendedPathLabel( getPageExtendedPath( topic, request ) );
-
-        return page;
-    }
-
-    /**
-     * View Diff
-     *
-     * @param request
-     *            The HTTP request
-     * @param strPageName 
-     *            The page name 
-     * @param topic
-     *            The topic
-     * @param nNewTopicVersion
-     *            The new version
-     * @param nOldTopicVersion
-     *            The old version
-     * @return The page
-     */
-    private String viewTopicDiff( HttpServletRequest request, String strPageName, Topic topic, int nNewTopicVersion, int nOldTopicVersion )
-    {
         int nPrevTopicVersion = ( nOldTopicVersion == 0 ) ? nNewTopicVersion : nOldTopicVersion;
+
         TopicVersion newTopicVersion = TopicVersionHome.findByPrimaryKey( nNewTopicVersion );
         TopicVersion oldTopicVersion = TopicVersionHome.findByPrimaryKey( nPrevTopicVersion );
 
@@ -589,13 +571,15 @@ public class WikiApp extends MVCApplication
         model.put( MARK_DIFF, strDiff );
         model.put( MARK_TOPIC, topic );
 
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_VIEW_DIFF_TOPIC_WIKI, request.getLocale( ), model );
+        XPage page = getXPage( TEMPLATE_VIEW_DIFF_TOPIC_WIKI, request.getLocale( ), model );
+        page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
+        page.setExtendedPathLabel( getPageExtendedPath( topic, request ) );
 
-        return template.getHtml( );
+        return page;
     }
 
     /**
-     * Delete a wikipage
+     * Deletes a wiki page
      *
      * @param request
      *            The HTTP Request
@@ -604,7 +588,7 @@ public class WikiApp extends MVCApplication
      *             if user not connected
      */
     @Action( ACTION_DELETE_PAGE )
-    public XPage doDeletePage( HttpServletRequest request ) throws UserNotSignedException
+    public XPage doDeleteTopic( HttpServletRequest request ) throws UserNotSignedException
     {
         checkUser( request );
 
@@ -617,11 +601,11 @@ public class WikiApp extends MVCApplication
             TopicHome.remove( topic.getIdTopic( ) );
         }
 
-        return redirectWikiRoot( request );
+        return redirectView( request, VIEW_HOME );
     }
 
     /**
-     * Upload an image
+     * Uploads an image
      * 
      * @param request
      *            The HTTP request
@@ -704,7 +688,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Handles the removal form of a image
+     * Handles the removal form of an image
      *
      * @param request
      *            The Http request
@@ -727,7 +711,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Manages the removal form of a image whose identifier is in the http request
+     * Manages the removal form of a topic version whose identifier is in the http request
      *
      * @param request
      *            The Http request
@@ -750,7 +734,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Handles the removal form of a image
+     * Handles the removal form of a topic version
      *
      * @param request
      *            The Http request
@@ -783,7 +767,7 @@ public class WikiApp extends MVCApplication
      * @return A JSON flow
      */
     @View( VIEW_LIST_IMAGES )
-    public XPage viewListImages( HttpServletRequest request )
+    public XPage getListImages( HttpServletRequest request )
     {
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
         JSONArray array = new JSONArray( );
@@ -800,12 +784,12 @@ public class WikiApp extends MVCApplication
                 array.add( jsonImage );
             }
         }
-        return responseJSON( array.toString( ) );
 
+        return responseJSON( array.toString( ) );
     }
 
     /**
-     * Change Language
+     * Changes Language
      * 
      * @param request
      *            The HTTP request
@@ -822,12 +806,11 @@ public class WikiApp extends MVCApplication
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
 
         return redirect( request, VIEW_PAGE, mapParameters );
-
     }
 
     // /////////////////// Utils ////////////////////////////
     /**
-     * Check the connected user
+     * Checks the connected user
      *
      * @param request
      *            The HTTP request
@@ -948,7 +931,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Return a reference list of pages for user
+     * Returns a reference list of pages for user
      * 
      * @param request
      *            The HTTP request
@@ -973,7 +956,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Build the page title
+     * Builds the page title
      *
      * @param strPageName
      *            The page name
@@ -988,7 +971,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Build the extended path for views other than page
+     * Builds the extended path for views other than page
      *
      * @param strViewTitle
      *            The view title
@@ -997,7 +980,7 @@ public class WikiApp extends MVCApplication
     private ReferenceList getViewExtendedPath( String strViewTitle )
     {
         String strWikiRootLabel = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_LABEL, AppPropertiesService.getProperty( PROPERTY_PAGE_PATH ) );
-        String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, AppPropertiesService.getProperty( URL_DEFAULT ) );
+        String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, PAGE_DEFAULT );
 
         ReferenceList list = new ReferenceList( );
 
@@ -1008,7 +991,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Build the extended path for wiki page
+     * Builds the extended path for wiki page
      *
      * @param topic
      *            The topic page
@@ -1019,7 +1002,7 @@ public class WikiApp extends MVCApplication
     private ReferenceList getPageExtendedPath( Topic topic, HttpServletRequest request )
     {
         String strWikiRootLabel = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_LABEL, AppPropertiesService.getProperty( PROPERTY_PAGE_PATH ) );
-        String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, AppPropertiesService.getProperty( URL_DEFAULT ) );
+        String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, AppPropertiesService.getProperty( PAGE_DEFAULT ) );
 
         ReferenceList list = new ReferenceList( );
         ReferenceItem item;
@@ -1057,7 +1040,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * check if name is already in an item of the reference list
+     * Checks if name is already in an item of the reference list
      * 
      * @param list
      *            The reference list
@@ -1079,7 +1062,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Fill all versions with users infos
+     * Fills all versions with users infos
      * 
      * @param listVersions
      *            The version
@@ -1093,7 +1076,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Fill the version with users infos
+     * Fills the version with users infos
      * 
      * @param version
      *            The version
@@ -1168,27 +1151,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Redirect to wiki's root URL
-     * 
-     * @param request
-     *            The HTTP request
-     * @return The XPage
-     */
-    private XPage redirectWikiRoot( HttpServletRequest request )
-    {
-        String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, "" );
-        if ( !"".equals( strWikiRootPageName ) )
-        {
-            Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
-            mapParameters.put( Constants.PARAMETER_PAGE_NAME, strWikiRootPageName );
-
-            return redirect( request, VIEW_PAGE, mapParameters );
-        }
-        return redirectView( request, VIEW_LIST );
-    }
-
-    /**
-     * Return if the plugin Extend is available
+     * Returns if the plugin Extend is available
      * 
      * @return true if extend is installed and activated otherwise false
      */
@@ -1199,7 +1162,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Store the current selected language in the user's session
+     * Stores the current selected language in the user's session
      * 
      * @param request
      *            The request
@@ -1209,12 +1172,14 @@ public class WikiApp extends MVCApplication
     private void setLanguage( HttpServletRequest request, String strLanguage )
     {
         Locale userSelectedLocale = new Locale( strLanguage );
-        if ( LocaleService.isSupported( userSelectedLocale ) ) LocaleService.setUserSelectedLocale( request, userSelectedLocale );
-        
+        if ( LocaleService.isSupported( userSelectedLocale ) )
+        {
+            LocaleService.setUserSelectedLocale( request, userSelectedLocale );
+        }
     }
 
     /**
-     * Retrieve the current selected language from the user's session
+     * Retrieves the current selected language from the user's session
      * 
      * @param request
      *            The request
@@ -1223,7 +1188,6 @@ public class WikiApp extends MVCApplication
     private String getLanguage( HttpServletRequest request )
     {
         String strLanguage = null;
-        HttpSession session = request.getSession( );
         
         if ( request.getParameter( PARAMETER_LANGUAGE) != null)
         {
@@ -1236,7 +1200,7 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Return a topic title
+     * Returns a topic title
      * 
      * @param topic
      *            The topic
@@ -1255,11 +1219,10 @@ public class WikiApp extends MVCApplication
         {
             return topic.getPageName( );
         }
-        
     }
 
     /**
-     * Return a topic title
+     * Returns a topic title
      * 
      * @param request
      *            The HTTP request
