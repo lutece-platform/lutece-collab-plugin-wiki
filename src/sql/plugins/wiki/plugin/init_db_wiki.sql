@@ -11,8 +11,8 @@ VALUES (1,'',1,'admin','2014-05-31 14:42:56',7);
 -- Dumping data for table wiki_topic
 --
 
-INSERT INTO wiki_topic (id_topic, namespace, page_name, page_view_role, page_edit_role) 
-VALUES (1, 0, 'home', 'none', 'none');
+INSERT INTO wiki_topic (id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name) 
+VALUES (1, 0, 'home', 'none', 'none', '');
 
 --
 -- Dumping data for table wiki_image
