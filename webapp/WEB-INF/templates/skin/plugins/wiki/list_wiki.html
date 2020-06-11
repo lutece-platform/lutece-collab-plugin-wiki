@@ -8,6 +8,15 @@
                 <button class="btn btn-default" id="btn-search" type="button" title="#i18n{portal.util.labelSearch}" >
                     <span class="glyphicon glyphicon-search"></span>
                </button>
+                <#list languages_list as language>
+                    <#if language = current_language >
+                        <span class="label label-info">${language}</span>
+                    <#else>
+                        <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=list&language=${language}">
+                            ${language}
+                        </a>
+                    </#if>
+                </#list>
             </div>
 
             <div id="div-new-page" style="display:none">

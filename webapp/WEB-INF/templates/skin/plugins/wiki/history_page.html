@@ -11,6 +11,15 @@
                 <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
                     <span class="glyphicon glyphicon-chevron-left"></span> #i18n{portal.util.labelBack}
                 </a>
+                <#list languages_list as language>
+                    <#if language = current_language >
+                        <span class="label label-info">${language}</span>
+                    <#else>
+                        <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=history&&page_name=${topic.pageName}&language=${language}">
+                            ${language}
+                        </a>
+                    </#if>
+                </#list>
             </div>
             <h1>#i18n{wiki.menu.history} <small> [${topic.pageName}]</small></h1>
 

@@ -236,6 +236,8 @@ public class WikiApp extends MVCApplication
 
         Map<String, Object> model = getModel( );
         model.put( MARK_MAP_TOPIC_TITLE, mapTopicTitle );
+        model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages( ) );
+        model.put( MARK_CURRENT_LANGUAGE, getLanguage( request ) );
 
         XPage page = getXPage( TEMPLATE_LIST_WIKI, getLocale( request ), model );
         page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_LIST, LocaleService.getContextUserLocale( request ) ) ) );
@@ -532,6 +534,8 @@ public class WikiApp extends MVCApplication
         model.put( MARK_TOPIC, topic );
         model.put( MARK_EDIT_ROLE, hasEditRole( request, topic ) );
         model.put( MARK_ADMIN_ROLE, hasAdminRole( request ) );
+        model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages( ) );
+        model.put( MARK_CURRENT_LANGUAGE, getLanguage( request ) );
 
         XPage page = getXPage( TEMPLATE_VIEW_HISTORY_WIKI, request.getLocale( ), model );
         page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
@@ -787,26 +791,6 @@ public class WikiApp extends MVCApplication
         }
 
         return responseJSON( array.toString( ) );
-    }
-
-    /**
-     * Changes Language
-     * 
-     * @param request
-     *            The HTTP request
-     * @return The page
-     * @throws UserNotSignedException
-     */
-    @Action( ACTION_CHANGE_LANGUAGE )
-    public XPage doChangeLanguage( HttpServletRequest request ) throws UserNotSignedException
-    {
-        String strLanguage = request.getParameter( PARAMETER_LANGUAGE );
-        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        setLanguage( request, strLanguage );
-        Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
-
-        return redirect( request, VIEW_PAGE, mapParameters );
     }
 
     // /////////////////// Utils ////////////////////////////
