@@ -167,6 +167,7 @@ public class WikiApp extends MVCApplication
     private static final String MESSAGE_CONFIRM_REMOVE_VERSION = "wiki.message.confirmRemoveVersion";
     private static final String MESSAGE_VERSION_REMOVED = "wiki.message.version.removed";
     private static final String MESSAGE_AUTHENTICATION_REQUIRED = "wiki.message.authenticationRequired";
+    private static final String MESSAGE_PATH_HIDDEN = "wiki.message.path.hidden";
 
     private static final String ANCHOR_IMAGES = "#images";
 
@@ -1007,6 +1008,9 @@ public class WikiApp extends MVCApplication
         ReferenceList list = new ReferenceList( );
         ReferenceItem item;
 
+        String strTopicTitle;
+        String strTopicUrl;
+
         if ( !topic.getPageName( ).equals( strWikiRootPageName ) )
         {
             list.addItem( getTopicTitle( request, topic ), "" );
@@ -1022,9 +1026,21 @@ public class WikiApp extends MVCApplication
 
             if ( topic != null )
             {
+                strTopicTitle = getTopicTitle( request, topic );
+                strTopicUrl = URL_VIEW_PAGE + topic.getPageName( );
+
+                if ( SecurityService.isAuthenticationEnable( ) && ( !Page.ROLE_NONE.equals( topic.getViewRole( ) ) ) )
+                {
+                    if ( !SecurityService.getInstance( ).isUserInRole( request, topic.getViewRole( ) ) )
+                    {
+                        strTopicTitle = I18nService.getLocalizedString( MESSAGE_PATH_HIDDEN , getLocale( request ) );
+                        strTopicUrl = "";
+                    }
+                }
+
                 item = new ReferenceItem();
-                item.setCode( getTopicTitle( request, topic ) );
-                item.setName( URL_VIEW_PAGE + topic.getPageName( ) );
+                item.setCode( strTopicTitle );
+                item.setName( strTopicUrl );
 
                 list.add( 0, item );
             }
