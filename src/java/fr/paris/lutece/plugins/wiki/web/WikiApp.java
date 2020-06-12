@@ -42,6 +42,7 @@ import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.business.TopicVersionHome;
 import fr.paris.lutece.plugins.wiki.business.WikiContent;
 import fr.paris.lutece.plugins.wiki.service.DiffService;
+import fr.paris.lutece.plugins.wiki.service.RoleService;
 import fr.paris.lutece.plugins.wiki.service.WikiLocaleService;
 import fr.paris.lutece.plugins.wiki.service.WikiService;
 import fr.paris.lutece.plugins.wiki.service.WikiUtils;
@@ -172,13 +173,6 @@ public class WikiApp extends MVCApplication
 
     private static final String DSKEY_WIKI_ROOT_LABEL = "wiki.site_property.path.rootLabel";
     private static final String DSKEY_WIKI_ROOT_PAGENAME = "wiki.site_property.path.rootPageName";
-    private static final String DSKEY_ROLE_ADMIN = "wiki.site_property.role.admin";
-    private static final String DSKEY_ROLE_EDIT = "wiki.site_property.role.edit";
-    private static final String DSKEY_ROLE_VIEW = "wiki.site_property.role.view";
-
-    private static final String DEFAULT_ROLE_ADMIN = "wiki_admin";
-    private static final String DEFAULT_ROLE_EDIT = Page.ROLE_NONE;
-    private static final String DEFAULT_ROLE_VIEW = Page.ROLE_NONE;
 
     private static final String PAGE_DEFAULT = "home";
     private static final String URL_VIEW_PAGE = "page=wiki&amp;view=page&amp;page_name=";
@@ -318,8 +312,8 @@ public class WikiApp extends MVCApplication
         model.put( MARK_TOPIC, topic );
         model.put( MARK_TOPIC_TITLE, getTopicTitle( request, topic ) );
         model.put( MARK_LATEST_VERSION, version );
-        model.put( MARK_EDIT_ROLE, hasEditRole( request, topic ) );
-        model.put( MARK_ADMIN_ROLE, hasAdminRole( request ) );
+        model.put( MARK_EDIT_ROLE, RoleService.hasEditRole( request, topic ) );
+        model.put( MARK_ADMIN_ROLE, RoleService.hasAdminRole( request ) );
         model.put( MARK_EXTEND, isExtend( ) );
         model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages( ) );
         model.put( MARK_CURRENT_LANGUAGE, getLanguage( request ) );
@@ -355,8 +349,8 @@ public class WikiApp extends MVCApplication
         {
             topic = new Topic( );
             topic.setPageName( strPageName );
-            topic.setViewRole( DatastoreService.getDataValue( DSKEY_ROLE_VIEW, DEFAULT_ROLE_VIEW ) );
-            topic.setEditRole( DatastoreService.getDataValue( DSKEY_ROLE_EDIT, DEFAULT_ROLE_EDIT ) );
+            topic.setViewRole( Page.ROLE_NONE );
+            topic.setEditRole( Page.ROLE_NONE );
             topic.setParentPageName( "" );
 
             TopicHome.create( topic );
@@ -399,9 +393,9 @@ public class WikiApp extends MVCApplication
         Map<String, Object> model = getModel( );
         model.put( MARK_TOPIC, topic );
         model.put( MARK_LATEST_VERSION, topicVersion );
-        model.put( MARK_PAGE_ROLES_LIST, RoleHome.getRolesList( ) );
-        model.put( MARK_EDIT_ROLE, hasEditRole( request, topic ) );
-        model.put( MARK_ADMIN_ROLE, hasAdminRole( request ) );
+        model.put( MARK_PAGE_ROLES_LIST, RoleService.getUserRoles( request ) );
+        model.put( MARK_EDIT_ROLE, RoleService.hasEditRole( request, topic ) );
+        model.put( MARK_ADMIN_ROLE, RoleService.hasAdminRole( request ) );
         model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages( ) );
         model.put( MARK_REFLIST_TOPIC, topicRefList );
 
@@ -431,7 +425,7 @@ public class WikiApp extends MVCApplication
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
 
-        if ( hasEditRole( request, topic ) )
+        if ( RoleService.hasEditRole( request, topic ) )
         {
             String strPreviousVersionId = request.getParameter( Constants.PARAMETER_PREVIOUS_VERSION_ID );
             String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
@@ -498,8 +492,8 @@ public class WikiApp extends MVCApplication
         fillUsersData( listTopicVersions );
         model.put( MARK_LIST_TOPIC_VERSION, listTopicVersions );
         model.put( MARK_TOPIC, topic );
-        model.put( MARK_EDIT_ROLE, hasEditRole( request, topic ) );
-        model.put( MARK_ADMIN_ROLE, hasAdminRole( request ) );
+        model.put( MARK_EDIT_ROLE, RoleService.hasEditRole( request, topic ) );
+        model.put( MARK_ADMIN_ROLE, RoleService.hasAdminRole( request ) );
         model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages( ) );
         model.put( MARK_CURRENT_LANGUAGE, getLanguage( request ) );
 
@@ -567,7 +561,7 @@ public class WikiApp extends MVCApplication
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
 
         // Requires Admin role
-        if ( hasAdminRole( request ) )
+        if ( RoleService.hasAdminRole( request ) )
         {
             TopicHome.remove( topic.getIdTopic( ) );
         }
@@ -719,7 +713,7 @@ public class WikiApp extends MVCApplication
         checkUser( request );
 
         // requires admin role
-        if ( hasAdminRole( request ) )
+        if ( RoleService.hasAdminRole( request ) )
         {
             int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_TOPIC_VERSION_ID ) );
             TopicVersionHome.remove( nId );
@@ -1076,44 +1070,6 @@ public class WikiApp extends MVCApplication
     private String getPageUrl( HttpServletRequest request )
     {
         return request.getRequestURI( ).substring( request.getContextPath( ).length( ) + 1 ) + "?" + request.getQueryString( );
-    }
-
-    /**
-     * Checks if the user has the edit role for the given topic
-     * 
-     * @param request
-     *            The request
-     * @param topic
-     *            The topic
-     * @return true if he has otherwise false
-     */
-    private boolean hasEditRole( HttpServletRequest request, Topic topic )
-    {
-        if ( SecurityService.isAuthenticationEnable( ) )
-        {
-            if ( !Page.ROLE_NONE.equals( topic.getEditRole( ) ) )
-            {
-                return SecurityService.getInstance( ).isUserInRole( request, topic.getEditRole( ) );
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Checks if the user has the admin role
-     * 
-     * @param request
-     *            The HTTP request
-     * @return true if he has otherwise false
-     */
-    private boolean hasAdminRole( HttpServletRequest request )
-    {
-        if ( SecurityService.isAuthenticationEnable( ) )
-        {
-            String strAdminRole = DatastoreService.getDataValue( DSKEY_ROLE_ADMIN, DEFAULT_ROLE_ADMIN );
-            return SecurityService.getInstance( ).isUserInRole( request, strAdminRole );
-        }
-        return false;
     }
 
     /**
