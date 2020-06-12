@@ -150,7 +150,6 @@ public class WikiApp extends MVCApplication
     private static final String VIEW_LIST_IMAGES = "listImages";
 
     private static final String ACTION_NEW_PAGE = "newPage";
-    private static final String ACTION_EDIT_PAGE = "editPage";
     private static final String ACTION_MODIFY_PAGE = "modifyPage";
     private static final String ACTION_DELETE_PAGE = "deletePage";
     private static final String ACTION_REMOVE_IMAGE = "removeImage";
@@ -371,41 +370,6 @@ public class WikiApp extends MVCApplication
     }
 
     /**
-     * Displays the Edit page
-     * 
-     * @param request
-     *            The HTTP request
-     * @return The page
-     * @throws UserNotSignedException
-     *             if the user is not signed
-     * @throws java.io.UnsupportedEncodingException
-     *             if an encoding exception occurs
-     */
-    @Action( ACTION_EDIT_PAGE )
-    public XPage doEditTopic( HttpServletRequest request ) throws UserNotSignedException, UnsupportedEncodingException
-    {
-        checkUser( request );
-
-        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = TopicHome.findByPrimaryKey( strPageName );
-
-        if ( topic == null )
-        {
-            return redirect( request, VIEW_HOME );
-        }
-
-        Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME, URLEncoder.encode( strPageName, "UTF-8" ) );
-
-        if ( !hasEditRole( request, topic ) )
-        {
-            return redirect( request, VIEW_PAGE, mapParameters );
-        }
-
-        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
-    }
-
-    /**
      * Displays the form to update a wiki page
      *
      * @param request
@@ -415,8 +379,10 @@ public class WikiApp extends MVCApplication
      *             if an exception occurs
      */
     @View( VIEW_MODIFY_PAGE )
-    public XPage getModifyTopic( HttpServletRequest request ) throws SiteMessageException
+    public XPage getModifyTopic( HttpServletRequest request ) throws SiteMessageException, UserNotSignedException
     {
+        checkUser( request );
+
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_EDIT );
         TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
