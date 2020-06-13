@@ -11,13 +11,20 @@
                 </small>
             </div>
             <div class="btn-group btn-group-xs pull-right">
-                <#if has_edit_role >
+                <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=list" title="#i18n{wiki.menu.list}">
+                    <span class="glyphicon glyphicon-list"></span> #i18n{wiki.menu.list}
+                </a>
+                <button class="btn btn-default" id="btn-search" type="button" title="#i18n{wiki.menu.search}" >
+                    <span class="glyphicon glyphicon-search"></span> #i18n{wiki.menu.search}
+                </button>
                 <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=modifyPage&page_name=${topic.pageName}" title="#i18n{wiki.menu.edit}">
                     <span class="glyphicon glyphicon-edit"></span> #i18n{wiki.menu.edit}
                 </a>
-                </#if>
+                <button class="btn btn-default" id="btn-new-page" type="button" title="#i18n{wiki.menu.create}">
+                   <span class="glyphicon glyphicon-plus-sign"></span> #i18n{wiki.menu.create}
+                </button>
                 <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=history&page_name=${topic.pageName}" title="#i18n{wiki.menu.history}">
-                    <span class="glyphicon glyphicon-list"></span> #i18n{wiki.menu.history}
+                    <span class="glyphicon glyphicon-time"></span> #i18n{wiki.menu.history}
                 </a>
                 <#list languages_list as language>
                   <#if language = current_language >
@@ -29,6 +36,35 @@
                   </#if>
                 </#list>
             </div>
+
+            <div id="div-new-page" style="display:none">
+                <form class="form-search" action="jsp/site/Portal.jsp" method="post" >
+                    <input type="hidden" name="page" value="wiki" />
+                    <input type="hidden" name="action" value="newPage" />
+
+                    <div class="input-append">
+                        <input class="search-query col-sm-4" id="input-new-page" type="text" name="page_name" /> &nbsp;
+                        <button class="btn btn-primary btn-xs" type="submit" >
+                            <span class="glyphicon glyphicon-plus-sign"></span> #i18n{wiki.list_wiki.create}
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="div-search" style="display:none">
+                <form class="form-search" action="jsp/site/Portal.jsp" method="post">
+                    <input type="hidden" name="page" value="wiki" />
+                    <input type="hidden" name="view" value="search" />
+                    #i18n{wiki.search_wiki.search} :
+                    <div class="input-append">
+                        <input class="search-query" id="input-search" type="text" name="query" />
+                        <button class="btn btn-primary btn-xs" type="submit" >
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             <h1 id="wiki-heading">${topic_title}</h1>
             <hr>
             <div>
@@ -46,3 +82,17 @@
     </div>
 </div>
 
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        $("#btn-new-page").click(function() {
+            $("#div-search").hide();
+            $("#div-new-page").show("slow");
+            $("#input-new-page").focus();
+        });
+        $("#btn-search").click(function() {
+            $("#div-new-page").hide();
+            $("#div-search").show("slow");
+            $("#input-search").focus();
+        });
+    });
+</script>

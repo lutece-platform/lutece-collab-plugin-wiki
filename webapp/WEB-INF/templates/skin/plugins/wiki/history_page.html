@@ -5,11 +5,11 @@
             <input type="hidden" name="page_name" value="${topic.pageName}" />
             <input type="hidden" name="view" value="diff" />
             <div class="btn-group btn-group-xs pull-right">
-                <button class="btn btn-primary" type="submit" title="#i18n{wiki.menu.diff}">
+                <button class="btn btn-default" type="submit" title="#i18n{wiki.menu.diff}">
                     <span class="glyphicon glyphicon-eye-open"></span> #i18n{wiki.menu.diff}
                 </button>
                 <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
-                    <span class="glyphicon glyphicon-chevron-left"></span> #i18n{portal.util.labelBack}
+                    <span class="glyphicon glyphicon-chevron-left"></span> #i18n{wiki.button.backToPage}
                 </a>
                 <#list languages_list as language>
                     <#if language = current_language >
