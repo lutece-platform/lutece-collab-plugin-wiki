@@ -13,7 +13,6 @@
             
  
             <div class="col-sm-12">
-
                 <div class="btn-group btn-group-xs pull-right">
                     <button name="view_page" class="btn btn-default" type="submit" title="#i18n{wiki.button.backToPage}">
                         <span class="glyphicon glyphicon-chevron-left"></span> #i18n{wiki.button.backToPage}
@@ -26,7 +25,6 @@
                     <button id="btn-help" class="btn btn-default" type="button" title="#i18n{wiki.menu.help}">
                         <span class="glyphicon glyphicon-question-sign"></span> #i18n{wiki.menu.help}
                     </button>
-
                 </div>
             </div>
         </div>
@@ -64,7 +62,7 @@
                         </div>
                         <div class="form-group">
                             <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
-                            <@comboSorted name="parent_page_name" default_value="${topic.parentPageName}" items=reflist_topic />
+                            <@select name="parent_page_name" default_value="${topic.parentPageName}" items=reflist_topic sort=true />
                         </div>
                         <div class="form-group">
                             <textarea id="wiki-${locale}" class="form-control" name="content_${locale}" rows="20" ><#if lastVersion??>${lastVersion.getWikiContent( locale ).wikiContent?html}</#if></textarea>
@@ -76,7 +74,7 @@
                         </div>
                         <div class="form-group">
                             <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
-                            <@comboSorted name="parent_page_name" default_value="${topic.parentPageName}" items=reflist_topic />
+                            <@select name="parent_page_name" default_value="${topic.parentPageName}" items=reflist_topic sort=true />
                         </div>
                         <div class="form-group">
                             <textarea id="wiki-${locale}" class="form-control" name="content_${locale}" rows="20" ></textarea>
@@ -102,23 +100,23 @@
                     <span class="glyphicon glyphicon-save"></span> &nbsp; #i18n{wiki.modify_page.buttonModify}
                 </button>
             </div>
-            <div class="col-sm-6 well">
-                <fieldset>
+            <div class="col-sm-6">
+                <div class="well">
                     <legend><span class="glyphicon glyphicon-user"></span> &nbsp; #i18n{wiki.modify_page.titleRole}</legend>
-                    <div class="form-group">
-                        <label class="col-sm-5" for="roles_list">#i18n{wiki.modify_page.labelViewRole} :</label>
-                        <div class="col-sm-5">
-                            <@comboSorted name="view_role" default_value="${topic.viewRole}" items=page_roles_list />
+                    <div class="form-group row">
+                        <label class="col-sm-5 col-form-label" for="view_role">#i18n{wiki.modify_page.labelViewRole} :</label>
+                        <div class="col-sm-7">
+                            <@select name="view_role" default_value="${topic.viewRole}" items=page_roles_list sort=true />
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="col-sm-5" for="roles_list">#i18n{wiki.modify_page.labelEditRole} :</label>
-                        <div class="col-sm-5">
-                            <@comboSorted name="edit_role" default_value="${topic.editRole}" items=page_roles_list />
+                    <div class="form-group row">
+                        <label class="col-sm-5 col-form-label" for="edit_role">#i18n{wiki.modify_page.labelEditRole} :</label>
+                        <div class="col-sm-7">
+                            <@select name="edit_role" default_value="${topic.editRole}" items=page_roles_list sort=true />
                         </div>
                     </div>
-                </fieldset>
+                </div>
             </div>
         </div>
     </form>
@@ -126,13 +124,10 @@
     </div>    
 </div>
 
-<a name="images"></a>
-<hr>
 <div class="row" >
+    <div class="container panel panel-default">
     <h3><span class="glyphicon glyphicon-picture"></span> &nbsp; #i18n{wiki.modify_page.titleImages}</h3>
-</div>
-
-<div class="row">
+    <div class="row" >
     <div class="col-sm-6">
         <@messages infos=infos />
         <table class="table table-condensed table-stripend">
@@ -149,32 +144,34 @@
             </tbody>
         </table>
     </div>
-    <div class="col-sm-6 well">
+    <div class="col-sm-6">
         <form id="ajax-form-image-upload" action="jsp/site/Portal.jsp" method="post" enctype="multipart/form-data" >
             <input type="hidden" name="page" value="wiki" />
             <input type="hidden" name="page_name" value="${topic.pageName}" />
             <input type="hidden" name="action" value="uploadImage" />
             <input type="hidden" name="topic_id" value="${topic.idTopic}" />
-            <fieldset>
+            <div class="well">
                 <legend><span class="glyphicon glyphicon-plus"></span> &nbsp; #i18n{wiki.modify_page.titleAddImage}</legend>
                 <@messages errors=errors />
                 <!-- loader.gif -->
-                <div class="form-group">
-                    <label class="col-sm-4" for="name">#i18n{wiki.modify_page.labelFile}&nbsp;: </label>
+                <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="name">#i18n{wiki.modify_page.labelFile}&nbsp;: </label>
                     <div class="col-sm-8">
                         <input class="form-control" name="image_file" type="file" />
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-4" for="name">#i18n{wiki.modify_page.labelDescription}&nbsp;: </label>
+                <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="name">#i18n{wiki.modify_page.labelDescription}&nbsp;: </label>
                     <div class="col-sm-8">
                         <input class="form-control" name="image_name" type="text" />
                     </div>
                 </div>
-                <div class="form-group">
-                    <button id="btn-image-upload" class="btn btn-primary" name="name" type="submit" >
-                        <span class="glyphicon glyphicon-upload"></span> &nbsp; #i18n{wiki.modify_page.buttonUpload}
-                    </button>
+                <div class="form-group row">
+                    <div class="col-sm-8">
+                        <button id="btn-image-upload" class="btn btn-primary" name="name" type="submit" >
+                            <span class="glyphicon glyphicon-upload"></span> &nbsp; #i18n{wiki.modify_page.buttonUpload}
+                        </button>
+                    </div>
                 </div>
                 <div id="loader-image-upload" class="progress progress-striped active" style="display:none">
                     <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
@@ -183,6 +180,8 @@
                 </div>
             </fieldset>
         </form>
+    </div>
+    </div>
     </div>
 </div>
 
