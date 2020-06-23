@@ -109,6 +109,7 @@ public class WikiApp extends MVCApplication
     private static final String TEMPLATE_VIEW_HISTORY_WIKI = "skin/plugins/wiki/history_page.html";
     private static final String TEMPLATE_VIEW_DIFF_TOPIC_WIKI = "skin/plugins/wiki/diff_topic.html";
     private static final String TEMPLATE_LIST_WIKI = "skin/plugins/wiki/list_wiki.html";
+    private static final String TEMPLATE_MAP_WIKI = "skin/plugins/wiki/map_wiki.html";
     private static final String TEMPLATE_SEARCH_WIKI = "skin/plugins/wiki/search_wiki.html";
 
     private static final String BEAN_SEARCH_ENGINE = "wiki.wikiSearchEngine";
@@ -116,6 +117,8 @@ public class WikiApp extends MVCApplication
     private static final String PROPERTY_PAGE_PATH = "wiki.pagePathLabel";
     private static final String PROPERTY_PAGE_TITLE = "wiki.pageTitle";
     private static final String PROPERTY_DEFAULT_RESULT_PER_PAGE = "wiki.search_wiki.itemsPerPage";
+    private static final String PROPERTY_PATH_MAP = "wiki.path.map";
+    private static final String PROPERTY_TITLE_MAP = "wiki.title.map";
     private static final String PROPERTY_PATH_LIST = "wiki.path.list";
     private static final String PROPERTY_TITLE_LIST = "wiki.title.list";
     private static final String PROPERTY_PATH_SEARCH = "wiki.path.search";
@@ -125,6 +128,8 @@ public class WikiApp extends MVCApplication
     private static final String MARK_TOPIC_TITLE = "topic_title";
     private static final String MARK_REFLIST_TOPIC = "reflist_topic";
     private static final String MARK_MAP_TOPIC_TITLE = "map_topic_title";
+    private static final String MARK_MAP_TOPIC_CHILDREN = "map_topic_children";
+    private static final String MARK_WIKI_ROOT_PAGE_NAME = "wiki_root_page_name";
     private static final String MARK_LATEST_VERSION = "lastVersion";
     private static final String MARK_DIFF = "diff";
     private static final String MARK_RESULT = "result";
@@ -143,6 +148,7 @@ public class WikiApp extends MVCApplication
 
     private static final String VIEW_HOME = "home";
     private static final String VIEW_LIST = "list";
+    private static final String VIEW_MAP = "map";
     private static final String VIEW_PAGE = "page";
     private static final String VIEW_MODIFY_PAGE = "modifyPage";
     private static final String VIEW_HISTORY = "history";
@@ -235,6 +241,55 @@ public class WikiApp extends MVCApplication
         XPage page = getXPage( TEMPLATE_LIST_WIKI, getLocale( request ), model );
         page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_LIST, LocaleService.getContextUserLocale( request ) ) ) );
         page.setExtendedPathLabel( getViewExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_LIST, LocaleService.getContextUserLocale( request ) ) ) );
+
+        return page;
+    }
+
+    /**
+     * Gets maps page of the wiki
+     * @param request The HTTP request
+     * @return The page
+     */
+    @View( VIEW_MAP )
+    public XPage getTopicsMap( HttpServletRequest request )
+    {
+        Collection<Topic> listTopic = TopicHome.getTopicsList( );
+
+        String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, AppPropertiesService.getProperty( PAGE_DEFAULT ) );
+
+        Map<String, String> mapTopicTitle = new HashMap();
+        Map<String, List<Topic>> mapTopicChildren = new HashMap();
+
+        for ( Topic topic : listTopic )
+        {
+            mapTopicTitle.put( topic.getPageName( ), getTopicTitle( request, topic ) );
+
+            String strParentPageName = topic.getParentPageName( );
+            if ( strParentPageName != null && !topic.getPageName( ).isEmpty( ) )
+            {
+                if ( mapTopicChildren.containsKey( strParentPageName ) )
+                {
+                    mapTopicChildren.get( strParentPageName ).add( topic );
+                }
+                else
+                {
+                    List<Topic> listChildren = new ArrayList<>( );
+                    listChildren.add( topic );
+                    mapTopicChildren.put( strParentPageName, listChildren );
+                }
+            }
+        }
+
+        Map<String, Object> model = getModel( );
+        model.put( MARK_MAP_TOPIC_TITLE, mapTopicTitle );
+        model.put( MARK_MAP_TOPIC_CHILDREN, mapTopicChildren );
+        model.put( MARK_WIKI_ROOT_PAGE_NAME, strWikiRootPageName );
+        model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages( ) );
+        model.put( MARK_CURRENT_LANGUAGE, getLanguage( request ) );
+
+        XPage page = getXPage( TEMPLATE_MAP_WIKI, getLocale( request ), model );
+        page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_MAP, LocaleService.getContextUserLocale( request ) ) ) );
+        page.setExtendedPathLabel( getViewExtendedPath( I18nService.getLocalizedString( PROPERTY_PATH_MAP, LocaleService.getContextUserLocale( request ) ) ) );
 
         return page;
     }
