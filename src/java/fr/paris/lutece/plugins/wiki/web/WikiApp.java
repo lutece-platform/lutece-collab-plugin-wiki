@@ -131,7 +131,8 @@ public class WikiApp extends MVCApplication
     private static final String MARK_MAP_TOPIC_CHILDREN = "map_topic_children";
     private static final String MARK_WIKI_ROOT_PAGE_NAME = "wiki_root_page_name";
     private static final String MARK_LATEST_VERSION = "lastVersion";
-    private static final String MARK_DIFF = "diff";
+    private static final String MARK_DIFF_HTML = "diff_html";
+    private static final String MARK_DIFF_SOURCE = "diff_source";
     private static final String MARK_RESULT = "result";
     private static final String MARK_LIST_TOPIC_VERSION = "listTopicVersion";
     private static final String MARK_PAGE_ROLES_LIST = "page_roles_list";
@@ -583,12 +584,17 @@ public class WikiApp extends MVCApplication
         TopicVersion newTopicVersion = TopicVersionHome.findByPrimaryKey( nNewTopicVersion );
         TopicVersion oldTopicVersion = TopicVersionHome.findByPrimaryKey( nPrevTopicVersion );
 
-        String strNewHtml = WikiService.instance( ).getWikiPage( strPageName, newTopicVersion, getLanguage( request ) );
-        String strOldHtml = WikiService.instance( ).getWikiPage( strPageName, oldTopicVersion, getLanguage( request ) );
-        String strDiff = DiffService.getDiff( strOldHtml, strNewHtml );
+        String strLanguage = getLanguage( request );
+        String strNewHtml = WikiService.instance( ).getWikiPage( strPageName, newTopicVersion, strLanguage );
+        String strOldHtml = WikiService.instance( ).getWikiPage( strPageName, oldTopicVersion, strLanguage );
+        String strNewSource = WikiService.instance( ).getPageSource( strPageName, newTopicVersion, strLanguage );
+        String strOldSource = WikiService.instance( ).getPageSource( strPageName, oldTopicVersion, strLanguage );
+        String strDiffHtml = DiffService.getDiff( strOldHtml, strNewHtml );
+        String strDiffSource = DiffService.getDiff( strOldSource, strNewSource );
 
         Map<String, Object> model = getModel( );
-        model.put( MARK_DIFF, strDiff );
+        model.put( MARK_DIFF_HTML, strDiffHtml );
+        model.put( MARK_DIFF_SOURCE, strDiffSource );
         model.put( MARK_TOPIC, topic );
 
         XPage page = getXPage( TEMPLATE_VIEW_DIFF_TOPIC_WIKI, request.getLocale( ), model );

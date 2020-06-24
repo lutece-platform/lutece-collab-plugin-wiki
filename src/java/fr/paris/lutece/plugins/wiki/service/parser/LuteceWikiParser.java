@@ -123,6 +123,23 @@ public class LuteceWikiParser extends WikiParser
     }
 
     /**
+     * Render specific entities
+     * @param strSource The source
+     * @return The source transformed
+     */
+    public static String renderSource( String strSource )
+    {
+        String strRender = strSource;
+        strRender = strRender.replaceAll( "\\[lt;", "&lt;" );
+        strRender = strRender.replaceAll( "\\[gt;", "&gt;" );
+        strRender = strRender.replaceAll( "\\[nbsp;", "&nbsp;" );
+        strRender = strRender.replaceAll( "\\[quot;", "&quot;" );
+        strRender = strRender.replaceAll( "\\[amp;", "&amp;" );
+        strRender = strRender.replaceAll( "\\[hashmark;", "#" );
+        return strRender;
+    }
+
+    /**
      * {@inheritDoc } 
      */
     @Override

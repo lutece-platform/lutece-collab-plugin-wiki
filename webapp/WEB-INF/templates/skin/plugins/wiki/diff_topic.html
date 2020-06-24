@@ -10,8 +10,21 @@
                 </a>
             </div>
             <h1>#i18n{wiki.menu.diff} <small> [${topic.pageName}]</small></h1>
-            <div>
-                ${diff}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="panel-title">#i18n{wiki.menu.diff.html}</h2>
+                </div>
+                <div class="panel-body">
+                    ${diff_html}
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="panel-title">#i18n{wiki.menu.diff.source}</h2>
+                </div>
+                <div class="panel-body">
+                    ${diff_source}
+                </div>
             </div>
         </div>
     </div>
