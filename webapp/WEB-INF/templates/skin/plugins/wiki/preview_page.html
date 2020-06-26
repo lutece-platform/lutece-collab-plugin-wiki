@@ -1,44 +1,22 @@
-<div id="wiki-content" class="span-22 prepend-1 append-1 append-bottom last">
-    <div id="wiki-menu">
-        <ul>
-            <div id="wiki-action">
-                <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki">
-                        #i18n{wiki.menu.home}
+<div class="row">
+    <div class="col-sm-12">
+        <div class="container panel panel-default">
+            <div class="panel-body">
+                <div class="btn-group btn-group-xs pull-right">
+                    <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
+                        <span class="glyphicon glyphicon-chevron-left"></span> #i18n{wiki.button.backToPage}
                     </a>
-                </li>
-                <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}">
-                        #i18n{wiki.menu.page}
+                    <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=modifyPage&page_name=${topic.pageName}" title="#i18n{wiki.button.backToEdit}">
+                        <span class="glyphicon glyphicon-edit"></span> #i18n{wiki.button.backToEdit}
                     </a>
-                </li>
-                <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=modify">
-                        #i18n{wiki.menu.source}
-                    </a>
-                </li>
-                <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&action=view_history">
-                        #i18n{wiki.menu.history}
-                    </a>
-                </li>
+                </div>
             </div>
-        </ul>
-    </div>
 
-    <div>
-        <h1 id="wiki-heading">${topic_name}</h1>
-        <hr>
-        <form method="post" action="jsp/site/Portal.jsp">
-
-            <input type="hidden" name="page" value="wiki" />
-            <input type="hidden" name="page_name" value="${topic_name}" />
-				${result}
-            <input type="hidden" name="preview_content" value="${preview_content}" />
-            <input type="hidden" name="action" value="modify" />
-
-
-            <input class="-lutece-input -lutece-border-radius-mini" type="submit" value="Modifier" />
-        </form>
+            <h1>${topic_title}</h1>
+            <hr>
+            <div>
+                ${result}
+            </div>
+        </div>
     </div>
 </div>
