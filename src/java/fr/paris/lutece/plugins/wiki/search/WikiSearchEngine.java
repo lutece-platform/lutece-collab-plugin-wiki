@@ -39,6 +39,7 @@ import fr.paris.lutece.portal.service.search.SearchEngine;
 import fr.paris.lutece.portal.service.search.SearchItem;
 import fr.paris.lutece.portal.service.search.SearchResult;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.portal.web.l10n.LocaleService;
 
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
@@ -92,8 +93,14 @@ public class WikiSearchEngine implements SearchEngine
             if ( ( strQuery != null ) && !strQuery.equals( "" ) )
             {
                 QueryParser parser = new QueryParser( SearchItem.FIELD_CONTENTS, IndexationService.getAnalyser( ) );
+                strQuery = strQuery + " OR " + SearchItem.FIELD_TITLE + ":(" + strQuery + ")";
                 queryBuilder.add( parser.parse( strQuery ), BooleanClause.Occur.MUST );
             }
+
+            // Language
+            String strLanguage = LocaleService.getContextUserLocale( request ).getLanguage( );
+            Query queryLanguage = new TermQuery( new Term( SearchItem.FIELD_METADATA, strLanguage ) );
+            queryBuilder.add( queryLanguage, BooleanClause.Occur.MUST );
 
             // Type
             Query queryType = new TermQuery( new Term( SearchItem.FIELD_TYPE, WikiIndexer.getDocumentType( ) ) );

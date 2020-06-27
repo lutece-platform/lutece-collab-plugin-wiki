@@ -315,7 +315,7 @@ public class WikiApp extends MVCApplication
 
         UrlItem urlWikiXpage = new UrlItem( strPortalUrl );
         urlWikiXpage.addParameter( XPageAppService.PARAM_XPAGE_APP, Constants.PLUGIN_NAME );
-        urlWikiXpage.addParameter( Constants.PARAMETER_ACTION, Constants.PARAMETER_ACTION_SEARCH );
+        urlWikiXpage.addParameter( Constants.PARAMETER_VIEW, VIEW_SEARCH );
 
         _strCurrentPageIndex = Paginator.getPageIndex( request, Paginator.PARAMETER_PAGE_INDEX, _strCurrentPageIndex );
         _nDefaultItemsPerPage = AppPropertiesService.getPropertyInt( PROPERTY_DEFAULT_RESULT_PER_PAGE, 10 );

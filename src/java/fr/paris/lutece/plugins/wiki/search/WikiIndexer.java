@@ -243,18 +243,8 @@ public class WikiIndexer implements SearchIndexer
         doc.add( new Field( SearchItem.FIELD_UID, strIdSubject + "_" + SHORT_NAME_TOPIC, ftNotStored ) );
 
         TopicVersion latestTopicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-        String strWikiContent = "";
-
-        if ( latestTopicVersion != null )
-        {
-            for ( String strLocale : latestTopicVersion.getWikiContents( ).keySet( ) )
-            {
-                // FIXME manage indexes for multi-language
-                strWikiContent += latestTopicVersion.getWikiContent( strLocale ).getWikiContent( );
-            }
-        }
-
-        String strWikiResult = new LuteceWikiParser( strWikiContent, topic.getPageName( ), null, strLanguage ).toString( ) + " " + topic.getPageName( );
+        String strWikiContent = latestTopicVersion.getWikiContent( strLanguage ).getWikiContent( );
+        String strWikiResult = new LuteceWikiParser( strWikiContent, topic.getPageName( ), null, strLanguage ).toString( );
 
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, TextField.TYPE_NOT_STORED ) );
 
@@ -268,6 +258,8 @@ public class WikiIndexer implements SearchIndexer
         doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType( ), fieldType ) );
 
         doc.add( new Field( SearchItem.FIELD_ROLE, topic.getViewRole( ), fieldType ) );
+
+        doc.add( new Field( SearchItem.FIELD_METADATA, strLanguage, fieldType ) );
 
         return doc;
     }
