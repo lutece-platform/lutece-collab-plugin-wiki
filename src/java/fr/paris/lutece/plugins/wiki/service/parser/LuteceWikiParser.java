@@ -264,27 +264,14 @@ public class LuteceWikiParser extends WikiParser
             else
             {
                 TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+                strAction = "&view=page";
                 if( version != null )
                 {
                     WikiContent content = version.getWikiContent( _strLanguage );
-                    if( content != null )
+                    if( content != null && !content.getPageTitle( ).trim( ).isEmpty( ) )
                     {
-                        if ( !content.getPageTitle( ).isEmpty( ) )
-                        {
-                            strTopicName = content.getPageTitle( );
-                        }
-                        strAction = "&view=page";
+                        strTopicName = content.getPageTitle( );
                     }
-                    else
-                    {
-                        AppLogService.error( "LuteceWikiParser - Unable to find content for topic " + topic.getIdTopic( ) + " and language " + _strLanguage );
-                        return;
-                    }
-                }
-                else
-                {
-                    AppLogService.error( "LuteceWikiParser - Unable to find topic ID : " + topic.getIdTopic( ) );
-                    return;
                 }
             }
 
