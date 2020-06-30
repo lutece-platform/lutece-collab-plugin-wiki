@@ -76,6 +76,7 @@ public class WikiParser
     protected int HEADING_LEVEL_SHIFT = 1; // make =h2, ==h3, ...
     protected String HEADING_ID_PREFIX = null;
     private String _strTableClass = "";
+    private String _strParentTableClass = "";
     private String _strTocClass = "toc";
 
     protected WikiParser( )
@@ -93,6 +94,13 @@ public class WikiParser
     {
         _strTableClass = strClass;
     }
+
+
+    protected void setParentTableClass( String strParentClass )
+    {
+        _strParentTableClass = strParentClass;
+    }
+
 
     protected void setTocClass( String strClass )
     {
@@ -119,7 +127,7 @@ public class WikiParser
         closeListsAndTables( );
 
         while ( mediawikiTableLevel-- > 0 )
-            sb.append( "</td></tr></table>\n" );
+            sb.append( "</td></tr></table></div>\n" );
 
         completeTOC( );
     }
@@ -139,7 +147,7 @@ public class WikiParser
 
         if ( inTable )
         {
-            sb.append( "</table>\n" );
+            sb.append( "</table></div>\n" );
             inTable = false;
         }
     }
@@ -194,7 +202,7 @@ public class WikiParser
                     if ( ( pp == wikiLength ) || ( wikiChars [pp] == '\n' ) )
                     { // nothing else on the line => it's mediawiki-table markup
                         closeListsAndTables( ); // close lists if any
-                        sb.append( newRow ? "</td></tr>\n<tr><td>" : ( endTable ? "</td></tr></table>\n" : "</td>\n<td>" ) );
+                        sb.append( newRow ? "</td></tr>\n<tr><td>" : ( endTable ? "</td></tr></table></div>\n" : "</td>\n<td>" ) );
 
                         if ( endTable )
                         {
@@ -211,7 +219,7 @@ public class WikiParser
             if ( !inTable )
             {
                 closeListsAndTables( ); // close lists if any
-                sb.append( "<table class=\"" ).append( _strTableClass ).append( "\" >" );
+                sb.append( "<div class=\"").append( _strParentTableClass ).append( "\" >" ).append("<table class=\"" ).append( _strTableClass ).append( "\" >" );
                 inTable = true;
             }
 
@@ -223,7 +231,7 @@ public class WikiParser
         {
             if ( inTable )
             {
-                sb.append( "</table>\n" );
+                sb.append( "</table></div>\n" );
                 inTable = false;
             }
         }
@@ -373,7 +381,7 @@ public class WikiParser
 
                         if ( ( pp == wikiLength ) || ( wikiChars [pp] == '\n' ) )
                         { // yes, it's start of a table
-                            sb.append( "<table class=\"" ).append( _strTableClass ).append( "\" ><tr><td>" );
+                            sb.append( "<div class=\"").append( _strParentTableClass ).append( "\" >" ).append("<table class=\"" ).append( _strTableClass ).append( "\"><tr><td>" );
                             mediawikiTableLevel++;
                             pos = pp + 1;
 

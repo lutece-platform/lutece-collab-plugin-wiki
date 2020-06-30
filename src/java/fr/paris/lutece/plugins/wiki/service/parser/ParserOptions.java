@@ -42,6 +42,7 @@ public class ParserOptions
     // Variables declarations
 
     private String _strTableClass;
+    private String _strParentTableClass;
     private String _strImageClass;
     private String _strSizedImageClass;
     private String _strTocClass;
@@ -65,6 +66,27 @@ public class ParserOptions
     public void setTableClass( String strTableClass )
     {
         _strTableClass = strTableClass;
+    }
+
+    /**
+     * Returns the ParentTableClass
+     *
+     * @return The TableClass
+     */
+    public String getParentTableClass( )
+    {
+        return _strParentTableClass;
+    }
+
+    /**
+     * Sets the TableClass
+     *
+     * @param strParentTableClass
+     *            The TableClass
+     */
+    public void setParentTableClass( String strParentTableClass )
+    {
+        _strParentTableClass = strParentTableClass;
     }
 
     /**

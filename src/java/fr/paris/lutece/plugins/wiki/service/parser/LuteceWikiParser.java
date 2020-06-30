@@ -84,6 +84,7 @@ public class LuteceWikiParser extends WikiParser
         _strPageUrl = strPageUrl;
         _strLanguage = strLanguage;
         setTableClass( _options.getTableClass( ) );
+        setParentTableClass( _options.getParentTableClass( ) );
         setTocClass( _options.getTocClass( ) );
         parse( renderWiki( strWikiText ) );
     }
