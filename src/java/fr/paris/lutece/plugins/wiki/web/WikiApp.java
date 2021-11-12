@@ -349,7 +349,7 @@ public class WikiApp extends MVCApplication
      *             if an error occurs
      */
     @View( VIEW_PAGE )
-    public XPage getTopic( HttpServletRequest request ) throws SiteMessageException
+    public XPage getTopic( HttpServletRequest request ) throws SiteMessageException, UserNotSignedException
     {
         if ( !SecurityService.isAuthenticationEnable( ) )
         {
@@ -630,7 +630,7 @@ public class WikiApp extends MVCApplication
      *             if an error occurs
      */
     @View( VIEW_HISTORY )
-    public XPage getHistory( HttpServletRequest request ) throws SiteMessageException
+    public XPage getHistory( HttpServletRequest request ) throws SiteMessageException, UserNotSignedException
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_VIEW );
@@ -662,7 +662,7 @@ public class WikiApp extends MVCApplication
      *             if an error occurs
      */
     @View( VIEW_DIFF )
-    public XPage getDiff( HttpServletRequest request ) throws SiteMessageException
+    public XPage getDiff( HttpServletRequest request ) throws SiteMessageException, UserNotSignedException
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_VIEW );
@@ -950,7 +950,7 @@ public class WikiApp extends MVCApplication
      * @throws SiteMessageException
      *             If an error occurs
      */
-    private Topic getTopic( HttpServletRequest request, String strPageName, int nMode ) throws SiteMessageException
+    private Topic getTopic( HttpServletRequest request, String strPageName, int nMode ) throws SiteMessageException, UserNotSignedException
     {
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
 
@@ -977,6 +977,13 @@ public class WikiApp extends MVCApplication
 
             if ( SecurityService.isAuthenticationEnable( ) && ( !Page.ROLE_NONE.equals( strRole ) ) )
             {
+                LuteceUser user = SecurityService.getInstance( ).getRemoteUser( request );
+
+                if ( user == null )
+                {
+                    throw new UserNotSignedException( );
+                }
+
                 if ( !SecurityService.getInstance( ).isUserInRole( request, strRole ) )
                 {
                     SiteMessageService.setMessage( request, strMessage, SiteMessage.TYPE_STOP );
