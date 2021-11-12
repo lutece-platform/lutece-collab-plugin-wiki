@@ -259,7 +259,7 @@ public class WikiApp extends MVCApplication
     @View( VIEW_MAP )
     public XPage getTopicsMap( HttpServletRequest request )
     {
-        Collection<Topic> listTopic = TopicHome.getTopicsList( );
+        Collection<Topic> listTopic = getTopicsForUser( request );
 
         String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, AppPropertiesService.getProperty( PAGE_DEFAULT ) );
 
