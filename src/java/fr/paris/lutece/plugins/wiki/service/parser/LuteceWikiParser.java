@@ -40,6 +40,7 @@ import fr.paris.lutece.plugins.wiki.business.TopicHome;
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.business.TopicVersionHome;
 import fr.paris.lutece.plugins.wiki.business.WikiContent;
+import fr.paris.lutece.plugins.wiki.service.PathService;
 import fr.paris.lutece.plugins.wiki.web.Constants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
@@ -53,6 +54,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.List;
 
 /**
  * Lutece Wiki Parser
@@ -297,6 +299,27 @@ public class LuteceWikiParser extends WikiParser
             if ( "My-macro".equals( strText ) )
             {
                 sb.append( "{{ My macro output }}" );
+            }
+            else
+            if ( "breadcrumb".equals( strText.trim( ) ) )
+            {
+                sb.append( "<p>" );
+
+                Topic topic = TopicHome.findByPrimaryKey( _strPageName );
+
+                List<Topic> topicList = PathService.getParentTopics( topic );
+                for( Topic item : topicList )
+                {
+                    appendLink( item.getPageName( ) );
+                    sb.append( " > " );
+                }
+
+                TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+                WikiContent content = version.getWikiContent( _strLanguage );
+                String strTopicName = content.getPageTitle( ).trim( );
+                sb.append( escapeHTML( unescapeHTML( strTopicName.isEmpty( ) ? topic.getPageName( ) : strTopicName ) ) );
+
+                sb.append( "</p>\n" );
             }
             else
             {
