@@ -519,13 +519,6 @@ public class WikiApp extends MVCApplication
             int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
             int nTopicId = Integer.parseInt( strTopicId );
 
-            if ( TopicHome.findByPrimaryKey( strParentPageName ) == null )
-            {
-                Map<String, String> mapAdditionnalsParameters = new HashMap<String,String>();
-                mapAdditionnalsParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
-                return redirect( request, VIEW_MODIFY_PAGE, mapAdditionnalsParameters );
-            }
-
             TopicVersion topicVersion = new TopicVersion( );
             topicVersion.setIdTopic( nTopicId );
             topicVersion.setUserName( user.getName( ) );
