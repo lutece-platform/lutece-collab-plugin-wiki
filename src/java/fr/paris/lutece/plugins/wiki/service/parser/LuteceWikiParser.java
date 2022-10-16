@@ -254,6 +254,7 @@ public class LuteceWikiParser extends WikiParser
         {
             Topic topic = TopicHome.findByPrimaryKey( escapeHTML( escapeURL( link [0] ) ) );
             String strAction;
+            String strAdditionalParameter = "";
             String strColorBegin = "";
             String strColorEnd = "";
             String strTopicName = link [0];
@@ -261,6 +262,7 @@ public class LuteceWikiParser extends WikiParser
             if ( topic == null )
             {
                 strAction = "&action=" + Constants.PARAMETER_ACTION_CREATE;
+                strAdditionalParameter = "&parent_page_name=" + _strPageName;
                 strColorBegin = "<font color=red>";
                 strColorEnd = "</font>";
             }
@@ -278,7 +280,8 @@ public class LuteceWikiParser extends WikiParser
                 }
             }
 
-            sb.append( "<a href=\"" ).append( AppPathService.getPortalUrl( ) ).append( "?page=wiki" ).append( strAction ).append( "&page_name=" )
+            sb.append( "<a href=\"" ).append( AppPathService.getPortalUrl( ) ).append( "?page=wiki" ).append( strAction ).append( strAdditionalParameter )
+                    .append( "&page_name=" )
                     .append( escapeHTML( unescapeHTML( link [0] ) ) ).append( " \" title=\"Wikipedia link\">" ).append( strColorBegin )
                     .append( escapeHTML( unescapeHTML( ( ( link.length >= 2 ) && !isEmpty( link [1].trim( ) ) ) ? link [1] : strTopicName ) ) )
                     .append( strColorEnd ).append( "</a>" );

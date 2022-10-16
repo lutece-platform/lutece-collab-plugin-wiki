@@ -402,6 +402,7 @@ public class WikiApp extends MVCApplication
         checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        String strParentPageName = request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME );
         String strPageTitle = strPageName;
         strPageName = WikiUtils.normalize( strPageName );
 
@@ -412,7 +413,7 @@ public class WikiApp extends MVCApplication
             topic.setPageName( strPageName );
             topic.setViewRole( Page.ROLE_NONE );
             topic.setEditRole( Page.ROLE_NONE );
-            topic.setParentPageName( "" );
+            topic.setParentPageName( strParentPageName );
 
             TopicHome.create( topic );
         }
