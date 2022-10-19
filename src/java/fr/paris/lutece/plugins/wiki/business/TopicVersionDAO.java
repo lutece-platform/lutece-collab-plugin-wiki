@@ -191,12 +191,12 @@ public final class TopicVersionDAO implements ITopicVersionDAO
     @Override
     public void deleteByTopic( int nTopicId, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_BY_TOPIC_ID, plugin );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_CONTENT_BY_TOPIC_ID, plugin );
         daoUtil.setInt( 1, nTopicId );
         daoUtil.executeUpdate( );
         daoUtil.free( );
 
-        daoUtil = new DAOUtil( SQL_QUERY_DELETE_CONTENT_BY_TOPIC_ID, plugin );
+        daoUtil = new DAOUtil( SQL_QUERY_DELETE_BY_TOPIC_ID, plugin );
         daoUtil.setInt( 1, nTopicId );
         daoUtil.executeUpdate( );
         daoUtil.free( );
