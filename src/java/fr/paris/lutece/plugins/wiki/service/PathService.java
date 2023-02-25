@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2021, Mairie de Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-
 /**
  * Diff Service
  */
@@ -64,12 +63,11 @@ public final class PathService
 
         List topicList = new ArrayList( );
 
-        while ( StringUtils.isNotEmpty( topic.getParentPageName( ) ) &&
-                !topic.getPageName( ).equals( strWikiRootPageName ) )
+        while ( StringUtils.isNotEmpty( topic.getParentPageName( ) ) && !topic.getPageName( ).equals( strWikiRootPageName ) )
         {
             topic = TopicHome.findByPrimaryKey( topic.getParentPageName( ) );
 
-            if( topic == null || isTopicInList( topicList, topic ) )
+            if ( topic == null || isTopicInList( topicList, topic ) )
             {
                 break;
             }
@@ -91,7 +89,7 @@ public final class PathService
      */
     private static boolean isTopicInList( List<Topic> list, Topic topic )
     {
-        if( topic == null )
+        if ( topic == null )
         {
             return false;
         }

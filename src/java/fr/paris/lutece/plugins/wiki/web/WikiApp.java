@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2018, Mairie de Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -224,7 +224,9 @@ public class WikiApp extends MVCApplication
 
     /**
      * Gets list page of all wiki pages
-     * @param request The HTTP request
+     * 
+     * @param request
+     *            The HTTP request
      * @return The page
      */
     @View( VIEW_LIST )
@@ -232,7 +234,7 @@ public class WikiApp extends MVCApplication
     {
         List<Topic> listTopic = getTopicsForUser( request );
 
-        Map<String, String> mapTopicTitle = new HashMap();
+        Map<String, String> mapTopicTitle = new HashMap( );
 
         for ( Topic topic : listTopic )
         {
@@ -253,7 +255,9 @@ public class WikiApp extends MVCApplication
 
     /**
      * Gets maps page of the wiki
-     * @param request The HTTP request
+     * 
+     * @param request
+     *            The HTTP request
      * @return The page
      */
     @View( VIEW_MAP )
@@ -263,8 +267,8 @@ public class WikiApp extends MVCApplication
 
         String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, AppPropertiesService.getProperty( PAGE_DEFAULT ) );
 
-        Map<String, String> mapTopicTitle = new HashMap();
-        Map<String, List<Topic>> mapTopicChildren = new HashMap();
+        Map<String, String> mapTopicTitle = new HashMap( );
+        Map<String, List<Topic>> mapTopicChildren = new HashMap( );
 
         for ( Topic topic : listTopic )
         {
@@ -462,7 +466,7 @@ public class WikiApp extends MVCApplication
         }
         else
         {
-            topicVersion  = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+            topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
             if ( topicVersion != null )
             {
                 String strLanguage = getLanguage( request );
@@ -782,7 +786,8 @@ public class WikiApp extends MVCApplication
      * @param request
      *            The Http request
      * @return the html code to confirm
-     * @throws SiteMessageException A site message 
+     * @throws SiteMessageException
+     *             A site message
      */
     @Action( ACTION_CONFIRM_REMOVE_IMAGE )
     public XPage getConfirmRemoveImage( HttpServletRequest request ) throws SiteMessageException
@@ -828,7 +833,8 @@ public class WikiApp extends MVCApplication
      * @param request
      *            The Http request
      * @return the html code to confirm
-     * @throws SiteMessageException A site message 
+     * @throws SiteMessageException
+     *             A site message
      */
     @Action( ACTION_CONFIRM_REMOVE_VERSION )
     public XPage getConfirmRemoveVersion( HttpServletRequest request ) throws SiteMessageException
@@ -875,7 +881,9 @@ public class WikiApp extends MVCApplication
 
     /**
      * Returns the image list as JSON
-     * @param request The HTTP request
+     * 
+     * @param request
+     *            The HTTP request
      * @return A JSON flow
      */
     @View( VIEW_LIST_IMAGES )
@@ -1046,7 +1054,7 @@ public class WikiApp extends MVCApplication
         {
             list.addItem( "", "" );
         }
-        for (Topic topic : getTopicsForUser( request ) )
+        for ( Topic topic : getTopicsForUser( request ) )
         {
             list.addItem( topic.getPageName( ), getTopicTitle( request, topic ) );
         }
@@ -1114,11 +1122,8 @@ public class WikiApp extends MVCApplication
             list.addItem( getTopicTitle( request, topic ), "" );
         }
 
-        while ( topic != null &&
-                !topic.getParentPageName( ).isEmpty( ) &&
-                topic.getParentPageName( ) != null &&
-                !topic.getParentPageName( ).equals( strWikiRootPageName ) &&
-                !isNameInReferenceList( list, URL_VIEW_PAGE + topic.getParentPageName( ) ) )
+        while ( topic != null && !topic.getParentPageName( ).isEmpty( ) && topic.getParentPageName( ) != null
+                && !topic.getParentPageName( ).equals( strWikiRootPageName ) && !isNameInReferenceList( list, URL_VIEW_PAGE + topic.getParentPageName( ) ) )
         {
             topic = TopicHome.findByPrimaryKey( topic.getParentPageName( ) );
 
@@ -1131,12 +1136,12 @@ public class WikiApp extends MVCApplication
                 {
                     if ( !SecurityService.getInstance( ).isUserInRole( request, topic.getViewRole( ) ) )
                     {
-                        strTopicTitle = I18nService.getLocalizedString( MESSAGE_PATH_HIDDEN , getLocale( request ) );
+                        strTopicTitle = I18nService.getLocalizedString( MESSAGE_PATH_HIDDEN, getLocale( request ) );
                         strTopicUrl = "";
                     }
                 }
 
-                item = new ReferenceItem();
+                item = new ReferenceItem( );
                 item.setCode( strTopicTitle );
                 item.setName( strTopicUrl );
 
@@ -1144,7 +1149,7 @@ public class WikiApp extends MVCApplication
             }
         }
 
-        item = new ReferenceItem();
+        item = new ReferenceItem( );
         item.setCode( strWikiRootLabel );
         item.setName( URL_VIEW_PAGE + strWikiRootPageName );
 
@@ -1264,14 +1269,14 @@ public class WikiApp extends MVCApplication
     private String getLanguage( HttpServletRequest request )
     {
         String strLanguage = null;
-        
-        if ( request.getParameter( PARAMETER_LANGUAGE) != null)
+
+        if ( request.getParameter( PARAMETER_LANGUAGE ) != null )
         {
             // consider the language parameter in the URL if exists
             strLanguage = request.getParameter( PARAMETER_LANGUAGE );
-            setLanguage( request, strLanguage);
+            setLanguage( request, strLanguage );
         }
-        
+
         return LocaleService.getContextUserLocale( request ).getLanguage( );
     }
 
@@ -1287,7 +1292,7 @@ public class WikiApp extends MVCApplication
     private String getTopicTitle( Topic topic, String strLanguage )
     {
         TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-        if ( version !=null && StringUtils.isNotEmpty( version.getWikiContent( strLanguage ).getPageTitle( ) ) )
+        if ( version != null && StringUtils.isNotEmpty( version.getWikiContent( strLanguage ).getPageTitle( ) ) )
         {
             return version.getWikiContent( strLanguage ).getPageTitle( );
         }

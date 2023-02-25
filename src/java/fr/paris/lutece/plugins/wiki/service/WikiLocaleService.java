@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2018, Mairie de Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
  *
  * License 1.0
  */
-
 package fr.paris.lutece.plugins.wiki.service;
 
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -85,7 +84,7 @@ public final class WikiLocaleService
         }
         return listLanguages;
     }
-    
+
     /**
      * returns the default language
      * 
@@ -100,6 +99,6 @@ public final class WikiLocaleService
                 _listLanguages = initLanguages( );
             }
         }
-        return (String)_listLanguages.get( 0 );
+        return (String) _listLanguages.get( 0 );
     }
 }

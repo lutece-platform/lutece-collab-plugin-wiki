@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2018, Mairie de Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -169,7 +169,7 @@ public class WikiIndexer implements SearchIndexer
      * 
      * @param topic
      *            The topic
-     * @param strLanguage 
+     * @param strLanguage
      *            The language
      * @throws IOException
      *             if an IO error occurs
@@ -210,7 +210,7 @@ public class WikiIndexer implements SearchIndexer
      *            The topic
      * @param strUrl
      *            The URL
-     * @param strLanguage 
+     * @param strLanguage
      *            The language
      * @return The document
      * @throws IOException

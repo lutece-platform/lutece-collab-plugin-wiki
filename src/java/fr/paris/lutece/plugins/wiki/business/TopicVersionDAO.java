@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2018, Mairie de Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -147,7 +147,9 @@ public final class TopicVersionDAO implements ITopicVersionDAO
 
     /**
      * Fill content
-     * @param topicVersion the version 
+     * 
+     * @param topicVersion
+     *            the version
      */
     private void fillContent( TopicVersion topicVersion )
     {

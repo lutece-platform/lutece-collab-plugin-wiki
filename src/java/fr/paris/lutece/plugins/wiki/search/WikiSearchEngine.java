@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2018, Mairie de Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@ public class WikiSearchEngine implements SearchEngine
         ArrayList<SearchItem> listResults = new ArrayList<SearchItem>( );
         IndexSearcher searcher;
 
-        try( Directory directory = IndexationService.getDirectoryIndex( ) ; IndexReader reader = DirectoryReader.open( directory ) ; )
+        try ( Directory directory = IndexationService.getDirectoryIndex( ) ; IndexReader reader = DirectoryReader.open( directory ) ; )
         {
             searcher = new IndexSearcher( reader );
 

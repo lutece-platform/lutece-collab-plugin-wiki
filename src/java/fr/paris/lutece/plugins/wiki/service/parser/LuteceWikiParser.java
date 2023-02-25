@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2018, Mairie de Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ public class LuteceWikiParser extends WikiParser
      *            The wiki text
      * @param strPageUrl
      *            The page URL
-     * @param strLanguage 
+     * @param strLanguage
      *            The language
      */
     public LuteceWikiParser( String strWikiText, String strPageName, String strPageUrl, String strLanguage )
@@ -93,7 +93,9 @@ public class LuteceWikiParser extends WikiParser
 
     /**
      * Render specific HTML entities
-     * @param strHTML The HTML code to transform
+     * 
+     * @param strHTML
+     *            The HTML code to transform
      * @return The transformed HTML
      */
     private String renderSpecific( String strHTML )
@@ -110,7 +112,9 @@ public class LuteceWikiParser extends WikiParser
 
     /**
      * Render specific entities
-     * @param strSource The source
+     * 
+     * @param strSource
+     *            The source
      * @return The source transformed
      */
     public static String renderWiki( String strSource )
@@ -127,7 +131,9 @@ public class LuteceWikiParser extends WikiParser
 
     /**
      * Render specific entities
-     * @param strSource The source
+     * 
+     * @param strSource
+     *            The source
      * @return The source transformed
      */
     public static String renderSource( String strSource )
@@ -143,7 +149,7 @@ public class LuteceWikiParser extends WikiParser
     }
 
     /**
-     * {@inheritDoc } 
+     * {@inheritDoc }
      */
     @Override
     public String toString( )
@@ -152,7 +158,7 @@ public class LuteceWikiParser extends WikiParser
     }
 
     /**
-     * {@inheritDoc } 
+     * {@inheritDoc }
      */
     @Override
     protected void appendImage( String strText )
@@ -225,7 +231,7 @@ public class LuteceWikiParser extends WikiParser
     }
 
     /**
-     * {@inheritDoc } 
+     * {@inheritDoc }
      */
     @Override
     protected void appendLink( String strText )
@@ -270,10 +276,10 @@ public class LuteceWikiParser extends WikiParser
             {
                 TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
                 strAction = "&view=page";
-                if( version != null )
+                if ( version != null )
                 {
                     WikiContent content = version.getWikiContent( _strLanguage );
-                    if( content != null && !content.getPageTitle( ).trim( ).isEmpty( ) )
+                    if ( content != null && !content.getPageTitle( ).trim( ).isEmpty( ) )
                     {
                         strTopicName = content.getPageTitle( );
                     }
@@ -281,15 +287,14 @@ public class LuteceWikiParser extends WikiParser
             }
 
             sb.append( "<a href=\"" ).append( AppPathService.getPortalUrl( ) ).append( "?page=wiki" ).append( strAction ).append( strAdditionalParameter )
-                    .append( "&page_name=" )
-                    .append( escapeHTML( unescapeHTML( link [0] ) ) ).append( " \" title=\"Wikipedia link\">" ).append( strColorBegin )
+                    .append( "&page_name=" ).append( escapeHTML( unescapeHTML( link [0] ) ) ).append( " \" title=\"Wikipedia link\">" ).append( strColorBegin )
                     .append( escapeHTML( unescapeHTML( ( ( link.length >= 2 ) && !isEmpty( link [1].trim( ) ) ) ? link [1] : strTopicName ) ) )
                     .append( strColorEnd ).append( "</a>" );
         }
     }
 
     /**
-     * {@inheritDoc } 
+     * {@inheritDoc }
      */
     @Override
     protected void appendMacro( String strText )
@@ -304,30 +309,30 @@ public class LuteceWikiParser extends WikiParser
                 sb.append( "{{ My macro output }}" );
             }
             else
-            if ( "breadcrumb".equals( strText.trim( ) ) )
-            {
-                sb.append( "<p>" );
-
-                Topic topic = TopicHome.findByPrimaryKey( _strPageName );
-
-                List<Topic> topicList = PathService.getParentTopics( topic );
-                for( Topic item : topicList )
+                if ( "breadcrumb".equals( strText.trim( ) ) )
                 {
-                    appendLink( item.getPageName( ) );
-                    sb.append( " > " );
+                    sb.append( "<p>" );
+
+                    Topic topic = TopicHome.findByPrimaryKey( _strPageName );
+
+                    List<Topic> topicList = PathService.getParentTopics( topic );
+                    for ( Topic item : topicList )
+                    {
+                        appendLink( item.getPageName( ) );
+                        sb.append( " > " );
+                    }
+
+                    TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+                    WikiContent content = version.getWikiContent( _strLanguage );
+                    String strTopicName = content.getPageTitle( ).trim( );
+                    sb.append( escapeHTML( unescapeHTML( strTopicName.isEmpty( ) ? topic.getPageName( ) : strTopicName ) ) );
+
+                    sb.append( "</p>\n" );
                 }
-
-                TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-                WikiContent content = version.getWikiContent( _strLanguage );
-                String strTopicName = content.getPageTitle( ).trim( );
-                sb.append( escapeHTML( unescapeHTML( strTopicName.isEmpty( ) ? topic.getPageName( ) : strTopicName ) ) );
-
-                sb.append( "</p>\n" );
-            }
-            else
-            {
-                super.appendMacro( strText );
-            }
+                else
+                {
+                    super.appendMacro( strText );
+                }
     }
 
     /**
@@ -352,7 +357,7 @@ public class LuteceWikiParser extends WikiParser
     }
 
     /**
-     * {@inheritDoc  } 
+     * {@inheritDoc }
      */
     @Override
     protected void appendNowiki( String strText )

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2018, Mairie de Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -142,9 +142,13 @@ public final class DiffService
 
     /**
      * Process CSS
-     * @param css The CSS
-     * @param handler The Handler
-     * @throws SAXException if an error occurs
+     * 
+     * @param css
+     *            The CSS
+     * @param handler
+     *            The Handler
+     * @throws SAXException
+     *             if an error occurs
      */
     private static void doCSS( String [ ] css, ContentHandler handler ) throws SAXException
     {

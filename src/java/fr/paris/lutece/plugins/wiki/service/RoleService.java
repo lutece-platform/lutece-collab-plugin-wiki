@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2020, Mairie de Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,6 @@ import fr.paris.lutece.util.ReferenceList;
 
 import javax.servlet.http.HttpServletRequest;
 
-
 /**
  * Diff Service
  */
@@ -58,7 +57,6 @@ public final class RoleService
     private RoleService( )
     {
     }
-
 
     /**
      * Gets all the user's role
@@ -77,8 +75,8 @@ public final class RoleService
 
             for ( ReferenceItem item : refListRole )
             {
-                if ( SecurityService.getInstance( ).isUserInRole( request, item.getCode( ) ) ||
-                        item.getCode( ).equals( AppPropertiesService.getProperty( PROPERTY_DEFAULT_ROLE_CODE ) ) )
+                if ( SecurityService.getInstance( ).isUserInRole( request, item.getCode( ) )
+                        || item.getCode( ).equals( AppPropertiesService.getProperty( PROPERTY_DEFAULT_ROLE_CODE ) ) )
                 {
                     refListUserRole.add( item );
                 }
