@@ -68,14 +68,15 @@ public class ImageDAO implements IImageDAO
      */
     private int newPrimaryKey( Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin );
-        daoUtil.executeQuery( );
-
         int nKey;
 
-        daoUtil.next( );
-        nKey = daoUtil.getInt( 1 ) + 1;
-        daoUtil.free( );
+        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin ) )
+        {
+            daoUtil.executeQuery( );
+
+            daoUtil.next( );
+            nKey = daoUtil.getInt( 1 ) + 1;
+        }
 
         return nKey;
     }
@@ -86,20 +87,20 @@ public class ImageDAO implements IImageDAO
     @Override
     public synchronized void insert( Image image, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
+        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin ) )
+        {
+            int nPos = 0;
+            image.setId( newPrimaryKey( plugin ) );
 
-        int nPos = 0;
-        image.setId( newPrimaryKey( plugin ) );
-
-        daoUtil.setInt( ++nPos, image.getId( ) );
-        daoUtil.setString( ++nPos, image.getName( ) );
-        daoUtil.setString( ++nPos, image.getMimeType( ) );
-        daoUtil.setBytes( ++nPos, image.getValue( ) );
-        daoUtil.setInt( ++nPos, image.getTopicId( ) );
-        daoUtil.setInt( ++nPos, image.getWidth( ) );
-        daoUtil.setInt( ++nPos, image.getHeight( ) );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.setInt( ++nPos, image.getId( ) );
+            daoUtil.setString( ++nPos, image.getName( ) );
+            daoUtil.setString( ++nPos, image.getMimeType( ) );
+            daoUtil.setBytes( ++nPos, image.getValue( ) );
+            daoUtil.setInt( ++nPos, image.getTopicId( ) );
+            daoUtil.setInt( ++nPos, image.getWidth( ) );
+            daoUtil.setInt( ++nPos, image.getHeight( ) );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -108,21 +109,21 @@ public class ImageDAO implements IImageDAO
     @Override
     public void store( Image image, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
+        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin ) )
+        {
+            int nPos = 0;
 
-        int nPos = 0;
+            daoUtil.setInt( ++nPos, image.getId( ) );
+            daoUtil.setString( ++nPos, image.getName( ) );
+            daoUtil.setString( ++nPos, image.getMimeType( ) );
+            daoUtil.setBytes( ++nPos, image.getValue( ) );
+            daoUtil.setInt( ++nPos, image.getTopicId( ) );
+            daoUtil.setInt( ++nPos, image.getWidth( ) );
+            daoUtil.setInt( ++nPos, image.getHeight( ) );
 
-        daoUtil.setInt( ++nPos, image.getId( ) );
-        daoUtil.setString( ++nPos, image.getName( ) );
-        daoUtil.setString( ++nPos, image.getMimeType( ) );
-        daoUtil.setBytes( ++nPos, image.getValue( ) );
-        daoUtil.setInt( ++nPos, image.getTopicId( ) );
-        daoUtil.setInt( ++nPos, image.getWidth( ) );
-        daoUtil.setInt( ++nPos, image.getHeight( ) );
-
-        daoUtil.setInt( ++nPos, image.getId( ) );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.setInt( ++nPos, image.getId( ) );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -131,18 +132,18 @@ public class ImageDAO implements IImageDAO
     @Override
     public void storeMetadata( Image image, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE_METADATA, plugin );
+        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE_METADATA, plugin ) )
+        {
+            int nPos = 0;
 
-        int nPos = 0;
-
-        daoUtil.setInt( ++nPos, image.getId( ) );
-        daoUtil.setString( ++nPos, image.getName( ) );
-        daoUtil.setInt( ++nPos, image.getTopicId( ) );
-        daoUtil.setInt( ++nPos, image.getWidth( ) );
-        daoUtil.setInt( ++nPos, image.getHeight( ) );
-        daoUtil.setInt( ++nPos, image.getId( ) );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.setInt( ++nPos, image.getId( ) );
+            daoUtil.setString( ++nPos, image.getName( ) );
+            daoUtil.setInt( ++nPos, image.getTopicId( ) );
+            daoUtil.setInt( ++nPos, image.getWidth( ) );
+            daoUtil.setInt( ++nPos, image.getHeight( ) );
+            daoUtil.setInt( ++nPos, image.getId( ) );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -152,27 +153,25 @@ public class ImageDAO implements IImageDAO
     public Image load( int nIdImage, Plugin plugin )
     {
         Image image = null;
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_FIND_BY_PRIMARY_KEY, plugin );
-
-        daoUtil.setInt( 1, nIdImage );
-
-        daoUtil.executeQuery( );
-
-        int nPos = 0;
-
-        if ( daoUtil.next( ) )
+        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_FIND_BY_PRIMARY_KEY, plugin ) )
         {
-            image = new Image( );
-            image.setId( daoUtil.getInt( ++nPos ) );
-            image.setName( daoUtil.getString( ++nPos ) );
-            image.setMimeType( daoUtil.getString( ++nPos ) );
-            image.setValue( daoUtil.getBytes( ++nPos ) );
-            image.setTopicId( daoUtil.getInt( ++nPos ) );
-            image.setWidth( daoUtil.getInt( ++nPos ) );
-            image.setHeight( daoUtil.getInt( ++nPos ) );
-        }
+            daoUtil.setInt( 1, nIdImage );
+            daoUtil.executeQuery( );
 
-        daoUtil.free( );
+            int nPos = 0;
+
+            if ( daoUtil.next( ) )
+            {
+                image = new Image( );
+                image.setId( daoUtil.getInt( ++nPos ) );
+                image.setName( daoUtil.getString( ++nPos ) );
+                image.setMimeType( daoUtil.getString( ++nPos ) );
+                image.setValue( daoUtil.getBytes( ++nPos ) );
+                image.setTopicId( daoUtil.getInt( ++nPos ) );
+                image.setWidth( daoUtil.getInt( ++nPos ) );
+                image.setHeight( daoUtil.getInt( ++nPos ) );
+            }
+        }
 
         return image;
     }
@@ -183,11 +182,11 @@ public class ImageDAO implements IImageDAO
     @Override
     public void delete( int nIdImage, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
-
-        daoUtil.setInt( 1, nIdImage );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
+        {
+            daoUtil.setInt( 1, nIdImage );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -196,11 +195,11 @@ public class ImageDAO implements IImageDAO
     @Override
     public void deleteByTopic( int nTopicId, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_BY_TOPIC, plugin );
-
-        daoUtil.setInt( 1, nTopicId );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_BY_TOPIC, plugin ) )
+        {
+            daoUtil.setInt( 1, nTopicId );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -212,26 +211,26 @@ public class ImageDAO implements IImageDAO
         Image image = null;
         List<Image> listImage = new ArrayList<>( );
 
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ICON, plugin );
-        daoUtil.executeQuery( );
-
-        int nPos;
-
-        while ( daoUtil.next( ) )
+        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ICON, plugin ) )
         {
-            nPos = 0;
-            image = new Image( );
-            image.setId( daoUtil.getInt( ++nPos ) );
-            image.setName( daoUtil.getString( ++nPos ) );
-            image.setMimeType( daoUtil.getString( ++nPos ) );
-            image.setTopicId( daoUtil.getInt( ++nPos ) );
-            image.setWidth( daoUtil.getInt( ++nPos ) );
-            image.setHeight( daoUtil.getInt( ++nPos ) );
+            daoUtil.executeQuery( );
 
-            listImage.add( image );
+            int nPos;
+
+            while ( daoUtil.next( ) )
+            {
+                nPos = 0;
+                image = new Image( );
+                image.setId( daoUtil.getInt( ++nPos ) );
+                image.setName( daoUtil.getString( ++nPos ) );
+                image.setMimeType( daoUtil.getString( ++nPos ) );
+                image.setTopicId( daoUtil.getInt( ++nPos ) );
+                image.setWidth( daoUtil.getInt( ++nPos ) );
+                image.setHeight( daoUtil.getInt( ++nPos ) );
+
+                listImage.add( image );
+            }
         }
-
-        daoUtil.free( );
 
         return listImage;
     }
@@ -245,27 +244,27 @@ public class ImageDAO implements IImageDAO
         Image image = null;
         List<Image> listImage = new ArrayList<>( );
 
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_FIND_BY_TOPIC, plugin );
-        daoUtil.setInt( 1, nTopicId );
-        daoUtil.executeQuery( );
-
-        int nPos;
-
-        while ( daoUtil.next( ) )
+        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_FIND_BY_TOPIC, plugin ) )
         {
-            nPos = 0;
-            image = new Image( );
-            image.setId( daoUtil.getInt( ++nPos ) );
-            image.setName( daoUtil.getString( ++nPos ) );
-            image.setMimeType( daoUtil.getString( ++nPos ) );
-            image.setTopicId( daoUtil.getInt( ++nPos ) );
-            image.setWidth( daoUtil.getInt( ++nPos ) );
-            image.setHeight( daoUtil.getInt( ++nPos ) );
+            daoUtil.setInt( 1, nTopicId );
+            daoUtil.executeQuery( );
 
-            listImage.add( image );
+            int nPos;
+
+            while ( daoUtil.next( ) )
+            {
+                nPos = 0;
+                image = new Image( );
+                image.setId( daoUtil.getInt( ++nPos ) );
+                image.setName( daoUtil.getString( ++nPos ) );
+                image.setMimeType( daoUtil.getString( ++nPos ) );
+                image.setTopicId( daoUtil.getInt( ++nPos ) );
+                image.setWidth( daoUtil.getInt( ++nPos ) );
+                image.setHeight( daoUtil.getInt( ++nPos ) );
+
+                listImage.add( image );
+            }
         }
-
-        daoUtil.free( );
 
         return listImage;
     }
