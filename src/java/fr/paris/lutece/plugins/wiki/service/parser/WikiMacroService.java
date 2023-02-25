@@ -57,7 +57,7 @@ public class WikiMacroService
         synchronized( WikiMacroService.class )
         {
             List<WikiMacro> listMacros = SpringContextService.getBeansOfType( WikiMacro.class );
-            _mapMacros = new HashMap<String, WikiMacro>( );
+            _mapMacros = new HashMap<>( );
             AppLogService.info( "Wiki - initializing macros ..." );
             for ( WikiMacro macro : listMacros )
             {

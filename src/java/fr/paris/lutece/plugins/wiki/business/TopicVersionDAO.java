@@ -210,7 +210,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO
     @Override
     public Collection<TopicVersion> selectTopicVersionsList( Plugin plugin )
     {
-        Collection<TopicVersion> topicVersionList = new ArrayList<TopicVersion>( );
+        Collection<TopicVersion> topicVersionList = new ArrayList<>( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
         daoUtil.executeQuery( );
 
@@ -316,7 +316,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO
     @Override
     public Collection<TopicVersion> loadAllVersions( int nIdTopic, Plugin plugin )
     {
-        Collection<TopicVersion> topicVersionList = new ArrayList<TopicVersion>( );
+        Collection<TopicVersion> topicVersionList = new ArrayList<>( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_TOPIC_ID, plugin );
         daoUtil.setInt( 1, nIdTopic );
         daoUtil.executeQuery( );

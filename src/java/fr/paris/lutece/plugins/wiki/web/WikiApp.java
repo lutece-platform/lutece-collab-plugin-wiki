@@ -214,7 +214,7 @@ public class WikiApp extends MVCApplication
         String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, "" );
         if ( !"".equals( strWikiRootPageName ) )
         {
-            Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
+            Map<String, String> mapParameters = new ConcurrentHashMap<>( );
             mapParameters.put( Constants.PARAMETER_PAGE_NAME, strWikiRootPageName );
 
             return redirect( request, VIEW_PAGE, mapParameters );
@@ -422,7 +422,7 @@ public class WikiApp extends MVCApplication
             TopicHome.create( topic );
         }
 
-        Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
+        Map<String, String> mapParameters = new ConcurrentHashMap<>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
         mapParameters.put( Constants.PARAMETER_PAGE_TITLE, URLEncoder.encode( strPageTitle, "UTF-8" ) );
 
@@ -547,7 +547,7 @@ public class WikiApp extends MVCApplication
             TopicHome.update( topic );
         }
 
-        Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
+        Map<String, String> mapParameters = new ConcurrentHashMap<>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
 
         return redirect( request, VIEW_PAGE, mapParameters );
@@ -774,7 +774,7 @@ public class WikiApp extends MVCApplication
             ImageHome.create( image );
         }
 
-        Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
+        Map<String, String> mapParameters = new ConcurrentHashMap<>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName + ANCHOR_IMAGES );
 
         return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
@@ -821,7 +821,7 @@ public class WikiApp extends MVCApplication
         ImageHome.remove( nId );
         addInfo( MESSAGE_IMAGE_REMOVED, getLocale( request ) );
 
-        Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
+        Map<String, String> mapParameters = new ConcurrentHashMap<>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) + ANCHOR_IMAGES );
 
         return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
@@ -873,7 +873,7 @@ public class WikiApp extends MVCApplication
             addInfo( MESSAGE_VERSION_REMOVED, getLocale( request ) );
         }
 
-        Map<String, String> mapParameters = new ConcurrentHashMap<String, String>( );
+        Map<String, String> mapParameters = new ConcurrentHashMap<>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) );
 
         return redirect( request, VIEW_HISTORY, mapParameters );
@@ -1010,7 +1010,7 @@ public class WikiApp extends MVCApplication
 
         if ( SecurityService.isAuthenticationEnable( ) )
         {
-            listTopic = new ArrayList<Topic>( );
+            listTopic = new ArrayList<>( );
 
             for ( Topic topic : listTopicAll )
             {
@@ -1031,7 +1031,7 @@ public class WikiApp extends MVCApplication
         }
         else
         {
-            listTopic = new ArrayList<Topic>( listTopicAll );
+            listTopic = new ArrayList<>( listTopicAll );
         }
 
         return listTopic;

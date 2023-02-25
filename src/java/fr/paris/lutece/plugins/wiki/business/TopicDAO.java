@@ -162,7 +162,7 @@ public final class TopicDAO implements ITopicDAO
     @Override
     public Collection<Topic> selectTopicsList( Plugin plugin )
     {
-        Collection<Topic> topicList = new ArrayList<Topic>( );
+        Collection<Topic> topicList = new ArrayList<>( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
         daoUtil.executeQuery( );
 

@@ -80,7 +80,7 @@ public class WikiSearchEngine implements SearchEngine
     @Override
     public List<SearchResult> getSearchResults( String strQuery, HttpServletRequest request )
     {
-        ArrayList<SearchItem> listResults = new ArrayList<SearchItem>( );
+        ArrayList<SearchItem> listResults = new ArrayList<>( );
         IndexSearcher searcher;
 
         try ( Directory directory = IndexationService.getDirectoryIndex( ) ; IndexReader reader = DirectoryReader.open( directory ) ; )
@@ -135,7 +135,7 @@ public class WikiSearchEngine implements SearchEngine
      */
     private List<SearchResult> convertList( List<SearchItem> listSource )
     {
-        List<SearchResult> listDest = new ArrayList<SearchResult>( );
+        List<SearchResult> listDest = new ArrayList<>( );
 
         for ( SearchItem item : listSource )
         {

@@ -91,7 +91,7 @@ public class WikiIndexer implements SearchIndexer
     @Override
     public List<Document> getDocuments( String strDocument ) throws IOException, InterruptedException, SiteMessageException
     {
-        List<Document> listDocs = new ArrayList<Document>( );
+        List<Document> listDocs = new ArrayList<>( );
         String strPortalUrl = AppPropertiesService.getProperty( PROPERTY_PAGE_BASE_URL );
 
         Topic topic = TopicHome.findByPrimaryKey( Integer.parseInt( strDocument ) );
@@ -270,7 +270,7 @@ public class WikiIndexer implements SearchIndexer
     @Override
     public List<String> getListType( )
     {
-        List<String> listType = new ArrayList<String>( );
+        List<String> listType = new ArrayList<>( );
         listType.add( getDocumentType( ) );
 
         return listType;

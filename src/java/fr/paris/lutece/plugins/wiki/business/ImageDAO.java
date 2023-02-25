@@ -210,7 +210,7 @@ public class ImageDAO implements IImageDAO
     public List<Image> selectAll( Plugin plugin )
     {
         Image image = null;
-        List<Image> listImage = new ArrayList<Image>( );
+        List<Image> listImage = new ArrayList<>( );
 
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ICON, plugin );
         daoUtil.executeQuery( );
@@ -243,7 +243,7 @@ public class ImageDAO implements IImageDAO
     public List<Image> selectByTopicId( int nTopicId, Plugin plugin )
     {
         Image image = null;
-        List<Image> listImage = new ArrayList<Image>( );
+        List<Image> listImage = new ArrayList<>( );
 
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_FIND_BY_TOPIC, plugin );
         daoUtil.setInt( 1, nTopicId );
