@@ -1,107 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
- 	<bean id="wiki.topicDAO"  class="fr.paris.lutece.plugins.wiki.business.TopicDAO" />  
- 	<bean id="wiki.topicVersionDAO"  class="fr.paris.lutece.plugins.wiki.business.TopicVersionDAO" />
- 	<bean id="wiki.imageDAO"  class="fr.paris.lutece.plugins.wiki.business.ImageDAO" />  
-        
-        
- 	<!-- Search Engine -->
-	<bean id="wiki.wikiSearchEngine" class="fr.paris.lutece.plugins.wiki.search.WikiSearchEngine" />
-        
+    <bean id="wiki.topicDAO"  class="fr.paris.lutece.plugins.wiki.business.TopicDAO" />
+    <bean id="wiki.topicVersionDAO"  class="fr.paris.lutece.plugins.wiki.business.TopicVersionDAO" />
+    <bean id="wiki.imageDAO"  class="fr.paris.lutece.plugins.wiki.business.ImageDAO" />
 
-        <!-- Extend resource service -->
-        <bean id="wiki.extendableResourceService" class="fr.paris.lutece.plugins.wiki.service.WikiExtendableResourceService" />
-        
-        <!-- Parser Options -->
-        <bean id="wiki.parser.options" class="fr.paris.lutece.plugins.wiki.service.parser.ParserOptions" >
-            <property name="tableClass">
-                <value>table table-condensed table-striped table-bordered</value>
-            </property>
-            <property name="imageClass">
-                <value>img-responsive</value>
-            </property>
-            <property name="sizedImageClass">
-                <value></value>
-            </property>
-            <property name="tocClass">
-                <value>well</value>
-            </property>
-        </bean>
-        
-        <!-- Macros -->
-        <bean id="wiki.macroDefault" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
-            <property name="name">
-                <value>code</value>
-            </property>
-            <property name="before">
-                <value>&lt;pre class="prettyprint"&gt;</value>
-            </property>
-            <property name="after">
-                <value>&lt;/pre&gt;</value>
-            </property>
-        </bean>
-        <bean id="wiki.macroInfoBox" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
-            <property name="name">
-                <value>info</value>
-            </property>
-            <property name="before">
-                <value>&lt;div class="alert alert-info"&gt;&lt;span class="glyphicon glyphicon-info-sign" &gt;&lt;/span&gt; </value>
-            </property>
-            <property name="after">
-                <value>&lt;/div&gt;</value>
-            </property>
-        </bean>
-        <bean id="wiki.macroWarningBox" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
-            <property name="name">
-                <value>warning</value>
-            </property>
-            <property name="before">
-                <value>&lt;div class="alert alert-danger"&gt;&lt;span class="glyphicon glyphicon-warning-sign" &gt;&lt;/span&gt; </value>
-            </property>
-            <property name="after">
-                <value>&lt;/div&gt;</value>
-            </property>
-        </bean>
-        <bean id="wiki.macroBadge" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
-            <property name="name">
-                <value>badge</value>
-            </property>
-            <property name="before">
-                <value>&lt;span class="badge" &gt;</value>
-            </property>
-            <property name="after">
-                <value>&lt;/span&gt;</value>
-            </property>
-        </bean>
-        <bean id="wiki.macroIcon" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
-            <property name="name">
-                <value>icon</value>
-            </property>
-            <property name="before">
-                <value>&lt;span class="fa fa-</value>
-            </property>
-            <property name="after">
-                <value>" &gt;&lt;/span&gt;</value>
-            </property>
-        </bean>
-        <bean id="wiki.macroLabel" class="fr.paris.lutece.plugins.wiki.service.parser.TextFormatMacro">
-            <property name="name">
-                <value>label</value>
-            </property>
-            <property name="format">
-                <value>&lt;span class="label label-{0}"&gt;{1}&lt;/span&gt;</value>
-            </property>
-        </bean>
-        <bean id="wiki.macroJumbotron" class="fr.paris.lutece.plugins.wiki.service.parser.TextFormatMacro">
-            <property name="name">
-                <value>jumbotron</value>
-            </property>
-            <property name="format">
-                <value>&lt;div class="jumbotron" &gt;&lt;h1&gt;{0} &lt;small&gt;{1}&lt;/small&gt;&lt;/h1&gt;&lt;p&gt;{2}&lt;/p&gt;&lt;/div&gt;</value>
-            </property>
-        </bean>
-        
-        <!-- Site properties group -->
-        <bean id="wiki.siteProperties" class="fr.paris.lutece.plugins.wiki.service.WikiSitePropertiesGroup" />
+
+    <!-- Search Engine -->
+    <bean id="wiki.wikiSearchEngine" class="fr.paris.lutece.plugins.wiki.search.WikiSearchEngine" />
+
+
+    <!-- Extend resource service -->
+    <bean id="wiki.extendableResourceService" class="fr.paris.lutece.plugins.wiki.service.WikiExtendableResourceService" />
+
+    <!-- Parser Options -->
+    <bean id="wiki.parser.options" class="fr.paris.lutece.plugins.wiki.service.parser.ParserOptions" >
+        <property name="tableClass">
+            <value>table table-condensed table-striped table-bordered</value>
+        </property>
+        <property name="imageClass">
+            <value>img-responsive</value>
+        </property>
+        <property name="sizedImageClass">
+            <value></value>
+        </property>
+        <property name="tocClass">
+            <value>well</value>
+        </property>
+    </bean>
+
+    <!-- Macros -->
+    <bean id="wiki.macroDefault" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
+        <property name="name">
+            <value>code</value>
+        </property>
+        <property name="before">
+            <value>&lt;pre class="prettyprint"&gt;</value>
+        </property>
+        <property name="after">
+            <value>&lt;/pre&gt;</value>
+        </property>
+    </bean>
+    <bean id="wiki.macroInfoBox" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
+        <property name="name">
+            <value>info</value>
+        </property>
+        <property name="before">
+            <value>&lt;div class="alert alert-info"&gt;&lt;span class="glyphicon glyphicon-info-sign" &gt;&lt;/span&gt; </value>
+        </property>
+        <property name="after">
+            <value>&lt;/div&gt;</value>
+        </property>
+    </bean>
+    <bean id="wiki.macroWarningBox" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
+        <property name="name">
+            <value>warning</value>
+        </property>
+        <property name="before">
+            <value>&lt;div class="alert alert-danger"&gt;&lt;span class="glyphicon glyphicon-warning-sign" &gt;&lt;/span&gt; </value>
+        </property>
+        <property name="after">
+            <value>&lt;/div&gt;</value>
+        </property>
+    </bean>
+    <bean id="wiki.macroBadge" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
+        <property name="name">
+            <value>badge</value>
+        </property>
+        <property name="before">
+            <value>&lt;span class="badge" &gt;</value>
+        </property>
+        <property name="after">
+            <value>&lt;/span&gt;</value>
+        </property>
+    </bean>
+    <bean id="wiki.macroIcon" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
+        <property name="name">
+            <value>icon</value>
+        </property>
+        <property name="before">
+            <value>&lt;span class="fa fa-</value>
+        </property>
+        <property name="after">
+            <value>" &gt;&lt;/span&gt;</value>
+        </property>
+    </bean>
+    <bean id="wiki.macroLabel" class="fr.paris.lutece.plugins.wiki.service.parser.TextFormatMacro">
+        <property name="name">
+            <value>label</value>
+        </property>
+        <property name="format">
+            <value>&lt;span class="label label-{0}"&gt;{1}&lt;/span&gt;</value>
+        </property>
+    </bean>
+    <bean id="wiki.macroJumbotron" class="fr.paris.lutece.plugins.wiki.service.parser.TextFormatMacro">
+        <property name="name">
+            <value>jumbotron</value>
+        </property>
+        <property name="format">
+            <value>&lt;div class="jumbotron" &gt;&lt;h1&gt;{0} &lt;small&gt;{1}&lt;/small&gt;&lt;/h1&gt;&lt;p&gt;{2}&lt;/p&gt;&lt;/div&gt;</value>
+        </property>
+    </bean>
+
+    <!-- Site properties group -->
+    <bean id="wiki.siteProperties" class="fr.paris.lutece.plugins.wiki.service.WikiSitePropertiesGroup" />
 </beans>

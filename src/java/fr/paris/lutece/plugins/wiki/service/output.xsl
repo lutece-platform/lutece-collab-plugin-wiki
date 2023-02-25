@@ -18,8 +18,8 @@
     <xsl:output method="html" version="1.0" encoding="UTF-16" indent="yes" omit-xml-declaration="yes"/>
 
     <xsl:template match="/">
-         <!--       <xsl:variable name="spans" select="diffreport/diff//span[(@class='diff-html-added' or @class='diff-html-removed' or @class='diff-html-changed')  and @id]"/>  -->
-                <xsl:apply-templates select="diffreport/diff/node()"/>
+        <!--       <xsl:variable name="spans" select="diffreport/diff//span[(@class='diff-html-added' or @class='diff-html-removed' or @class='diff-html-changed')  and @id]"/>  -->
+        <xsl:apply-templates select="diffreport/diff/node()"/>
     </xsl:template>
 
     <xsl:template match="@*|node()">

@@ -39,16 +39,16 @@
             <groupId>org.htmlparser</groupId>
             <artifactId>htmlparser</artifactId>
             <version>1.6</version>
-        </dependency> 	
+        </dependency>
         <dependency>
             <groupId>org.outerj.daisy</groupId>
             <artifactId>daisydiff</artifactId>
             <version>1.2-NX1</version>
         </dependency>
-        <dependency> 
-            <groupId>net.sourceforge.nekohtml</groupId> 
-            <artifactId>nekohtml</artifactId> 
-            <version>1.9.20</version> 
+        <dependency>
+            <groupId>net.sourceforge.nekohtml</groupId>
+            <artifactId>nekohtml</artifactId>
+            <version>1.9.20</version>
         </dependency>
         <dependency>
             <groupId>xerces</groupId>
@@ -73,12 +73,12 @@
         <jiraProjectName>WIKI</jiraProjectName>
         <jiraComponentId>10361</jiraComponentId>
     </properties>
-    
+
     <scm>
         <connection>scm:git:https://github.com/lutece-platform/lutece-collab-plugin-wiki.git</connection>
         <developerConnection>scm:git:https://github.com/lutece-platform/lutece-collab-plugin-wiki.git</developerConnection>
         <url>https://github.com/lutece-platform/lutece-collab-plugin-wiki.git</url>
-      <tag>lutece-collab-plugin-wiki-2.1.2</tag>
-  </scm>
+        <tag>lutece-collab-plugin-wiki-2.1.2</tag>
+    </scm>
 
 </project>
