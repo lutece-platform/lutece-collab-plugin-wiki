@@ -68,6 +68,8 @@ public final class Constants
     public static final String MESSAGE_PAGE_NOT_EXISTS = "wiki.message.accessDenied.pageNotExists";
     public static final String MESSAGE_PAGE_ALREADY_EXISTS = "wiki.message.accessDenied.pageAlreadyExists";
     public static final String MESSAGE_USER_NOT_IN_ROLE = "wiki.message.accessDenied.userNotInRole";
+    public static final String PARENT_PAGE_NAME_IS_NULL = "none";
+
 
     /** Private constructor */
     private Constants( )
