@@ -168,7 +168,7 @@ public final class TopicVersionHome
     public static void cancelPublication(int topicId)
     {
         TopicVersion topicVersionPublished = _dao.getPublishedVersion(topicId, _plugin);
-        if(topicVersionPublished != null && topicVersionPublished.getIdTopicVersion() != nIdTopicVersion) {
+        if(topicVersionPublished != null ) {
             _dao.updateIsPublished( topicVersionPublished.getIdTopicVersion(), false, _plugin );
         }
     }
