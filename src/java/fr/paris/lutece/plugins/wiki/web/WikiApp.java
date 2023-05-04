@@ -448,7 +448,7 @@ public class WikiApp extends MVCApplication
         checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Integer nVersion = Integer.parseInt(request.getParameter( Constants.PARAMETER_TOPIC_VERSION ), 0 );
+        Integer nVersion = Integer.parseInt(request.getParameter( Constants.PARAMETER_TOPIC_VERSION ));
 
         Topic topic;
         Topic topicSession = (Topic) request.getSession( ).getAttribute( MARK_TOPIC );
@@ -532,6 +532,7 @@ public class WikiApp extends MVCApplication
             topicVersion.setUserName( user.getName( ) );
             topicVersion.setEditComment( strComment );
             topicVersion.setIdTopicVersionPrevious( nPreviousVersionId );
+            topicVersion.setIsPublished( false);
             for ( String strLanguage : WikiLocaleService.getLanguages( ) )
             {
                 String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
