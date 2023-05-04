@@ -134,6 +134,7 @@ public class WikiApp extends MVCApplication
     private static final String MARK_MAP_TOPIC_TITLE = "map_topic_title";
     private static final String MARK_MAP_TOPIC_CHILDREN = "map_topic_children";
     private static final String MARK_WIKI_ROOT_PAGE_NAME = "wiki_root_page_name";
+    private static final String MARK_VERSION = "version";
     private static final String MARK_LATEST_VERSION = "lastVersion";
     private static final String MARK_DIFF_HTML = "diff_html";
     private static final String MARK_DIFF_SOURCE = "diff_source";
@@ -163,7 +164,9 @@ public class WikiApp extends MVCApplication
     private static final String VIEW_LIST_IMAGES = "listImages";
 
     private static final String ACTION_NEW_PAGE = "newPage";
-    private static final String ACTION_MODIFY_PAGE = "modifyPage";
+    private static final String ACTION_PUBLISH_PAGE = "publish_page";
+    private static final String ACTION_CANCEL_PUBLISH_PAGE = "cancel_publiscation";
+
     private static final String ACTION_DELETE_PAGE = "deletePage";
     private static final String ACTION_REMOVE_IMAGE = "removeImage";
     private static final String ACTION_CONFIRM_REMOVE_IMAGE = "confirmRemoveImage";
@@ -483,7 +486,7 @@ public class WikiApp extends MVCApplication
 
         Map<String, Object> model = getModel( );
         model.put( MARK_TOPIC, topic );
-        model.put( MARK_LATEST_VERSION, topicVersion );
+        model.put( MARK_VERSION, topicVersion );
         model.put( MARK_PAGE_ROLES_LIST, RoleService.getUserRoles( request ) );
         model.put( MARK_EDIT_ROLE, RoleService.hasEditRole( request, topic ) );
         model.put( MARK_ADMIN_ROLE, RoleService.hasAdminRole( request ) );
@@ -498,9 +501,8 @@ public class WikiApp extends MVCApplication
 
         return page;
     }
-
     /**
-     * Modifies a wiki page
+     * public a wiki page
      *
      * @param request
      *            The HTTP Request
@@ -508,55 +510,71 @@ public class WikiApp extends MVCApplication
      * @throws UserNotSignedException
      *             If user not connected
      */
-    @Action( ACTION_MODIFY_PAGE )
-    public XPage doModifyTopic( HttpServletRequest request ) throws UserNotSignedException
+    @Action( ACTION_PUBLISH_PAGE )
+    public XPage doPublishTopic( HttpServletRequest request ) throws UserNotSignedException
     {
         LuteceUser user = checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
 
-        if ( RoleService.hasEditRole( request, topic ) )
-        {
-            String strPreviousVersionId = request.getParameter( Constants.PARAMETER_PREVIOUS_VERSION_ID );
-            String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
-            String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT );
-            String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE );
-            String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE );
-            String strParentPageName = request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME );
-            int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
-            int nTopicId = Integer.parseInt( strTopicId );
+        if ( RoleService.hasEditRole( request, topic ) ) {
+            String strPreviousVersionId = request.getParameter(Constants.PARAMETER_PREVIOUS_VERSION_ID);
+            String strTopicId = request.getParameter(Constants.PARAMETER_TOPIC_ID);
+            String strComment = request.getParameter(Constants.PARAMETER_MODIFICATION_COMMENT);
+            String strViewRole = request.getParameter(Constants.PARAMETER_VIEW_ROLE);
+            String strEditRole = request.getParameter(Constants.PARAMETER_EDIT_ROLE);
+            String strParentPageName = request.getParameter(Constants.PARAMETER_PARENT_PAGE_NAME);
+            Boolean publish = true;
+                int nPreviousVersionId = Integer.parseInt(strPreviousVersionId);
+                int nTopicId = Integer.parseInt(strTopicId);
 
-            TopicVersion topicVersion = new TopicVersion( );
-            topicVersion.setIdTopic( nTopicId );
-            topicVersion.setUserName( user.getName( ) );
-            topicVersion.setEditComment( strComment );
-            topicVersion.setIdTopicVersionPrevious( nPreviousVersionId );
-            topicVersion.setIsPublished( false);
-            for ( String strLanguage : WikiLocaleService.getLanguages( ) )
-            {
-                String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
-                String strContent = request.getParameter( Constants.PARAMETER_CONTENT + "_" + strLanguage );
-                WikiContent content = new WikiContent( );
-                content.setPageTitle( strPageTitle );
-                content.setWikiContent( strContent );
-                topicVersion.addLocalizedWikiContent( strLanguage, content );
+                TopicVersion topicVersion = new TopicVersion();
+                topicVersion.setIdTopic(nTopicId);
+                topicVersion.setUserName(user.getName());
+                topicVersion.setEditComment(strComment);
+                topicVersion.setIdTopicVersionPrevious(nPreviousVersionId);
+                topicVersion.setIsPublished(publish);
+                for (String strLanguage : WikiLocaleService.getLanguages()) {
+                    String strPageTitle = request.getParameter(Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage);
+                    String strContent = request.getParameter(Constants.PARAMETER_CONTENT + "_" + strLanguage);
+                    WikiContent content = new WikiContent();
+                    content.setPageTitle(strPageTitle);
+                    content.setWikiContent(strContent);
+                    topicVersion.addLocalizedWikiContent(strLanguage, content);
+                }
+                TopicVersionHome.cancelPublication(Integer.parseInt(strTopicId));
+
+                TopicVersionHome.updateIsPublished(nTopicId, true);
+                topic.setViewRole(strViewRole);
+                topic.setEditRole(strEditRole);
+                topic.setParentPageName(strParentPageName);
+                TopicHome.update(topic);
             }
 
-            TopicVersionHome.addTopicVersion( topicVersion );
+            Map<String, String> mapParameters = new ConcurrentHashMap<>();
+            mapParameters.put(Constants.PARAMETER_PAGE_NAME, strPageName);
 
-            topic.setViewRole( strViewRole );
-            topic.setEditRole( strEditRole );
-            topic.setParentPageName( strParentPageName );
-            TopicHome.update( topic );
+            return redirect(request, VIEW_PAGE, mapParameters);
+    }
+    @Action( ACTION_CANCEL_PUBLISH_PAGE )
+    public XPage doUnpublish( HttpServletRequest request ) throws UserNotSignedException
+    {
+        LuteceUser user = checkUser( request );
+
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+
+        if ( RoleService.hasEditRole( request, topic ) ) {
+            String strTopicId = request.getParameter(Constants.PARAMETER_TOPIC_ID);
+            TopicVersionHome.cancelPublication(Integer.parseInt(strTopicId));
         }
 
-        Map<String, String> mapParameters = new ConcurrentHashMap<>( );
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
 
-        return redirect( request, VIEW_PAGE, mapParameters );
+
+// return to topic list page
+            return redirect(request, VIEW_LIST, null);
     }
-
     /**
      * Displays the preview of a wiki page
      *

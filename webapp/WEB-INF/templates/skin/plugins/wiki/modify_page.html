@@ -5,8 +5,9 @@
             <input type="hidden" name="page" value="wiki" />
             <input type="hidden" name="page_name" value="${topic.pageName}" />
             <input type="hidden" name="topic_id" value="${topic.idTopic}" />
-            <#if lastVersion??>
-                <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
+            <input type="hidden" name="publish_version" value="${version.getIsPublished()}" />
+            <#if version??>
+                <input type="hidden" name="previous_version_id" value="${version.idTopicVersion}" />
             <#else>
                 <input type="hidden" name="previous_version_id" value="0" />
             </#if>
@@ -58,17 +59,17 @@
                 <div class="tab-content">    
                 <#list languages_list as locale>
                 <div id="tab-${locale}" class="tab-pane <#if locale_index = 0 >active</#if>"  role="tabpanel" >
-                    <#if lastVersion?? && lastVersion.getWikiContent( locale )??>
+                    <#if version?? && version.getWikiContent( locale )??>
                         <div class="form-group">
                             <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
-                            <input class="form-control" type="text" name="page_title_${locale}" value="${lastVersion.getWikiContent( locale ).pageTitle}" maxlength="100"/>
+                            <input class="form-control" type="text" name="page_title_${locale}" value="${version.getWikiContent( locale ).pageTitle}" maxlength="100"/>
                         </div>
                         <div class="form-group">
                             <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
                             <@select name="parent_page_name" default_value="${topic.parentPageName}" items=reflist_topic sort=true />
                         </div>
                         <div class="form-group">
-                            <textarea id="wiki-${locale}" class="form-control" name="content_${locale}" rows="20" ><#if lastVersion??>${lastVersion.getWikiContent( locale ).wikiContent?html}</#if></textarea>
+                            <textarea id="wiki-${locale}" class="form-control" name="content_${locale}" rows="20" ><#if version??>${version.getWikiContent( locale ).wikiContent?html}</#if></textarea>
                         </div>
                     <#else>
                         <div class="form-group">
@@ -99,8 +100,16 @@
                     <label for="modification_comment"><span class="glyphicon glyphicon-comment"></span> &nbsp; #i18n{wiki.modify_page.labelComment} :</label>
                     <input class="form-control" type="text" name="modification_comment" maxlength="50"/>
                 </div>
+                <input type="hidden" name="create_new_version" value="false">
+
                 <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}" onclick="validate()">
                     <span class="glyphicon glyphicon-save"></span> &nbsp; #i18n{wiki.modify_page.buttonModify}
+                </button>
+                <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}" onclick="validate()">
+                    <span class="glyphicon glyphicon-save"></span> &nbsp;enregistrer et écraser
+                </button>
+                <button name="publish_page" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}" onclick="validate()">
+                    <span class="glyphicon glyphicon-save"></span> &nbsp;publier
                 </button>
             </div>
             <div class="col-sm-6">

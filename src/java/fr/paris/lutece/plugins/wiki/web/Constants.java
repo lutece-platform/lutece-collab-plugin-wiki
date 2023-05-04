@@ -65,6 +65,8 @@ public final class Constants
     public static final String PARAMETER_IMAGE_FILE = "image_file";
     public static final String PARAMETER_IMAGE_ID = "id_image";
     public static final String PARAMETER_TOPIC_VERSION_ID = "id_topic_version";
+    public static final String PARAMETER_CREATE_NEW_VERSION = "create_new_version";
+    public static final String PARAMETER_PUBLISH = "publish_version";
     public static final String MESSAGE_PAGE_NOT_EXISTS = "wiki.message.accessDenied.pageNotExists";
     public static final String MESSAGE_PAGE_ALREADY_EXISTS = "wiki.message.accessDenied.pageAlreadyExists";
     public static final String MESSAGE_USER_NOT_IN_ROLE = "wiki.message.accessDenied.userNotInRole";

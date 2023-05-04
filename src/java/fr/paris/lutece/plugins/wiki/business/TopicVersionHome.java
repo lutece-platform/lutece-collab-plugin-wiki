@@ -151,4 +151,25 @@ public final class TopicVersionHome
     {
         return _dao.loadAllVersions( idTopic, _plugin );
     }
+
+
+    public static void updateIsPublished(int nIdTopicVersion, boolean bIsPublished)
+    {
+        _dao.updateIsPublished( nIdTopicVersion, bIsPublished, _plugin );
+    }
+    public static void updateTopicVersion(TopicVersion topicVersion)
+    {
+        _dao.updateTopicVersion( topicVersion, _plugin );
+    }
+    public static void updateContent(TopicVersion topicVersion)
+    {
+        _dao.updateContent( topicVersion, _plugin );
+    }
+    public static void cancelPublication(int topicId)
+    {
+        TopicVersion topicVersionPublished = _dao.getPublishedVersion(topicId, _plugin);
+        if(topicVersionPublished != null && topicVersionPublished.getIdTopicVersion() != nIdTopicVersion) {
+            _dao.updateIsPublished( topicVersionPublished.getIdTopicVersion(), false, _plugin );
+        }
+    }
 }
