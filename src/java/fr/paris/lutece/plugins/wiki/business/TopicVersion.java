@@ -52,6 +52,7 @@ public class TopicVersion
     private String _strUserPseudo;
     private String _strUserAvatarUrl;
     private String _strUserName;
+    private Boolean _bIsPublished;
     private Map<String, WikiContent> _mapWikiContent = new HashMap<>( );
 
     /**
@@ -277,4 +278,22 @@ public class TopicVersion
     {
         _strUserAvatarUrl = strUserAvatarUrl;
     }
+
+    /**
+     * Returns the IsPublished
+     *
+     * @return The IsPublished
+     */
+    public Boolean getIsPublished( )
+    {
+        return _bIsPublished;
+    }
+
+    /**
+     * Sets the IsPublished
+     *
+     * @param bIsPublished
+     *            The IsPublished
+     */
+    public void setIsPublished( Boolean bIsPublished ) {_bIsPublished = bIsPublished;}
 }

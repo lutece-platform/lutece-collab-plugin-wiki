@@ -448,6 +448,7 @@ public class WikiApp extends MVCApplication
         checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Integer nVersion = Integer.parseInt(request.getParameter( Constants.PARAMETER_TOPIC_VERSION ), 0 );
 
         Topic topic;
         Topic topicSession = (Topic) request.getSession( ).getAttribute( MARK_TOPIC );
@@ -462,21 +463,19 @@ public class WikiApp extends MVCApplication
         }
 
         TopicVersion topicVersion;
-        TopicVersion topicVersionSession = (TopicVersion) request.getSession( ).getAttribute( MARK_LATEST_VERSION );
-        if ( topicVersionSession != null && topicVersionSession.getIdTopic( ) == topic.getIdTopic( ) )
+        if(nVersion != 0)
         {
-            topicVersion = topicVersionSession;
-            request.getSession( ).removeAttribute( MARK_LATEST_VERSION );
+            topicVersion = TopicVersionHome.findByPrimaryKey( nVersion );
         }
         else
         {
             topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-            if ( topicVersion != null )
-            {
-                String strLanguage = getLanguage( request );
-                WikiContent content = topicVersion.getWikiContent( strLanguage );
-                content.setWikiContent( WikiService.renderEditor( topicVersion, strLanguage ) );
-            }
+        }
+        if ( topicVersion != null )
+        {
+            String strLanguage = getLanguage( request );
+            WikiContent content = topicVersion.getWikiContent( strLanguage );
+            content.setWikiContent( WikiService.renderEditor( topicVersion, strLanguage ) );
         }
 
         ReferenceList topicRefList = getTopicsReferenceListForUser( request, true );
