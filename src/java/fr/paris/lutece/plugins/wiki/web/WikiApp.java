@@ -175,6 +175,8 @@ public class WikiApp extends MVCApplication
     private static final String ACTION_UPLOAD_IMAGE = "uploadImage";
     private static final String ACTION_CHANGE_LANGUAGE = "changeLanguage";
 
+    private static final String ACTION_CREATE_VERSION_FROM_PUBLISHED = "createVersionFromPublished";
+
     private static final String MESSAGE_IMAGE_REMOVED = "wiki.message.image.removed";
     private static final String MESSAGE_CONFIRM_REMOVE_IMAGE = "wiki.message.confirmRemoveImage";
     private static final String MESSAGE_NAME_MANDATORY = "wiki.message.error.name.notNull";
@@ -542,7 +544,6 @@ public class WikiApp extends MVCApplication
             // saves this version witch is published
             if(publish.equals(true)) {
                 TopicVersionHome.cancelPublication(Integer.parseInt(strTopicId));
-                TopicVersionHome.updateTopicVersion(topicVersion);
             }
             // if newVersion this version is saved witch is not published
             if(!newVersion && publish.equals(false)){
@@ -554,7 +555,6 @@ public class WikiApp extends MVCApplication
                 TopicHome.update(topic);
             }
             if(newVersion || publish.equals(true)){
-                topicVersion.setIsPublished(false);
                 TopicVersionHome.addTopicVersion( topicVersion );
                 topic.setViewRole(strViewRole);
                 topic.setEditRole(strEditRole);
@@ -568,6 +568,33 @@ public class WikiApp extends MVCApplication
         mapParameters.put(Constants.PARAMETER_PAGE_NAME, strPageName);
 
         return redirect(request, VIEW_PAGE, mapParameters);
+    }
+
+    @Action( ACTION_CREATE_VERSION_FROM_PUBLISHED )
+    public XPage doCreateVersionFromPublished( HttpServletRequest request ) throws UserNotSignedException
+    {
+        LuteceUser user = checkUser( request );
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+
+        if ( RoleService.hasEditRole( request, topic ) ) {
+            TopicVersion publishedVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic() );
+            System.out.println(publishedVersion.getIdTopicVersion());
+            System.out.println(publishedVersion.getIdTopic());
+
+            publishedVersion.setUserName(user.getName());
+            publishedVersion.setEditComment("Version created from published version");
+            publishedVersion.setIdTopicVersionPrevious(publishedVersion.getIdTopicVersion());
+            publishedVersion.setIsPublished(false);
+
+
+            TopicVersionHome.addTopicVersion( publishedVersion );
+        }
+
+        Map<String, String> mapParameters = new ConcurrentHashMap<>();
+        mapParameters.put(Constants.PARAMETER_PAGE_NAME, strPageName);
+
+        return redirect(request, VIEW_MODIFY_PAGE, mapParameters);
     }
 
     @Action( ACTION_CANCEL_PUBLISH_PAGE )

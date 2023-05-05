@@ -168,4 +168,9 @@ public final class TopicVersionHome
             _dao.updateIsPublished( topicVersionPublished.getIdTopicVersion(), false, _plugin );
         }
     }
+
+    public static TopicVersion getPublishedVersion(int topicId)
+    {
+        return _dao.getPublishedVersion(topicId, _plugin);
+    }
 }
