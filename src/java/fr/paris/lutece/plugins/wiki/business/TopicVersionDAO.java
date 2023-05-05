@@ -368,9 +368,12 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
     public void updateTopicVersion(TopicVersion topicVersion, Plugin plugin) {
         try (DAOUtil daoUtil = new DAOUtil(SQL_QUERY_UPDATE, plugin)) {
             daoUtil.setString(1, topicVersion.getEditComment());
-            daoUtil.setString(2, topicVersion.getUserName());
-            daoUtil.setTimestamp(3, new java.sql.Timestamp(new java.util.Date().getTime()));
-            daoUtil.setInt(4, topicVersion.getIdTopicVersion());
+            daoUtil.setInt(2, topicVersion.getIdTopic());
+            daoUtil.setString(3, topicVersion.getUserName());
+            daoUtil.setTimestamp(4, new java.sql.Timestamp(new java.util.Date().getTime()));
+            daoUtil.setInt(5, topicVersion.getIdTopicVersion());
+            daoUtil.setBoolean(6, topicVersion.getIsPublished());
+            daoUtil.setInt(7, topicVersion.getIdTopicVersion());
             daoUtil.executeUpdate();
         }
     }

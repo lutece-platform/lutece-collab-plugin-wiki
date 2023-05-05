@@ -153,10 +153,6 @@ public final class TopicVersionHome
     }
 
 
-    public static void updateIsPublished(int nIdTopicVersion, boolean bIsPublished)
-    {
-        _dao.updateIsPublished( nIdTopicVersion, bIsPublished, _plugin );
-    }
     public static void updateTopicVersion(TopicVersion topicVersion)
     {
         _dao.updateTopicVersion( topicVersion, _plugin );
