@@ -134,6 +134,7 @@ public class WikiApp extends MVCApplication
     private static final String MARK_MAP_TOPIC_TITLE = "map_topic_title";
     private static final String MARK_MAP_TOPIC_CHILDREN = "map_topic_children";
     private static final String MARK_WIKI_ROOT_PAGE_NAME = "wiki_root_page_name";
+    private static final String MARK_PAGE_NAME = "page_name";
     private static final String MARK_VERSION = "version";
     private static final String MARK_LATEST_VERSION = "lastVersion";
     private static final String MARK_DIFF_HTML = "diff_html";
@@ -165,7 +166,7 @@ public class WikiApp extends MVCApplication
 
     private static final String ACTION_NEW_PAGE = "newPage";
     private static final String ACTION_MODIFY_PAGE = "modifyPage";
-    private static final String ACTION_CANCEL_PUBLISH_PAGE = "cancel_publication";
+    private static final String ACTION_CANCEL_PUBLISH_PAGE = "cancelPublication";
 
     private static final String ACTION_DELETE_PAGE = "deletePage";
     private static final String ACTION_REMOVE_IMAGE = "removeImage";
@@ -366,7 +367,7 @@ public class WikiApp extends MVCApplication
         }
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_VIEW );
-        TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+        TopicVersion version = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
         if ( version == null )
         {
             UrlItem url = new UrlItem( AppPathService.getBaseUrl( request ) + AppPathService.getPortalUrl( ) );
@@ -434,7 +435,6 @@ public class WikiApp extends MVCApplication
         Map<String, String> mapParameters = new ConcurrentHashMap<>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
         mapParameters.put( Constants.PARAMETER_PAGE_TITLE, URLEncoder.encode( strPageTitle, "UTF-8" ) );
-
         return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
     }
 
@@ -508,7 +508,7 @@ public class WikiApp extends MVCApplication
     @Action( ACTION_MODIFY_PAGE )
     public XPage doModifyTopic( HttpServletRequest request ) throws UserNotSignedException
     {
-        // if published, saves this version and a new version that is not publish is created so this last one can be modified
+        // if published, create version that is publish is created and this last one can be modified
         // if no new version is created, saves this version
         LuteceUser user = checkUser( request );
 
@@ -548,7 +548,6 @@ public class WikiApp extends MVCApplication
             // if newVersion this version is saved witch is not published
             if(!newVersion && publish.equals(false)){
                 TopicVersionHome.updateTopicVersion(topicVersion);
-                TopicVersionHome.addTopicVersion( topicVersion );
                 topic.setViewRole(strViewRole);
                 topic.setEditRole(strEditRole);
                 topic.setParentPageName(strParentPageName);
@@ -579,9 +578,6 @@ public class WikiApp extends MVCApplication
 
         if ( RoleService.hasEditRole( request, topic ) ) {
             TopicVersion publishedVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic() );
-            System.out.println(publishedVersion.getIdTopicVersion());
-            System.out.println(publishedVersion.getIdTopic());
-
             publishedVersion.setUserName(user.getName());
             publishedVersion.setEditComment("Version created from published version");
             publishedVersion.setIdTopicVersionPrevious(publishedVersion.getIdTopicVersion());
@@ -601,34 +597,21 @@ public class WikiApp extends MVCApplication
     public XPage doUnpublish( HttpServletRequest request ) throws UserNotSignedException
     {
         LuteceUser user = checkUser( request );
-
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
-        if ( RoleService.hasEditRole( request, topic ) ) {
-            String strPreviousVersionId = request.getParameter(Constants.PARAMETER_PREVIOUS_VERSION_ID);
-            String strTopicId = request.getParameter(Constants.PARAMETER_TOPIC_ID);
-            String strComment = request.getParameter(Constants.PARAMETER_MODIFICATION_COMMENT);
-            String strViewRole = request.getParameter(Constants.PARAMETER_VIEW_ROLE);
-            String strEditRole = request.getParameter(Constants.PARAMETER_EDIT_ROLE);
-            String strParentPageName = request.getParameter(Constants.PARAMETER_PARENT_PAGE_NAME);
-            int nPreviousVersionId = Integer.parseInt(strPreviousVersionId);
-            int nTopicId = Integer.parseInt(strTopicId);
+        TopicVersion publishedVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic() );
 
-            TopicVersion topicVersion = new TopicVersion();
-            topicVersion.setIdTopic(nTopicId);
-            topicVersion.setUserName(user.getName());
-            topicVersion.setEditComment(strComment);
-            topicVersion.setIdTopicVersionPrevious(nPreviousVersionId);
-            topicVersion.setIsPublished(false);
-            TopicVersionHome.cancelPublication(Integer.parseInt(strTopicId));
-            TopicVersionHome.updateTopicVersion(topicVersion);
-            topic.setViewRole(strViewRole);
-            topic.setEditRole(strEditRole);
-            topic.setParentPageName(strParentPageName);
-            TopicHome.update(topic);
+        if ( RoleService.hasEditRole( request, topic ) ) {
+            System.out.println();
+            publishedVersion.setUserName(user.getName());
+            publishedVersion.setEditComment("Publication canceled by"+" "+user.getName());
+            publishedVersion.setIsPublished(false);
+            TopicVersionHome.updateTopicVersion(publishedVersion);
 
         }
-                 return redirect(request, VIEW_LIST, null);
+        Integer topicVersionId = publishedVersion.getIdTopicVersion();
+
+        return redirect(request, VIEW_MODIFY_PAGE, MARK_PAGE_NAME+"="+topic.getPageName()+"&"+MARK_VERSION,topicVersionId);
     }
     /**
      * Displays the preview of a wiki page

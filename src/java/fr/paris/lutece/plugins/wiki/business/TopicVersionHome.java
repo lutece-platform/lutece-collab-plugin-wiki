@@ -157,10 +157,6 @@ public final class TopicVersionHome
     {
         _dao.updateTopicVersion( topicVersion, _plugin );
     }
-    public static void updateContent(TopicVersion topicVersion)
-    {
-        _dao.updateContent( topicVersion, _plugin );
-    }
     public static void cancelPublication(int topicId)
     {
         TopicVersion topicVersionPublished = _dao.getPublishedVersion(topicId, _plugin);

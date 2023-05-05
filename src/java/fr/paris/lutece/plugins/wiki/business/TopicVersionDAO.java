@@ -59,11 +59,10 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
     private static final String SQL_QUERY_DELETE_CONTENT_BY_TOPIC_ID = "DELETE a.* FROM wiki_topic_version_content a, wiki_topic_version b WHERE a.id_topic_version = b.id_topic_version AND b.id_topic = ? ";
     private static final String SQL_QUERY_SELECT_PUBLISHED_BY_TOPIC_ID= "SELECT id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous, is_published FROM wiki_topic_version WHERE id_topic = ? AND is_published = 1 ORDER BY  date_edition DESC ";
     private static final String SQL_QUERY_UPDATE_IS_PUBLISHED = "UPDATE wiki_topic_version SET is_published=? WHERE id_topic_version = ? ";
+    private static final  String SQL_QUERY_DELETE_CONTENT_BY_TOPIC_VERSION_ID = "DELETE FROM wiki_topic_version_content WHERE id_topic_version = ? ";
+    private static final String SQL_QUERY_DELETE_BY_TOPIC_VERSION_ID = "DELETE FROM wiki_topic_version WHERE id_topic_version = ? ";
 
-    private static final String SQL_QUERY_UPDATE = "UPDATE wiki_topic_version SET edit_comment=?, id_topic=?, lutece_user_id=?, date_edition=?, id_topic_version_previous=?, is_published=? WHERE id_topic_version = ? ";
-    private static final  String SQL_QUERY_UPDATE_CONTENT = "UPDATE wiki_topic_version_content SET wiki_content=? WHERE id_topic_version = ? AND locale = ? AND page_title = ? ";
-    /**
-     * Generates a new primary key
+    /* Generates a new primary key
      *
      * @param plugin The Plugin
      * @return The new primary key
@@ -193,6 +192,21 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
             daoUtil.executeUpdate();
         }
     }
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public void deleteByTopicVersion(int nTopicId, Plugin plugin) {
+        try (DAOUtil daoUtil = new DAOUtil(SQL_QUERY_DELETE_CONTENT_BY_TOPIC_VERSION_ID, plugin)) {
+            daoUtil.setInt(1, nTopicId);
+            daoUtil.executeUpdate();
+        }
+
+        try (DAOUtil daoUtil = new DAOUtil(SQL_QUERY_DELETE_BY_TOPIC_VERSION_ID, plugin)) {
+            daoUtil.setInt(1, nTopicId);
+            daoUtil.executeUpdate();
+        }
+    }
 
     @Override
     public void updateIsPublished(int nIdTopicVersion, boolean bIsPublished, Plugin plugin) {
@@ -238,6 +252,28 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
      */
     @Override
     public void addTopicVersion(TopicVersion topicVersion, Plugin plugin) {
+        try (DAOUtil daoUtil = new DAOUtil(SQL_QUERY_INSERT_MODIFICATION, plugin)) {
+            topicVersion.setIdTopicVersion(newPrimaryKey(plugin));
+            daoUtil.setInt(1, topicVersion.getIdTopicVersion());
+            daoUtil.setString(2, topicVersion.getEditComment());
+            daoUtil.setInt(3, topicVersion.getIdTopic());
+            daoUtil.setString(4, topicVersion.getUserName());
+            daoUtil.setTimestamp(5, new java.sql.Timestamp(new java.util.Date().getTime()));
+            daoUtil.setInt(6, topicVersion.getIdTopicVersionPrevious());
+            daoUtil.setBoolean(7, topicVersion.getIsPublished());
+
+            daoUtil.executeUpdate();
+        }
+
+        storeContent(topicVersion);
+    }
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public void updateTopicVersion(TopicVersion topicVersion, Plugin plugin) {
+        deleteByTopicVersion(topicVersion.getIdTopicVersionPrevious(), plugin);
+        topicVersion.setIdTopicVersion(topicVersion.getIdTopicVersionPrevious());
         try (DAOUtil daoUtil = new DAOUtil(SQL_QUERY_INSERT_MODIFICATION, plugin)) {
             topicVersion.setIdTopicVersion(newPrimaryKey(plugin));
             daoUtil.setInt(1, topicVersion.getIdTopicVersion());
@@ -360,39 +396,5 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
         return topicVersionList;
     }
 
-
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public void updateTopicVersion(TopicVersion topicVersion, Plugin plugin) {
-        try (DAOUtil daoUtil = new DAOUtil(SQL_QUERY_UPDATE, plugin)) {
-            daoUtil.setString(1, topicVersion.getEditComment());
-            daoUtil.setInt(2, topicVersion.getIdTopic());
-            daoUtil.setString(3, topicVersion.getUserName());
-            daoUtil.setTimestamp(4, new java.sql.Timestamp(new java.util.Date().getTime()));
-            daoUtil.setInt(5, topicVersion.getIdTopicVersion());
-            daoUtil.setBoolean(6, topicVersion.getIsPublished());
-            daoUtil.setInt(7, topicVersion.getIdTopicVersion());
-            daoUtil.executeUpdate();
-        }
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public void updateContent(TopicVersion topicVersion, Plugin plugin) {
-        for (String strLanguage : topicVersion.getWikiContents().keySet()) {
-            WikiContent content = topicVersion.getWikiContents().get(strLanguage);
-            try (DAOUtil daoUtil = new DAOUtil(SQL_QUERY_UPDATE_CONTENT)) {
-                daoUtil.setString(1, content.getPageTitle());
-                daoUtil.setString(2, content.getWikiContent());
-                daoUtil.setInt(3, topicVersion.getIdTopicVersion());
-                daoUtil.setString(4, strLanguage);
-                daoUtil.executeUpdate();
-            }
-        }
-    }
 
 }
