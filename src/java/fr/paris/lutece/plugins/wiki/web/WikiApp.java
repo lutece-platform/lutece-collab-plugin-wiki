@@ -169,7 +169,6 @@ public class WikiApp extends MVCApplication
     private static final String ACTION_CANCEL_PUBLISH_PAGE = "cancelPublication";
 
     private static final String ACTION_DELETE_PAGE = "deletePage";
-    private static final String ACTION_DELETE_VERSION = "deleteVersion";
     private static final String ACTION_REMOVE_IMAGE = "removeImage";
     private static final String ACTION_CONFIRM_REMOVE_IMAGE = "confirmRemoveImage";
     private static final String ACTION_REMOVE_VERSION = "removeVersion";
@@ -448,8 +447,6 @@ public class WikiApp extends MVCApplication
      * @throws SiteMessageException
      *             if an exception occurs
      */
-
-    // si la page est publié on propose de créer une nouvelle version a partir de la version publié
     @View( VIEW_MODIFY_PAGE )
     public XPage getModifyTopic( HttpServletRequest request ) throws SiteMessageException, UserNotSignedException
     {
@@ -504,13 +501,19 @@ public class WikiApp extends MVCApplication
             page.setExtendedPathLabel(getPageExtendedPath(topic, request));
 
             return page;
-     //   }
     }
+    /**
+     * Process the modification of a wiki page
+     *
+     * @param request
+     *            The HTTP request
+     * @return The XPage
+     * @throws UserNotSignedException
+     *             if the user is not signed
+     */
     @Action( ACTION_MODIFY_PAGE )
     public XPage doModifyTopic( HttpServletRequest request ) throws UserNotSignedException
     {
-        // if published, create version that is publish is created and this last one can be modified
-        // if no new version is created, saves this version
         LuteceUser user = checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
@@ -534,6 +537,7 @@ public class WikiApp extends MVCApplication
             topicVersion.setEditComment(strComment);
             topicVersion.setIdTopicVersionPrevious(nPreviousVersionId);
             topicVersion.setIsPublished(publish);
+            // set the content for each language
             for (String strLanguage : WikiLocaleService.getLanguages()) {
                 String strPageTitle = request.getParameter(Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage);
                 String strContent = request.getParameter(Constants.PARAMETER_CONTENT + "_" + strLanguage);
@@ -542,11 +546,11 @@ public class WikiApp extends MVCApplication
                 content.setWikiContent(strContent);
                 topicVersion.addLocalizedWikiContent(strLanguage, content);
             }
-            // saves this version witch is published
+            // if publish is true, cancel publication of previous version
             if(publish.equals(true)) {
                 TopicVersionHome.cancelPublication(Integer.parseInt(strTopicId));
             }
-            // if newVersion this version is saved witch is not published
+            // if newVersion is false and publish is false, overwrite this version
             if(!newVersion && publish.equals(false)){
                 TopicVersionHome.updateTopicVersion(topicVersion);
                 topic.setViewRole(strViewRole);
@@ -554,6 +558,7 @@ public class WikiApp extends MVCApplication
                 topic.setParentPageName(strParentPageName);
                 TopicHome.update(topic);
             }
+            // if newVersion is true or publish is true, create a new version
             if(newVersion || publish.equals(true)){
                 TopicVersionHome.addTopicVersion( topicVersion );
                 topic.setViewRole(strViewRole);
@@ -570,6 +575,15 @@ public class WikiApp extends MVCApplication
         return redirect(request, VIEW_PAGE, mapParameters);
     }
 
+    /**
+     * Creates a new version from the published version
+     *
+     * @param request
+     *            The HTTP request
+     * @return The XPage
+     * @throws UserNotSignedException
+     *             if the user is not signed
+     */
     @Action( ACTION_CREATE_VERSION_FROM_PUBLISHED )
     public XPage doCreateVersionFromPublished( HttpServletRequest request ) throws UserNotSignedException
     {
@@ -594,6 +608,15 @@ public class WikiApp extends MVCApplication
         return redirect(request, VIEW_MODIFY_PAGE, mapParameters);
     }
 
+    /**
+     * Cancel publication of a page
+     *
+     * @param request
+     *            The HTTP request
+     * @return The XPage
+     * @throws UserNotSignedException
+     *             if the user is not signed
+     */
     @Action( ACTION_CANCEL_PUBLISH_PAGE )
     public XPage doUnpublish( HttpServletRequest request ) throws UserNotSignedException
     {

@@ -152,11 +152,25 @@ public final class TopicVersionHome
         return _dao.loadAllVersions( idTopic, _plugin );
     }
 
-
+    /**
+     * Overwrite the topic's version
+     *
+     * @param topicVersion
+     *            The topicVersion id
+     * @return void
+     */
     public static void updateTopicVersion(TopicVersion topicVersion)
     {
         _dao.updateTopicVersion( topicVersion, _plugin );
     }
+
+    /**
+     * Cancel the publication of a topicVersion
+     *
+     * @param topicId
+     *            The topic id
+     * @return void
+     */
     public static void cancelPublication(int topicId)
     {
         TopicVersion topicVersionPublished = _dao.getPublishedVersion(topicId, _plugin);
@@ -164,7 +178,13 @@ public final class TopicVersionHome
             _dao.updateIsPublished( topicVersionPublished.getIdTopicVersion(), false, _plugin );
         }
     }
-
+    /**
+     * Get the published version of a topic
+     *
+     * @param topicId
+     *            The topic id
+     * @return void
+     */
     public static TopicVersion getPublishedVersion(int topicId)
     {
         return _dao.getPublishedVersion(topicId, _plugin);

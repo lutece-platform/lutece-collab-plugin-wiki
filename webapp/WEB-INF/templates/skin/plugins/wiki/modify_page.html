@@ -106,13 +106,13 @@
             <input class="form-control" type="text" name="modification_comment" maxlength="50"/>
         </div>
         <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}" onclick="validate()">
-            <span class="glyphicon glyphicon-save"></span> &nbsp; #i18n{wiki.modify_page.buttonModify}
+            <span class="glyphicon glyphicon-save"></span> &nbsp; #i18n{wiki.modify_page.buttonModifyAndOverwrite}
         </button>
         <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}" onclick="createVersion()">
-            <span class="glyphicon glyphicon-save"></span> &nbsp;enregistrer et créer une nouvelle version
+            <span class="glyphicon glyphicon-save"></span> &nbsp;#i18n{wiki.modify_page.buttonModify}
         </button>
         <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}" onclick="publishVersion()">
-            <span class="glyphicon glyphicon-save"></span> &nbsp;publier
+            <span class="glyphicon glyphicon-save"></span> &nbsp;#i18n{wiki.modify_page.SaveAndPublish}
         </button>
     </div>
     <div class="col-sm-6">
@@ -249,8 +249,8 @@
             <form id="createVersionFromPublish" action="jsp/site/Portal.jsp" method="post" >
                 <input type="hidden" name="page" value="wiki" />
                 <input type="hidden" name="page_name" value="${topic.pageName}" />
-                <button id="CreateVersionFromPublished" name="action_createVersionFromPublished" type="submit" class="btn btn-default" >Créer une version depuis la page publiée</button>
-                <button id="CancelPublication" name="action_cancelPublication" type="submit" class="btn btn-danger" >Annulé la publication</button>
+                <button id="CreateVersionFromPublished" name="action_createVersionFromPublished" type="submit" class="btn btn-default" >#i18n{wiki.modify_page.CreateNewFromPublished} </button>
+                <button id="CancelPublication" name="action_cancelPublication" type="submit" class="btn btn-danger" >#i18n{wiki.modify_page.buttonCancelPublish} </button>
             </form>
 
             <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
