@@ -12,10 +12,7 @@
                 <input type="hidden" name="previous_version_id" value="${version.idTopicVersion}" />
                 <#else>
                 <input type="hidden" name="previous_version_id" value="0" />
-            </#if>
-
-
-            <#if !version.isPublished>
+                </#if>
 
 
             <div class="col-sm-12">
@@ -105,9 +102,11 @@
             <label for="modification_comment"><span class="glyphicon glyphicon-comment"></span> &nbsp; #i18n{wiki.modify_page.labelComment} :</label>
             <input class="form-control" type="text" name="modification_comment" maxlength="50"/>
         </div>
+        <#if version??>
         <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}" onclick="validate()">
-            <span class="glyphicon glyphicon-save"></span> &nbsp; #i18n{wiki.modify_page.buttonModifyAndOverwrite}
+            <span class="glyphicon glyphicon-save"></span> &nbsp; #i18n{wiki.modify_page.buttonSaveAndOverwrite}
         </button>
+        </#if>
         <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}" onclick="createVersion()">
             <span class="glyphicon glyphicon-save"></span> &nbsp;#i18n{wiki.modify_page.buttonModify}
         </button>
@@ -243,7 +242,7 @@
             </div>
     </div>
 </div>
-    <#else>
+<!--
     <div class="col-sm-12">
         <div class="btn-group btn-group-xs pull-right">
             <form id="createVersionFromPublish" action="jsp/site/Portal.jsp" method="post" >
@@ -258,8 +257,7 @@
             </a>
         </div>
     </div>
-</#if>
-
+-->
 </div>
 
 

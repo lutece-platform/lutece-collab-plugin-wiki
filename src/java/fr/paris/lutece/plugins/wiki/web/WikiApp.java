@@ -106,6 +106,7 @@ import org.bouncycastle.i18n.LocaleString;
 public class WikiApp extends MVCApplication
 {
     private static final String TEMPLATE_MODIFY_WIKI = "skin/plugins/wiki/modify_page.html";
+    private static final String TEMPLATE_MODIFY_PUBLISHED = "skin/plugins/wiki/modify_published.html";
     private static final String TEMPLATE_PREVIEW_WIKI = "skin/plugins/wiki/preview_page.html";
     private static final String TEMPLATE_VIEW_WIKI = "skin/plugins/wiki/view_page.html";
     private static final String TEMPLATE_VIEW_HISTORY_WIKI = "skin/plugins/wiki/history_page.html";
@@ -158,6 +159,8 @@ public class WikiApp extends MVCApplication
     private static final String VIEW_MAP = "map";
     private static final String VIEW_PAGE = "page";
     private static final String VIEW_MODIFY_PAGE = "modifyPage";
+    private static final String VIEW_MODIFY_PUBLISHED = "modifyPublished";
+
     private static final String VIEW_PREVIEW = "preview";
     private static final String VIEW_HISTORY = "history";
     private static final String VIEW_SEARCH = "search";
@@ -471,13 +474,28 @@ public class WikiApp extends MVCApplication
         if(nVersion != null)
         {
             topicVersion = TopicVersionHome.findByPrimaryKey( nVersion );
-        }
+            if ( topicVersion != null )
+            {
+                if (topicVersion.getIsPublished())
+                {
+                    Map<String, String> mapParameters = new ConcurrentHashMap<>();
+                    mapParameters.put(Constants.PARAMETER_PAGE_NAME, strPageName);
+                    return redirect(request, VIEW_MODIFY_PUBLISHED, mapParameters);
+                }
+            }
+            }
         else
         {
             topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
         }
         if ( topicVersion != null )
         {
+            if( topicVersion.getIsPublished())
+            {
+                Map<String, String> mapParameters = new ConcurrentHashMap<>( );
+                mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+                return redirect(request, VIEW_MODIFY_PUBLISHED, mapParameters);
+            }
             String strLanguage = getLanguage( request );
             WikiContent content = topicVersion.getWikiContent( strLanguage );
             content.setWikiContent( WikiService.renderEditor( topicVersion, strLanguage ) );
@@ -501,6 +519,34 @@ public class WikiApp extends MVCApplication
             page.setExtendedPathLabel(getPageExtendedPath(topic, request));
 
             return page;
+    }
+    /**
+     * Displays the options if you want to modify published
+     *
+     * @param request
+     *            The HTTP request
+     * @return The XPage
+     * @throws SiteMessageException
+     *             if an exception occurs
+     */
+    @View(VIEW_MODIFY_PUBLISHED)
+    public XPage doModifyPublished( HttpServletRequest request ) throws UserNotSignedException
+    {
+        checkUser( request );
+
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        strPageName = WikiUtils.normalize( strPageName );
+
+        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+        Map<String, Object> model = getModel();
+
+
+        model.put( Constants.PARAMETER_PAGE_NAME , strPageName);
+
+        XPage page = getXPage(TEMPLATE_MODIFY_PUBLISHED, request.getLocale(), model);
+        page.setTitle(getPageTitle(getTopicTitle(request, topic)));
+        page.setExtendedPathLabel(getPageExtendedPath(topic, request));
+        return page;
     }
     /**
      * Process the modification of a wiki page
@@ -634,8 +680,10 @@ public class WikiApp extends MVCApplication
 
         }
         Integer topicVersionId = publishedVersion.getIdTopicVersion();
-
-        return redirect(request, VIEW_MODIFY_PAGE, MARK_PAGE_NAME+"="+topic.getPageName()+"&"+MARK_VERSION,topicVersionId);
+        Map<String, String> mapParameters = new ConcurrentHashMap<>();
+        mapParameters.put(Constants.PARAMETER_PAGE_NAME, topic.getPageName());
+        mapParameters.put(Constants.PARAMETER_TOPIC_VERSION_ID,String.valueOf(topicVersionId));
+        return redirect(request, VIEW_MODIFY_PAGE, mapParameters);
     }
     /**
      * Displays the preview of a wiki page
