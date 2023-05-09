@@ -52,11 +52,16 @@
                             <td>${version.editComment}</td>
                             <#if has_admin_role >
                             <td>
+                                <#if version.isPublished!=true>
                                 <a href="jsp/site/Portal.jsp?page=wiki&action=confirmRemoveVersion&id_topic_version=${version.idTopicVersion}&page_name=${topic.pageName}" class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}">
                                     <span class="glyphicon glyphicon-trash"></span>
                                 </a>
-                            </td>
                             </#if>
+                            <a href="jsp/site/Portal.jsp?page=wiki&view=modifyPage&page_name=${topic.pageName}&id_topic_version=${version.idTopicVersion}"  class="btn btn-primary btn-sm"  title="#i18n{wiki.menu.edit}">
+                                <span class="glyphicon glyphicon-edit"></span> #i18n{wiki.menu.edit}
+                            </a>
+                            </td>
+                        </#if>
                         </tr>
                         </#list>
                     </table>

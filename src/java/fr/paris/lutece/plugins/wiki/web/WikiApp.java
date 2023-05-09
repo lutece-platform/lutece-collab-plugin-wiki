@@ -169,6 +169,7 @@ public class WikiApp extends MVCApplication
     private static final String ACTION_CANCEL_PUBLISH_PAGE = "cancelPublication";
 
     private static final String ACTION_DELETE_PAGE = "deletePage";
+    private static final String ACTION_DELETE_VERSION = "deleteVersion";
     private static final String ACTION_REMOVE_IMAGE = "removeImage";
     private static final String ACTION_CONFIRM_REMOVE_IMAGE = "confirmRemoveImage";
     private static final String ACTION_REMOVE_VERSION = "removeVersion";

@@ -45,7 +45,7 @@ import java.util.Collection;
 public final class TopicVersionDAO implements ITopicVersionDAO {
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_topic_version ) FROM wiki_topic_version";
-    private static final String SQL_QUERY_SELECT = "SELECT id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous,wiki_content, is_published FROM wiki_topic_version WHERE id_topic_version = ?";
+    private static final String SQL_QUERY_SELECT = "SELECT id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous, is_published FROM wiki_topic_version WHERE id_topic_version = ?";
     private static final String SQL_QUERY_INSERT = "INSERT INTO wiki_topic_version ( id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous, is_published ) VALUES ( ?, ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM wiki_topic_version WHERE id_topic_version = ? ";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous, is_published FROM wiki_topic_version";
@@ -136,7 +136,10 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
             }
         }
 
-        fillContent(topicVersion);
+        if (topicVersion != null) {
+            fillContent(topicVersion);
+        }
+
 
         return topicVersion;
     }
@@ -196,14 +199,14 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
      * {@inheritDoc }
      */
     @Override
-    public void deleteByTopicVersion(int nTopicId, Plugin plugin) {
+    public void deleteByTopicVersion(int nTopicVersionId, Plugin plugin) {
         try (DAOUtil daoUtil = new DAOUtil(SQL_QUERY_DELETE_CONTENT_BY_TOPIC_VERSION_ID, plugin)) {
-            daoUtil.setInt(1, nTopicId);
+            daoUtil.setInt(1, nTopicVersionId);
             daoUtil.executeUpdate();
         }
 
         try (DAOUtil daoUtil = new DAOUtil(SQL_QUERY_DELETE_BY_TOPIC_VERSION_ID, plugin)) {
-            daoUtil.setInt(1, nTopicId);
+            daoUtil.setInt(1, nTopicVersionId);
             daoUtil.executeUpdate();
         }
     }
