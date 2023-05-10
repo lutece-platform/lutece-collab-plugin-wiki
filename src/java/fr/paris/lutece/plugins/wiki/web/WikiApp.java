@@ -595,7 +595,7 @@ public class WikiApp extends MVCApplication
             // if publish is true, cancel publication of previous version
             if(publish.equals(true)) {
                 String messageCanceledBy = I18nService.getLocalizedString( MESSAGE_CANCELED_BY, getLocale( request ) );
-                String comment = messageCanceledBy + user.getName();
+                String comment = messageCanceledBy +" "+ user.getName();
                 TopicVersionHome.cancelPublication(Integer.parseInt(strTopicId), comment);
             }
             // if newVersion is false and publish is false, overwrite this version
@@ -675,7 +675,7 @@ public class WikiApp extends MVCApplication
 
         if ( RoleService.hasEditRole( request, topic ) ) {
             String messageCanceledBy = I18nService.getLocalizedString( MESSAGE_CANCELED_BY, getLocale( request ) );
-            String comment = messageCanceledBy + user.getName();
+            String comment = messageCanceledBy +" "+ user.getName();
             TopicVersionHome.cancelPublication(topic.getIdTopic(), comment);
 
 

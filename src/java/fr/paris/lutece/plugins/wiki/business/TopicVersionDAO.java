@@ -58,7 +58,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
     private static final String SQL_QUERY_DELETE_CONTENT = "DELETE FROM wiki_topic_version_content WHERE id_topic_version = ? ";
     private static final String SQL_QUERY_DELETE_CONTENT_BY_TOPIC_ID = "DELETE a.* FROM wiki_topic_version_content a, wiki_topic_version b WHERE a.id_topic_version = b.id_topic_version AND b.id_topic = ? ";
     private static final String SQL_QUERY_SELECT_PUBLISHED_BY_TOPIC_ID= "SELECT id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous, is_published FROM wiki_topic_version WHERE id_topic = ? AND is_published = 1 ORDER BY  date_edition DESC ";
-    private static final String SQL_QUERY_UPDATE_IS_PUBLISHED = "UPDATE wiki_topic_version SET is_published=? WHERE id_topic_version = ? ";
+    private static final String SQL_QUERY_UPDATE_IS_PUBLISHED = "UPDATE wiki_topic_version SET is_published=?,edit_comment=?  WHERE id_topic_version = ? ";
     private static final  String SQL_QUERY_DELETE_CONTENT_BY_TOPIC_VERSION_ID = "DELETE FROM wiki_topic_version_content WHERE id_topic_version = ? ";
     private static final String SQL_QUERY_DELETE_BY_TOPIC_VERSION_ID = "DELETE FROM wiki_topic_version WHERE id_topic_version = ? ";
 
@@ -218,7 +218,8 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
     public void updateIsPublished(int nIdTopicVersion, String comment, boolean bIsPublished, Plugin plugin) {
         try (DAOUtil daoUtil = new DAOUtil(SQL_QUERY_UPDATE_IS_PUBLISHED, plugin)) {
             daoUtil.setBoolean(1, bIsPublished);
-            daoUtil.setInt(2, nIdTopicVersion);
+            daoUtil.setString(2, comment);
+            daoUtil.setInt(3, nIdTopicVersion);
             daoUtil.executeUpdate();
         }
 
