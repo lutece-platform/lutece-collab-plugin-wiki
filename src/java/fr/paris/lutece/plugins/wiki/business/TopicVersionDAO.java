@@ -215,7 +215,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
      * {@inheritDoc }
      */
     @Override
-    public void updateIsPublished(int nIdTopicVersion, boolean bIsPublished, Plugin plugin) {
+    public void updateIsPublished(int nIdTopicVersion, String comment, boolean bIsPublished, Plugin plugin) {
         try (DAOUtil daoUtil = new DAOUtil(SQL_QUERY_UPDATE_IS_PUBLISHED, plugin)) {
             daoUtil.setBoolean(1, bIsPublished);
             daoUtil.setInt(2, nIdTopicVersion);

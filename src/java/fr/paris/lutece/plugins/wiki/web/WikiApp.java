@@ -189,6 +189,9 @@ public class WikiApp extends MVCApplication
     private static final String MESSAGE_VERSION_REMOVED = "wiki.message.version.removed";
     private static final String MESSAGE_AUTHENTICATION_REQUIRED = "wiki.message.authenticationRequired";
     private static final String MESSAGE_PATH_HIDDEN = "wiki.message.path.hidden";
+    private static final String MESSAGE_NO_PUBLISHED_VERSION = "wiki.view_page.noPublishedVersion";
+    private static final String MESSAGE_CANCELED_VERSION = "wiki.message.canceledVersion";
+    private static final String MESSAGE_CANCELED_BY = "wiki.message.cancelBy";
 
     private static final String ANCHOR_IMAGES = "#images";
 
@@ -371,16 +374,15 @@ public class WikiApp extends MVCApplication
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_VIEW );
         TopicVersion version = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
+        String strWikiPage = null;
         if ( version == null )
         {
-            UrlItem url = new UrlItem( AppPathService.getBaseUrl( request ) + AppPathService.getPortalUrl( ) );
-            url.addParameter( Constants.PARAMETER_PAGE, Constants.PLUGIN_NAME );
-            url.addParameter( Constants.PARAMETER_ACTION, ACTION_NEW_PAGE );
-            url.addParameter( Constants.PARAMETER_PAGE_NAME, strPageName );
-            return redirect( request, url.getUrl( ) );
+            strWikiPage = I18nService.getLocalizedString( MESSAGE_NO_PUBLISHED_VERSION, getLocale( request ) );
+            System.out.println( strWikiPage );
+        } else {
+            fillUserData(version);
+             strWikiPage = WikiService.instance().getWikiPage(strPageName, version, getPageUrl(request), getLanguage(request));
         }
-        fillUserData( version );
-        String strWikiPage = WikiService.instance( ).getWikiPage( strPageName, version, getPageUrl( request ), getLanguage( request ) );
         Map<String, Object> model = getModel( );
         model.put( MARK_RESULT, strWikiPage );
         model.put( MARK_TOPIC, topic );
@@ -594,7 +596,10 @@ public class WikiApp extends MVCApplication
             }
             // if publish is true, cancel publication of previous version
             if(publish.equals(true)) {
-                TopicVersionHome.cancelPublication(Integer.parseInt(strTopicId));
+                String messageCanceledVersion = I18nService.getLocalizedString( MESSAGE_CANCELED_VERSION, getLocale( request ) );
+                String messageCanceledBy = I18nService.getLocalizedString( MESSAGE_CANCELED_BY, getLocale( request ) );
+                String comment = messageCanceledVersion+ nPreviousVersionId + messageCanceledBy + user.getName();
+                TopicVersionHome.cancelPublication(Integer.parseInt(strTopicId), comment);
             }
             // if newVersion is false and publish is false, overwrite this version
             if(!newVersion && publish.equals(false)){
@@ -640,7 +645,7 @@ public class WikiApp extends MVCApplication
         if ( RoleService.hasEditRole( request, topic ) ) {
             TopicVersion publishedVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic() );
             publishedVersion.setUserName(user.getName());
-            publishedVersion.setEditComment("Version created from published version");
+            publishedVersion.setEditComment("Version created from the published version");
             publishedVersion.setIdTopicVersionPrevious(publishedVersion.getIdTopicVersion());
             publishedVersion.setIsPublished(false);
 
@@ -672,11 +677,12 @@ public class WikiApp extends MVCApplication
         TopicVersion publishedVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic() );
 
         if ( RoleService.hasEditRole( request, topic ) ) {
-            System.out.println();
-            publishedVersion.setUserName(user.getName());
-            publishedVersion.setEditComment("Publication canceled by"+" "+user.getName());
-            publishedVersion.setIsPublished(false);
-            TopicVersionHome.updateTopicVersion(publishedVersion);
+            String messageCanceledVersion = I18nService.getLocalizedString( MESSAGE_CANCELED_VERSION, getLocale( request ) );
+            String messageCanceledBy = I18nService.getLocalizedString( MESSAGE_CANCELED_BY, getLocale( request ) );
+            String comment = messageCanceledVersion + publishedVersion.getIdTopicVersionPrevious() + messageCanceledBy + user.getName();
+            TopicVersionHome.cancelPublication(topic.getIdTopic(), comment);
+
+
 
         }
         Integer topicVersionId = publishedVersion.getIdTopicVersion();

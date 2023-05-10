@@ -171,11 +171,11 @@ public final class TopicVersionHome
      *            The topic id
      * @return void
      */
-    public static void cancelPublication(int topicId)
+    public static void cancelPublication(int topicId, String comment)
     {
         TopicVersion topicVersionPublished = _dao.getPublishedVersion(topicId, _plugin);
         if(topicVersionPublished != null ) {
-            _dao.updateIsPublished( topicVersionPublished.getIdTopicVersion(), false, _plugin );
+            _dao.updateIsPublished( topicVersionPublished.getIdTopicVersion(), comment, false, _plugin );
         }
     }
     /**
