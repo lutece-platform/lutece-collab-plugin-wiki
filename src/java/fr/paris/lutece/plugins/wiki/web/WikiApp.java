@@ -190,9 +190,7 @@ public class WikiApp extends MVCApplication
     private static final String MESSAGE_AUTHENTICATION_REQUIRED = "wiki.message.authenticationRequired";
     private static final String MESSAGE_PATH_HIDDEN = "wiki.message.path.hidden";
     private static final String MESSAGE_NO_PUBLISHED_VERSION = "wiki.view_page.noPublishedVersion";
-    private static final String MESSAGE_CANCELED_VERSION = "wiki.message.canceledVersion";
     private static final String MESSAGE_CANCELED_BY = "wiki.message.cancelBy";
-
     private static final String ANCHOR_IMAGES = "#images";
 
     private static final String DSKEY_WIKI_ROOT_LABEL = "wiki.site_property.path.rootLabel";
@@ -596,9 +594,8 @@ public class WikiApp extends MVCApplication
             }
             // if publish is true, cancel publication of previous version
             if(publish.equals(true)) {
-                String messageCanceledVersion = I18nService.getLocalizedString( MESSAGE_CANCELED_VERSION, getLocale( request ) );
                 String messageCanceledBy = I18nService.getLocalizedString( MESSAGE_CANCELED_BY, getLocale( request ) );
-                String comment = messageCanceledVersion+ nPreviousVersionId + messageCanceledBy + user.getName();
+                String comment = messageCanceledBy + user.getName();
                 TopicVersionHome.cancelPublication(Integer.parseInt(strTopicId), comment);
             }
             // if newVersion is false and publish is false, overwrite this version
@@ -677,9 +674,8 @@ public class WikiApp extends MVCApplication
         TopicVersion publishedVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic() );
 
         if ( RoleService.hasEditRole( request, topic ) ) {
-            String messageCanceledVersion = I18nService.getLocalizedString( MESSAGE_CANCELED_VERSION, getLocale( request ) );
             String messageCanceledBy = I18nService.getLocalizedString( MESSAGE_CANCELED_BY, getLocale( request ) );
-            String comment = messageCanceledVersion + publishedVersion.getIdTopicVersionPrevious() + messageCanceledBy + user.getName();
+            String comment = messageCanceledBy + user.getName();
             TopicVersionHome.cancelPublication(topic.getIdTopic(), comment);
 
 
