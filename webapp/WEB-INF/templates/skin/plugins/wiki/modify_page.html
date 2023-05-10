@@ -2,8 +2,8 @@
     <div class="container panel panel-default">
         <form method="post" id="form_wiki" action="jsp/site/Portal.jsp">
             <div class="row">
-                <input type="hidden" name="page" value="wiki" />
-                <input type="hidden" name="page_name" value="${topic.pageName}" />
+                <input type="hidden" id="page" name="page" value="wiki" />
+                <input type="hidden" id="page_name" name="page_name" value="${topic.pageName}" />
                 <input type="hidden" name="topic_id" value="${topic.idTopic}" />
                 <input id="publish_version" type="hidden" name="publish_version" value="false" />
                 <input id="create_version" type="hidden" name="create_version" value="false">
@@ -242,32 +242,44 @@
             </div>
     </div>
 </div>
-<!--
-    <div class="col-sm-12">
-        <div class="btn-group btn-group-xs pull-right">
-            <form id="createVersionFromPublish" action="jsp/site/Portal.jsp" method="post" >
-                <input type="hidden" name="page" value="wiki" />
-                <input type="hidden" name="page_name" value="${topic.pageName}" />
-                <button id="CreateVersionFromPublished" name="action_createVersionFromPublished" type="submit" class="btn btn-default" >#i18n{wiki.modify_page.CreateNewFromPublished} </button>
-                <button id="CancelPublication" name="action_cancelPublication" type="submit" class="btn btn-danger" >#i18n{wiki.modify_page.buttonCancelPublish} </button>
-            </form>
-
-            <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
-                <span class="glyphicon glyphicon-chevron-left"></span> #i18n{wiki.button.backToPage}
-            </a>
-        </div>
-    </div>
--->
 </div>
 
 
-
-
+<script type="text/javascript" src="js/plugins/wiki/jquery-3.6.3.js" ></script>
 <!-- Markipup integration -->
 <script type="text/javascript" src="js/plugins/wiki/markitup/jquery.markitup.js"></script>
 <script type="text/javascript" src="js/plugins/wiki/markitup/sets/wiki/set.js"></script>
 <script type="text/javascript" src="js/plugins/wiki/jquery/jquery.form.js"></script>
 
+<!--
+<script type="text/javascript"
+        $(document).ready(function(){
+//live feed
+var ajaxCall=function(){
+$("#myForm").ajaxSubmit(function(e){
+ajax_submit();
+});
+}
+setInterval(ajaxCall,1000);
+
+//real submit
+$("#myForm").ajaxForm(function(e){
+ajax_submit();
+});
+
+function ajax_submit(){//ajax_code
+$.ajax({
+type:'post',
+url:'php1.php',
+data:$("#myForm").serialize(),
+success:function(data) {
+document.getElementById("result").innerHTML=data;
+}
+});
+}
+});
+</script>
+-->
 <script language="javascript">
 
     function replaceAll(find, replace, str)
@@ -424,7 +436,6 @@
     function createVersion()
     {
         document.getElementById('create_version').value = 'true';
-        alert(document.getElementById('publish_version').value())
 
         validate();
     }
