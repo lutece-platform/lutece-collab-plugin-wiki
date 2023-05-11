@@ -245,41 +245,11 @@
 </div>
 
 
-<script type="text/javascript" src="js/plugins/wiki/jquery-3.6.3.js" ></script>
 <!-- Markipup integration -->
 <script type="text/javascript" src="js/plugins/wiki/markitup/jquery.markitup.js"></script>
 <script type="text/javascript" src="js/plugins/wiki/markitup/sets/wiki/set.js"></script>
 <script type="text/javascript" src="js/plugins/wiki/jquery/jquery.form.js"></script>
 
-<!--
-<script type="text/javascript"
-        $(document).ready(function(){
-//live feed
-var ajaxCall=function(){
-$("#myForm").ajaxSubmit(function(e){
-ajax_submit();
-});
-}
-setInterval(ajaxCall,1000);
-
-//real submit
-$("#myForm").ajaxForm(function(e){
-ajax_submit();
-});
-
-function ajax_submit(){//ajax_code
-$.ajax({
-type:'post',
-url:'php1.php',
-data:$("#myForm").serialize(),
-success:function(data) {
-document.getElementById("result").innerHTML=data;
-}
-});
-}
-});
-</script>
--->
 <script language="javascript">
 
     function replaceAll(find, replace, str)
@@ -439,5 +409,53 @@ document.getElementById("result").innerHTML=data;
 
         validate();
     }
+
+</script>
+
+
+<script>
+
+    function escapeSpecialCharsFromContent( content )
+    {
+
+        content = replaceAll( '<' , '[lt;' , content );
+        content = replaceAll( '>' , '[gt;' , content );
+        content = replaceAll( '"' , '[quot;' , content );
+        content = replaceAll( '&nbsp;' , '[nbsp;' , content );
+        content = replaceAll( '&' , '[amp;' , content );
+        content = replaceAll( '#' , '[hashmark;' , content );
+        return content
+    }
+    // marco Tform
+    async function postWithFetch(wikiContentArr) {
+        let response = await fetch('http://localhost:8080/lutece/jsp/site/Portal.jsp?page=wiki&action=autoSaveModification', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: wikiContentArr[0],
+        });
+        let result = await response.json();
+       console.log(result)
+    }
+    $(document).ready(function() {
+        function callInputs() {
+
+            let titleArr = [];
+            let wikiContentArr = [];
+            const languages_list = ["fr","en"]
+            for (let i = 0; i < languages_list.length; i++) {
+                let locale = languages_list[i];
+                let wikiContent = escapeSpecialCharsFromContent(document.getElementById("wiki-" + locale).value);
+                wikiContentArr.push(wikiContent)
+
+            }
+            console.log(wikiContentArr)
+            postWithFetch(wikiContentArr)
+        }
+
+        setInterval(callInputs, 5000);
+    });
+
 
 </script>

@@ -49,7 +49,6 @@ import fr.paris.lutece.plugins.wiki.service.WikiUtils;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceWikiParser;
 import fr.paris.lutece.plugins.wiki.utils.auth.WikiAnonymousUser;
 import fr.paris.lutece.portal.business.page.Page;
-import fr.paris.lutece.portal.business.role.RoleHome;
 import fr.paris.lutece.portal.service.content.XPageAppService;
 import fr.paris.lutece.portal.service.datastore.DatastoreService;
 import fr.paris.lutece.portal.service.i18n.I18nService;
@@ -65,7 +64,6 @@ import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.SecurityService;
 import fr.paris.lutece.portal.service.security.UserNotSignedException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
-import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
@@ -78,26 +76,21 @@ import fr.paris.lutece.portal.web.upload.MultipartHttpServletRequest;
 import fr.paris.lutece.portal.web.xpages.XPage;
 import fr.paris.lutece.util.ReferenceItem;
 import fr.paris.lutece.util.ReferenceList;
-import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.html.Paginator;
 import fr.paris.lutece.util.url.UrlItem;
-import java.io.UnsupportedEncodingException;
+
+import java.io.*;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.bouncycastle.i18n.LocaleString;
 
 /**
  * This class provides a simple implementation of an XPage
@@ -169,6 +162,7 @@ public class WikiApp extends MVCApplication
 
     private static final String ACTION_NEW_PAGE = "newPage";
     private static final String ACTION_MODIFY_PAGE = "modifyPage";
+    private static final String ACTION_AUTO_SAVE_MODIFICATION = "autoSaveModification";
     private static final String ACTION_CANCEL_PUBLISH_PAGE = "cancelPublication";
 
     private static final String ACTION_DELETE_PAGE = "deletePage";
@@ -434,7 +428,6 @@ public class WikiApp extends MVCApplication
 
             TopicHome.create( topic );
         }
-
         Map<String, String> mapParameters = new ConcurrentHashMap<>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
         mapParameters.put( Constants.PARAMETER_PAGE_TITLE, URLEncoder.encode( strPageTitle, "UTF-8" ) );
@@ -454,7 +447,7 @@ public class WikiApp extends MVCApplication
     public XPage getModifyTopic( HttpServletRequest request ) throws SiteMessageException, UserNotSignedException
     {
         checkUser( request );
-
+        String baseUrl = request.getRequestURL().toString();
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Integer nVersion = getVersionTopicVersionId( request );
 
@@ -504,6 +497,7 @@ public class WikiApp extends MVCApplication
 
             ReferenceList topicRefList = getTopicsReferenceListForUser(request, true);
             topicRefList.removeIf(x -> x.getCode().equals(topic.getPageName()));
+            model.put("baseUrl", baseUrl);
             model.put(MARK_TOPIC, topic);
             model.put(MARK_VERSION, topicVersion);
             model.put(MARK_PAGE_ROLES_LIST, RoleService.getUserRoles(request));
@@ -560,8 +554,28 @@ public class WikiApp extends MVCApplication
     @Action( ACTION_MODIFY_PAGE )
     public XPage doModifyTopic( HttpServletRequest request ) throws UserNotSignedException
     {
-        LuteceUser user = checkUser( request );
+        System.out.println("##########getRequestURL()###########"+request.getRequestURL());
+        System.out.println("##########getQueryString()###########"+request.getQueryString());
+        System.out.println("###########getRequestURI##########"+request.getRequestURI());
+        System.out.println("##########getServletPath###########"+request.getServletPath());
+        System.out.println("###########getPathInfo##########"+request.getPathInfo());
+        System.out.println("###########getContextPath##########"+request.getContextPath());
+        for(Enumeration<String> e = request.getHeaderNames(); e.hasMoreElements();){
+            String headerName = e.nextElement();
+            System.out.println("###########headerName##########"+headerName);
+            System.out.println("###########headerValue##########"+request.getHeader(headerName));
+        }
+        System.out.println("###########getRemoteAddr##########"+request.getRemoteAddr());
+        System.out.println("###########getRemoteHost##########"+request.getRemoteHost());
+        System.out.println("###########getRemotePort##########"+request.getRemotePort());
+        System.out.println("###########getRemoteUser##########"+request.getRemoteUser());
+        System.out.println("###########getLocalAddr##########"+request.getLocalAddr());
+        System.out.println("###########getLocalName##########"+request.getLocalName());
+        System.out.println("###########getLocalPort##########"+request.getLocalPort());
+        System.out.println("###########getServerName##########"+request.getServerName());
+        System.out.println("###########getServerPort##########"+request.isRequestedSessionIdFromURL());
 
+        LuteceUser user = checkUser( request );
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
 
@@ -623,6 +637,66 @@ public class WikiApp extends MVCApplication
         return redirect(request, VIEW_PAGE, mapParameters);
     }
 
+    /**
+     * Process the modification of a wiki page
+     *
+     * @param request The HTTP request
+     * @return The XPage
+     * @throws UserNotSignedException if the user is not signed
+     */
+    @Action( ACTION_AUTO_SAVE_MODIFICATION )
+    public void doAutoSaveModification(HttpServletRequest request ) throws IOException {
+        // get the body of the request
+
+        System.out.println(request.getHeader("Content-Type"));
+
+        // get the body of the request
+        String body = IOUtils.toString(request.getInputStream(), "UTF-8");
+System.out.println(body);
+    /*    LuteceUser user = checkUser( request );
+        //loop thought parameters and values
+
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+        String strPreviousVersionId = request.getParameter(Constants.PARAMETER_PREVIOUS_VERSION_ID);
+
+        if ( RoleService.hasEditRole( request, topic ) ) {
+            int nPreviousVersionId = Integer.parseInt(strPreviousVersionId);
+            String strTopicId = request.getParameter(Constants.PARAMETER_TOPIC_ID);
+            String strComment = request.getParameter(Constants.PARAMETER_MODIFICATION_COMMENT);
+            String strViewRole = request.getParameter(Constants.PARAMETER_VIEW_ROLE);
+            String strEditRole = request.getParameter(Constants.PARAMETER_EDIT_ROLE);
+            String strParentPageName = request.getParameter(Constants.PARAMETER_PARENT_PAGE_NAME);
+            int nTopicId = Integer.parseInt(strTopicId);
+
+            TopicVersion topicVersion = new TopicVersion();
+            topicVersion.setIdTopic(nTopicId);
+            topicVersion.setUserName(user.getName());
+            topicVersion.setEditComment(strComment);
+            topicVersion.setIdTopicVersionPrevious(nPreviousVersionId);
+            topicVersion.setIsPublished(false);
+            // set the content for each language
+            for (String strLanguage : WikiLocaleService.getLanguages()) {
+                String strPageTitle = request.getParameter(Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage);
+                String strContent = request.getParameter(Constants.PARAMETER_CONTENT + "_" + strLanguage);
+                WikiContent content = new WikiContent();
+                content.setPageTitle(strPageTitle);
+                content.setWikiContent(strContent);
+                topicVersion.addLocalizedWikiContent(strLanguage, content);
+            }
+
+                TopicVersionHome.updateTopicVersion(topicVersion);
+                topic.setViewRole(strViewRole);
+                topic.setEditRole(strEditRole);
+                topic.setParentPageName(strParentPageName);
+                TopicHome.update(topic);
+        }
+        Map<String, String> mapParameters = new ConcurrentHashMap<>();
+        mapParameters.put(Constants.PARAMETER_PAGE_NAME, strPageName);
+        mapParameters.put(Constants.PARAMETER_TOPIC_VERSION_ID, strPreviousVersionId);
+        */
+
+    }
     /**
      * Creates a new version from the published version
      *
