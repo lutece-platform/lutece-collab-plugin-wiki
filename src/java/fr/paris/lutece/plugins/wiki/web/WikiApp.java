@@ -554,26 +554,6 @@ public class WikiApp extends MVCApplication
     @Action( ACTION_MODIFY_PAGE )
     public XPage doModifyTopic( HttpServletRequest request ) throws UserNotSignedException
     {
-        System.out.println("##########getRequestURL()###########"+request.getRequestURL());
-        System.out.println("##########getQueryString()###########"+request.getQueryString());
-        System.out.println("###########getRequestURI##########"+request.getRequestURI());
-        System.out.println("##########getServletPath###########"+request.getServletPath());
-        System.out.println("###########getPathInfo##########"+request.getPathInfo());
-        System.out.println("###########getContextPath##########"+request.getContextPath());
-        for(Enumeration<String> e = request.getHeaderNames(); e.hasMoreElements();){
-            String headerName = e.nextElement();
-            System.out.println("###########headerName##########"+headerName);
-            System.out.println("###########headerValue##########"+request.getHeader(headerName));
-        }
-        System.out.println("###########getRemoteAddr##########"+request.getRemoteAddr());
-        System.out.println("###########getRemoteHost##########"+request.getRemoteHost());
-        System.out.println("###########getRemotePort##########"+request.getRemotePort());
-        System.out.println("###########getRemoteUser##########"+request.getRemoteUser());
-        System.out.println("###########getLocalAddr##########"+request.getLocalAddr());
-        System.out.println("###########getLocalName##########"+request.getLocalName());
-        System.out.println("###########getLocalPort##########"+request.getLocalPort());
-        System.out.println("###########getServerName##########"+request.getServerName());
-        System.out.println("###########getServerPort##########"+request.isRequestedSessionIdFromURL());
 
         LuteceUser user = checkUser( request );
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
@@ -637,6 +617,7 @@ public class WikiApp extends MVCApplication
         return redirect(request, VIEW_PAGE, mapParameters);
     }
 
+
     /**
      * Process the modification of a wiki page
      *
@@ -644,16 +625,10 @@ public class WikiApp extends MVCApplication
      * @return The XPage
      * @throws UserNotSignedException if the user is not signed
      */
-    @Action( ACTION_AUTO_SAVE_MODIFICATION )
+       /*  @Action( ACTION_AUTO_SAVE_MODIFICATION )
     public void doAutoSaveModification(HttpServletRequest request ) throws IOException {
-        // get the body of the request
 
-        System.out.println(request.getHeader("Content-Type"));
-
-        // get the body of the request
-        String body = IOUtils.toString(request.getInputStream(), "UTF-8");
-System.out.println(body);
-    /*    LuteceUser user = checkUser( request );
+   LuteceUser user = checkUser( request );
         //loop thought parameters and values
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
@@ -694,9 +669,8 @@ System.out.println(body);
         Map<String, String> mapParameters = new ConcurrentHashMap<>();
         mapParameters.put(Constants.PARAMETER_PAGE_NAME, strPageName);
         mapParameters.put(Constants.PARAMETER_TOPIC_VERSION_ID, strPreviousVersionId);
-        */
-
     }
+        */
     /**
      * Creates a new version from the published version
      *
@@ -1126,7 +1100,7 @@ System.out.println(body);
      * @throws UserNotSignedException
      *             if user not connected
      */
-    private LuteceUser checkUser( HttpServletRequest request ) throws UserNotSignedException
+    public static LuteceUser checkUser(HttpServletRequest request) throws UserNotSignedException
     {
         LuteceUser user;
 

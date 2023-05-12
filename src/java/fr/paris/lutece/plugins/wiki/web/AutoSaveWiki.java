@@ -35,6 +35,8 @@ package fr.paris.lutece.plugins.wiki.web;
 
 
 import com.google.gson.Gson;
+import fr.paris.lutece.portal.service.security.LuteceUser;
+import fr.paris.lutece.portal.service.security.UserNotSignedException;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,7 +58,6 @@ public class AutoSaveWiki  {
     /**
      * Returns the content of the file
      *
-     * @param request
      *            The HTTP request
      *            The HTTP response
      * @throws IOException
@@ -65,7 +66,12 @@ public class AutoSaveWiki  {
    public List<String> getContentArr() {
         return contentArr;
     }
-    public String save(HttpServletRequest request) throws IOException {
+    public String save(HttpServletRequest request) throws IOException, UserNotSignedException {
+
+        LuteceUser user = WikiApp.checkUser( request );
+        System.out.println("______________###############"+user.getName()+"__________________________________");
+
+
         StringBuilder sb = new StringBuilder();
         BufferedReader reader = request.getReader();
         String line;
@@ -80,6 +86,7 @@ public class AutoSaveWiki  {
         deserializeContent(requestBody);
         return requestBody;
     }
+
     public void deserializeContent(String requestBody){
         Gson gson = new Gson();
         AutoSaveWiki autoSaveWiki = gson.fromJson(requestBody, AutoSaveWiki.class);

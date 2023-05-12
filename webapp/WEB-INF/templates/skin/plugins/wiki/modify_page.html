@@ -426,16 +426,14 @@
         content = replaceAll( '#' , '[hashmark;' , content );
         return content
     }
-    // marco Tform
+    // auto save
     async function postWithFetch(wikiContentArr) {
-
         let response = await fetch('http://localhost:8080/lutece/jsp/site/plugins/wiki/AutoSaveWiki.jsp', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
-                //'Content-Type': 'application/x-www-form-urlencoded'
-
+                'Content-Type': 'application/json',
+                credentials: "same-origin"
             },
             body: JSON.stringify({a: 7, contentArr: wikiContentArr})
         });
