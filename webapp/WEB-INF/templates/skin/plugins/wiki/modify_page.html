@@ -428,15 +428,19 @@
     }
     // marco Tform
     async function postWithFetch(wikiContentArr) {
-        let response = await fetch('http://localhost:8080/lutece/jsp/site/Portal.jsp?page=wiki&action=autoSaveModification', {
+
+        let response = await fetch('http://localhost:8080/lutece/jsp/site/plugins/wiki/AutoSaveWiki.jsp', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+                //'Content-Type': 'application/x-www-form-urlencoded'
+
             },
-            body: wikiContentArr[0],
+            body: JSON.stringify({a: 7, contentArr: wikiContentArr})
         });
-        let result = await response.json();
-       console.log(result)
+        let result = await response;
+        console.log(result)
     }
     $(document).ready(function() {
         function callInputs() {
@@ -456,6 +460,7 @@
 
         setInterval(callInputs, 5000);
     });
+
 
 
 </script>
