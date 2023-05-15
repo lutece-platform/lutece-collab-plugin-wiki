@@ -35,9 +35,17 @@ package fr.paris.lutece.plugins.wiki.web;
 
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import fr.paris.lutece.plugins.wiki.business.*;
+import fr.paris.lutece.plugins.wiki.service.ContentDeserializer;
+import fr.paris.lutece.plugins.wiki.service.RoleService;
+import fr.paris.lutece.plugins.wiki.service.WikiLocaleService;
+import fr.paris.lutece.plugins.wiki.utils.auth.WikiAnonymousUser;
+import fr.paris.lutece.plugins.wiki.web.WikiApp;
+import fr.paris.lutece.portal.service.search.IndexationService;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.UserNotSignedException;
-import org.apache.commons.io.IOUtils;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,27 +59,12 @@ import java.util.Scanner;
  * Upload application
  */
 public class AutoSaveWiki  {
-    private static final long serialVersionUID = -2287035947644920508L;
 
-    public Integer a ;
-    public List<String> contentArr;
-    /**
-     * Returns the content of the file
-     *
-     *            The HTTP request
-     *            The HTTP response
-     * @throws IOException
-     *             If an error occurs
-     */
-   public List<String> getContentArr() {
-        return contentArr;
-    }
+
     public String save(HttpServletRequest request) throws IOException, UserNotSignedException {
 
-        LuteceUser user = WikiApp.checkUser( request );
-        System.out.println("______________###############"+user.getName()+"__________________________________");
 
-
+       Boolean saveSuccess = false;
         StringBuilder sb = new StringBuilder();
         BufferedReader reader = request.getReader();
         String line;
@@ -80,19 +73,53 @@ public class AutoSaveWiki  {
         }
         String requestBody = sb.toString();
 
-        //  deserialize this JSON string to Java object
+       try {
 
-           System.out.println(requestBody);
-        deserializeContent(requestBody);
-        return requestBody;
+       ContentDeserializer newContent = ContentDeserializer.deserializeWikiContent(requestBody);
+        LuteceUser user = WikiAnonymousUser.checkUser( request);
+
+        Topic topic = TopicHome.findByPrimaryKey( newContent.getTopicId() );
+        if ( RoleService.hasEditRole( request, topic ) ) {
+            int nPreviousVersionId = newContent.getTopicVersion();
+
+            int nTopicId = topic.getIdTopic();
+
+            TopicVersion topicVersion = new TopicVersion();
+            topicVersion.setIdTopic(nTopicId);
+            topicVersion.setUserName(user.getName());
+            if(topicVersion.getEditComment() == null || topicVersion.getEditComment().isEmpty()){
+                topicVersion.setEditComment("AutoSave");
+            }
+            topicVersion.setEditComment(topicVersion.getEditComment());
+            topicVersion.setIdTopicVersionPrevious(nPreviousVersionId);
+            topicVersion.setIsPublished(false);
+            // set the content for each language
+            for (int i = 0; i < WikiLocaleService.getLanguages().size(); i++) {
+                String strPageTitle = newContent.topicTitleArr.get(i);
+                String strContent = newContent.topicContentArr.get(i);
+                WikiContent content = new WikiContent();
+                content.setPageTitle(strPageTitle);
+                content.setWikiContent(strContent);
+                topicVersion.addLocalizedWikiContent(WikiLocaleService.getLanguages().get(i), content);
+            }
+            TopicVersionHome.updateTopicVersion(topicVersion);
+            topic.setViewRole(topic.getViewRole());
+            topic.setEditRole(topic.getEditRole());
+            topic.setParentPageName(topic.getParentPageName());
+            TopicHome.update(topic);
+            saveSuccess = true;
+        }
+       }  catch( Exception e )
+       {
+           AppLogService.error( "Error saving topic version automatically", e );
+       }
+       // return the response in json
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        return gson.toJson(saveSuccess);
     }
 
-    public void deserializeContent(String requestBody){
-        Gson gson = new Gson();
-        AutoSaveWiki autoSaveWiki = gson.fromJson(requestBody, AutoSaveWiki.class);
-        System.out.println("________________________________________________");
-         autoSaveWiki.contentArr.forEach(System.out::println);
-    }
+
 
 
 }

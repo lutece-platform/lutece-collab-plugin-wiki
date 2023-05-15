@@ -406,7 +406,7 @@ public class WikiApp extends MVCApplication
     @Action( ACTION_NEW_PAGE )
     public XPage doCreateTopic( HttpServletRequest request ) throws UserNotSignedException, UnsupportedEncodingException
     {
-        checkUser( request );
+        LuteceUser user = WikiAnonymousUser.checkUser( request);
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         String strParentPageName = request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME );
@@ -446,7 +446,7 @@ public class WikiApp extends MVCApplication
     @View( VIEW_MODIFY_PAGE )
     public XPage getModifyTopic( HttpServletRequest request ) throws SiteMessageException, UserNotSignedException
     {
-        checkUser( request );
+        LuteceUser user = WikiAnonymousUser.checkUser( request);
         String baseUrl = request.getRequestURL().toString();
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Integer nVersion = getVersionTopicVersionId( request );
@@ -526,7 +526,7 @@ public class WikiApp extends MVCApplication
     @View(VIEW_MODIFY_PUBLISHED)
     public XPage doModifyPublished( HttpServletRequest request ) throws UserNotSignedException
     {
-        checkUser( request );
+        LuteceUser user = WikiAnonymousUser.checkUser( request);
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         strPageName = WikiUtils.normalize( strPageName );
@@ -555,7 +555,7 @@ public class WikiApp extends MVCApplication
     public XPage doModifyTopic( HttpServletRequest request ) throws UserNotSignedException
     {
 
-        LuteceUser user = checkUser( request );
+        LuteceUser user = WikiAnonymousUser.checkUser( request);
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
 
@@ -628,7 +628,7 @@ public class WikiApp extends MVCApplication
        /*  @Action( ACTION_AUTO_SAVE_MODIFICATION )
     public void doAutoSaveModification(HttpServletRequest request ) throws IOException {
 
-   LuteceUser user = checkUser( request );
+   LuteceUser user = ( request );
         //loop thought parameters and values
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
@@ -683,7 +683,7 @@ public class WikiApp extends MVCApplication
     @Action( ACTION_CREATE_VERSION_FROM_PUBLISHED )
     public XPage doCreateVersionFromPublished( HttpServletRequest request ) throws UserNotSignedException
     {
-        LuteceUser user = checkUser( request );
+        LuteceUser user = WikiAnonymousUser.checkUser( request);
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
 
@@ -716,7 +716,7 @@ public class WikiApp extends MVCApplication
     @Action( ACTION_CANCEL_PUBLISH_PAGE )
     public XPage doUnpublish( HttpServletRequest request ) throws UserNotSignedException
     {
-        LuteceUser user = checkUser( request );
+        LuteceUser user = WikiAnonymousUser.checkUser( request);
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
         TopicVersion publishedVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic() );
@@ -747,7 +747,7 @@ public class WikiApp extends MVCApplication
     @View( VIEW_PREVIEW )
     public XPage getPreviewTopic( HttpServletRequest request ) throws SiteMessageException, UserNotSignedException
     {
-        LuteceUser user = checkUser( request );
+        LuteceUser user = WikiAnonymousUser.checkUser( request);
 
         String strPreviousVersionId = request.getParameter( Constants.PARAMETER_PREVIOUS_VERSION_ID );
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
@@ -888,7 +888,7 @@ public class WikiApp extends MVCApplication
     @Action( ACTION_DELETE_PAGE )
     public XPage doDeleteTopic( HttpServletRequest request ) throws UserNotSignedException
     {
-        checkUser( request );
+        LuteceUser user = WikiAnonymousUser.checkUser( request);
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
@@ -914,7 +914,7 @@ public class WikiApp extends MVCApplication
     @Action( ACTION_UPLOAD_IMAGE )
     public XPage doUploadImage( HttpServletRequest request ) throws UserNotSignedException
     {
-        checkUser( request );
+        LuteceUser user = WikiAnonymousUser.checkUser( request);
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         String strName = request.getParameter( Constants.PARAMETER_IMAGE_NAME );
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
@@ -998,7 +998,7 @@ public class WikiApp extends MVCApplication
     @Action( ACTION_REMOVE_IMAGE )
     public XPage doRemoveImage( HttpServletRequest request ) throws UserNotSignedException
     {
-        checkUser( request );
+        LuteceUser user = WikiAnonymousUser.checkUser( request);
         int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_IMAGE_ID ) );
         ImageHome.remove( nId );
         addInfo( MESSAGE_IMAGE_REMOVED, getLocale( request ) );
@@ -1045,7 +1045,7 @@ public class WikiApp extends MVCApplication
     @Action( ACTION_REMOVE_VERSION )
     public XPage doRemoveVersion( HttpServletRequest request ) throws UserNotSignedException
     {
-        checkUser( request );
+        WikiAnonymousUser.checkUser( request );
 
         // requires admin role
         if ( RoleService.hasAdminRole( request ) )
@@ -1088,37 +1088,6 @@ public class WikiApp extends MVCApplication
         }
 
         return responseJSON( array.toString( ) );
-    }
-
-    // /////////////////// Utils ////////////////////////////
-    /**
-     * Checks the connected user
-     *
-     * @param request
-     *            The HTTP request
-     * @return The user
-     * @throws UserNotSignedException
-     *             if user not connected
-     */
-    public static LuteceUser checkUser(HttpServletRequest request) throws UserNotSignedException
-    {
-        LuteceUser user;
-
-        if ( SecurityService.isAuthenticationEnable( ) )
-        {
-            user = SecurityService.getInstance( ).getRemoteUser( request );
-
-            if ( user == null )
-            {
-                throw new UserNotSignedException( );
-            }
-        }
-        else
-        {
-            user = new WikiAnonymousUser( );
-        }
-
-        return user;
     }
 
     /**

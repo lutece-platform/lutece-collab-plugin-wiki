@@ -3,18 +3,15 @@
         <form method="post" id="form_wiki" action="jsp/site/Portal.jsp">
             <div class="row">
                 <input type="hidden" id="page" name="page" value="wiki" />
-                <input type="hidden" id="page_name" name="page_name" value="${topic.pageName}" />
-                <input type="hidden" name="topic_id" value="${topic.idTopic}" />
+                <input type="hidden" name="page_name" value="${topic.pageName}" />
+                <input type="hidden" id="topic_id" name="topic_id" value="${topic.idTopic}" />
                 <input id="publish_version" type="hidden" name="publish_version" value="false" />
                 <input id="create_version" type="hidden" name="create_version" value="false">
-
                 <#if version??>
-                <input type="hidden" name="previous_version_id" value="${version.idTopicVersion}" />
+                <input id="topic_version" type="hidden" name="previous_version_id" value="${version.idTopicVersion}" />
                 <#else>
                 <input type="hidden" name="previous_version_id" value="0" />
-                </#if>
-
-
+            </#if>
             <div class="col-sm-12">
                 <div class="btn-group btn-group-xs pull-right">
                     <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
@@ -32,9 +29,15 @@
                     <span class="glyphicon glyphicon-question-sign"></span> #i18n{wiki.menu.help}
                 </button>
             </div>
+            <div id="autoSave" style="display:none">
+                <div style=" display: flex; align-items: center">
+                    <div class="spinner" style="margin-right: 10px" id="block"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span></div>
+                    <div  id="autoSaveSucess" style="display: none; margin-left: 10px">#i18n{wiki.modify_page.autoSaveSucess}</div>
+                    <div  id="autoSaveFailed" style="display: none; margin-left: 10px">#i18n{wiki.modify_page.autoSaveFailed}</div>
+                </div>
+            </div>
     </div>
 </div>
-
 <div class="row">
     <div id="main-panel" class="col-sm-12">
         <div class="alert alert-error" id="div-confirm-delete" style="display:none">
@@ -64,7 +67,7 @@
             <#if version?? && version.getWikiContent( locale )??>
             <div class="form-group">
                 <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
-                <input class="form-control" type="text" name="page_title_${locale}" value="${version.getWikiContent( locale ).pageTitle}" maxlength="100"/>
+                <input class="form-control" id="page_title_${locale}" type="text" name="page_title_${locale}" value="${version.getWikiContent( locale ).pageTitle}" maxlength="100"/>
             </div>
             <div class="form-group">
                 <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
@@ -76,7 +79,7 @@
             <#else>
             <div class="form-group">
                 <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
-                <input class="form-control" type="text" name="page_title_${locale}" value="" maxlength="100"/>
+                <input class="form-control"  id="page_title_${locale}"  type="text" name="page_title_${locale}" value="" maxlength="100"/>
             </div>
             <div class="form-group">
                 <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
@@ -102,11 +105,7 @@
             <label for="modification_comment"><span class="glyphicon glyphicon-comment"></span> &nbsp; #i18n{wiki.modify_page.labelComment} :</label>
             <input class="form-control" type="text" name="modification_comment" maxlength="50"/>
         </div>
-        <#if version??>
-        <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}" onclick="validate()">
-            <span class="glyphicon glyphicon-save"></span> &nbsp; #i18n{wiki.modify_page.buttonSaveAndOverwrite}
-        </button>
-        </#if>
+
         <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}" onclick="createVersion()">
             <span class="glyphicon glyphicon-save"></span> &nbsp;#i18n{wiki.modify_page.buttonModify}
         </button>
@@ -240,8 +239,8 @@
                     <button id="btn-image-delete" type="submit" class="btn btn-danger" >#i18n{portal.util.labelDelete}</button>
                 </form>
             </div>
+        </div>
     </div>
-</div>
 </div>
 
 
@@ -409,15 +408,12 @@
 
         validate();
     }
-
 </script>
 
 
 <script>
-
     function escapeSpecialCharsFromContent( content )
     {
-
         content = replaceAll( '<' , '[lt;' , content );
         content = replaceAll( '>' , '[gt;' , content );
         content = replaceAll( '"' , '[quot;' , content );
@@ -426,8 +422,22 @@
         content = replaceAll( '#' , '[hashmark;' , content );
         return content
     }
+    function displayAutoSave(result){
+        if(result){
+            document.getElementById('autoSave').style.display = 'block';
+            document.getElementById('autoSaveSucess').style.display = 'block';
+        } else{
+            document.getElementById('autoSave').style.display = 'block';
+            document.getElementById('autoSaveFailed').style.display = 'block';
+        }
+        setInterval(function(){
+            document.getElementById('autoSave').style.display = 'none';
+            document.getElementById('autoSaveSucess').style.display = 'none';
+            document.getElementById('autoSaveFailed').style.display = 'none';
+        }, 2000);
+    }
     // auto save
-    async function postWithFetch(wikiContentArr) {
+    async function saveContent(version, topic_id, topicTitleArr, topicContentArr) {
         let response = await fetch('http://localhost:8080/lutece/jsp/site/plugins/wiki/AutoSaveWiki.jsp', {
             method: 'POST',
             headers: {
@@ -435,30 +445,31 @@
                 'Content-Type': 'application/json',
                 credentials: "same-origin"
             },
-            body: JSON.stringify({a: 7, contentArr: wikiContentArr})
+            body: JSON.stringify({topicVersion:version, topicId:topic_id, topicTitleArr: topicTitleArr, topicContentArr: topicContentArr})
         });
-        let result = await response;
-        console.log(result)
+        let result = await response.json();
+        displayAutoSave(result);
     }
     $(document).ready(function() {
         function callInputs() {
-
-            let titleArr = [];
-            let wikiContentArr = [];
-            const languages_list = ["fr","en"]
-            for (let i = 0; i < languages_list.length; i++) {
-                let locale = languages_list[i];
-                let wikiContent = escapeSpecialCharsFromContent(document.getElementById("wiki-" + locale).value);
-                wikiContentArr.push(wikiContent)
-
+            const version = document.getElementById("topic_version").value;
+            const topic_id = document.getElementById("topic_id").value;
+            if(version !== undefined && version !== null && version !== ""){
+                let topicTitleArr = [];
+                let topicContentArr = [];
+                const languages_list = ["fr","en"]
+                for (let i = 0; i < languages_list.length; i++) {
+                    let locale = languages_list[i];
+                    let wikiContent = escapeSpecialCharsFromContent(document.getElementById("wiki-" + locale).value);
+                    topicContentArr.push(wikiContent);
+                    let title = escapeSpecialCharsFromContent(document.getElementById("page_title_" + locale).value);
+                    topicTitleArr.push(title);
+                }
+                saveContent(version, topic_id, topicTitleArr, topicContentArr)
+            } else{
+                console.log("no version")
             }
-            console.log(wikiContentArr)
-            postWithFetch(wikiContentArr)
         }
-
-        setInterval(callInputs, 5000);
+        setInterval(callInputs, 10000);
     });
-
-
-
 </script>
