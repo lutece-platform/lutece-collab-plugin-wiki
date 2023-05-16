@@ -75,19 +75,22 @@ public class WikiDynamicInputs {
 
         Topic topic = TopicHome.findByPrimaryKey( newContent.getTopicId() );
         if ( RoleService.hasEditRole( request, topic ) ) {
-            int nPreviousVersionId = newContent.getTopicVersion();
+            int topicVersionId = newContent.getTopicVersion();
 
             int nTopicId = topic.getIdTopic();
 
             TopicVersion topicVersion = new TopicVersion();
+            TopicVersion previousVersion = TopicVersionHome.findByPrimaryKey(topicVersionId);
             topicVersion.setIdTopic(nTopicId);
+            topicVersion.setIdTopicVersion(topicVersionId);
             topicVersion.setUserName(user.getName());
             if(topicVersion.getEditComment() == null || topicVersion.getEditComment().isEmpty()){
                 topicVersion.setEditComment("AutoSave");
             }
             topicVersion.setEditComment(topicVersion.getEditComment());
-            topicVersion.setIdTopicVersionPrevious(nPreviousVersionId);
+            topicVersion.setIdTopicVersionPrevious(previousVersion.getIdTopicVersionPrevious());
             topicVersion.setIsPublished(false);
+            topicVersion.setLuteceUserId(user.getFirstName()+"-"+user.getName());
             // set the content for each language
             for (int i = 0; i < WikiLocaleService.getLanguages().size(); i++) {
                 String strPageTitle = newContent.topicTitleArr.get(i);

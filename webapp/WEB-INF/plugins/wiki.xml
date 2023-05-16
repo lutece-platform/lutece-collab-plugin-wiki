@@ -33,6 +33,7 @@
         <css-stylesheet>wiki/markitup/style.css</css-stylesheet>
         <css-stylesheet>wiki/markitup/wiki/style.css</css-stylesheet>
         <css-stylesheet>wiki/spinner.css</css-stylesheet>
+        <css-stylesheet>wiki/toggle_switch.css</css-stylesheet>
     </css-stylesheets>
     
     <!-- Specific plugin CSS stylesheet -->

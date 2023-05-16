@@ -29,14 +29,39 @@
                     <span class="glyphicon glyphicon-question-sign"></span> #i18n{wiki.menu.help}
                 </button>
             </div>
-            <div id="autoSave" style="display:none">
-                <div style=" display: flex; align-items: center">
-                    <div class="spinner" style="margin-right: 10px"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span></div>
-                    <div  id="autoSaveSucess" style="display: none; margin-left: 10px">#i18n{wiki.modify_page.autoSaveSucess}</div>
-                    <div  id="autoSaveFailed" style="display: none; margin-left: 10px">#i18n{wiki.modify_page.autoSaveFailed}</div>
-                </div>
+            <div style="display: flex; flex-direction: row;">
+                <div style="margin-right: 10px">
+                    <#if version??>
+                    <label id="autoSaveLabel">#i18n{wiki.modify_page.autoSaveActivated}</label>
+                    <#else>
+                    <label id="autoSaveLabel">#i18n{wiki.modify_page.autoSaveDesactivated}</label>
+                </#if>
             </div>
+
+            <div>
+            <#if version??>
+            <label class="switch">
+                <input id="autoSaveMode" type="checkbox" checked onchange="toogleAutosave()">
+                <span class="slider round"></span>
+            </label>
+            <#else>
+            <label class="switch">
+                <input id="autoSaveMode" type="checkbox" onchange="alert('In order to save automatically the content, you must manually save a first version');">
+                <span class="slider round"></span>
+            </label>
+        </#if>
+           </div>
+    <div id="autoSave" style="display:none; margin-left: 10px" >
+        <div style=" display: flex; align-items: center">
+           <span  style="margin-right: 10px"> <div class="spinner"></div></span>
+            <div  id="autoSaveSucess" style="display: none; margin-left: 10px">#i18n{wiki.modify_page.autoSaveSucess}</div>
+            <div  id="autoSaveFailed" style="display: none; margin-left: 10px">#i18n{wiki.modify_page.autoSaveFailed}</div>
+        </div>
     </div>
+   </div>
+
+</div>
+</div>
 </div>
 <div class="row">
     <div id="main-panel" class="col-sm-12">
@@ -429,6 +454,13 @@
 
 
 <script>
+    function toogleAutosave(){
+        if(document.getElementById('autoSaveMode').checked){
+            document.getElementById('autoSaveLabel').innerText =  'Auto-save mode is activated';
+        } else{
+            document.getElementById('autoSaveLabel').innerText = 'Auto-save mode is deactivated';
+        }
+    }
     function escapeSpecialCharsFromContent( content )
     {
         content = replaceAll( '<' , '[lt;' , content );
@@ -468,7 +500,7 @@
         displayAutoSave(result);
     }
     function callInputs() {
-        const version = document.getElementById("topic_version").value-1;
+        const version = document.getElementById("topic_version").value;
         const topic_id = document.getElementById("topic_id").value;
         if(version !== undefined && version !== null && version !== ""){
             let topicTitleArr = [];
@@ -483,19 +515,19 @@
                 topicTitleArr.push(title);
             }
             saveContent(version, parentPage, topic_id, topicTitleArr, topicContentArr)
-        } else{
-            console.log("no version")
         }
     }
     // on change set time out
     let hasToWait = false;
     function autoSave() {
-        if(!hasToWait){
-            hasToWait = true;
-            setTimeout(function (){
-                callInputs();
-                hasToWait = false;
-            }, 5000);
+        if(document.getElementById('autoSaveMode').checked) {
+            if (!hasToWait) {
+                hasToWait = true;
+                setTimeout(function () {
+                    callInputs();
+                    hasToWait = false;
+                }, 5000);
+            }
         }
     }
 </script>
@@ -520,5 +552,4 @@
                 , 6000);
         }
     }
-
 </script>

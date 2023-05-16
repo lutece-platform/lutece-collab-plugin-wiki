@@ -279,8 +279,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
      */
     @Override
     public void updateTopicVersion(TopicVersion topicVersion, Plugin plugin) {
-        deleteByTopicVersion(topicVersion.getIdTopicVersionPrevious(), plugin);
-        topicVersion.setIdTopicVersion(topicVersion.getIdTopicVersionPrevious());
+        deleteByTopicVersion(topicVersion.getIdTopicVersion(), plugin);
         try (DAOUtil daoUtil = new DAOUtil(SQL_QUERY_INSERT_MODIFICATION, plugin)) {
             topicVersion.setIdTopicVersion(newPrimaryKey(plugin));
             daoUtil.setInt(1, topicVersion.getIdTopicVersion());
@@ -374,7 +373,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
         return topicVersion;
     }
 
-        /**
+    /**
      * {@inheritDoc }
      */
     @Override
