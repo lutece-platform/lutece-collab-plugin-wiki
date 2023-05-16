@@ -67,29 +67,46 @@
             <#if version?? && version.getWikiContent( locale )??>
             <div class="form-group">
                 <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
-                <input class="form-control" id="page_title_${locale}" type="text" name="page_title_${locale}" value="${version.getWikiContent( locale ).pageTitle}" maxlength="100" onchange="autoSave()" />
+                <input class="form-control" id="page_title_${locale}" type="text" name="page_title_${locale}" value="${version.getWikiContent( locale ).pageTitle}" maxlength="100" onkeydown="autoSave()" />
             </div>
             <div class="form-group">
                 <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
-                <@select name="parent_page_name" default_value="${topic.parentPageName}" items=reflist_topic sort=true />
-            </div>
-            <div class="form-group">
-                <textarea id="wiki-${locale}" class="form-control" name="content_${locale}" rows="20" onchange="autoSave()" ><#if version??>${version.getWikiContent( locale ).wikiContent?html}</#if></textarea>
-            </div>
-            <#else>
-            <div class="form-group">
-                <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
-                <input class="form-control"  id="page_title_${locale}"  type="text" name="page_title_${locale}" value="" maxlength="100" onchange="autoSave()" />
-            </div>
-            <div class="form-group">
-                <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
-                <@select name="parent_page_name" default_value="${topic.parentPageName}" items=reflist_topic sort=true />
-            </div>
-            <div class="form-group">
-                <textarea id="wiki-${locale}" class="form-control" name="content_${locale}" rows="20" onchange="autoSave()" ></textarea>
-            </div>
-        </#if>
+                <#assign topicList=reflist_topic >
+                <select id="parent_page_name" name="parent_page_name" class="form-control" onchange="autoSave()">
+                    <#list topicList as parentPage>
+                    <#if topic.parentPageName == parentPage.name>
+                    <option value="${parentPage.name}" selected>${parentPage.name}</option>
+                    <#else>
+                    <option value="${parentPage.name}">${parentPage.name}</option>
+                </#if>
+            </#list>
+            </select>
+        </div>
+        <div class="form-group">
+            <textarea id="wiki_content_${locale}" class="form-control" name="content_${locale}" rows="20" onkeydown="autoSave()" ><#if version??>${version.getWikiContent( locale ).wikiContent?html}</#if></textarea>
+        </div>
+        <#else>
+        <div class="form-group">
+            <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
+            <input class="form-control"  id="page_title_${locale}"  type="text" name="page_title_${locale}" value="" maxlength="100" onkeydown="autoSave()" />
+        </div>
+        <div class="form-group">
+            <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
+            <#assign topicList=reflist_topic >
+            <select id="parent_page_name" name="parent_page_name" class="form-control" onchange="autoSave()">
+                <#list topicList as parentPage>
+                <#if topic.parentPageName == parentPage.name>
+                <option value="${parentPage.name}" selected>${parentPage.name}</option>
+                <#else>
+                <option value="${parentPage.name}">${parentPage.name}</option>
+            </#if>
+        </#list>
+        </select>            </div>
+    <div class="form-group">
+        <textarea id="wiki_content_${locale}" class="form-control" name="content_${locale}" rows="20" onkeydown="autoSave()" ></textarea>
     </div>
+</#if>
+</div>
 </#list>
 </div>
 </div>
@@ -259,7 +276,7 @@
     function validate()
     {
         <#list languages_list as locale>
-    escapeSpecialChars( 'wiki-${locale}' );
+    escapeSpecialChars( 'wiki_content_${locale}' );
     </#list>
         return true;
     };
@@ -331,7 +348,7 @@
 
         // MarkitUp
         <#list languages_list as locale>
-        $('#wiki-${locale}').markItUp(myWikiSettings);
+        $('#wiki_content_${locale}').markItUp(myWikiSettings);
     </#list>
 
 
@@ -437,7 +454,7 @@
         }, 3000);
     }
     // auto save
-    async function saveContent(version, topic_id, topicTitleArr, topicContentArr) {
+    async function saveContent(version, parentPage, topic_id, topicTitleArr, topicContentArr) {
         let response = await fetch('http://localhost:8080/lutece/jsp/site/plugins/wiki/WikiDynamicInputs.jsp?actionName=saveWiki', {
             method: 'POST',
             headers: {
@@ -445,48 +462,57 @@
                 'Content-Type': 'application/json',
                 credentials: "same-origin"
             },
-            body: JSON.stringify({topicVersion:version, topicId:topic_id, topicTitleArr: topicTitleArr, topicContentArr: topicContentArr})
+            body: JSON.stringify({topicVersion:version, parentPageName:parentPage, topicId:topic_id, topicTitleArr: topicTitleArr, topicContentArr: topicContentArr})
         });
         let result = await response;
         displayAutoSave(result);
     }
-        function callInputs() {
-            const version = document.getElementById("topic_version").value;
-            const topic_id = document.getElementById("topic_id").value;
-            if(version !== undefined && version !== null && version !== ""){
-                let topicTitleArr = [];
-                let topicContentArr = [];
-                const languages_list = ["fr","en"]
-                for (let i = 0; i < languages_list.length; i++) {
-                    let locale = languages_list[i];
-                    let wikiContent = escapeSpecialCharsFromContent(document.getElementById("wiki-" + locale).value);
-                    topicContentArr.push(wikiContent);
-                    let title = escapeSpecialCharsFromContent(document.getElementById("page_title_" + locale).value);
-                    topicTitleArr.push(title);
-                }
-                saveContent(version, topic_id, topicTitleArr, topicContentArr)
-            } else{
-                console.log("no version")
+    function callInputs() {
+        const version = document.getElementById("topic_version").value-1;
+        const topic_id = document.getElementById("topic_id").value;
+        if(version !== undefined && version !== null && version !== ""){
+            let topicTitleArr = [];
+            let topicContentArr = [];
+            let parentPage = document.getElementById("parent_page_name").value;
+            const languages_list = ["fr","en"]
+            for (let i = 0; i < languages_list.length; i++) {
+                let locale = languages_list[i];
+                let wikiContent = escapeSpecialCharsFromContent(document.getElementById("wiki_content_" + locale).value);
+                topicContentArr.push(wikiContent);
+                let title = escapeSpecialCharsFromContent(document.getElementById("page_title_" + locale).value);
+                topicTitleArr.push(title);
             }
+            saveContent(version, parentPage, topic_id, topicTitleArr, topicContentArr)
+        } else{
+            console.log("no version")
         }
-        // on change set time out
+    }
+    // on change set time out
+    let hasToWait = false;
     function autoSave() {
-        setTimeout(callInputs, 5000);
+        if(!hasToWait){
+            hasToWait = true;
+            setTimeout(function (){
+                callInputs();
+                hasToWait = false;
+            }, 5000);
+        }
     }
 </script>
 <script>
     function saveLastUserOnModifyPage(){
-         fetch('http://localhost:8080/lutece/jsp/site/plugins/wiki/WikiDynamicInputs.jsp?actionName=saveLastUserOnModifyPage', {
+        const topic_id = document.getElementById("topic_id").value;
+        fetch('http://localhost:8080/lutece/jsp/site/plugins/wiki/WikiDynamicInputs.jsp?actionName=lastOpenModify', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 credentials: "same-origin"
             },
-            body: JSON.stringify({topicId:document.getElementById("topic_id").value})
+            body: JSON.stringify(topic_id)
         });
     }
-// do when page is loaded
+    // do when page is loaded
     document.onreadystatechange = function() {
         if (document.readyState === 'complete') {
             setInterval(function (){

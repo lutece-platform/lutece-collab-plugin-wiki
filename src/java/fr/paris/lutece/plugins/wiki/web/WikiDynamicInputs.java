@@ -100,9 +100,11 @@ public class WikiDynamicInputs {
             TopicVersionHome.updateTopicVersion(topicVersion);
             topic.setViewRole(topic.getViewRole());
             topic.setEditRole(topic.getEditRole());
-            topic.setParentPageName(topic.getParentPageName());
+            topic.setParentPageName(newContent.getParentPageName());
             TopicHome.update(topic);
             saveSuccess = true;
+        } else {
+           throw new UserNotSignedException();
         }
        }  catch( Exception e )
        {
@@ -116,7 +118,6 @@ public class WikiDynamicInputs {
     }
 
     public static void updateLastOpenModifyTopicPage(HttpServletRequest request) throws IOException, UserNotSignedException {
-       System.out.println("updateLastOpenModifyTopicPage");
         StringBuilder sb = new StringBuilder();
         BufferedReader reader = request.getReader();
         String line;
@@ -131,9 +132,9 @@ public class WikiDynamicInputs {
             if (RoleService.hasEditRole(request, topic)) {
 
                 User user = WikiAnonymousUser.checkUser(request);
-                System.out.println("user: " + user.getLastName());
-                System.out.println("topic: " + topic.getIdTopic());
                 TopicHome.updateLastOpenModifyPage(topic.getIdTopic(), user);
+            } else {
+                throw new UserNotSignedException();
             }
         } catch (Exception e) {
             AppLogService.error("Error saving last user opening modify topic page", e);

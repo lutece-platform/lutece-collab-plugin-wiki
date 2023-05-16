@@ -13,3 +13,6 @@ INSERT INTO wiki_topic_version_content SELECT wtv.id_topic_version,'fr',wt.page_
 INSERT INTO wiki_topic_version_content SELECT wtv.id_topic_version,'en',wt.page_title,wtv.wiki_content FROM wiki_topic_version wtv INNER JOIN wiki_topic wt ON wtv.id_topic = wt.id_topic;
 /* Update wiki_topic table structure remove page_title */
 ALTER TABLE wiki_topic DROP COLUMN page_title;
+ALTER TABLE wiki_topic ADD modify_page_last_open_by VARCHAR(100);
+ALTER TABLE wiki_topic ADD modify_page_last_open_at TIMESTAMP;
+ALTER TABLE wiki_topic_version ADD background_color VARCHAR(50);

@@ -10,6 +10,7 @@ public class ContentDeserializer {
     private static final long serialVersionUID = -2287035947644920508L;
 
     public Integer topicVersion ;
+    public String parentPageName;
     public int topicId;
     public List<String> topicTitleArr;
 
@@ -28,6 +29,10 @@ public class ContentDeserializer {
     }
     public int getTopicId() {
         return topicId;
+    }
+
+    public String getParentPageName() {
+        return parentPageName;
     }
 
 
