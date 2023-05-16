@@ -36,32 +36,28 @@ package fr.paris.lutece.plugins.wiki.web;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fr.paris.lutece.api.user.User;
 import fr.paris.lutece.plugins.wiki.business.*;
 import fr.paris.lutece.plugins.wiki.service.ContentDeserializer;
 import fr.paris.lutece.plugins.wiki.service.RoleService;
 import fr.paris.lutece.plugins.wiki.service.WikiLocaleService;
 import fr.paris.lutece.plugins.wiki.utils.auth.WikiAnonymousUser;
-import fr.paris.lutece.plugins.wiki.web.WikiApp;
-import fr.paris.lutece.portal.service.search.IndexationService;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.UserNotSignedException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.List;
-import java.util.Scanner;
 
 
 /**
  * Upload application
  */
-public class AutoSaveWiki  {
+public class WikiDynamicInputs {
 
 
-    public String save(HttpServletRequest request) throws IOException, UserNotSignedException {
+    public static String saveWiki(HttpServletRequest request) throws IOException, UserNotSignedException {
 
 
        Boolean saveSuccess = false;
@@ -74,7 +70,6 @@ public class AutoSaveWiki  {
         String requestBody = sb.toString();
 
        try {
-
        ContentDeserializer newContent = ContentDeserializer.deserializeWikiContent(requestBody);
         LuteceUser user = WikiAnonymousUser.checkUser( request);
 
@@ -116,10 +111,34 @@ public class AutoSaveWiki  {
        // return the response in json
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
+        System.out.println(gson.toJson(saveSuccess));
         return gson.toJson(saveSuccess);
     }
 
+    public static void updateLastOpenModifyTopicPage(HttpServletRequest request) throws IOException, UserNotSignedException {
+       System.out.println("updateLastOpenModifyTopicPage");
+        StringBuilder sb = new StringBuilder();
+        BufferedReader reader = request.getReader();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+        }
+        String requestBody = sb.toString();
+        final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        final int topicId = gson.fromJson(requestBody, int.class);
+        Topic topic = TopicHome.findByPrimaryKey(topicId);
+        try {
+            if (RoleService.hasEditRole(request, topic)) {
 
+                User user = WikiAnonymousUser.checkUser(request);
+                System.out.println("user: " + user.getLastName());
+                System.out.println("topic: " + topic.getIdTopic());
+                TopicHome.updateLastOpenModifyPage(topic.getIdTopic(), user);
+            }
+        } catch (Exception e) {
+            AppLogService.error("Error saving last user opening modify topic page", e);
 
+        }
+    }
 
 }

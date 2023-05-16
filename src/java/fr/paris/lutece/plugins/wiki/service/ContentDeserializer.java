@@ -2,7 +2,6 @@ package fr.paris.lutece.plugins.wiki.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.paris.lutece.plugins.wiki.web.AutoSaveWiki;
 
 import java.io.IOException;
 import java.util.List;

@@ -33,11 +33,13 @@
  */
 package fr.paris.lutece.plugins.wiki.business;
 
+import fr.paris.lutece.api.user.User;
 import fr.paris.lutece.plugins.wiki.web.Constants;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 
 /**
@@ -132,5 +134,13 @@ public final class TopicHome
     public static Collection<Topic> getTopicsList( )
     {
         return _dao.selectTopicsList( _plugin );
+    }
+    /*
+    * record the last time view modify page has been open and by who
+    */
+    public static void updateLastOpenModifyPage(int topicId, User user)
+    {Timestamp date = new Timestamp(System.currentTimeMillis());
+        String userName = user.getFirstName() + " " + user.getLastName();
+        _dao.updateLastOpenModifyPage(topicId, userName,  date, _plugin);
     }
 }

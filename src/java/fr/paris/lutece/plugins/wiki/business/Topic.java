@@ -36,6 +36,8 @@ package fr.paris.lutece.plugins.wiki.business;
 import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.service.resource.IExtendableResource;
 
+import java.sql.Timestamp;
+
 /**
  * This is the business class for the object Topic
  */
@@ -50,6 +52,9 @@ public class Topic implements IExtendableResource
     private String _strViewRole = Page.ROLE_NONE;
     private String _strEditRole = Page.ROLE_NONE;
     private String _strParentPageName;
+    private String _strModifyPageOpenLastBy;
+    private Timestamp _strModifyPageOpenAt;
+
 
     /**
      * Returns the IdTopic
@@ -220,5 +225,47 @@ public class Topic implements IExtendableResource
     public void setParentPageName( String strParentPageName )
     {
         _strParentPageName = strParentPageName;
+    }
+
+    /**
+     * Returns the ModifyPageOpenLastBy
+     *
+     * @return The ModifyPageOpenLastBy
+     */
+    public String getModifyPageOpenLastBy( )
+    {
+        return _strModifyPageOpenLastBy;
+    }
+
+    /**
+     * Sets the ModifyPageOpenLastBy
+     *
+     * @param strModifyPageOpenLastBy
+     *            The ModifyPageOpenLastBy
+     */
+    public void setModifyPageOpenLastBy( String strModifyPageOpenLastBy )
+    {
+        _strModifyPageOpenLastBy = strModifyPageOpenLastBy;
+    }
+
+    /**
+     * Returns the ModifyPageOpenAt
+     *
+     * @return The ModifyPageOpenAt
+     */
+    public Timestamp getModifyPageOpenAt( )
+    {
+        return _strModifyPageOpenAt;
+    }
+
+    /**
+     * Sets the ModifyPageOpenAt
+     *
+     * @param strModifyPageOpenAt
+     *            The ModifyPageOpenAt
+     */
+    public void setModifyPageOpenAt( Timestamp strModifyPageOpenAt )
+    {
+        _strModifyPageOpenAt = strModifyPageOpenAt;
     }
 }

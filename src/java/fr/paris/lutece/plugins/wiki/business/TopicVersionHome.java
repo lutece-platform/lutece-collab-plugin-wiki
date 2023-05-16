@@ -33,11 +33,13 @@
  */
 package fr.paris.lutece.plugins.wiki.business;
 
+import fr.paris.lutece.api.user.User;
 import fr.paris.lutece.plugins.wiki.web.Constants;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 
 /**

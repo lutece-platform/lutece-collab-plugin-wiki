@@ -81,6 +81,7 @@ import fr.paris.lutece.util.url.UrlItem;
 
 import java.io.*;
 import java.net.URLEncoder;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
@@ -425,6 +426,9 @@ public class WikiApp extends MVCApplication
             topic.setViewRole( Page.ROLE_NONE );
             topic.setEditRole( Page.ROLE_NONE );
             topic.setParentPageName( strParentPageName );
+            topic.setModifyPageOpenLastBy( user.getName( ) + " " + user.getLastName( ) );
+            Timestamp date = new Timestamp(System.currentTimeMillis());
+            topic.setModifyPageOpenAt( date );
 
             TopicHome.create( topic );
         }
