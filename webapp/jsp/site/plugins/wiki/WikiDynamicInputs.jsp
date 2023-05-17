@@ -11,8 +11,4 @@
     {
         WikiDynamicInputs.updateLastOpenModifyTopicPage( request );
     }
-    else
-    {
-       System.out.println("no action");
-    }
     %>

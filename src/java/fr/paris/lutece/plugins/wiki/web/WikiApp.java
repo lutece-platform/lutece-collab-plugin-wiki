@@ -375,7 +375,6 @@ public class WikiApp extends MVCApplication
         if ( version == null )
         {
             strWikiPage = I18nService.getLocalizedString( MESSAGE_NO_PUBLISHED_VERSION, getLocale( request ) );
-            System.out.println( strWikiPage );
         } else {
             fillUserData(version);
              strWikiPage = WikiService.instance().getWikiPage(strPageName, version, getPageUrl(request), getLanguage(request));
@@ -430,7 +429,7 @@ public class WikiApp extends MVCApplication
             topic.setViewRole( Page.ROLE_NONE );
             topic.setEditRole( Page.ROLE_NONE );
             topic.setParentPageName( strParentPageName );
-            topic.setModifyPageOpenLastBy( user.getName( ) + " " + user.getLastName( ) );
+            topic.setModifyPageOpenLastBy( user.getName( ) + "_" + user.getLastName( ) );
             Timestamp date = new Timestamp(System.currentTimeMillis());
             topic.setModifyPageOpenAt( date );
 
@@ -486,7 +485,7 @@ public class WikiApp extends MVCApplication
                 topic.setModifyPageOpenLastBy(user.getName() + "_" + user.getLastName());
                 Timestamp date = new Timestamp(System.currentTimeMillis());
                 topic.setModifyPageOpenAt(date);
-                TopicHome.update(topic);
+                TopicHome.updateLastOpenModifyPage(topic.getIdTopic(), user);
             }
         }
         TopicVersion topicVersion;

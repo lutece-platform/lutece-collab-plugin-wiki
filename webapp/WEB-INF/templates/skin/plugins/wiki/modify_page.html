@@ -105,7 +105,7 @@
             <div class="form-group">
                 <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
                 <#assign topicList=reflist_topic >
-                <select id="parent_page_name" name="parent_page_name" class="form-control" onkeydown="autoSave()">
+                <select id="parent_page_name" name="parent_page_name" class="form-control" onchange="autoSave()">
                     <#list topicList as parentPage>
                     <#if topic.parentPageName == parentPage.name>
                     <option value="${parentPage.name}" selected>${parentPage.name}</option>
@@ -156,7 +156,9 @@
             <label for="modification_comment"><span class="glyphicon glyphicon-comment"></span> &nbsp; #i18n{wiki.modify_page.labelComment} :</label>
             <input class="form-control" type="text" name="modification_comment" maxlength="50"/>
         </div>
-
+       <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}" onclick="autoSave()">
+            <span class="glyphicon glyphicon-save"></span> &nbsp;#i18n{wiki.modify_page.buttonSaveAndOverwrite}
+        </button>
         <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}" onclick="createVersion()">
             <span class="glyphicon glyphicon-save"></span> &nbsp;#i18n{wiki.modify_page.buttonModify}
         </button>
@@ -525,7 +527,7 @@
             saveContent(version, parentPage, topic_id, topicTitleArr, topicContentArr)
         }
     }
-    // on change set time out
+    // if auto save mode is activated and auto is done
     let hasToWait = false;
     function autoSave() {
         if(document.getElementById('autoSaveMode').checked) {
@@ -540,6 +542,7 @@
     }
 </script>
 <script>
+    // register last user on modify page
     function saveLastUserOnModifyPage(){
         const topic_id = document.getElementById("topic_id").value;
         fetch('http://localhost:8080/lutece/jsp/site/plugins/wiki/WikiDynamicInputs.jsp?actionName=lastOpenModify', {

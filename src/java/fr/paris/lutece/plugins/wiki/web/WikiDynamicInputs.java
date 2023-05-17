@@ -116,7 +116,6 @@ public class WikiDynamicInputs {
        // return the response in json
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        System.out.println(gson.toJson(saveSuccess));
         return gson.toJson(saveSuccess);
     }
 
@@ -133,7 +132,6 @@ public class WikiDynamicInputs {
         Topic topic = TopicHome.findByPrimaryKey(topicId);
         try {
             if (RoleService.hasEditRole(request, topic)) {
-
                 User user = WikiAnonymousUser.checkUser(request);
                 TopicHome.updateLastOpenModifyPage(topic.getIdTopic(), user);
             } else {
