@@ -140,7 +140,7 @@ public final class TopicHome
     */
     public static void updateLastOpenModifyPage(int topicId, User user)
     {Timestamp date = new Timestamp(System.currentTimeMillis());
-        String userName = user.getFirstName() + " " + user.getLastName();
+        String userName = user.getFirstName() + "_" + user.getLastName();
         _dao.updateLastOpenModifyPage(topicId, userName,  date, _plugin);
     }
 }

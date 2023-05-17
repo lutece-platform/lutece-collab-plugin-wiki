@@ -52,7 +52,7 @@ public final class TopicDAO implements ITopicDAO
     private static final String SQL_QUERY_DELETE = "DELETE FROM wiki_topic WHERE id_topic = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE wiki_topic SET id_topic = ?, namespace = ?, page_name = ?, page_view_role = ?, page_edit_role = ?, parent_page_name = ? WHERE id_topic = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name, modify_page_last_open_by, modify_page_last_open_at FROM wiki_topic";
-    private static final String SQL_QUERY_SELECT_BY_NAME = "SELECT id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name FROM wiki_topic WHERE page_name  = ?";
+    private static final String SQL_QUERY_SELECT_BY_NAME = "SELECT id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name, modify_page_last_open_by, modify_page_last_open_at FROM wiki_topic WHERE page_name  = ?";
     private static final String SQL_QUERY_UPDATE_LAST_OPEN_MODIFY_PAGE = "UPDATE wiki_topic SET modify_page_last_open_by = ?, modify_page_last_open_at=? WHERE id_topic = ?";
     /**
      * Generates a new primary key
@@ -215,6 +215,8 @@ public final class TopicDAO implements ITopicDAO
                 topic.setViewRole( daoUtil.getString( 4 ) );
                 topic.setEditRole( daoUtil.getString( 5 ) );
                 topic.setParentPageName( daoUtil.getString( 6 ) );
+                topic.setModifyPageOpenLastBy( daoUtil.getString( 7 ) );
+                topic.setModifyPageOpenAt( daoUtil.getTimestamp( 8 ) );
             }
         }
 

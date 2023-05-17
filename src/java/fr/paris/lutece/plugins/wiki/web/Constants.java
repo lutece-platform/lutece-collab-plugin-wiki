@@ -72,6 +72,8 @@ public final class Constants
     public static final String MESSAGE_USER_NOT_IN_ROLE = "wiki.message.accessDenied.userNotInRole";
     public static final String PARENT_PAGE_NAME_IS_NULL = "none";
 
+    public static final String PARAMETER_USER_NAME = "user_name";
+
 
     /** Private constructor */
     private Constants( )

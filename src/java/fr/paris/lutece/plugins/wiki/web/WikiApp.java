@@ -149,7 +149,6 @@ public class WikiApp extends MVCApplication
     private static final String MARK_EXTEND = "isExtendInstalled";
     private static final String MARK_LANGUAGES_LIST = "languages_list";
     private static final String MARK_CURRENT_LANGUAGE = "current_language";
-
     private static final String PARAMETER_LANGUAGE = "language";
 
     private static final String VIEW_HOME = "home";
@@ -471,7 +470,25 @@ public class WikiApp extends MVCApplication
         {
             topic = getTopic( request, strPageName, MODE_EDIT );
         }
-
+        // get last user present on modify page for this topic
+        String lastUser =    topic.getModifyPageOpenLastBy( );
+        Timestamp lastDate = topic.getModifyPageOpenAt( );
+        // if it's been less than 17 seconds since the last user, we cannot edit
+        if (lastUser != null && lastDate != null && !lastUser.equals(user.getName() + "_" + user.getLastName())) {
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            long diff = now.getTime() - lastDate.getTime();
+            if (diff < 17000) {
+                Map<String, String> mapParameters = new ConcurrentHashMap<>();
+                mapParameters.put(Constants.PARAMETER_PAGE_NAME, strPageName);
+                mapParameters.put(Constants.PARAMETER_USER_NAME, lastUser);
+                return redirect(request, VIEW_SOMEBODY_IS_EDITING, mapParameters);
+            } else {
+                topic.setModifyPageOpenLastBy(user.getName() + "_" + user.getLastName());
+                Timestamp date = new Timestamp(System.currentTimeMillis());
+                topic.setModifyPageOpenAt(date);
+                TopicHome.update(topic);
+            }
+        }
         TopicVersion topicVersion;
         if(nVersion != null)
         {
@@ -489,24 +506,6 @@ public class WikiApp extends MVCApplication
         else
         {
             topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-            // get last user
-            if (topicVersion != null)
-            {
-            String lastUser =    topic.getModifyPageOpenLastBy( );
-            Timestamp lastDate = topic.getModifyPageOpenAt( );
-            // if it's been less than 15 seconds since the last user, we cannot edit
-            if (lastUser != null && lastDate != null) {
-                Timestamp now = new Timestamp(System.currentTimeMillis());
-                long diff = now.getTime() - lastDate.getTime();
-                if (diff < 17000) {
-                    Map<String, String> mapParameters = new ConcurrentHashMap<>();
-                    mapParameters.put(Constants.PARAMETER_PAGE_NAME, strPageName);
-                    mapParameters.put("username", lastUser);
-                    return redirect(request, VIEW_SOMEBODY_IS_EDITING, mapParameters);
-                }
-
-            }
-            }
         }
         if ( topicVersion != null )
         {
@@ -547,11 +546,11 @@ public class WikiApp extends MVCApplication
     {
         LuteceUser user = WikiAnonymousUser.checkUser( request);
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        String strUsername = request.getParameter( "username" );
+        String strUsername = request.getParameter( Constants.PARAMETER_USER_NAME );
         Topic topic = getTopic( request, strPageName, MODE_EDIT );
         Map<String, Object> model = getModel();
         model.put( Constants.PARAMETER_PAGE_NAME , strPageName);
-        model.put( "username" , strUsername);
+        model.put( Constants.PARAMETER_USER_NAME , strUsername);
         XPage page = getXPage(TEMPLATE_SOMEBODY_IS_EDITING, request.getLocale(), model);
         page.setTitle(getPageTitle(getTopicTitle(request, topic)));
         page.setExtendedPathLabel(getPageExtendedPath(topic, request));
@@ -661,59 +660,6 @@ public class WikiApp extends MVCApplication
     }
 
 
-    /**
-     * Process the modification of a wiki page
-     *
-     * @param request The HTTP request
-     * @return The XPage
-     * @throws UserNotSignedException if the user is not signed
-     */
-       /*  @Action( ACTION_AUTO_SAVE_MODIFICATION )
-    public void doAutoSaveModification(HttpServletRequest request ) throws IOException {
-
-   LuteceUser user = ( request );
-        //loop thought parameters and values
-
-        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = TopicHome.findByPrimaryKey( strPageName );
-        String strPreviousVersionId = request.getParameter(Constants.PARAMETER_PREVIOUS_VERSION_ID);
-
-        if ( RoleService.hasEditRole( request, topic ) ) {
-            int nPreviousVersionId = Integer.parseInt(strPreviousVersionId);
-            String strTopicId = request.getParameter(Constants.PARAMETER_TOPIC_ID);
-            String strComment = request.getParameter(Constants.PARAMETER_MODIFICATION_COMMENT);
-            String strViewRole = request.getParameter(Constants.PARAMETER_VIEW_ROLE);
-            String strEditRole = request.getParameter(Constants.PARAMETER_EDIT_ROLE);
-            String strParentPageName = request.getParameter(Constants.PARAMETER_PARENT_PAGE_NAME);
-            int nTopicId = Integer.parseInt(strTopicId);
-
-            TopicVersion topicVersion = new TopicVersion();
-            topicVersion.setIdTopic(nTopicId);
-            topicVersion.setUserName(user.getName());
-            topicVersion.setEditComment(strComment);
-            topicVersion.setIdTopicVersionPrevious(nPreviousVersionId);
-            topicVersion.setIsPublished(false);
-            // set the content for each language
-            for (String strLanguage : WikiLocaleService.getLanguages()) {
-                String strPageTitle = request.getParameter(Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage);
-                String strContent = request.getParameter(Constants.PARAMETER_CONTENT + "_" + strLanguage);
-                WikiContent content = new WikiContent();
-                content.setPageTitle(strPageTitle);
-                content.setWikiContent(strContent);
-                topicVersion.addLocalizedWikiContent(strLanguage, content);
-            }
-
-                TopicVersionHome.updateTopicVersion(topicVersion);
-                topic.setViewRole(strViewRole);
-                topic.setEditRole(strEditRole);
-                topic.setParentPageName(strParentPageName);
-                TopicHome.update(topic);
-        }
-        Map<String, String> mapParameters = new ConcurrentHashMap<>();
-        mapParameters.put(Constants.PARAMETER_PAGE_NAME, strPageName);
-        mapParameters.put(Constants.PARAMETER_TOPIC_VERSION_ID, strPreviousVersionId);
-    }
-        */
     /**
      * Creates a new version from the published version
      *
