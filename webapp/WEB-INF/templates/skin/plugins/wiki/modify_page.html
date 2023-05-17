@@ -29,39 +29,47 @@
                     <span class="glyphicon glyphicon-question-sign"></span> #i18n{wiki.menu.help}
                 </button>
             </div>
-            <div style="display: flex; flex-direction: row;">
-                <div style="margin-right: 10px">
-                    <#if version??>
-                    <label id="autoSaveLabel">#i18n{wiki.modify_page.autoSaveActivated}</label>
-                    <#else>
-                    <label id="autoSaveLabel">#i18n{wiki.modify_page.autoSaveDesactivated}</label>
-                </#if>
-            </div>
+    </div>
+    <div style="display: flex; justify-content: end;  flex-direction: row;">
 
-            <div>
+
+        <div style="margin-right: 10px">
             <#if version??>
-            <label class="switch">
-                <input id="autoSaveMode" type="checkbox" checked onchange="toogleAutosave()">
-                <span class="slider round"></span>
-            </label>
+            <label id="autoSaveLabel">#i18n{wiki.modify_page.autoSaveActivated}</label>
             <#else>
-            <label class="switch">
-                <input id="autoSaveMode" type="checkbox" onchange="alert('In order to save automatically the content, you must manually save a first version');">
-                <span class="slider round"></span>
-            </label>
+            <label id="autoSaveLabel">#i18n{wiki.modify_page.autoSaveDesactivated}</label>
         </#if>
-           </div>
-    <div id="autoSave" style="display:none; margin-left: 10px" >
+    </div>
+    <div>
+        <#if version??>
+        <label class="switch">
+            <input id="autoSaveMode" type="checkbox" checked onchange="toogleAutosave()">
+            <span class="slider round"></span>
+        </label>
+        <#else>
+        <label class="switch">
+            <input id="autoSaveMode" type="checkbox" disabled onchange="alert('In order to save automatically the content, you must manually save a first version');">
+            <span class="slider round"></span>
+        </label>
+    </#if>
+</div>
+</div>
+<div style="display: flex; justify-content: end;  flex-direction: row;">
+
+    <div id="autoSave" style="display:none; margin-right: 10px" >
         <div style=" display: flex; align-items: center">
-           <span  style="margin-right: 10px"> <div class="spinner"></div></span>
+            <span  style="margin-left: 10px"> <div class="spinner"></div></span>
             <div  id="autoSaveSucess" style="display: none; margin-left: 10px">#i18n{wiki.modify_page.autoSaveSucess}</div>
             <div  id="autoSaveFailed" style="display: none; margin-left: 10px">#i18n{wiki.modify_page.autoSaveFailed}</div>
         </div>
     </div>
-   </div>
+
+
+
+
 
 </div>
-</div>
+
 </div>
 <div class="row">
     <div id="main-panel" class="col-sm-12">
@@ -92,12 +100,12 @@
             <#if version?? && version.getWikiContent( locale )??>
             <div class="form-group">
                 <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
-                <input class="form-control" id="page_title_${locale}" type="text" name="page_title_${locale}" value="${version.getWikiContent( locale ).pageTitle}" maxlength="100" onkeydown="autoSave()" />
+                <input class="form-control" id="page_title_${locale}" type="text" name="page_title_${locale}" value="${version.getWikiContent( locale ).pageTitle}" maxlength="100"  onkeydown="autoSave()"/>
             </div>
             <div class="form-group">
                 <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
                 <#assign topicList=reflist_topic >
-                <select id="parent_page_name" name="parent_page_name" class="form-control" onchange="autoSave()">
+                <select id="parent_page_name" name="parent_page_name" class="form-control" onkeydown="autoSave()">
                     <#list topicList as parentPage>
                     <#if topic.parentPageName == parentPage.name>
                     <option value="${parentPage.name}" selected>${parentPage.name}</option>
@@ -108,17 +116,17 @@
             </select>
         </div>
         <div class="form-group">
-            <textarea id="wiki_content_${locale}" class="form-control" name="content_${locale}" rows="20" onkeydown="autoSave()" ><#if version??>${version.getWikiContent( locale ).wikiContent?html}</#if></textarea>
+            <textarea id="wiki_content_${locale}" class="form-control" name="content_${locale}" rows="20" onkeydown="autoSave()">><#if version??>${version.getWikiContent( locale ).wikiContent?html}</#if></textarea>
         </div>
         <#else>
         <div class="form-group">
             <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
-            <input class="form-control"  id="page_title_${locale}"  type="text" name="page_title_${locale}" value="" maxlength="100" onkeydown="autoSave()" />
+            <input class="form-control"  id="page_title_${locale}"  type="text" name="page_title_${locale}" value="" maxlength="100"/>
         </div>
         <div class="form-group">
             <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
             <#assign topicList=reflist_topic >
-            <select id="parent_page_name" name="parent_page_name" class="form-control" onchange="autoSave()">
+            <select id="parent_page_name" name="parent_page_name" class="form-control" >
                 <#list topicList as parentPage>
                 <#if topic.parentPageName == parentPage.name>
                 <option value="${parentPage.name}" selected>${parentPage.name}</option>
@@ -126,9 +134,10 @@
                 <option value="${parentPage.name}">${parentPage.name}</option>
             </#if>
         </#list>
-        </select>            </div>
+        </select>
+    </div>
     <div class="form-group">
-        <textarea id="wiki_content_${locale}" class="form-control" name="content_${locale}" rows="20" onkeydown="autoSave()" ></textarea>
+        <textarea id="wiki_content_${locale}" class="form-control" name="content_${locale}" rows="20" ></textarea>
     </div>
 </#if>
 </div>
@@ -447,7 +456,6 @@
     function createVersion()
     {
         document.getElementById('create_version').value = 'true';
-
         validate();
     }
 </script>
@@ -549,7 +557,7 @@
         if (document.readyState === 'complete') {
             setInterval(function (){
                     saveLastUserOnModifyPage();}
-                , 6000);
+                , 15000);
         }
     }
 </script>

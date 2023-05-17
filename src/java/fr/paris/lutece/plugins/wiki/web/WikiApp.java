@@ -52,6 +52,7 @@ import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.service.content.XPageAppService;
 import fr.paris.lutece.portal.service.datastore.DatastoreService;
 import fr.paris.lutece.portal.service.i18n.I18nService;
+import fr.paris.lutece.portal.service.init.AppInfo;
 import fr.paris.lutece.portal.service.message.SiteMessage;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.message.SiteMessageService;
@@ -93,6 +94,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
+
 /**
  * This class provides a simple implementation of an XPage
  */
@@ -108,6 +110,8 @@ public class WikiApp extends MVCApplication
     private static final String TEMPLATE_LIST_WIKI = "skin/plugins/wiki/list_wiki.html";
     private static final String TEMPLATE_MAP_WIKI = "skin/plugins/wiki/map_wiki.html";
     private static final String TEMPLATE_SEARCH_WIKI = "skin/plugins/wiki/search_wiki.html";
+    public final static String TEMPLATE_SOMEBODY_IS_EDITING = "skin/plugins/wiki/somebody_is_editing.html";
+
 
     private static final String BEAN_SEARCH_ENGINE = "wiki.wikiSearchEngine";
 
@@ -160,6 +164,7 @@ public class WikiApp extends MVCApplication
     private static final String VIEW_SEARCH = "search";
     private static final String VIEW_DIFF = "diff";
     private static final String VIEW_LIST_IMAGES = "listImages";
+    public final static String VIEW_SOMEBODY_IS_EDITING = "somebodyIsEditing";
 
     private static final String ACTION_NEW_PAGE = "newPage";
     private static final String ACTION_MODIFY_PAGE = "modifyPage";
@@ -484,6 +489,24 @@ public class WikiApp extends MVCApplication
         else
         {
             topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+            // get last user
+            if (topicVersion != null)
+            {
+            String lastUser =    topic.getModifyPageOpenLastBy( );
+            Timestamp lastDate = topic.getModifyPageOpenAt( );
+            // if it's been less than 15 seconds since the last user, we cannot edit
+            if (lastUser != null && lastDate != null) {
+                Timestamp now = new Timestamp(System.currentTimeMillis());
+                long diff = now.getTime() - lastDate.getTime();
+                if (diff < 17000) {
+                    Map<String, String> mapParameters = new ConcurrentHashMap<>();
+                    mapParameters.put(Constants.PARAMETER_PAGE_NAME, strPageName);
+                    mapParameters.put("username", lastUser);
+                    return redirect(request, VIEW_SOMEBODY_IS_EDITING, mapParameters);
+                }
+
+            }
+            }
         }
         if ( topicVersion != null )
         {
@@ -517,6 +540,22 @@ public class WikiApp extends MVCApplication
             page.setExtendedPathLabel(getPageExtendedPath(topic, request));
 
             return page;
+    }
+
+    @View( VIEW_SOMEBODY_IS_EDITING )
+    public XPage getSomebodyIsEditing( HttpServletRequest request ) throws SiteMessageException, UserNotSignedException
+    {
+        LuteceUser user = WikiAnonymousUser.checkUser( request);
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        String strUsername = request.getParameter( "username" );
+        Topic topic = getTopic( request, strPageName, MODE_EDIT );
+        Map<String, Object> model = getModel();
+        model.put( Constants.PARAMETER_PAGE_NAME , strPageName);
+        model.put( "username" , strUsername);
+        XPage page = getXPage(TEMPLATE_SOMEBODY_IS_EDITING, request.getLocale(), model);
+        page.setTitle(getPageTitle(getTopicTitle(request, topic)));
+        page.setExtendedPathLabel(getPageExtendedPath(topic, request));
+        return page;
     }
     /**
      * Displays the options if you want to modify published
