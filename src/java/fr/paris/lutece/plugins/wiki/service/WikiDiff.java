@@ -33,8 +33,6 @@
  */
 package fr.paris.lutece.plugins.wiki.service;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.io.Serializable;
 
 import java.util.List;
@@ -73,15 +71,6 @@ public class WikiDiff implements Serializable
         _nPosition = nPosition;
     }
 
-    /**
-     * Gets changes
-     * 
-     * @return true if there is changes
-     */
-    public boolean getChange( )
-    {
-        return !StringUtils.equals( _strOldText, _strNewText );
-    }
 
     /**
      * Gets new text

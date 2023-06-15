@@ -52,7 +52,6 @@ import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.service.content.XPageAppService;
 import fr.paris.lutece.portal.service.datastore.DatastoreService;
 import fr.paris.lutece.portal.service.i18n.I18nService;
-import fr.paris.lutece.portal.service.init.AppInfo;
 import fr.paris.lutece.portal.service.message.SiteMessage;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.message.SiteMessageService;
@@ -86,13 +85,11 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 
 /**
@@ -1051,7 +1048,7 @@ public class WikiApp extends MVCApplication
 
     /**
      * Returns the image list as JSON
-     * 
+     *
      * @param request
      *            The HTTP request
      * @return A JSON flow
@@ -1061,7 +1058,6 @@ public class WikiApp extends MVCApplication
     {
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
         JSONArray array = new JSONArray( );
-
         if ( strTopicId != null )
         {
             int nTopicId = Integer.parseInt( strTopicId );
@@ -1069,8 +1065,8 @@ public class WikiApp extends MVCApplication
             for ( Image image : list )
             {
                 JSONObject jsonImage = new JSONObject( );
-                jsonImage.accumulate( "id", image.getId( ) );
-                jsonImage.accumulate( "name", image.getName( ) );
+                jsonImage.put( "id", image.getId( ) );
+                jsonImage.put( "name", image.getName( ) );
                 array.add( jsonImage );
             }
         }
@@ -1431,7 +1427,7 @@ public class WikiApp extends MVCApplication
     private String getTopicTitle( Topic topic, String strLanguage )
     {
         TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-        if ( version != null && StringUtils.isNotEmpty( version.getWikiContent( strLanguage ).getPageTitle( ) ) )
+        if ( version != null && !version.getWikiContent( strLanguage ).getPageTitle( ).isEmpty( ) )
         {
             return version.getWikiContent( strLanguage ).getPageTitle( );
         }

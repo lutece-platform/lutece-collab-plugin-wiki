@@ -45,7 +45,6 @@ import fr.paris.lutece.portal.service.resource.IExtendableResourceService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.util.url.UrlItem;
 
-import org.apache.commons.lang.StringUtils;
 
 import java.util.Locale;
 
@@ -110,7 +109,10 @@ public class WikiExtendableResourceService implements IExtendableResourceService
     @Override
     public String getResourceUrl( String strIdResource, String strResourceType )
     {
-        if ( StringUtils.isNotEmpty( strIdResource ) && StringUtils.isNumeric( strIdResource ) )
+        // check if the id is a number
+        Integer nIdResource = Integer.parseInt( strIdResource );
+        //
+        if ( !strIdResource.isEmpty() && nIdResource != null )
         {
             Topic topic = TopicHome.findByPrimaryKey( Integer.parseInt( strIdResource ) );
 
