@@ -41,11 +41,11 @@ import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.business.TopicVersionHome;
 import fr.paris.lutece.plugins.wiki.business.WikiContent;
 import fr.paris.lutece.plugins.wiki.service.PathService;
-import fr.paris.lutece.plugins.wiki.web.Constants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import static ys.wikiparser.Utils.*;
+import fr.paris.lutece.plugins.wiki.web.Constants;
 
 import ys.wikiparser.WikiParser;
 
@@ -88,9 +88,8 @@ public class LuteceWikiParser extends WikiParser
         setTableClass( _options.getTableClass( ) );
         setParentTableClass( _options.getParentTableClass( ) );
         setTocClass( _options.getTocClass( ) );
-        parse( renderWiki( strWikiText ) );
+        parse( SpecialChar.renderWiki( strWikiText ) );
     }
-
     /**
      * Render specific HTML entities
      * 
@@ -107,44 +106,6 @@ public class LuteceWikiParser extends WikiParser
             strRender = strRender.replaceAll( "#page_url", _strPageUrl );
         }
 
-        return strRender;
-    }
-
-    /**
-     * Render specific entities
-     * 
-     * @param strSource
-     *            The source
-     * @return The source transformed
-     */
-    public static String renderWiki( String strSource )
-    {
-        String strRender = strSource;
-        strRender = strRender.replaceAll( "\\[lt;", "<" );
-        strRender = strRender.replaceAll( "\\[gt;", ">" );
-        strRender = strRender.replaceAll( "\\[nbsp;", "&nbsp;" );
-        strRender = strRender.replaceAll( "\\[quot;", "\"" );
-        strRender = strRender.replaceAll( "\\[amp;", "&" );
-        strRender = strRender.replaceAll( "\\[hashmark;", "#" );
-        return strRender;
-    }
-
-    /**
-     * Render specific entities
-     * 
-     * @param strSource
-     *            The source
-     * @return The source transformed
-     */
-    public static String renderSource( String strSource )
-    {
-        String strRender = strSource;
-        strRender = strRender.replaceAll( "\\[lt;", "&lt;" );
-        strRender = strRender.replaceAll( "\\[gt;", "&gt;" );
-        strRender = strRender.replaceAll( "\\[nbsp;", "&nbsp;" );
-        strRender = strRender.replaceAll( "\\[quot;", "&quot;" );
-        strRender = strRender.replaceAll( "\\[amp;", "&amp;" );
-        strRender = strRender.replaceAll( "\\[hashmark;", "#" );
         return strRender;
     }
 
@@ -173,7 +134,7 @@ public class LuteceWikiParser extends WikiParser
 
             int nImageId = Integer.parseInt( link [0].trim( ) );
 
-            Topic topic = TopicHome.findByPrimaryKey( _strPageName );
+            Topic topic = TopicHome.findByPageName( _strPageName );
             Image image = ImageHome.findByPrimaryKey( nImageId );
 
             if ( image == null || image.getTopicId( ) != topic.getIdTopic( ) )
@@ -258,7 +219,7 @@ public class LuteceWikiParser extends WikiParser
         }
         else
         {
-            Topic topic = TopicHome.findByPrimaryKey( escapeHTML( escapeURL( link [0] ) ) );
+            Topic topic = TopicHome.findByPageName( escapeHTML( escapeURL( link [0] ) ) );
             String strAction;
             String strAdditionalParameter = "";
             String strColorBegin = "";
@@ -313,7 +274,7 @@ public class LuteceWikiParser extends WikiParser
                 {
                     sb.append( "<p>" );
 
-                    Topic topic = TopicHome.findByPrimaryKey( _strPageName );
+                    Topic topic = TopicHome.findByPageName( _strPageName );
 
                     List<Topic> topicList = PathService.getParentTopics( topic );
                     for ( Topic item : topicList )

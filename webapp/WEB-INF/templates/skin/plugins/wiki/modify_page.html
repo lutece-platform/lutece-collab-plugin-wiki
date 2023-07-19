@@ -1,279 +1,282 @@
+<head lang="en">
+    <meta charset="UTF-8" />
+    <!--- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Dark mode -->
+    <link rel="stylesheet" href="css/plugins/wiki/darkmode.css" />
+    <!-- Editor -->
+    <link rel="stylesheet" href="css/plugins/wiki/toastui/toastui-editor-dark.css" />
+    <link rel="stylesheet" href="css/plugins/wiki/toastui/toastui-editor.css" />
+    <link rel="stylesheet" href="css/plugins/wiki/toastui/tui-color-picker.css"/>
+    <link rel="stylesheet" href="css/plugins/wiki/toastui/plugins/min/toastui-editor-plugin-color-syntax.min.css"/>
+    <link rel="stylesheet" href="css/plugins/wiki/toastui/plugins/min/toastui-editor-plugin-table-merged-cell.min.css" />
+    <link rel="stylesheet" href="css/plugins/wiki/toastui/plugins/min/toastui-editor-plugin-code-syntax-highlight.min.css" />
+</head>
+
 <div class="row">
+
+    <!----------- wiki preview modale --------------->
+    <div id="previewModal" class="toastui-editor-popup" style="width:1300px; display: none;" >
+        <button class="btn btn-default" type="button" style="position: absolute; right: 0;" onclick="closeToastUiModal()">
+            Close <span class="fa fa-times"></span>
+        </button>
+        <div class="toastui-editor-popup-header">
+            <div class="toastui-editor-popup-header-title">Preview</div>
+            <div class="toastui-editor-popup-content-body" style="margin: 25px;">
+                <div id="previewContentInModal"></div>
+            </div>
+        </div>
+    </div>
+
+
+
     <div class="container panel panel-default">
-    <form method="post" id="form_wiki" action="jsp/site/Portal.jsp">
         <div class="row">
-            <input type="hidden" name="page" value="wiki" />
-            <input type="hidden" name="page_name" value="${topic.pageName}" />
-            <input type="hidden" name="topic_id" value="${topic.idTopic}" />
-            <#if lastVersion??>
-                <input type="hidden" name="previous_version_id" value="${lastVersion.idTopicVersion}" />
+            <!--  Context variables -->
+            <input type="hidden" id="locale" name="language" value="${locale}" />
+            <input type="hidden" id="page" name="page" value="wiki" />
+            <input type="hidden" id="page_name" name="page_name" value="${topic.pageName}" />
+            <input type="hidden" id="topic_id" name="topic_id" value="${topic.idTopic}" />
+            <#if version??>
+            <input id="topic_version" type="hidden" name="id_topic_version" value="${version.idTopicVersion}" />
             <#else>
-                <input type="hidden" name="previous_version_id" value="0" />
-            </#if>
-            
- 
-            <div class="col-sm-12">
-                <div class="btn-group btn-group-xs pull-right">
-                    <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
-                        <span class="glyphicon glyphicon-chevron-left"></span> #i18n{wiki.button.backToPage}
-                    </a>
-                    <button name="view_preview" class="btn btn-default" type="submit" title="#i18n{wiki.menu.preview}" onclick="validate()">
-                        <span class="glyphicon glyphicon-eye-open"></span> #i18n{wiki.menu.preview}
-                    </button>
-                    <#if has_admin_role >
-                    <a data-toggle="modal" data-target="#confirm-delete-page"  class="btn btn-danger" class="btn btn-danger" title="#i18n{portal.util.labelDelete}">
-                        <span class="glyphicon glyphicon-trash"></span> #i18n{portal.util.labelDelete}
-                    </a>
-                    </#if>
-                    <button id="btn-help" class="btn btn-default" type="button" title="#i18n{wiki.menu.help}">
-                        <span class="glyphicon glyphicon-question-sign"></span> #i18n{wiki.menu.help}
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <div class="row">
-            <div id="main-panel" class="col-sm-12">
-                <div class="alert alert-error" id="div-confirm-delete" style="display:none">
-                    #i18n{wiki.message.confirmDelete}
-                    <div class="pull-right">
-                        <button name="action_deletePage" class="btn btn-danger btn-xs" type="submit" >
-                            #i18n{portal.util.labelOk}
-                        </button>
-                        <button id="btn-delete-cancel" class="btn btn-xs" type="button" >
-                            #i18n{portal.util.labelCancel}
-                        </button>
-                    </div>
-                </div>
+            <input id="topic_version"  type="hidden" name="id_topic_version" value="0" />
+        </#if>
+        <!------------ Menu ---------------->
 
-               <h1>#i18n{wiki.menu.edit} <small> [${topic.pageName}] </small></h1>
-               <#assign locales_list = ["fr", "en"]>
-                
-                <ul class="nav nav-tabs" role="tablist" id="navTabsWikiLanguages">
-                <#list languages_list as locale>
-                <li role="presentation" <#if locale_index = 0 >class="active" </#if>><a href="#tab-${locale}" data-toggle="tab" >${locale}</a></li>
-                </#list>
-                </ul>
-                    
-                <div class="tab-content">    
-                <#list languages_list as locale>
-                <div id="tab-${locale}" class="tab-pane <#if locale_index = 0 >active</#if>"  role="tabpanel" >
-                    <#if lastVersion?? && lastVersion.getWikiContent( locale )??>
-                        <div class="form-group">
-                            <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
-                            <input class="form-control" type="text" name="page_title_${locale}" value="${lastVersion.getWikiContent( locale ).pageTitle}" maxlength="100"/>
-                        </div>
-                        <div class="form-group">
-                            <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
-                            <@select name="parent_page_name" default_value="${topic.parentPageName}" items=reflist_topic sort=true />
-                        </div>
-                        <div class="form-group">
-                            <textarea id="wiki-${locale}" class="form-control" name="content_${locale}" rows="20" ><#if lastVersion??>${lastVersion.getWikiContent( locale ).wikiContent?html}</#if></textarea>
-                        </div>
-                    <#else>
-                        <div class="form-group">
-                            <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
-                            <input class="form-control" type="text" name="page_title_${locale}" value="" maxlength="100"/>
-                        </div>
-                        <div class="form-group">
-                            <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
-                            <@select name="parent_page_name" default_value="${topic.parentPageName}" items=reflist_topic sort=true />
-                        </div>
-                        <div class="form-group">
-                            <textarea id="wiki-${locale}" class="form-control" name="content_${locale}" rows="20" ></textarea>
-                        </div>
-                    </#if>
-                </div>    
-                </#list>
-                </div>
-            </div>
-            <div id="help" class="col-sm-4 pull-right" style="display:none">
-                <br/>
-                <!--<img src="images/local/skin/creole_cheat_sheet.png" title="Manual Wiki" alt="Manuel"/> -->
-                <#include "syntax_help.html" />
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="form-group">
-                    <label for="modification_comment"><span class="glyphicon glyphicon-comment"></span> &nbsp; #i18n{wiki.modify_page.labelComment} :</label>
-                    <input class="form-control" type="text" name="modification_comment" maxlength="50"/>
-                </div>
-                <button name="action_modifyPage" class="btn btn-primary" type="submit" title="#i18n{wiki.modify_page.buttonModify}" onclick="validate()">
-                    <span class="glyphicon glyphicon-save"></span> &nbsp; #i18n{wiki.modify_page.buttonModify}
+        <div class="col-sm-12">
+            <div class="btn-group btn-group-xs pull-right">
+                <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
+                    <span class="fa fa-chevron-left fa-1x"></span> #i18n{wiki.button.backToPage}
+                </a>
+                <button name="view_preview" class="btn btn-default" title="#i18n{wiki.menu.preview}" onclick="preview()">
+                    <span class="fa fa-eye"></span> #i18n{wiki.menu.preview}
                 </button>
-            </div>
-            <div class="col-sm-6">
-                <div class="well">
-                    <legend><span class="glyphicon glyphicon-user"></span> &nbsp; #i18n{wiki.modify_page.titleRole}</legend>
-                    <div class="form-group row">
-                        <label class="col-sm-5 col-form-label" for="view_role">#i18n{wiki.modify_page.labelViewRole} :</label>
-                        <div class="col-sm-7">
-                            <@select name="view_role" default_value="${topic.viewRole}" items=page_roles_list sort=true />
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <label class="col-sm-5 col-form-label" for="edit_role">#i18n{wiki.modify_page.labelEditRole} :</label>
-                        <div class="col-sm-7">
-                            <@select name="edit_role" default_value="${topic.editRole}" items=page_roles_list sort=true />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
-        
-    </div>    
-</div>
-
-<div class="row" >
-    <div class="container panel panel-default">
-    <h3><span class="glyphicon glyphicon-picture"></span> &nbsp; #i18n{wiki.modify_page.titleImages}</h3>
-    <div class="row" >
-    <div class="col-sm-6">
-        <@messages infos=infos />
-        <table class="table table-condensed table-stripend">
-            <thead>
-                <tr>
-                    <th>#i18n{wiki.modify_page.colImage}</th>
-                    <th>#i18n{wiki.modify_page.colDescription}</th>
-                    <th>#i18n{wiki.modify_page.colPasteEditor}</th>
-                    <th>#i18n{portal.util.labelActions}</th>
-                </tr>
-            </thead>
-            <tbody  id="table-images">
-                
-            </tbody>
-        </table>
-    </div>
-    <div class="col-sm-6">
-        <form id="ajax-form-image-upload" action="jsp/site/Portal.jsp" method="post" enctype="multipart/form-data" >
-            <input type="hidden" name="page" value="wiki" />
-            <input type="hidden" name="page_name" value="${topic.pageName}" />
-            <input type="hidden" name="action" value="uploadImage" />
-            <input type="hidden" name="topic_id" value="${topic.idTopic}" />
-            <div class="well">
-                <legend><span class="glyphicon glyphicon-plus"></span> &nbsp; #i18n{wiki.modify_page.titleAddImage}</legend>
-                <@messages errors=errors />
-                <!-- loader.gif -->
-                <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="name">#i18n{wiki.modify_page.labelFile}&nbsp;: </label>
-                    <div class="col-sm-8">
-                        <input class="form-control" name="image_file" type="file" />
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="name">#i18n{wiki.modify_page.labelDescription}&nbsp;: </label>
-                    <div class="col-sm-8">
-                        <input class="form-control" name="image_name" type="text" />
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-8">
-                        <button id="btn-image-upload" class="btn btn-primary" name="name" type="submit" >
-                            <span class="glyphicon glyphicon-upload"></span> &nbsp; #i18n{wiki.modify_page.buttonUpload}
-                        </button>
-                    </div>
-                </div>
-                <div id="loader-image-upload" class="progress progress-striped active" style="display:none">
-                    <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                        <span class="sr-only">Loading ...</span>
-                    </div>
-                </div>
-            </fieldset>
-        </form>
-    </div>
-    </div>
-    </div>
-</div>
-
-
-<div class="modal fade" id="confirm-delete-page" tabindex="-1" role="dialog" aria-labelledby="DeletePageConfirmation" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>#i18n{wiki.message.confirmTitle}</h3>
-            </div>
-            <div class="modal-body">
-                #i18n{wiki.message.confirmDelete}
-            </div>
-            <div class="modal-footer">
+                <#if has_admin_role >
                 <form id="form-page-delete" action="jsp/site/Portal.jsp" method="post" >
                     <input type="hidden" name="page" value="wiki" />
                     <input type="hidden" name="page_name" value="${topic.pageName}" />
                     <input type="hidden" name="action" value="deletePage" />
-                    <button type="button" class="btn btn-default" data-dismiss="modal">#i18n{portal.util.labelCancel}</button>
-                    <button id="btn-page-delete" type="submit" class="btn btn-danger" >#i18n{portal.util.labelDelete}</button>
                 </form>
-            </div>
+                <button  class="btn btn-danger" class="btn btn-danger" title="#i18n{portal.util.labelDelete}"  onclick="confirmDeleteTopic()">
+                    <span class="fa fa-trash fa-1x"></span> #i18n{portal.util.labelDelete}
+                </button>
+            </#if>
+            <button id="btn-help" class="btn btn-default" type="button" title="#i18n{wiki.menu.help}">
+                <span class="fa fa-question fa-1x"></span> #i18n{wiki.menu.help}
+            </button>
+        </div>
+    </div>
+
+    <!------------ AUTOSAVE ---------------->
+    <div style="display: flex; justify-content: end;  flex-direction: row;">
+        <div style="margin-right: 10px">
+            <#if version??>
+            <label id="autoSaveLabel">#i18n{wiki.modify_page.autoSaveActivated}</label>
+            <#else>
+            <label id="autoSaveLabel">#i18n{wiki.modify_page.autoSaveDesactivated}</label>
+        </#if>
+    </div>
+    <div>
+        <label class="switch">
+            <input id="autoSaveMode" type="checkbox" onchange="toggleAutosave()">
+            <span class="slider round"></span>
+        </label>
+    </div>
+</div>
+<div style="display: flex; justify-content: end;  flex-direction: row;">
+
+    <div id="autoSave" style="display:none; margin-right: 10px" >
+        <div style=" display: flex; align-items: center">
+            <span  style="margin-left: 10px"> <div class="spinner"></div></span>
+            <div  id="autoSaveSucess" style="display: none; margin-left: 10px">#i18n{wiki.modify_page.autoSaveSucess}</div>
+            <div  id="autoSaveFailed" style="display: none; margin-left: 10px">#i18n{wiki.modify_page.autoSaveFailed}</div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="confirm-delete-image" tabindex="-1" role="dialog" aria-labelledby="DeleteImageConfirmation" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>#i18n{wiki.message.confirmTitle}</h3>
-            </div>
-            <div class="modal-body">
-                #i18n{wiki.message.confirmRemoveImage}
-            </div>
-            <div class="modal-footer">
-                <form id="ajax-form-image-delete" action="jsp/site/Portal.jsp" method="post" >
-                    <input type="hidden" name="page" value="wiki" />
-                    <input type="hidden" name="page_name" value="${topic.pageName}" />
-                    <input type="hidden" name="action" value="removeImage" />
-                    <input id="id-image-to-remove" type="hidden" name="id_image" value="" />
-                    <button type="button" class="btn btn-default" data-dismiss="modal">#i18n{portal.util.labelCancel}</button>
-                    <button id="btn-image-delete" type="submit" class="btn btn-danger" >#i18n{portal.util.labelDelete}</button>
-                </form>
+<div class="row">
+    <div id="main-panel" class="col-sm-12">
+        <div class="alert alert-error" id="div-confirm-delete" style="display:none">
+            #i18n{wiki.message.confirmDelete}
+            <div class="pull-right">
+                <button name="action_deletePage" class="btn btn-danger btn-xs" type="submit" >
+                    #i18n{portal.util.labelOk}
+                </button>
+                <button id="btn-delete-cancel" class="btn btn-xs" type="button" >
+                    #i18n{portal.util.labelCancel}
+                </button>
             </div>
         </div>
-    </div>
+
+        <h1>#i18n{wiki.menu.edit} <small> [${topic.pageName}] </small></h1>
+
+        <!-------- change language -------->
+        <label for="select_language_list">Select a language with a select :</label>
+        <select id="select_language_list" class="form-control" onchange="changeLanguage(this.value)" >
+            <#list languages_list as thisLocale>
+            <#if locale == thisLocale>
+            <option value="${locale}" selected>${locale}</option>
+            <#else>
+            <option value="${thisLocale}">${thisLocale}</option>
+        </#if>
+    </#list>
+    </select>
+</div>
 </div>
 
 
-<!-- Markipup integration -->
-<script type="text/javascript" src="js/plugins/wiki/markitup/jquery.markitup.js"></script>
-<script type="text/javascript" src="js/plugins/wiki/markitup/sets/wiki/set.js"></script>
-<script type="text/javascript" src="js/plugins/wiki/jquery/jquery.form.js"></script>
+<!-- wiki page title -->
+<div class="tab-content">
+    <div id="tab-${locale}" class="tab-pane active"  role="tabpanel" >
+        <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
+        <div class="form-group">
+            <input class="form-control" id="page_title_${locale}" type="text" name="page_title_${locale}" value="<#if version?? && version.getWikiContent(locale)??>${version.getWikiContent( locale).pageTitle}</#if>" maxlength="100"  onkeydown="autoSave()"/>
+        </div>
 
-<script language="javascript">
-
-    function replaceAll(find, replace, str) 
-    {
-        return str.replace(new RegExp(find, 'g'), replace);
-    };
-
-    function validate()
-    {
-        <#list languages_list as locale>
-        escapeSpecialChars( 'wiki-${locale}' );
+        <div class="form-group">
+            <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
+            <#assign topicList=reflist_topic >
+            <select id="parent_page_name" name="parent_page_name" class="form-control" onchange="autoSave()">
+                <#list topicList as parentPage>
+                <#if topic.parentPageName == parentPage.name>
+                <option value="${parentPage.name}" selected>${parentPage.name}</option>
+                <#else>
+                <option value="${parentPage.name}">${parentPage.name}</option>
+            </#if>
         </#list>
-        return true;
-    };
-    
-    function escapeSpecialChars( id )
-    {
-        var content = document.getElementById( id ).value;
-        content = replaceAll( '<' , '[lt;' , content );
-        content = replaceAll( '>' , '[gt;' , content );
-        content = replaceAll( '"' , '[quot;' , content );
-        content = replaceAll( '&nbsp;' , '[nbsp;' , content );
-        content = replaceAll( '&' , '[amp;' , content );
-        content = replaceAll( '#' , '[hashmark;' , content );
-        document.getElementById( id ).value = content;
-    }
-    
+        </select>
+    </div>
+</div>
+
+<div id="help" class="pull-right" style="display:none">
+    <br/>
+    <#include "syntax_help.html" />
+</div>
+
+
+<!-- wiki content that goes in the editor-->
+<input id="wiki_content" class="form-control" name="content_${locale}" rows="20"
+       value="<#if version??>${version.getWikiContent(locale).wikiContent?html}<#else>no_content</#if>"
+       data type="hidden"/>
+<#include "custom_input_editor.html" />
+<!-- the editor -->
+<div class="form-group">
+    <div class="code-html tui-doc-contents">
+        <div id="editor"></div>
+    </div>
+</div>
+<input id="wiki_html_content" class="form-control" name="wiki_html_content" type="hidden"/>
+
+</div>
+
+</div>
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label for="modification_comment"><span class="fa fa-comment-dots fa-1x"></span> &nbsp; #i18n{wiki.modify_page.labelComment} :</label>
+            <input class="form-control" type="text" id="modification_comment" name="modification_comment" maxlength="50"/>
+        </div>
+        <button name="action_modifyPage" class="btn btn-primary"  title="#i18n{wiki.modify_page.buttonModify}" onclick="createVersion()">
+            <span class="fa fa-save fa-1x"></span> &nbsp;#i18n{wiki.modify_page.buttonModify}
+        </button>
+        <button name="action_modifyPage" class="btn btn-primary"  title="#i18n{wiki.modify_page.buttonModify}" onclick="publishVersion()">
+            <span class="fa fa-save fa-1x"></span> &nbsp;#i18n{wiki.modify_page.SaveAndPublish}
+        </button>
+    </div>
+    <div class="col-sm-6">
+        <div class="well">
+            <legend><span class="fa fa-user fa-1x"></span> &nbsp; #i18n{wiki.modify_page.titleRole}</legend>
+            <div class="form-group row">
+                <label class="col-sm-5 col-form-label" for="view_role">#i18n{wiki.modify_page.labelViewRole} :</label>
+                <div class="col-sm-7">
+                    <@select name="view_role" id="view_role" default_value="${topic.viewRole}" items=page_roles_list sort=true />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-5 col-form-label" for="edit_role">#i18n{wiki.modify_page.labelEditRole} :</label>
+                <div class="col-sm-7">
+                    <@select name="edit_role" id="edit_role" default_value="${topic.editRole}" items=page_roles_list sort=true />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+</div>
+</div>
+<div class="container panel panel-default">
+    <h3><span class="fa fa-file-image fa-1x"></span> &nbsp; #i18n{wiki.modify_page.titleImages}</h3>
+    <div class="row">
+        <div class="col-sm-8">
+            <div  id="table-images" class="image-grid "></div>
+        </div>
+        <div class="col-sm-4">
+            <form id="ajax-form-image-upload" action="jsp/site/Portal.jsp" method="post" enctype="multipart/form-data" >
+                <input type="hidden" name="page" value="wiki" />
+                <input type="hidden" name="page_name" value="${topic.pageName}" />
+                <input type="hidden" name="action" value="uploadImage" />
+                <input type="hidden" name="topic_id" value="${topic.idTopic}" />
+                <div class="well">
+                    <legend><span class="fa fa-plus fa-1x"></span> &nbsp; #i18n{wiki.modify_page.titleAddImage}</legend>
+                    <!-- loader.gif -->
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="image_file">#i18n{wiki.modify_page.labelFile}&nbsp;: </label>
+                        <div class="col-sm-8">
+                            <input class="form-control" id="image_file" name="image_file" type="file" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="image_name">#i18n{wiki.modify_page.labelDescription}&nbsp;: Required</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" required id="image_name" name="image_name" type="text" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-8">
+                            <button id="btn-image-upload" class="btn btn-primary" name="name" type="submit" >
+                                <span class="fa fa-file-upload fa-1x"></span> &nbsp; #i18n{wiki.modify_page.buttonUpload}
+                            </button>
+                        </div>
+                    </div>
+                    <div id="loader-image-upload" class="progress progress-striped active" style="display:none">
+                        <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                            <span class="sr-only">Loading ...</span>
+                        </div>
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script type="text/javascript" src="js/plugins/wiki/jquery/jquery.form.js"></script>
+<!-- Tui Editor integration -->
+<script type="text/javascript"   class="code-js"  src="js/plugins/wiki/tui_editor/cdn/toastui-editor-all.min.js"></script>
+<!-- Color Picker -->
+<script type="text/javascript"   class="code-js"  src="js/plugins/wiki/tui_color_picker/tui-color-picker.min.js"></script>
+<!-- Editor's Plugin -->
+<script type="text/javascript"  class="code-js"   src="js/plugins/wiki/latex_js/latex.js"></script>
+<script type="text/javascript"  class="code-js"   src="js/plugins/wiki/tui_editor/plugins/editor-plugin-code-syntax-highlight/cdn/toastui-editor-plugin-code-syntax-highlight-all.min.js"></script>
+<script type="text/javascript"  class="code-js"   src="js/plugins/wiki/tui_editor/plugins/editor-plugin-color-syntax/cdn/toastui-editor-plugin-color-syntax.min.js"></script>
+<script type="text/javascript"  class="code-js"   src="js/plugins/wiki/tui_editor/plugins/editor-plugin-table-merged-cell/cdn/toastui-editor-plugin-table-merged-cell.min.js"></script>
+<script type="text/javascript"  class="code-js"   src="js/plugins/wiki/wiki_pages/defaultEditorContent.js" ></script>
+<script type="text/javascript"  class="code-js"   src="js/plugins/wiki/wiki_pages/modify_page.js" ></script>
+<script type="text/javascript"  defer>
+
     function updateImages()
     {
-        $.get( 'jsp/site/Portal.jsp', { page: "wiki", view: "listImages", topic_id: ${topic.idTopic} } , function( data ){ 
+        $.get( 'jsp/site/Portal.jsp', { page: "wiki", view: "listImages", topic_id: ${topic.idTopic} } , function( data ){
             populateImages($( "#table-images" ) , data )
         });
     };
-    
+
     function populateImages(select, data) {
         select.html('');
         var items = [];
@@ -291,7 +294,7 @@
             items.push( '</a>' );
             items.push( '</td>' );
             items.push( '</tr>' );
-        });  
+        });
         select.append(items.join(''));
     };
 
@@ -301,60 +304,11 @@
 
 <script language="javascript">
 
-    $(document).ready(function() {
-        
-        // Help block management
-        $("#btn-help").click(function() {
-            $("#help").toggle("slow");
-            this.blur();
-            if ($("#main-panel").hasClass("col-sm-7"))
-            {
-                $("#main-panel").removeClass("col-sm-7");
-                $("#main-panel").addClass("col-sm-12");
-            }
-            else
-            {
-                $("#main-panel").removeClass("col-sm-12");
-                $("#main-panel").addClass("col-sm-7");
-            }
-        });
-        
-        
-        // MarkitUp
-        <#list languages_list as locale>
-        $('#wiki-${locale}').markItUp(myWikiSettings);
-        </#list>
-
-        
-        // Image upload ajax form
-        var formUploadImage = $('#ajax-form-image-upload');
-        var loaderUploadImage = $('#loader-image-upload'); // loder.gif image
-        var buttonUploadImage = $('#btn-image-upload'); // upload button
-
-        buttonUploadImage.click(function(){
-            // implement with ajaxForm Plugin
-            formUploadImage.ajaxForm({
-                beforeSend: function(){
-                    loaderUploadImage.show();
-                    buttonUploadImage.attr('disabled', 'disabled');
-                },
-                success: function(e){
-                    loaderUploadImage.hide();
-                    formUploadImage.resetForm();
-                    buttonUploadImage.removeAttr('disabled');
-                    updateImages();
-                },
-                error: function(e){
-                    buttonUploadImage.removeAttr('disabled');
-                }
-            });
-        });
-        
         // Delete Image confirmation
         $('#confirm-delete-image').on('show.bs.modal', function(e) {
             $(this).find('#id-image-to-remove').attr('value', $(e.relatedTarget).data('title'));
         });
-        
+
         // Delete image ajax form
         var formDeleteImage = $('#ajax-form-image-delete');
         var buttonDeleteImage = $('#btn-image-delete'); // delete button
@@ -364,24 +318,63 @@
             // implement with ajaxForm Plugin
             formDeleteImage.ajaxForm({
                 beforeSend: function(){
-                  buttonDeleteImage.attr('disabled', 'disabled');
+                    buttonDeleteImage.attr('disabled', 'disabled');
                 },
                 success: function(e){
-                  formDeleteImage.resetForm();
-                  buttonDeleteImage.removeAttr('disabled');
-                  modalConfirmDeleteImage.modal('hide');
-                  updateImages();
+                    formDeleteImage.resetForm();
+                    buttonDeleteImage.removeAttr('disabled');
+                    modalConfirmDeleteImage.modal('hide');
+                    updateImages();
                 },
                 error: function(e){
-                  buttonDeleteImage.removeAttr('disabled');
-                  modalConfirmDeleteImage.modal('hide');
+                    buttonDeleteImage.removeAttr('disabled');
+                    modalConfirmDeleteImage.modal('hide');
                 }
             });
         });
-         
+
         updateImages();
     });
-   
+
 </script>
+    // Image upload ajax form
+    var formUploadImage = $('#ajax-form-image-upload');
+    var loaderUploadImage = $('#loader-image-upload'); // loder.gif image
+    var buttonUploadImage = $('#btn-image-upload'); // upload button
 
+    buttonUploadImage.click(function(){
+        // implement with ajaxForm Plugin
+        formUploadImage.ajaxForm({
+            beforeSend: function(){
+                loaderUploadImage.show();
+                buttonUploadImage.attr('disabled', 'disabled');
+            },
+            success: function(e){
+                loaderUploadImage.hide();
+                formUploadImage.resetForm();
+                buttonUploadImage.removeAttr('disabled');
+                updateImages();
+            },
+            error: function(e){
+                buttonUploadImage.removeAttr('disabled');
+            }
+        });
+    });
 
+    $(document).ready(function() {
+
+        // Help block management
+        $("#btn-help").click(function () {
+            $("#help").toggle("slow");
+            this.blur();
+            if ($("#main-panel").hasClass("col-sm-7")) {
+                $("#main-panel").removeClass("col-sm-7");
+                $("#main-panel").addClass("col-sm-12");
+            } else {
+                $("#main-panel").removeClass("col-sm-12");
+                $("#main-panel").addClass("col-sm-7");
+            }
+        });
+    });
+
+</script>

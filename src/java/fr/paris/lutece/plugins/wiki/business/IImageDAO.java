@@ -52,7 +52,7 @@ public interface IImageDAO
      * @param plugin
      *            the plugin
      */
-    void insert( Image image, Plugin plugin );
+    void insert(Image image, Plugin plugin);
 
     /**
      * update record in the table.
@@ -62,7 +62,7 @@ public interface IImageDAO
      * @param plugin
      *            the plugin
      */
-    void store( Image image, Plugin plugin );
+    void store(Image image, Plugin plugin);
 
     /**
      * update image metadata in the table.
@@ -72,7 +72,7 @@ public interface IImageDAO
      * @param plugin
      *            the plugin
      */
-    void storeMetadata( Image image, Plugin plugin );
+    void storeMetadata(Image image, Plugin plugin);
 
     /**
      * Load the image Object
@@ -83,7 +83,7 @@ public interface IImageDAO
      *            the plugin
      * @return the image Object
      */
-    Image load( int nIdImage, Plugin plugin );
+    Image load(int nIdImage, Plugin plugin);
 
     /**
      * Delete the Image Object
@@ -93,7 +93,7 @@ public interface IImageDAO
      * @param plugin
      *            the plugin
      */
-    void delete( int nIdImage, Plugin plugin );
+    void delete(int nIdImage, Plugin plugin);
 
     /**
      * select all Images
@@ -102,7 +102,7 @@ public interface IImageDAO
      *            the plugin
      * @return a list of Image
      */
-    List<Image> selectAll( Plugin plugin );
+    List<Image> selectAll(Plugin plugin);
 
     /**
      * select images for a given topic
@@ -113,7 +113,7 @@ public interface IImageDAO
      *            The plugin
      * @return The list
      */
-    List<Image> selectByTopicId( int nTopicId, Plugin plugin );
+    List<Image> selectByTopicId(int nTopicId, Plugin plugin);
 
     /**
      * remove all images associated to a given topic
@@ -124,5 +124,5 @@ public interface IImageDAO
      *            the Plugin
      *
      */
-    void deleteByTopic( int nTopicId, Plugin plugin );
+    void deleteByTopic(int nTopicId, Plugin plugin);
 }

@@ -64,7 +64,7 @@ public final class TopicDAO implements ITopicDAO
     {
         int nKey;
 
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin ) )
         {
             daoUtil.executeQuery( );
 
@@ -81,7 +81,7 @@ public final class TopicDAO implements ITopicDAO
     @Override
     public void insert( Topic topic, Plugin plugin )
     {
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin ) )
         {
             topic.setIdTopic( newPrimaryKey( plugin ) );
 
@@ -104,7 +104,7 @@ public final class TopicDAO implements ITopicDAO
     {
         Topic topic = null;
 
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
         {
             daoUtil.setInt( 1, nId );
             daoUtil.executeQuery( );
@@ -131,7 +131,7 @@ public final class TopicDAO implements ITopicDAO
     @Override
     public void delete( int nTopicId, Plugin plugin )
     {
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
         {
             daoUtil.setInt( 1, nTopicId );
             daoUtil.executeUpdate( );
@@ -144,7 +144,7 @@ public final class TopicDAO implements ITopicDAO
     @Override
     public void store( Topic topic, Plugin plugin )
     {
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin ) )
         {
             daoUtil.setInt( 1, topic.getIdTopic( ) );
             daoUtil.setInt( 2, topic.getNamespace( ) );
@@ -165,7 +165,7 @@ public final class TopicDAO implements ITopicDAO
     public Collection<Topic> selectTopicsList( Plugin plugin )
     {
         Collection<Topic> topicList = new ArrayList<>( );
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
         {
             daoUtil.executeQuery( );
 
@@ -195,7 +195,7 @@ public final class TopicDAO implements ITopicDAO
     {
         Topic topic = null;
 
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_NAME, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_NAME, plugin ) )
         {
             daoUtil.setString( 1, strTopicName );
             daoUtil.executeQuery( );
@@ -215,4 +215,5 @@ public final class TopicDAO implements ITopicDAO
 
         return topic;
     }
+
 }
