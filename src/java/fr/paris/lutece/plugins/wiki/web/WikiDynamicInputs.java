@@ -158,6 +158,48 @@ public class WikiDynamicInputs
         }
     }
 
+    public static HttpServletResponse getPageHeadings( HttpServletRequest resquest, HttpServletResponse response ) throws IOException, UserNotSignedException
+    {
+        String pageName = resquest.getParameter( "pageName" );
+        String locale = resquest.getParameter( "locale" );
+        Topic topic = TopicHome.findByPageName( pageName );
+        GsonBuilder builder = new GsonBuilder( );
+        Gson gsonHeadings = builder.create( );
+
+        List<HashMap<String, String>> headings = new ArrayList<HashMap<String, String>>( );
+        try
+        {
+            if ( RoleService.hasEditRole( resquest, topic ) )
+            {
+                // get published version
+                TopicVersion topicVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
+                WikiContent wikiContent = topicVersion.getWikiContent( locale );
+                String htmlContent = SpecialChar.renderWiki( wikiContent.getHtmlWikiContent( ) );
+                Document htmlDocument = Jsoup.parse( htmlContent );
+                Element docBody = htmlDocument.body( );
+                for ( Element element : docBody.select( "h1, h2, h3, h4, h5, h6" ) )
+                {
+                    HashMap<String, String> heading = new HashMap<String, String>( );
+                    heading.put( "header_id", element.id( ) );
+                    heading.put( "header_text", element.text( ) );
+                    headings.add( heading );
+                }
+            }
+            else
+            {
+                throw new UserNotSignedException( );
+            }
+        }
+        catch( Exception e )
+        {
+            AppLogService.error( "Error saving last user opening modify topic page", e );
+
+        }
+        String res = gsonHeadings.toJson( headings );
+        response.getWriter( ).write( res );
+        return response;
+    }
+
     public static HttpServletResponse modifyPage( HttpServletRequest request, HttpServletResponse response ) throws IOException, UserNotSignedException
     {
         StringBuilder sb = new StringBuilder( );
@@ -256,13 +298,13 @@ public class WikiDynamicInputs
             response.getWriter( ).write( res );
         }
         else
-            if ( newVersion && !publish.equals( true ) )
-            {
-                result.put( "action", "savedInNewVersion" );
-                result.put( "url", SpecialChar.renderWiki( wikiPageUrl ) );
-                String res = resToJson.toJson( result );
-                response.getWriter( ).write( res );
-            }
+        if ( newVersion && !publish.equals( true ) )
+        {
+            result.put( "action", "savedInNewVersion" );
+            result.put( "url", SpecialChar.renderWiki( wikiPageUrl ) );
+            String res = resToJson.toJson( result );
+            response.getWriter( ).write( res );
+        }
         return response;
     }
 

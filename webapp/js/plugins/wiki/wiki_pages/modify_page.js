@@ -117,6 +117,13 @@ editor.insertToolbarItem({ groupIndex: 0, itemIndex: 6 }, {
     className: 'fa fa-video editor',
     style: { backgroundImage: 'none' },
 });
+editor.insertToolbarItem({ groupIndex: 0, itemIndex: 8 }, {
+    name: 'InternalLink',
+    tooltip: 'Internal Link',
+    text: 'IL',
+    className: 'fa fa-link editor',
+    style: { backgroundImage: 'none' },
+});
 
 
 document.getElementsByClassName("toastui-editor-mode-switch")[0].remove();
@@ -128,6 +135,70 @@ function closeToastUiModal() {
     for (let i = 0; i < popupNumber; i++) {
         document.getElementsByClassName("toastui-editor-popup")[i].style.display = "none";
     }
+}
+
+/* -------------- INTERNAL LINK  -------------- */
+const addInternalLinkButton = document.getElementsByClassName("fa fa-link editor")[0];
+addInternalLinkButton.addEventListener('click', function() {
+    document.getElementById("selectInnerLinkModal").style.display = "block";
+});
+let pageValueInnerLink = "";
+function loadInnerLinksHeadings(pageValue){
+    pageValueInnerLink = pageValue;
+    const queryParam = "?actionName=getPageHeadings&pageName=" + pageValue + "&locale=" + localeJs;
+    const urlHeadings = 'jsp/site/plugins/wiki/WikiDynamicInputs.jsp' + queryParam;
+    fetch( urlHeadings, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            credentials: "same-origin",
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if(data.length === 0){
+                alert("No headings found in this page");
+                return;
+            } else {
+                let selectHeadingLink = document.getElementById("selectPageHeadingLink");
+                selectHeadingLink.innerHTML = "";
+                let opt1 = document.createElement('option');
+                opt1.value = "";
+                opt1.innerText = "Select a heading";
+                opt1.selected = true;
+                opt1.disabled = true;
+                selectHeadingLink.appendChild(opt1);
+                for (let i = 0; i < data.length; i++) {
+                    let opt = document.createElement('option');
+                    opt.value = JSON.stringify(data[i]);
+                    opt.innerText = data[i].header_text;
+                    document.getElementById("selectPageHeadingLink").appendChild(opt);
+                }
+                document.getElementById("pageIsSelected").style.display = "block";
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+
+}
+
+function insertInnerLink (linkValue){
+    let linkValueJson = JSON.parse(linkValue);
+    let pageDestinationUrl = window.location.href;
+
+    // replace all char after &view= parameter from url
+    pageDestinationUrl = pageDestinationUrl.replace("view=modifyPage", "view=page");
+    pageDestinationUrl = pageDestinationUrl.replace(/&version=[0-9]*/g, "");
+    pageDestinationUrl = pageDestinationUrl.replace(/&page_name=[a-z]*/g, "");
+    pageDestinationUrl += "&";
+    pageDestinationUrl += "page_name="
+    pageDestinationUrl += pageValueInnerLink;
+    pageDestinationUrl += "#" + linkValueJson.header_id;
+    editor.insertText("[" + linkValueJson.header_text + "](" + pageDestinationUrl + ")");
+    document.getElementById("pageIsSelected").style.display = "none";
+    closeToastUiModal();
 }
 
 
