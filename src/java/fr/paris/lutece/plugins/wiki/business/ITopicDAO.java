@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.wiki.business;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 
 /**
@@ -50,7 +51,7 @@ public interface ITopicDAO
      * @param plugin
      *            the Plugin
      */
-    void insert( Topic topic, Plugin plugin );
+    void insert(Topic topic, Plugin plugin);
 
     /**
      * Update the record in the table
@@ -60,7 +61,7 @@ public interface ITopicDAO
      * @param plugin
      *            the Plugin
      */
-    void store( Topic topic, Plugin plugin );
+    void store(Topic topic, Plugin plugin);
 
     /**
      * Delete a record from the table
@@ -70,7 +71,7 @@ public interface ITopicDAO
      * @param plugin
      *            the Plugin
      */
-    void delete( int nIdTopic, Plugin plugin );
+    void delete(int nIdTopic, Plugin plugin);
 
     // /////////////////////////////////////////////////////////////////////////
     // Finders
@@ -84,7 +85,7 @@ public interface ITopicDAO
      *            the Plugin
      * @return The instance of the topic
      */
-    Topic load( int nKey, Plugin plugin );
+    Topic load(int nKey, Plugin plugin);
 
     /**
      * Load the data of all the topic objects and returns them as a collection
@@ -93,7 +94,7 @@ public interface ITopicDAO
      *            the Plugin
      * @return The collection which contains the data of all the topic objects
      */
-    Collection<Topic> selectTopicsList( Plugin plugin );
+    Collection<Topic> selectTopicsList(Plugin plugin);
 
     /**
      * Load a topic
@@ -104,5 +105,5 @@ public interface ITopicDAO
      *            The plugin
      * @return The topic
      */
-    Topic load( String strTopicName, Plugin plugin );
+    Topic load(String strTopicName, Plugin plugin);
 }

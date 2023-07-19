@@ -50,7 +50,11 @@ public final class Constants
     public static final String PARAMETER_ACTION = "action";
     public static final String PARAMETER_CONTENT = "content";
     public static final String PARAMETER_MODIFICATION_COMMENT = "modification_comment";
+    public static final String PARAMETER_HTML_CONTENT = "wiki_html_content";
+    public static final String PARAMETER_LOCAL = "locale";
     public static final String PARAMETER_PREVIOUS_VERSION_ID = "previous_version_id";
+    public static final String PARAMETER_TOPIC_VERSION_ID = "id_topic_version";
+
     public static final String PARAMETER_TOPIC_ID = "topic_id";
     public static final String PARAMETER_NEW_VERSION = "new_version";
     public static final String PARAMETER_OLD_VERSION = "old_version";
@@ -64,10 +68,15 @@ public final class Constants
     public static final String PARAMETER_IMAGE_NAME = "image_name";
     public static final String PARAMETER_IMAGE_FILE = "image_file";
     public static final String PARAMETER_IMAGE_ID = "id_image";
-    public static final String PARAMETER_TOPIC_VERSION_ID = "id_topic_version";
+    public static final String PARAMETER_CREATE_NEW_VERSION = "create_version";
+    public static final String PARAMETER_PUBLISH = "publish_version";
     public static final String MESSAGE_PAGE_NOT_EXISTS = "wiki.message.accessDenied.pageNotExists";
     public static final String MESSAGE_PAGE_ALREADY_EXISTS = "wiki.message.accessDenied.pageAlreadyExists";
     public static final String MESSAGE_USER_NOT_IN_ROLE = "wiki.message.accessDenied.userNotInRole";
+    public static final String PARENT_PAGE_NAME_IS_NULL = "none";
+    public static final String MARKDOWN_TAG = "[@MarkdownLanguage;";
+    public static final String PARAMETER_USER_NAME = "user_name";
+    public static final String MESSAGE_CANCELED_BY = "wiki.message.cancelBy";
 
     /** Private constructor */
     private Constants( )

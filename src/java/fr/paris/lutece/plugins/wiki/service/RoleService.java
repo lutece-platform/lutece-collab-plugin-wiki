@@ -99,12 +99,9 @@ public final class RoleService
      */
     public static boolean hasEditRole( HttpServletRequest request, Topic topic )
     {
-        if ( SecurityService.isAuthenticationEnable( ) )
+        if ( SecurityService.isAuthenticationEnable( ) && !Page.ROLE_NONE.equals( topic.getEditRole( ) ) )
         {
-            if ( !Page.ROLE_NONE.equals( topic.getEditRole( ) ) )
-            {
                 return SecurityService.getInstance( ).isUserInRole( request, topic.getEditRole( ) );
-            }
         }
         return true;
     }

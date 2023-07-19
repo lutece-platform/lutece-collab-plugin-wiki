@@ -34,17 +34,52 @@
 package fr.paris.lutece.plugins.wiki.utils.auth;
 
 import fr.paris.lutece.portal.service.security.LuteceUser;
+import fr.paris.lutece.portal.service.security.SecurityService;
+import fr.paris.lutece.portal.service.security.UserNotSignedException;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * WikiAnonymousUser
  */
 public class WikiAnonymousUser extends LuteceUser
 {
+    private static final long serialVersionUID = 1L;
     /**
      * Constructor
      */
     public WikiAnonymousUser( )
     {
         super( "Anonymous", new WikiAnonymousAuthentication( ) );
+    }
+
+    /**
+     * Checks the connected user
+     *
+     * @param request
+     *            The HTTP request
+     * @return The user
+     * @throws UserNotSignedException
+     *             if user not connected
+     */
+    public static LuteceUser checkUser( HttpServletRequest request ) throws UserNotSignedException
+    {
+        LuteceUser user;
+
+        if ( SecurityService.isAuthenticationEnable( ) )
+        {
+            user = SecurityService.getInstance( ).getRemoteUser( request );
+
+            if ( user == null )
+            {
+                throw new UserNotSignedException( );
+            }
+        }
+        else
+        {
+            user = new WikiAnonymousUser( );
+        }
+
+        return user;
     }
 }

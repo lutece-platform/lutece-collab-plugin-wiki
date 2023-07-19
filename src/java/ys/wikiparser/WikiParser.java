@@ -190,11 +190,11 @@ public class WikiParser
                         pp++;
                     }
                     else
-                        if ( wikiChars [pp] == '}' )
-                        { // mediawiki-table end table
-                            endTable = true;
-                            pp++;
-                        }
+                    if ( wikiChars [pp] == '}' )
+                    { // mediawiki-table end table
+                        endTable = true;
+                        pp++;
+                    }
 
                     for ( ; ( pp < wikiLength ) && ( ( wikiChars [pp] == ' ' ) || ( wikiChars [pp] == '\t' ) ); pp++ )
                         ; // skip spaces
@@ -279,27 +279,27 @@ public class WikiParser
                     return true;
                 }
                 else
-                    if ( listLevel >= 0 )
-                    { // list item - same level
+                if ( listLevel >= 0 )
+                { // list item - same level
 
-                        if ( ( listLevels [listLevel] == '>' ) || ( listLevels [listLevel] == ':' ) )
-                        {
-                            sb.append( '\n' );
-                        }
-                        else
-                            if ( listLevels [listLevel] == '!' )
-                            {
-                                sb.append( "</div>\n<div class='wiki_center'>" );
-                            }
-                            else
-                            {
-                                sb.append( "</li>\n<li>" );
-                            }
-
-                        pos = parseListItem( pos + lc );
-
-                        return true;
+                    if ( ( listLevels [listLevel] == '>' ) || ( listLevels [listLevel] == ':' ) )
+                    {
+                        sb.append( '\n' );
                     }
+                    else
+                    if ( listLevels [listLevel] == '!' )
+                    {
+                        sb.append( "</div>\n<div class='wiki_center'>" );
+                    }
+                    else
+                    {
+                        sb.append( "</li>\n<li>" );
+                    }
+
+                    pos = parseListItem( pos + lc );
+
+                    return true;
+                }
             }
         }
 
@@ -338,116 +338,116 @@ public class WikiParser
             return true;
         }
         else
-            if ( c == '{' )
-            { // nowiki-block?
+        if ( c == '{' )
+        { // nowiki-block?
 
-                if ( ( ( pos + 2 ) < wikiLength ) && ( wikiChars [pos + 1] == '{' ) && ( wikiChars [pos + 2] == '{' ) )
-                {
-                    int startNowiki = pos + 3;
-                    int endNowiki = findEndOfNowiki( startNowiki );
-                    int endPos = endNowiki + 3;
+            if ( ( ( pos + 2 ) < wikiLength ) && ( wikiChars [pos + 1] == '{' ) && ( wikiChars [pos + 2] == '{' ) )
+            {
+                int startNowiki = pos + 3;
+                int endNowiki = findEndOfNowiki( startNowiki );
+                int endPos = endNowiki + 3;
 
-                    if ( wikiText.lastIndexOf( '\n', endNowiki ) >= startNowiki )
-                    { // block <pre>
+                if ( wikiText.lastIndexOf( '\n', endNowiki ) >= startNowiki )
+                { // block <pre>
 
-                        if ( wikiChars [startNowiki] == '\n' )
-                        {
-                            startNowiki++; // skip the very first '\n'
-                        }
-
-                        if ( wikiChars [endNowiki - 1] == '\n' )
-                        {
-                            endNowiki--; // omit the very last '\n'
-                        }
-
-                        // sb.append( "<pre>" );
-                        appendNowiki( wikiText.substring( startNowiki, endNowiki ) );
-                        // sb.append( "</pre>\n" );
-                        pos = endPos;
-
-                        return true;
+                    if ( wikiChars [startNowiki] == '\n' )
+                    {
+                        startNowiki++; // skip the very first '\n'
                     }
 
-                    // else inline <nowiki> - proceed to regular paragraph handling
+                    if ( wikiChars [endNowiki - 1] == '\n' )
+                    {
+                        endNowiki--; // omit the very last '\n'
+                    }
+
+                    // sb.append( "<pre>" );
+                    appendNowiki( wikiText.substring( startNowiki, endNowiki ) );
+                    // sb.append( "</pre>\n" );
+                    pos = endPos;
+
+                    return true;
                 }
-                else
-                    if ( ( ( pos + 1 ) < wikiLength ) && ( wikiChars [pos + 1] == '|' ) )
-                    { // mediawiki-table?
 
-                        int pp;
-
-                        for ( pp = pos + 2; ( pp < wikiLength ) && ( ( wikiChars [pp] == ' ' ) || ( wikiChars [pp] == '\t' ) ); pp++ )
-                            ; // skip spaces
-
-                        if ( ( pp == wikiLength ) || ( wikiChars [pp] == '\n' ) )
-                        { // yes, it's start of a table
-                            sb.append( "<div class=\"").append( _strParentTableClass ).append( "\" >" ).append("<table class=\"" ).append( _strTableClass ).append( "\"><tr><td>" );
-                            mediawikiTableLevel++;
-                            pos = pp + 1;
-
-                            return pp < wikiLength;
-                        }
-                    }
+                // else inline <nowiki> - proceed to regular paragraph handling
             }
             else
-                if ( ( c == '-' ) && wikiText.startsWith( "----", pos ) )
-                {
-                    int p;
+            if ( ( ( pos + 1 ) < wikiLength ) && ( wikiChars [pos + 1] == '|' ) )
+            { // mediawiki-table?
 
-                    for ( p = pos + 4; ( p < wikiLength ) && ( ( wikiChars [p] == ' ' ) || ( wikiChars [p] == '\t' ) ); p++ )
-                        ; // skip spaces
+                int pp;
 
-                    if ( ( p == wikiLength ) || ( wikiChars [p] == '\n' ) )
-                    {
-                        sb.append( "\n<hr/>\n" );
-                        pos = p;
+                for ( pp = pos + 2; ( pp < wikiLength ) && ( ( wikiChars [pp] == ' ' ) || ( wikiChars [pp] == '\t' ) ); pp++ )
+                    ; // skip spaces
 
-                        return true;
-                    }
+                if ( ( pp == wikiLength ) || ( wikiChars [pp] == '\n' ) )
+                { // yes, it's start of a table
+                    sb.append( "<div class=\"").append( _strParentTableClass ).append( "\" >" ).append("<table class=\"" ).append( _strTableClass ).append( "\"><tr><td>" );
+                    mediawikiTableLevel++;
+                    pos = pp + 1;
+
+                    return pp < wikiLength;
+                }
+            }
+        }
+        else
+        if ( ( c == '-' ) && wikiText.startsWith( "----", pos ) )
+        {
+            int p;
+
+            for ( p = pos + 4; ( p < wikiLength ) && ( ( wikiChars [p] == ' ' ) || ( wikiChars [p] == '\t' ) ); p++ )
+                ; // skip spaces
+
+            if ( ( p == wikiLength ) || ( wikiChars [p] == '\n' ) )
+            {
+                sb.append( "\n<hr/>\n" );
+                pos = p;
+
+                return true;
+            }
+        }
+        else
+        if ( c == '~' )
+        { // block-level escaping: '*' '-' '#' '>' ':' '!' '|' '='
+
+            if ( ( pos + 1 ) < wikiLength )
+            {
+                char nc = wikiChars [pos + 1];
+
+                if ( ( nc == '>' ) || ( nc == ':' ) || ( nc == '-' ) || ( nc == '|' ) || ( nc == '=' ) || ( nc == '!' ) )
+                { // can't be inline markup
+                    pos++; // skip '~' and proceed to regular paragraph handling
+                    c = nc;
                 }
                 else
-                    if ( c == '~' )
-                    { // block-level escaping: '*' '-' '#' '>' ':' '!' '|' '='
+                if ( ( nc == '*' ) || ( nc == '#' ) )
+                { // might be inline markup so need to double check
 
-                        if ( ( pos + 1 ) < wikiLength )
-                        {
-                            char nc = wikiChars [pos + 1];
+                    char nnc = ( ( pos + 2 ) < wikiLength ) ? wikiChars [pos + 2] : 0;
 
-                            if ( ( nc == '>' ) || ( nc == ':' ) || ( nc == '-' ) || ( nc == '|' ) || ( nc == '=' ) || ( nc == '!' ) )
-                            { // can't be inline markup
-                                pos++; // skip '~' and proceed to regular paragraph handling
-                                c = nc;
-                            }
-                            else
-                                if ( ( nc == '*' ) || ( nc == '#' ) )
-                                { // might be inline markup so need to double check
-
-                                    char nnc = ( ( pos + 2 ) < wikiLength ) ? wikiChars [pos + 2] : 0;
-
-                                    if ( nnc != nc )
-                                    {
-                                        pos++; // skip '~' and proceed to regular paragraph handling
-                                        c = nc;
-                                    }
-
-                                    // otherwise escaping will be done at line level
-                                }
-                                else
-                                    if ( nc == '{' )
-                                    { // might be inline {{{ markup so need to double check
-
-                                        char nnc = ( ( pos + 2 ) < wikiLength ) ? wikiChars [pos + 2] : 0;
-
-                                        if ( nnc == '|' )
-                                        { // mediawiki-table?
-                                            pos++; // skip '~' and proceed to regular paragraph handling
-                                            c = nc;
-                                        }
-
-                                        // otherwise escaping will be done at line level
-                                    }
-                        }
+                    if ( nnc != nc )
+                    {
+                        pos++; // skip '~' and proceed to regular paragraph handling
+                        c = nc;
                     }
+
+                    // otherwise escaping will be done at line level
+                }
+                else
+                if ( nc == '{' )
+                { // might be inline {{{ markup so need to double check
+
+                    char nnc = ( ( pos + 2 ) < wikiLength ) ? wikiChars [pos + 2] : 0;
+
+                    if ( nnc == '|' )
+                    { // mediawiki-table?
+                        pos++; // skip '~' and proceed to regular paragraph handling
+                        c = nc;
+                    }
+
+                    // otherwise escaping will be done at line level
+                }
+            }
+        }
 
         sb.append( "<p>" );
         pos = parseItem( pos, null, ContextType.PARAGRAPH );
@@ -584,11 +584,11 @@ public class WikiParser
                     endOfRow = true;
                 }
                 else
-                    if ( wikiChars [start] == '\n' )
-                    {
-                        start++; // eat '\n'
-                        endOfRow = true;
-                    }
+                if ( wikiChars [start] == '\n' )
+                {
+                    start++; // eat '\n'
+                    endOfRow = true;
+                }
             }
             catch( EndOfContextException e )
             {
@@ -787,7 +787,7 @@ public class WikiParser
                         }
 
                         if ( /* context==ContextType.LIST_ITEM */
-                        ( listLevel >= 0 ) && ( c == listLevels [0] ) )
+                                ( listLevel >= 0 ) && ( c == listLevels [0] ) )
                         {
                             // c matches current list's first level, so it must be new list item
                             throw new EndOfContextException( p );
@@ -796,32 +796,32 @@ public class WikiParser
                         // otherwise it must be just formatting sequence => no break of context
                     }
                     else
-                        if ( c == '=' )
-                        { // header
-                            throw new EndOfContextException( p );
-                        }
-                        else
-                            if ( c == '|' )
-                            { // table or mediawiki-table
-                                throw new EndOfContextException( p );
+                    if ( c == '=' )
+                    { // header
+                        throw new EndOfContextException( p );
+                    }
+                    else
+                    if ( c == '|' )
+                    { // table or mediawiki-table
+                        throw new EndOfContextException( p );
+                    }
+                    else
+                    if ( c == '{' )
+                    { // mediawiki-table?
+
+                        if ( ( ( p + 1 ) < end ) && ( wikiChars [p + 1] == '|' ) )
+                        {
+                            int pp;
+
+                            for ( pp = p + 2; ( pp < end ) && ( ( wikiChars [pp] == ' ' ) || ( wikiChars [pp] == '\t' ) ); pp++ )
+                                ; // skip spaces
+
+                            if ( ( pp == end ) || ( wikiChars [pp] == '\n' ) )
+                            {
+                                throw new EndOfContextException( p ); // yes, it's start of a table
                             }
-                            else
-                                if ( c == '{' )
-                                { // mediawiki-table?
-
-                                    if ( ( ( p + 1 ) < end ) && ( wikiChars [p + 1] == '|' ) )
-                                    {
-                                        int pp;
-
-                                        for ( pp = p + 2; ( pp < end ) && ( ( wikiChars [pp] == ' ' ) || ( wikiChars [pp] == '\t' ) ); pp++ )
-                                            ; // skip spaces
-
-                                        if ( ( pp == end ) || ( wikiChars [pp] == '\n' ) )
-                                        {
-                                            throw new EndOfContextException( p ); // yes, it's start of a table
-                                        }
-                                    }
-                                }
+                        }
+                    }
 
                     // if none matched add '\n' to text buffer
                     tb.append( '\n' );
@@ -829,14 +829,14 @@ public class WikiParser
                     // p and c already shifted past the '\n' and whitespace after, so go on
                 }
                 else
-                    if ( c == '|' )
+                if ( c == '|' )
+                {
+                    if ( context == ContextType.TABLE_CELL )
                     {
-                        if ( context == ContextType.TABLE_CELL )
-                        {
-                            p++;
-                            throw new EndOfSubContextException( p );
-                        }
+                        p++;
+                        throw new EndOfSubContextException( p );
                     }
+                }
 
                 int formatType;
 
@@ -878,7 +878,7 @@ public class WikiParser
                                 if ( context == ContextType.PARAGRAPH )
                                 {
                                     sb.append( "<p>" ); // continue the paragraph
-                                                        // if (context==ContextType.NOWIKI_BLOCK) return p; // in this context return immediately after nowiki
+                                    // if (context==ContextType.NOWIKI_BLOCK) return p; // in this context return immediately after nowiki
                                 }
                             }
                             else
@@ -889,207 +889,207 @@ public class WikiParser
                             continue;
                         }
                         else
-                            if ( ( p + 2 ) < end )
-                            { // {{image}}
+                        if ( ( p + 2 ) < end )
+                        { // {{image}}
 
-                                int endImg = wikiText.indexOf( "}}", p + 2 );
+                            int endImg = wikiText.indexOf( "}}", p + 2 );
 
-                                if ( ( endImg >= 0 ) && ( endImg < end ) )
-                                {
-                                    appendText( tb.toString( ) );
-                                    tb.delete( 0, tb.length( ) ); // flush text buffer
-                                    appendImage( wikiText.substring( p + 2, endImg ) );
-                                    p = endImg + 2;
+                            if ( ( endImg >= 0 ) && ( endImg < end ) )
+                            {
+                                appendText( tb.toString( ) );
+                                tb.delete( 0, tb.length( ) ); // flush text buffer
+                                appendImage( wikiText.substring( p + 2, endImg ) );
+                                p = endImg + 2;
 
-                                    continue;
-                                }
+                                continue;
                             }
+                        }
                     }
                 }
                 else
-                    if ( c == '[' )
+                if ( c == '[' )
+                {
+                    if ( ( ( p + 1 ) < end ) && ( wikiChars [p + 1] == '[' ) )
+                    { // [[link]]
+
+                        int endLink = wikiText.indexOf( "]]", p + 2 );
+
+                        if ( ( endLink >= 0 ) && ( endLink < end ) )
+                        {
+                            appendText( tb.toString( ) );
+                            tb.delete( 0, tb.length( ) ); // flush text buffer
+                            appendLink( wikiText.substring( p + 2, endLink ) );
+                            p = endLink + 2;
+
+                            continue;
+                        }
+                    }
+                }
+                else
+                if ( c == '\\' )
+                {
+                    if ( ( ( p + 1 ) < end ) && ( wikiChars [p + 1] == '\\' ) )
+                    { // \\ = <br/>
+                        appendText( tb.toString( ) );
+                        tb.delete( 0, tb.length( ) ); // flush text buffer
+                        sb.append( "<br/>" );
+                        p += 2;
+
+                        continue;
+                    }
+                }
+                else
+                if ( c == '<' )
+                {
+                    if ( ( ( p + 1 ) < end ) && ( wikiChars [p + 1] == '<' ) )
                     {
-                        if ( ( ( p + 1 ) < end ) && ( wikiChars [p + 1] == '[' ) )
-                        { // [[link]]
+                        if ( ( ( p + 2 ) < end ) && ( wikiChars [p + 2] == '<' ) )
+                        { // <<<macro>>>
 
-                            int endLink = wikiText.indexOf( "]]", p + 2 );
+                            int endMacro = wikiText.indexOf( ">>>", p + 3 );
 
-                            if ( ( endLink >= 0 ) && ( endLink < end ) )
+                            if ( ( endMacro >= 0 ) && ( endMacro < end ) )
                             {
                                 appendText( tb.toString( ) );
                                 tb.delete( 0, tb.length( ) ); // flush text buffer
-                                appendLink( wikiText.substring( p + 2, endLink ) );
-                                p = endLink + 2;
+                                appendMacro( wikiText.substring( p + 3, endMacro ) );
+                                p = endMacro + 3;
 
                                 continue;
                             }
                         }
                     }
-                    else
-                        if ( c == '\\' )
-                        {
-                            if ( ( ( p + 1 ) < end ) && ( wikiChars [p + 1] == '\\' ) )
-                            { // \\ = <br/>
-                                appendText( tb.toString( ) );
-                                tb.delete( 0, tb.length( ) ); // flush text buffer
-                                sb.append( "<br/>" );
-                                p += 2;
+                }
+                else
+                if ( ( formatType = FORMAT_CHARS.indexOf( c ) ) >= 0 )
+                {
+                    if ( ( ( p + 1 ) < end ) && ( wikiChars [p + 1] == c ) )
+                    {
+                        appendText( tb.toString( ) );
+                        tb.delete( 0, tb.length( ) ); // flush text buffer
+
+                        if ( c == '/' )
+                        { // special case for "//" - check if it is part of URL (scheme://etc)
+
+                            int [ ] uriOffs = checkURI( p, start, end );
+
+                            if ( uriOffs != null )
+                            {
+                                int pb = uriOffs [0];
+                                int pe = uriOffs [1];
+
+                                if ( ( pb > start ) && ( wikiChars [pb - 1] == '~' ) )
+                                {
+                                    sb.delete( sb.length( ) - ( p - pb + 1 ), sb.length( ) ); // roll back URL + tilde
+                                    sb.append( escapeHTML( wikiText.substring( pb, pe ) ) );
+                                }
+                                else
+                                {
+                                    sb.delete( sb.length( ) - ( p - pb ), sb.length( ) ); // roll back URL
+                                    appendLink( wikiText.substring( pb, pe ) );
+                                }
+
+                                p = pe;
 
                                 continue;
                             }
                         }
-                        else
-                            if ( c == '<' )
-                            {
-                                if ( ( ( p + 1 ) < end ) && ( wikiChars [p + 1] == '<' ) )
-                                {
-                                    if ( ( ( p + 2 ) < end ) && ( wikiChars [p + 2] == '<' ) )
-                                    { // <<<macro>>>
 
-                                        int endMacro = wikiText.indexOf( ">>>", p + 3 );
+                        sb.append( FORMAT_TAG_OPEN [formatType] );
 
-                                        if ( ( endMacro >= 0 ) && ( endMacro < end ) )
-                                        {
-                                            appendText( tb.toString( ) );
-                                            tb.delete( 0, tb.length( ) ); // flush text buffer
-                                            appendMacro( wikiText.substring( p + 3, endMacro ) );
-                                            p = endMacro + 3;
+                        try
+                        {
+                            p = parseItemThrow( p + 2, FORMAT_DELIM [formatType], context );
+                        }
+                        finally
+                        {
+                            sb.append( FORMAT_TAG_CLOSE [formatType] );
+                        }
 
-                                            continue;
-                                        }
-                                    }
-                                }
+                        continue;
+                    }
+                }
+                else
+                if ( c == '~' )
+                { // escape
+                    // most start line escapes are dealt with in parseBlock()
+
+                    if ( atLineStart )
+                    {
+                        // same as block-level escaping: '*' '-' '#' '>' ':' '|' '='
+                        if ( ( p + 1 ) < end )
+                        {
+                            char nc = wikiChars [p + 1];
+
+                            if ( ( nc == '>' ) || ( nc == ':' ) || ( nc == '-' ) || ( nc == '|' ) || ( nc == '=' ) || ( nc == '!' ) )
+                            { // can't be inline markup
+                                tb.append( nc );
+                                p += 2; // skip '~' and nc
+
+                                continue nextChar;
                             }
                             else
-                                if ( ( formatType = FORMAT_CHARS.indexOf( c ) ) >= 0 )
+                            if ( ( nc == '*' ) || ( nc == '#' ) )
+                            { // might be inline markup so need to double check
+
+                                char nnc = ( ( p + 2 ) < end ) ? wikiChars [p + 2] : 0;
+
+                                if ( nnc != nc )
                                 {
-                                    if ( ( ( p + 1 ) < end ) && ( wikiChars [p + 1] == c ) )
-                                    {
-                                        appendText( tb.toString( ) );
-                                        tb.delete( 0, tb.length( ) ); // flush text buffer
+                                    tb.append( nc );
+                                    p += 2; // skip '~' and nc
 
-                                        if ( c == '/' )
-                                        { // special case for "//" - check if it is part of URL (scheme://etc)
-
-                                            int [ ] uriOffs = checkURI( p, start, end );
-
-                                            if ( uriOffs != null )
-                                            {
-                                                int pb = uriOffs [0];
-                                                int pe = uriOffs [1];
-
-                                                if ( ( pb > start ) && ( wikiChars [pb - 1] == '~' ) )
-                                                {
-                                                    sb.delete( sb.length( ) - ( p - pb + 1 ), sb.length( ) ); // roll back URL + tilde
-                                                    sb.append( escapeHTML( wikiText.substring( pb, pe ) ) );
-                                                }
-                                                else
-                                                {
-                                                    sb.delete( sb.length( ) - ( p - pb ), sb.length( ) ); // roll back URL
-                                                    appendLink( wikiText.substring( pb, pe ) );
-                                                }
-
-                                                p = pe;
-
-                                                continue;
-                                            }
-                                        }
-
-                                        sb.append( FORMAT_TAG_OPEN [formatType] );
-
-                                        try
-                                        {
-                                            p = parseItemThrow( p + 2, FORMAT_DELIM [formatType], context );
-                                        }
-                                        finally
-                                        {
-                                            sb.append( FORMAT_TAG_CLOSE [formatType] );
-                                        }
-
-                                        continue;
-                                    }
+                                    continue nextChar;
                                 }
-                                else
-                                    if ( c == '~' )
-                                    { // escape
-                                      // most start line escapes are dealt with in parseBlock()
 
-                                        if ( atLineStart )
-                                        {
-                                            // same as block-level escaping: '*' '-' '#' '>' ':' '|' '='
-                                            if ( ( p + 1 ) < end )
-                                            {
-                                                char nc = wikiChars [p + 1];
+                                // otherwise escaping will be done at line level
+                            }
+                            else
+                            if ( nc == '{' )
+                            { // might be inline {{{ markup so need to double check
 
-                                                if ( ( nc == '>' ) || ( nc == ':' ) || ( nc == '-' ) || ( nc == '|' ) || ( nc == '=' ) || ( nc == '!' ) )
-                                                { // can't be inline markup
-                                                    tb.append( nc );
-                                                    p += 2; // skip '~' and nc
+                                char nnc = ( ( p + 2 ) < end ) ? wikiChars [p + 2] : 0;
 
-                                                    continue nextChar;
-                                                }
-                                                else
-                                                    if ( ( nc == '*' ) || ( nc == '#' ) )
-                                                    { // might be inline markup so need to double check
+                                if ( nnc == '|' )
+                                { // mediawiki-table?
+                                    tb.append( nc );
+                                    tb.append( nnc );
+                                    p += 3; // skip '~', nc and nnc
 
-                                                        char nnc = ( ( p + 2 ) < end ) ? wikiChars [p + 2] : 0;
+                                    continue nextChar;
+                                }
 
-                                                        if ( nnc != nc )
-                                                        {
-                                                            tb.append( nc );
-                                                            p += 2; // skip '~' and nc
+                                // otherwise escaping will be done as usual at line level
+                            }
+                        }
+                    }
 
-                                                            continue nextChar;
-                                                        }
+                    for ( String e : ESCAPED_INLINE_SEQUENCES )
+                    {
+                        if ( wikiText.startsWith( e, p + 1 ) )
+                        {
+                            tb.append( e );
+                            p += ( 1 + e.length( ) );
 
-                                                        // otherwise escaping will be done at line level
-                                                    }
-                                                    else
-                                                        if ( nc == '{' )
-                                                        { // might be inline {{{ markup so need to double check
+                            continue nextChar;
+                        }
+                    }
+                }
+                else
+                if ( c == '-' )
+                { // ' -- ' => &ndash;
 
-                                                            char nnc = ( ( p + 2 ) < end ) ? wikiChars [p + 2] : 0;
+                    if ( ( ( p + 2 ) < end ) && ( wikiChars [p + 1] == '-' ) && ( wikiChars [p + 2] == ' ' ) && ( p > start )
+                            && ( wikiChars [p - 1] == ' ' ) )
+                    {
+                        // appendText(tb.toString()); tb.delete(0, tb.length()); // flush text buffer
+                        // sb.append("&ndash; ");
+                        tb.append( "&ndash; " ); // &ndash; = "\u2013 "
+                        p += 3;
 
-                                                            if ( nnc == '|' )
-                                                            { // mediawiki-table?
-                                                                tb.append( nc );
-                                                                tb.append( nnc );
-                                                                p += 3; // skip '~', nc and nnc
-
-                                                                continue nextChar;
-                                                            }
-
-                                                            // otherwise escaping will be done as usual at line level
-                                                        }
-                                            }
-                                        }
-
-                                        for ( String e : ESCAPED_INLINE_SEQUENCES )
-                                        {
-                                            if ( wikiText.startsWith( e, p + 1 ) )
-                                            {
-                                                tb.append( e );
-                                                p += ( 1 + e.length( ) );
-
-                                                continue nextChar;
-                                            }
-                                        }
-                                    }
-                                    else
-                                        if ( c == '-' )
-                                        { // ' -- ' => &ndash;
-
-                                            if ( ( ( p + 2 ) < end ) && ( wikiChars [p + 1] == '-' ) && ( wikiChars [p + 2] == ' ' ) && ( p > start )
-                                                    && ( wikiChars [p - 1] == ' ' ) )
-                                            {
-                                                // appendText(tb.toString()); tb.delete(0, tb.length()); // flush text buffer
-                                                // sb.append("&ndash; ");
-                                                tb.append( "&ndash; " ); // &ndash; = "\u2013 "
-                                                p += 3;
-
-                                                continue;
-                                            }
-                                        }
+                        continue;
+                    }
+                }
 
                 tb.append( c );
                 p++;
