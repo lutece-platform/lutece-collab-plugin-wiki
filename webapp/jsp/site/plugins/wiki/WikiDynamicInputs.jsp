@@ -7,7 +7,10 @@
     {
         WikiDynamicInputs.autoSaveWiki( request );
     }
-
+  else if("getPageHeadings".equals(request.getParameter("actionName")))
+    {
+        WikiDynamicInputs.getPageHeadings( request, response );
+    }
     else if("lastOpenModify".equals(request.getParameter("actionName")))
     {
         WikiDynamicInputs.updateLastOpenModifyTopicPage( request );
