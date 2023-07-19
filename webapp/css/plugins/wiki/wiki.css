@@ -59,20 +59,6 @@ span.diff-html-conflict {
 .wiki_underline {
     text-decoration: underline;
 }
-/* class for align content  editor */
-
-.wiki-align-content-val-l {
-    text-align: left;
-}
-.wiki-align-content-val-r {
-    text-align: right;
-}
-.wiki-align-content-val-c {
-    text-align: center;
-}
-.wiki-align-content-val-j {
-    text-align: justify;
-}
 
 /* class if there is a toc */
 
@@ -146,3 +132,17 @@ margin-left: 20%;
     height: 100%;
 }
 
+/* class for align content  editor */
+
+.wiki-align-content-val-l {
+    text-align: left;
+}
+.wiki-align-content-val-r {
+    text-align: right;
+}
+.wiki-align-content-val-c {
+    text-align: center;
+}
+.wiki-align-content-val-j {
+    text-align: justify;
+}

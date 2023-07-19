@@ -117,6 +117,13 @@ editor.insertToolbarItem({ groupIndex: 0, itemIndex: 6 }, {
     className: 'fa fa-video editor',
     style: { backgroundImage: 'none' },
 });
+editor.insertToolbarItem({ groupIndex: 0, itemIndex: 7 }, {
+    name: 'textAlignment',
+    tooltip: 'Text Alignment',
+    text: 'TA',
+    className: 'fa fa-align-left editor',
+    style: { backgroundImage: 'none' },
+});
 editor.insertToolbarItem({ groupIndex: 0, itemIndex: 8 }, {
     name: 'InternalLink',
     tooltip: 'Internal Link',
@@ -143,7 +150,32 @@ function closeToastUiModal() {
         document.getElementsByClassName("toastui-editor-popup")[i].style.display = "none";
     }
 }
+/* -------------- Text Alignment -------------- */
+const textAlignmentButton = document.getElementsByClassName("fa fa-align-left editor")[0];
+textAlignmentButton.addEventListener('click', function() {
+    document.getElementById("selectTextAlignmentModal").style.display = "block";
+});
+function selectTextAlignment(alignmentValue) {
+    let el = document.getElementsByClassName("toastui-editor-md-container")[0];
+    for(let i = 0; i < el.classList.length; i++){
+        if(el.classList[i].indexOf("wiki-align-content-val-") > -1){
+            el.classList.remove(el.classList[i]);
+        }
+    }
+    document.getElementsByClassName("toastui-editor-md-container")[0].classList.add(alignmentValue);
 
+    const contentToInsert = '<span class="' + alignmentValue + '"></span>';
+    editor.insertText("$$span\n"+contentToInsert+ "\n$$");
+    closeToastUiModal();
+}
+
+
+window.addEventListener("load", (event) => {
+    if(document.getElementsByClassName('ProseMirror')[0].innerText.indexOf("wiki-align-content-val-") > -1){
+        const alignmentValue = document.getElementsByClassName('ProseMirror')[0].innerText.split("wiki-align-content-val-")[1].substring(0,1);
+        document.getElementsByClassName("toastui-editor-md-container")[0].classList.add("wiki-align-content-val-"+alignmentValue);
+    }
+});
 /* -------------- INTERNAL LINK  -------------- */
 const addInternalLinkButton = document.getElementsByClassName("fa fa-link editor")[0];
 addInternalLinkButton.addEventListener('click', function() {
