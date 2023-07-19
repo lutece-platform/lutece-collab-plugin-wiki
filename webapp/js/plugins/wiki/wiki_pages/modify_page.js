@@ -356,6 +356,54 @@ function selectJumbotron(jumbotronValue) {
     editor.insertText("$$span\n"+bootStrap5Jumbotron+ "\n$$");
     closeToastUiModal();
 }
+/* -------------- DARK MODE -------------- */
+const darkModeButton = document.getElementsByClassName("fa fa-moon editor")[0];
+darkModeButton.addEventListener('click', function() {
+    document.getElementById("darkModeSwitch").style.display = "block";
+    const htmlToInsert = '<span class="darkModeClassOn"></span>';
+    editor.insertText("$$span\n"+htmlToInsert+ "\n$$");
+});
+
+function toggleDarkMode() {
+    let darkMode = localStorage.getItem('darkMode');
+    let darkModeId = document.getElementById('darkModeId');
+    let darkModeLabel = document.getElementById('darkModeLabel');
+    if (darkMode === 'true') {
+        darkModeId.checked = false;
+        darkModeLabel.innerHTML = '<span class="fa fa-sun fa-2x"></span>';
+        document.body.classList.remove('darkmode');
+        document.getElementById('editor').classList.remove('toastui-editor-dark');
+
+        localStorage.setItem('darkMode', 'false');
+    } else {
+        darkModeId.checked = true;
+        darkModeLabel.innerHTML = '<span class="fa fa-moon fa-2x"></span>';
+        document.body.classList.add('darkmode');
+        document.getElementById('editor').classList.add('toastui-editor-dark');
+        localStorage.setItem('darkMode', 'true');
+    }
+}
+
+window.addEventListener("load", (event) => {
+    if(document.getElementsByClassName('ProseMirror')[0].innerText.indexOf("darkModeClassOn") > -1){
+        document.getElementById("darkModeSwitch").style.display = "block";
+    }
+    let darkMode = localStorage.getItem('darkMode');
+    let darkModeId = document.getElementById('darkModeId');
+    let darkModeLabel = document.getElementById('darkModeLabel');
+    if (darkMode === 'true') {
+        darkModeId.checked = true;
+        darkModeLabel.innerHTML = '<span class="fa fa-moon fa-2x"></span>';
+        document.body.classList.add('darkmode');
+        document.getElementById('editor').classList.add('toastui-editor-dark');
+
+    } else {
+        darkModeId.checked = false;
+        darkModeLabel.innerHTML = '<span class="fa fa-sun fa-2x"></span>';
+        document.body.classList.remove('darkmode');
+        document.getElementById('editor').classList.remove('toastui-editor-dark');
+    }
+});
 
 
 /* -------------- TABLE OF CONTENT -------------- */

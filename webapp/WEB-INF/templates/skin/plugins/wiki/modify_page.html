@@ -95,7 +95,18 @@
         </div>
     </div>
 </div>
-
+<!------------------- DARK MODE -------------------------->
+<div id="darkModeSwitch" style="display: none">
+    <div  style="display: flex; justify-content: end;  flex-direction: row; margin-top: 15px" >
+        <div style="margin-right: 10px">
+            <div id="darkModeLabel"><span class="fa fa-sun fa-2x"></span></div>
+        </div>
+        <label class="switch">
+            <input  id="darkModeId"   type="checkbox"  onchange="toggleDarkMode()" >
+            <span class="slider round"></span>
+        </label>
+    </div>
+</div>
 <div class="row">
     <div id="main-panel" class="col-sm-12">
         <div class="alert alert-error" id="div-confirm-delete" style="display:none">
