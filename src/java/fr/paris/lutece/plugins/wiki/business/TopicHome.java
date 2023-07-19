@@ -135,4 +135,14 @@ public final class TopicHome
     {
         return _dao.selectTopicsList( _plugin );
     }
+
+    /*
+     * record the last time view modify page has been open and by who
+     */
+    public static void updateLastOpenModifyPage( int topicId, User user )
+    {
+        Timestamp date = new Timestamp( System.currentTimeMillis( ) );
+        String userName = user.getFirstName( ) + "_" + user.getLastName( );
+        _dao.updateLastOpenModifyPage( topicId, userName, date, _plugin );
+    }
 }

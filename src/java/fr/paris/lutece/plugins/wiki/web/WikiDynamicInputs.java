@@ -126,6 +126,37 @@ public class WikiDynamicInputs
         return gson.toJson( saveSuccess );
     }
 
+    public static void updateLastOpenModifyTopicPage( HttpServletRequest request ) throws IOException, UserNotSignedException
+    {
+        StringBuilder sb = new StringBuilder( );
+        BufferedReader reader = request.getReader( );
+        String line;
+        while ( ( line = reader.readLine( ) ) != null )
+        {
+            sb.append( line );
+        }
+        String requestBody = sb.toString( );
+        final Gson gson = new GsonBuilder( ).setPrettyPrinting( ).create( );
+        final int topicId = gson.fromJson( requestBody, int.class );
+        Topic topic = TopicHome.findByPrimaryKey( topicId );
+        try
+        {
+            if ( RoleService.hasEditRole( request, topic ) )
+            {
+                User user = WikiAnonymousUser.checkUser( request );
+                TopicHome.updateLastOpenModifyPage( topic.getIdTopic( ), user );
+            }
+            else
+            {
+                throw new UserNotSignedException( );
+            }
+        }
+        catch( Exception e )
+        {
+            AppLogService.error( "Error saving last user opening modify topic page", e );
+
+        }
+    }
 
     public static HttpServletResponse modifyPage( HttpServletRequest request, HttpServletResponse response ) throws IOException, UserNotSignedException
     {

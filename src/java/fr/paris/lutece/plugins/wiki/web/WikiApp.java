@@ -470,6 +470,29 @@ public class WikiApp extends MVCApplication
         {
             topic = getTopic( request, strPageName, MODE_EDIT );
         }
+        // get last user present on modify page for this topic
+        String lastUser = topic.getModifyPageOpenLastBy( );
+        Timestamp lastDate = topic.getModifyPageOpenAt( );
+        // if it's been less than 17 seconds since the last user, we cannot edit
+        if ( lastUser != null && lastDate != null && !lastUser.equals( user.getName( ) + "_" + user.getLastName( ) ) )
+        {
+            Timestamp now = new Timestamp( System.currentTimeMillis( ) );
+            long diff = now.getTime( ) - lastDate.getTime( );
+            if ( diff < 17000 )
+            {
+                Map<String, String> mapParameters = new ConcurrentHashMap<>( );
+                mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+                mapParameters.put( Constants.PARAMETER_USER_NAME, lastUser );
+                return redirect( request, VIEW_SOMEBODY_IS_EDITING, mapParameters );
+            }
+            else
+            {
+                topic.setModifyPageOpenLastBy( user.getName( ) + "_" + user.getLastName( ) );
+                Timestamp date = new Timestamp( System.currentTimeMillis( ) );
+                topic.setModifyPageOpenAt( date );
+                TopicHome.updateLastOpenModifyPage( topic.getIdTopic( ), user );
+            }
+        }
         String strLocale = WikiLocaleService.getDefaultLanguage( );
         try {
             if( request.getParameter( Constants.PARAMETER_LOCAL ) != null )
@@ -542,6 +565,22 @@ public class WikiApp extends MVCApplication
         page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
         page.setExtendedPathLabel( getPageExtendedPath( topic, request ) );
 
+        return page;
+    }
+
+    @View( VIEW_SOMEBODY_IS_EDITING )
+    public XPage getSomebodyIsEditing( HttpServletRequest request ) throws SiteMessageException, UserNotSignedException
+    {
+        WikiAnonymousUser.checkUser( request );
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        String strUsername = request.getParameter( Constants.PARAMETER_USER_NAME );
+        Topic topic = getTopic( request, strPageName, MODE_EDIT );
+        Map<String, Object> model = getModel( );
+        model.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+        model.put( Constants.PARAMETER_USER_NAME, strUsername );
+        XPage page = getXPage( TEMPLATE_SOMEBODY_IS_EDITING, request.getLocale( ), model );
+        page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
+        page.setExtendedPathLabel( getPageExtendedPath( topic, request ) );
         return page;
     }
 

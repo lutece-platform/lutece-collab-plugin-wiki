@@ -508,6 +508,31 @@ function callInputs(saveType) {
 }
 
 
+
+/*_________________________ REGISTER LAST USER ON THIS PAGE ___________________________*/
+function saveLastUserOnModifyPage(){
+    const topic_id = document.getElementById("topic_id").value;
+
+    fetch('jsp/site/plugins/wiki/WikiDynamicInputs.jsp?actionName=lastOpenModify', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            credentials: "same-origin"
+        },
+        body: JSON.stringify(topic_id)
+    });
+}
+// do when page is loaded
+document.onreadystatechange = function() {
+    if (document.readyState === 'complete') {
+        setInterval(function (){
+                saveLastUserOnModifyPage();}
+            , 10000);
+    }
+}
+
+
 /*_________________________ ON LOAD REMOVE UNDERLINE ADDED BY THE HTML TO MARKDOWN CONVERTION ___________________________*/
 function removeUnderLineHeadings (underLineWithEqual){
     for(let i = 0; i < underLineWithEqual.length; i++){

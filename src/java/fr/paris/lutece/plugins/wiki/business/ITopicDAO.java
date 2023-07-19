@@ -106,4 +106,6 @@ public interface ITopicDAO
      * @return The topic
      */
     Topic load(String strTopicName, Plugin plugin);
+
+    void updateLastOpenModifyPage(int nTopicId, String strUserLogin, Timestamp date, Plugin plugin);
 }
