@@ -179,6 +179,29 @@
     </div>
 </div>
 
+<!------------ modal to select an uploaded Image ----------------->
+<div id="imageModal" class="toastui-editor-popup" style="display: none;" >
+    <div style="position: absolute; top: 50%; left: 50%; z-index: -1;"></div>
+    <button class="btn btn-default" type="button" style="position: absolute; right: 0;" onclick="closeToastUiModal()">
+        <span class="fa fa-times"></span>
+    </button>
+    <div class="toastui-editor-popup-header">
+        <div class="toastui-editor-popup-header-title">Insert image from an url</div>
+    </div>
+    <!-- modal to insert an image from url-->
+    <div id="imageUrl" >
+        <label for="ImageUrlInput">Image URL</label>
+        <input id="ImageUrlInput" type="text"/>
+        <label for="ImageUrlDesc">Description</label>
+        <input id="ImageUrlDesc" type="text" />
+        <div class="toastui-editor-popup-content-footer"  style="margin:25px 25px;">
+            <button class="btn btn-primary" type="button" onclick="insertImageUrl()">Insert</button>
+            <button class="btn btn-primary" type="button" onclick="insertCustomImageUrl()">Insert custom</button>
+            <button class="btn btn-default" type="button" onclick="closeToastUiModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
 
 <!------------------- END OF CUSTOM INPUTS -------------------------->
 
