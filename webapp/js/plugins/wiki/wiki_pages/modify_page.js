@@ -138,6 +138,13 @@ editor.insertToolbarItem({ groupIndex: 0, itemIndex: 9 }, {
     className: 'fa fa-image editor',
     style: { backgroundImage: 'none' },
 });
+editor.insertToolbarItem({ groupIndex: 0, itemIndex: 10 }, {
+    name: 'Emoji',
+    tooltip: 'Emoji',
+    text: 'Em',
+    className: 'fa fa-smile editor',
+    style: { backgroundImage: 'none' },
+});
 
 
 document.getElementsByClassName("toastui-editor-mode-switch")[0].remove();
@@ -150,6 +157,30 @@ function closeToastUiModal() {
         document.getElementsByClassName("toastui-editor-popup")[i].style.display = "none";
     }
 }
+
+/* -------------- Emojis -------------- */
+const emojiButton = document.getElementsByClassName("fa fa-smile editor")[0];
+emojiButton.addEventListener('click', function() {
+    document.getElementById("selectEmojiModal").style.display = "block";
+});
+window.addEventListener("load", (event) => {
+    const emojis = ["😀", "😂", "😍", "🥰", "😎", "🤩", "😊", "🙂", "😆", "🥳", "😁", "😄", "😇", "😘", "😋", "🤗", "🙌", "👍", "🎉", "🔥", "💯", "🌟", "✨", "🌈", "🍀", "🍉", "🍕", "🎂", "🎸", "⚽️", "🚀"]
+    let emojiList = document.getElementById("emojiList");
+    emojiList.style.display = "grid";
+    emojiList.style.gridTemplateColumns = "repeat(4, 1fr)";
+    emojiList.style.gridGap = "0.5rem";
+
+    emojis.map(emoji => {
+        const emojiButton = document.createElement("button");
+        emojiButton.classList.add("btn", "btn-tertiary", "btn-xs");
+        emojiButton.innerText = emoji;
+        emojiButton.addEventListener('click', function() {
+            navigator.clipboard.writeText(emoji);
+            closeToastUiModal();
+        });
+        emojiList.appendChild(emojiButton);
+    });
+});
 /* -------------- Text Alignment -------------- */
 const textAlignmentButton = document.getElementsByClassName("fa fa-align-left editor")[0];
 textAlignmentButton.addEventListener('click', function() {
