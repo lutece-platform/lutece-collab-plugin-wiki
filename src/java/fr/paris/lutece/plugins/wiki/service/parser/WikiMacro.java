@@ -43,7 +43,7 @@ public interface WikiMacro
      * 
      * @return The macro name
      */
-    String getName( );
+    String getName();
 
     /**
      * Process a given text
@@ -52,6 +52,6 @@ public interface WikiMacro
      *            The text
      * @return The text processed
      */
-    String processText( String strText );
+    String processText(String strText);
 
 }

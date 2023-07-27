@@ -47,7 +47,6 @@ import fr.paris.lutece.util.url.UrlItem;
  */
 public class ImageService implements ImageResourceProvider
 {
-    private static final String PLUGIN_NAME = "wiki";
     private static ImageService _singleton = new ImageService( );
     private static final String IMAGE_RESOURCE_TYPE_ID = "wiki_image";
 

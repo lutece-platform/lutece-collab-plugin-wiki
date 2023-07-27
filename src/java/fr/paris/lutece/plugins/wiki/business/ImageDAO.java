@@ -70,7 +70,7 @@ public class ImageDAO implements IImageDAO
     {
         int nKey;
 
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin ) )
         {
             daoUtil.executeQuery( );
 
@@ -87,7 +87,7 @@ public class ImageDAO implements IImageDAO
     @Override
     public synchronized void insert( Image image, Plugin plugin )
     {
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin ) )
         {
             int nPos = 0;
             image.setId( newPrimaryKey( plugin ) );
@@ -109,7 +109,7 @@ public class ImageDAO implements IImageDAO
     @Override
     public void store( Image image, Plugin plugin )
     {
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin ) )
         {
             int nPos = 0;
 
@@ -132,7 +132,7 @@ public class ImageDAO implements IImageDAO
     @Override
     public void storeMetadata( Image image, Plugin plugin )
     {
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE_METADATA, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE_METADATA, plugin ) )
         {
             int nPos = 0;
 
@@ -153,7 +153,7 @@ public class ImageDAO implements IImageDAO
     public Image load( int nIdImage, Plugin plugin )
     {
         Image image = null;
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_FIND_BY_PRIMARY_KEY, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_FIND_BY_PRIMARY_KEY, plugin ) )
         {
             daoUtil.setInt( 1, nIdImage );
             daoUtil.executeQuery( );
@@ -182,7 +182,7 @@ public class ImageDAO implements IImageDAO
     @Override
     public void delete( int nIdImage, Plugin plugin )
     {
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
         {
             daoUtil.setInt( 1, nIdImage );
             daoUtil.executeUpdate( );
@@ -195,7 +195,7 @@ public class ImageDAO implements IImageDAO
     @Override
     public void deleteByTopic( int nTopicId, Plugin plugin )
     {
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_BY_TOPIC, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_BY_TOPIC, plugin ) )
         {
             daoUtil.setInt( 1, nTopicId );
             daoUtil.executeUpdate( );
@@ -211,7 +211,7 @@ public class ImageDAO implements IImageDAO
         Image image = null;
         List<Image> listImage = new ArrayList<>( );
 
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ICON, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ICON, plugin ) )
         {
             daoUtil.executeQuery( );
 
@@ -244,7 +244,7 @@ public class ImageDAO implements IImageDAO
         Image image = null;
         List<Image> listImage = new ArrayList<>( );
 
-        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_FIND_BY_TOPIC, plugin ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_FIND_BY_TOPIC, plugin ) )
         {
             daoUtil.setInt( 1, nTopicId );
             daoUtil.executeQuery( );

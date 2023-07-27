@@ -1,3 +1,6 @@
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
 <#macro mapLevel list_topic map_topic_children map_topic_title>
     <ul>
         <#list list_topic as topic>
@@ -16,13 +19,13 @@
         <div class="container panel panel-default">
             <div class="btn-group btn-group-xs pull-right">
                 <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=list" title="#i18n{wiki.menu.list}">
-                    <span class="glyphicon glyphicon-list"></span> #i18n{wiki.menu.list}
+                    <span class="fa fa-list"></span> #i18n{wiki.menu.list}
                 </a>
                 <button class="btn btn-default" id="btn-new-page" type="button" title="#i18n{wiki.menu.create}">
-                   <span class="glyphicon glyphicon-plus-sign"></span> #i18n{wiki.menu.create}
+                   <span class="fa fa-plus-circle"></span> #i18n{wiki.menu.create}
                 </button>
                 <button class="btn btn-default" id="btn-search" type="button" title="#i18n{wiki.menu.search}" >
-                    <span class="glyphicon glyphicon-search"></span>  #i18n{wiki.menu.search}
+                    <span class="fa fa-search"></span>  #i18n{wiki.menu.search}
                 </button>
                 <#list languages_list as language>
                     <#if language = current_language >
@@ -43,7 +46,7 @@
                     <div class="input-append">
                         <input class="search-query col-sm-4" id="input-new-page" type="text" name="page_name" /> &nbsp;
                         <button class="btn btn-primary btn-xs" type="submit" >
-                            <span class="glyphicon glyphicon-plus-sign"></span> #i18n{wiki.list_wiki.create}
+                            <span class="fa fa-plus-circle"></span> #i18n{wiki.list_wiki.create}
                         </button>
                     </div>
                 </form>
@@ -57,7 +60,7 @@
                     <div class="input-append">
                         <input class="search-query" id="input-search" type="text" name="query" />
                         <button class="btn btn-primary btn-xs" type="submit" >
-                            <span class="glyphicon glyphicon-search"></span>
+                            <span class="fa fa-search"></span>
                         </button>
                     </div>
                 </form>
