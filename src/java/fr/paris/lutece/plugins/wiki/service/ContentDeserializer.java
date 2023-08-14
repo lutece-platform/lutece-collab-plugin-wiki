@@ -1,10 +1,9 @@
 package fr.paris.lutece.plugins.wiki.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.io.IOException;
 import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
 public class ContentDeserializer {
     private static final long serialVersionUID = -2287035947644920508L;
@@ -36,9 +35,14 @@ public class ContentDeserializer {
     }
 
 
-    public static ContentDeserializer deserializeWikiContent(String requestBody){
-        final Gson gson = new GsonBuilder().create();
-        final ContentDeserializer content = gson.fromJson(requestBody, ContentDeserializer.class);
-        return content;
+    public static ContentDeserializer deserializeWikiContent(String requestBody) {
+        ObjectMapper mapper = new ObjectMapper();
+        ContentDeserializer contentDeserializer = null;
+        try {
+            contentDeserializer = mapper.readValue(requestBody, ContentDeserializer.class);
+        } catch (IOException e) {
+            AppLogService.error("Error deserializing wiki content", e);
+        }
+        return contentDeserializer;
     }
 }
