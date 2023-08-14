@@ -253,7 +253,7 @@ public class Topic implements IExtendableResource
      */
     public Timestamp getLastUpdate( )
     {
-        return time_lastUpdate;
+        return _time_lastUpdate;
     }
 
     /**
@@ -263,6 +263,6 @@ public class Topic implements IExtendableResource
      */
     public void setLastUpdate(Timestamp lastUpdate )
     {
-        time_lastUpdate = lastUpdate;
+        _time_lastUpdate = lastUpdate;
     }
 }
