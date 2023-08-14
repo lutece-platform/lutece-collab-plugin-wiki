@@ -15,9 +15,6 @@ modify_page_last_open_by VARCHAR(100),
 modify_page_last_open_at TIMESTAMP,
   PRIMARY KEY (id_topic)
 );
-
-modify_page_last_open_by = ?, modify_page_last_open_at
-
 --
 -- Structure for table wiki_topic_version
 --
@@ -32,7 +29,6 @@ CREATE TABLE wiki_topic_version (
   id_topic_version_previous INT DEFAULT '0' NOT NULL,
   wiki_content LONG VARCHAR,
   is_published INT DEFAULT '0' NOT NULL,
-  background_color VARCHAR(50),
     PRIMARY KEY (id_topic_version)
 );
 
