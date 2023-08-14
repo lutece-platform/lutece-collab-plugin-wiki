@@ -126,6 +126,9 @@ public class WikiDynamicInputs {
             sb.append(line);
         }
         String requestBody = sb.toString();
+        // delete the first and last character of the string to parse an int
+        requestBody = requestBody.substring(1);
+        requestBody = requestBody.substring(0, requestBody.length() - 1);
         final int topicId = Integer.parseInt(requestBody);
         Topic topic = TopicHome.findByPrimaryKey(topicId);
         try {
