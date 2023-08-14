@@ -426,9 +426,9 @@ public class WikiApp extends MVCApplication
             topic.setViewRole( Page.ROLE_NONE );
             topic.setEditRole( Page.ROLE_NONE );
             topic.setParentPageName( strParentPageName );
-            topic.setModifyPageOpenLastBy( user.getName( ) + "_" + user.getLastName( ) );
+            topic.setEditingUser( user.getName( ) + "_" + user.getLastName( ) );
             Timestamp date = new Timestamp(System.currentTimeMillis());
-            topic.setModifyPageOpenAt( date );
+            topic.setLastUpdate( date );
 
             TopicHome.create( topic );
         }
@@ -467,8 +467,8 @@ public class WikiApp extends MVCApplication
             topic = getTopic( request, strPageName, MODE_EDIT );
         }
         // get last user present on modify page for this topic
-        String lastUser =    topic.getModifyPageOpenLastBy( );
-        Timestamp lastDate = topic.getModifyPageOpenAt( );
+        String lastUser =    topic.setEditingUser( );
+        Timestamp lastDate = topic.getLastUpdate( );
         // if it's been less than 17 seconds since the last user, we cannot edit
         if (lastUser != null && lastDate != null && !lastUser.equals(user.getName() + "_" + user.getLastName())) {
             Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -479,9 +479,9 @@ public class WikiApp extends MVCApplication
                 mapParameters.put(Constants.PARAMETER_USER_NAME, lastUser);
                 return redirect(request, VIEW_SOMEBODY_IS_EDITING, mapParameters);
             } else {
-                topic.setModifyPageOpenLastBy(user.getName() + "_" + user.getLastName());
+                topic.setEditingUser(user.getName() + "_" + user.getLastName());
                 Timestamp date = new Timestamp(System.currentTimeMillis());
-                topic.setModifyPageOpenAt(date);
+                topic.setLastUpdate(date);
                 TopicHome.updateLastOpenModifyPage(topic.getIdTopic(), user);
             }
         }

@@ -1,5 +1,9 @@
 ALTER TABLE wiki_topic ADD COLUMN parent_page_name VARCHAR(100) DEFAULT '' NOT NULL;
 ALTER TABLE wiki_topic_version ADD COLUMN is_published INT DEFAULT '0' NOT NULL;
+ALTER TABLE wiki_topic ADD COLUMN editing_user VARCHAR(100);
+ALTER TABLE wiki_topic ADD COLUMN last_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+
 
 --
 -- for each id_topic, set is_published to 1 for the latest version

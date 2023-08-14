@@ -53,7 +53,7 @@ public class Topic implements IExtendableResource
     private String _strEditRole = Page.ROLE_NONE;
     private String _strParentPageName;
     private String _strEditingUser;
-    private Timestamp _strModifyPageOpenAt;
+    private Timestamp _dtLastUpdate;
 
 
     /**
@@ -232,40 +232,39 @@ public class Topic implements IExtendableResource
      *
      * @return The ModifyPageOpenLastBy
      */
-    public String getModifyPageOpenLastBy( )
+    public String setEditingUser( )
     {
         return _strEditingUser;
     }
 
     /**
-     * Sets the ModifyPageOpenLastBy
+     * Sets _strEditingUser
      *
-     * @param strModifyPageOpenLastBy
-     *            The ModifyPageOpenLastBy
+     * @param editingUser
      */
-    public void setModifyPageOpenLastBy( String strModifyPageOpenLastBy )
+    public void setEditingUser(String editingUser )
     {
-        _strEditingUser = strModifyPageOpenLastBy;
+        _strEditingUser = editingUser;
     }
 
     /**
-     * Returns the ModifyPageOpenAt
+     * Returns the _dtLastUpdate
      *
-     * @return The ModifyPageOpenAt
+     * @return The _dtLastUpdate
      */
-    public Timestamp getModifyPageOpenAt( )
+    public Timestamp getLastUpdate( )
     {
-        return _strModifyPageOpenAt;
+        return _dtLastUpdate;
     }
 
     /**
      * Sets the ModifyPageOpenAt
      *
-     * @param strModifyPageOpenAt
+     * @param lastUpdate
      *            The ModifyPageOpenAt
      */
-    public void setModifyPageOpenAt( Timestamp strModifyPageOpenAt )
+    public void setLastUpdate(Timestamp lastUpdate )
     {
-        _strModifyPageOpenAt = strModifyPageOpenAt;
+        _dtLastUpdate = lastUpdate;
     }
 }

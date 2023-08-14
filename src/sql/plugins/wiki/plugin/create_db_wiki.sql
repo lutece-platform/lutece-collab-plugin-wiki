@@ -11,8 +11,8 @@ page_name VARCHAR(100) DEFAULT '' NOT NULL,
 page_view_role VARCHAR(50) DEFAULT '' NOT NULL,
 page_edit_role VARCHAR(50) DEFAULT '' NOT NULL,
 parent_page_name VARCHAR(100) DEFAULT '' NOT NULL,
-modify_page_last_open_by VARCHAR(100),
-modify_page_last_open_at TIMESTAMP,
+editing_user VARCHAR(100),
+last_update TIMESTAMP,
   PRIMARY KEY (id_topic)
 );
 --
