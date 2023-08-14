@@ -52,7 +52,7 @@ public class Topic implements IExtendableResource
     private String _strViewRole = Page.ROLE_NONE;
     private String _strEditRole = Page.ROLE_NONE;
     private String _strParentPageName;
-    private String _strModifyPageOpenLastBy;
+    private String _strEditingUser;
     private Timestamp _strModifyPageOpenAt;
 
 
@@ -234,7 +234,7 @@ public class Topic implements IExtendableResource
      */
     public String getModifyPageOpenLastBy( )
     {
-        return _strModifyPageOpenLastBy;
+        return _strEditingUser;
     }
 
     /**
@@ -245,7 +245,7 @@ public class Topic implements IExtendableResource
      */
     public void setModifyPageOpenLastBy( String strModifyPageOpenLastBy )
     {
-        _strModifyPageOpenLastBy = strModifyPageOpenLastBy;
+        _strEditingUser = strModifyPageOpenLastBy;
     }
 
     /**
