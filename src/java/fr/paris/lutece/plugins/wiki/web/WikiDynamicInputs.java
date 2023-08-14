@@ -34,8 +34,7 @@
 package fr.paris.lutece.plugins.wiki.web;
 
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.api.user.User;
 import fr.paris.lutece.plugins.wiki.business.*;
 import fr.paris.lutece.plugins.wiki.service.ContentDeserializer;
@@ -114,9 +113,9 @@ public class WikiDynamicInputs {
            AppLogService.error( "Error saving topic version automatically", e );
        }
        // return the response in json
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-        return gson.toJson(saveSuccess);
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(saveSuccess);
+
     }
 
     public static void updateLastOpenModifyTopicPage(HttpServletRequest request) throws IOException, UserNotSignedException {
@@ -127,8 +126,7 @@ public class WikiDynamicInputs {
             sb.append(line);
         }
         String requestBody = sb.toString();
-        final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        final int topicId = gson.fromJson(requestBody, int.class);
+        final int topicId = Integer.parseInt(requestBody);
         Topic topic = TopicHome.findByPrimaryKey(topicId);
         try {
             if (RoleService.hasEditRole(request, topic)) {
