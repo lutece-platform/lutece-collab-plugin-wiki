@@ -124,15 +124,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
             daoUtil.executeQuery();
 
             if (daoUtil.next()) {
-                topicVersion = new TopicVersion();
-
-                topicVersion.setIdTopicVersion(daoUtil.getInt(1));
-                topicVersion.setEditComment(daoUtil.getString(2));
-                topicVersion.setIdTopic(daoUtil.getInt(3));
-                topicVersion.setLuteceUserId(daoUtil.getString(4));
-                topicVersion.setDateEdition(daoUtil.getTimestamp(5));
-                topicVersion.setIdTopicVersionPrevious(daoUtil.getInt(6));
-                topicVersion.setIsPublished(daoUtil.getBoolean(7));
+                topicVersion =  setTopicVersionWithDaoUtil(daoUtil);
             }
         }
 
@@ -236,17 +228,8 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
             daoUtil.executeQuery();
 
             while (daoUtil.next()) {
-                TopicVersion topicVersion = new TopicVersion();
-
-                topicVersion.setIdTopicVersion(daoUtil.getInt(1));
-                topicVersion.setEditComment(daoUtil.getString(2));
-                topicVersion.setIdTopic(daoUtil.getInt(3));
-                topicVersion.setLuteceUserId(daoUtil.getString(4));
-                topicVersion.setDateEdition(daoUtil.getTimestamp(5));
-                topicVersion.setIdTopicVersionPrevious(daoUtil.getInt(6));
-                topicVersion.setIsPublished(daoUtil.getBoolean(7));
+                TopicVersion topicVersion =  setTopicVersionWithDaoUtil(daoUtil);
                 fillContent(topicVersion);
-
                 topicVersionList.add(topicVersion);
             }
         }
@@ -326,15 +309,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
             daoUtil.executeQuery();
 
             if (daoUtil.next()) {
-                topicVersion = new TopicVersion();
-
-                topicVersion.setIdTopicVersion(daoUtil.getInt(1));
-                topicVersion.setEditComment(daoUtil.getString(2));
-                topicVersion.setIdTopic(daoUtil.getInt(3));
-                topicVersion.setLuteceUserId(daoUtil.getString(4));
-                topicVersion.setDateEdition(daoUtil.getTimestamp(5));
-                topicVersion.setIdTopicVersionPrevious(daoUtil.getInt(6));
-                topicVersion.setIsPublished(daoUtil.getBoolean(7));
+                topicVersion =  setTopicVersionWithDaoUtil(daoUtil);
             }
         }
 
@@ -356,15 +331,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
             daoUtil.executeQuery();
 
             if (daoUtil.next()) {
-                topicVersion = new TopicVersion();
-
-                topicVersion.setIdTopicVersion(daoUtil.getInt(1));
-                topicVersion.setEditComment(daoUtil.getString(2));
-                topicVersion.setIdTopic(daoUtil.getInt(3));
-                topicVersion.setLuteceUserId(daoUtil.getString(4));
-                topicVersion.setDateEdition(daoUtil.getTimestamp(5));
-                topicVersion.setIdTopicVersionPrevious(daoUtil.getInt(6));
-                topicVersion.setIsPublished(daoUtil.getBoolean(7));
+                topicVersion =  setTopicVersionWithDaoUtil(daoUtil);
             }
         }
         if (topicVersion != null) {
@@ -384,22 +351,28 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
             daoUtil.executeQuery();
 
             while (daoUtil.next()) {
-                TopicVersion topicVersion = new TopicVersion();
-
-                topicVersion.setIdTopicVersion(daoUtil.getInt(1));
-                topicVersion.setEditComment(daoUtil.getString(2));
-                topicVersion.setIdTopic(daoUtil.getInt(3));
-                topicVersion.setLuteceUserId(daoUtil.getString(4));
-                topicVersion.setDateEdition(daoUtil.getTimestamp(5));
-                topicVersion.setIdTopicVersionPrevious(daoUtil.getInt(6));
-                topicVersion.setIsPublished(daoUtil.getBoolean(7));
-                fillContent(topicVersion);
-
+             TopicVersion topicVersion =  setTopicVersionWithDaoUtil(daoUtil);
                 topicVersionList.add(topicVersion);
             }
         }
 
         return topicVersionList;
+    }
+
+    /**
+     * set the content of a topic version with doaUtil
+     */
+    public TopicVersion setTopicVersionWithDaoUtil(DAOUtil daoUtil) {
+        TopicVersion topicVersion = new TopicVersion();
+        topicVersion.setIdTopicVersion(daoUtil.getInt(1));
+        topicVersion.setEditComment(daoUtil.getString(2));
+        topicVersion.setIdTopic(daoUtil.getInt(3));
+        topicVersion.setLuteceUserId(daoUtil.getString(4));
+        topicVersion.setDateEdition(daoUtil.getTimestamp(5));
+        topicVersion.setIdTopicVersionPrevious(daoUtil.getInt(6));
+        topicVersion.setIsPublished(daoUtil.getBoolean(7));
+
+        return topicVersion;
     }
 
 
