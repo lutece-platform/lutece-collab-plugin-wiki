@@ -53,7 +53,7 @@ public class Topic implements IExtendableResource
     private String _strEditRole = Page.ROLE_NONE;
     private String _strParentPageName;
     private String _strEditingUser;
-    private Timestamp time_lastUpdate;
+    private Timestamp _time_lastUpdate;
 
 
     /**
