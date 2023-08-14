@@ -426,9 +426,6 @@ public class WikiApp extends MVCApplication
             topic.setViewRole( Page.ROLE_NONE );
             topic.setEditRole( Page.ROLE_NONE );
             topic.setParentPageName( strParentPageName );
-            topic.setEditingUser( user.getFirstName( ) + "_" + user.getLastName( ) );
-            Timestamp date = new Timestamp(System.currentTimeMillis());
-            topic.setLastUpdate( date );
 
             TopicHome.create( topic );
         }

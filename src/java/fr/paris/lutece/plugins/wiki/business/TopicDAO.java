@@ -48,7 +48,7 @@ public final class TopicDAO implements ITopicDAO
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_topic ) FROM wiki_topic";
     private static final String SQL_QUERY_SELECT = "SELECT id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name FROM wiki_topic WHERE id_topic = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO wiki_topic ( id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name, editing_user, last_update ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO wiki_topic ( id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name ) VALUES ( ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM wiki_topic WHERE id_topic = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE wiki_topic SET id_topic = ?, namespace = ?, page_name = ?, page_view_role = ?, page_edit_role = ?, parent_page_name = ? WHERE id_topic = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name, editing_user, last_update FROM wiki_topic";
@@ -93,8 +93,7 @@ public final class TopicDAO implements ITopicDAO
             daoUtil.setString( 4, topic.getViewRole( ) );
             daoUtil.setString( 5, topic.getEditRole( ) );
             daoUtil.setString( 6, topic.getParentPageName( ) );
-            daoUtil.setString( 7, topic.getEditingUser( ) );
-            daoUtil.setTimestamp( 8, topic.getLastUpdate( ) );
+
 
             daoUtil.executeUpdate( );
         }
