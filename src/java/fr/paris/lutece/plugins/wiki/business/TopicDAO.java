@@ -93,7 +93,7 @@ public final class TopicDAO implements ITopicDAO
             daoUtil.setString( 4, topic.getViewRole( ) );
             daoUtil.setString( 5, topic.getEditRole( ) );
             daoUtil.setString( 6, topic.getParentPageName( ) );
-            daoUtil.setString( 7, topic.setEditingUser( ) );
+            daoUtil.setString( 7, topic.getEditingUser( ) );
             daoUtil.setTimestamp( 8, topic.getLastUpdate( ) );
 
             daoUtil.executeUpdate( );
