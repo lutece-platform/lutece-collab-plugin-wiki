@@ -467,7 +467,7 @@ public class WikiApp extends MVCApplication
             topic = getTopic( request, strPageName, MODE_EDIT );
         }
         // get last user present on modify page for this topic
-        String lastUser =    topic.setEditingUser( );
+        String lastUser =    topic.getEditingUser( );
         Timestamp lastDate = topic.getLastUpdate( );
         // if it's been less than 17 seconds since the last user, we cannot edit
         if (lastUser != null && lastDate != null && !lastUser.equals(user.getFirstName() + "_" + user.getLastName())) {
