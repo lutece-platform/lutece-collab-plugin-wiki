@@ -90,7 +90,7 @@ public class WikiDynamicInputs {
             topicVersion.setEditComment(topicVersion.getEditComment());
             topicVersion.setIdTopicVersionPrevious(previousVersion.getIdTopicVersionPrevious());
             topicVersion.setIsPublished(false);
-            topicVersion.setLuteceUserId(user.getFirstName()+"-"+user.getName());
+            topicVersion.setLuteceUserId(user.getFirstName()+"-"+user.getLastName());
             // set the content for each language
             for (int i = 0; i < WikiLocaleService.getLanguages().size(); i++) {
                 String strPageTitle = newContent.topicTitleArr.get(i);
