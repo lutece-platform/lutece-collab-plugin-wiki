@@ -53,7 +53,7 @@ public class Topic implements IExtendableResource
     private String _strEditRole = Page.ROLE_NONE;
     private String _strParentPageName;
     private String _strEditingUser;
-    private Timestamp _dtLastUpdate;
+    private Timestamp time_lastUpdate;
 
 
     /**
@@ -228,11 +228,10 @@ public class Topic implements IExtendableResource
     }
 
     /**
-     * Returns the ModifyPageOpenLastBy
+     * Returns the _strEditingUser
      *
-     * @return The ModifyPageOpenLastBy
      */
-    public String setEditingUser( )
+    public String getEditingUser( )
     {
         return _strEditingUser;
     }
@@ -248,23 +247,22 @@ public class Topic implements IExtendableResource
     }
 
     /**
-     * Returns the _dtLastUpdate
+     * Returns the lastUpdate
      *
-     * @return The _dtLastUpdate
+     * @return The time_lastUpdate
      */
     public Timestamp getLastUpdate( )
     {
-        return _dtLastUpdate;
+        return time_lastUpdate;
     }
 
     /**
-     * Sets the ModifyPageOpenAt
+     * Sets the time_lastUpdate
      *
      * @param lastUpdate
-     *            The ModifyPageOpenAt
      */
     public void setLastUpdate(Timestamp lastUpdate )
     {
-        _dtLastUpdate = lastUpdate;
+        time_lastUpdate = lastUpdate;
     }
 }
