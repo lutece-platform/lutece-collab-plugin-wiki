@@ -52,8 +52,6 @@ public class Topic implements IExtendableResource
     private String _strViewRole = Page.ROLE_NONE;
     private String _strEditRole = Page.ROLE_NONE;
     private String _strParentPageName;
-    private String _strModifyPageOpenLastBy;
-    private Timestamp _strModifyPageOpenAt;
 
 
     /**
