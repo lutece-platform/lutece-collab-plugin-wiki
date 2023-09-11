@@ -514,13 +514,13 @@ function updateImages() {
         },
         credentials: "same-origin"
     }).then(response => response.json())
-      .then(data => {
+        .then(data => {
             let imagesContainer = document.getElementById("table-images");
             imagesContainer.innerHTML = "";
             data.forEach(image => {
                 const imageElement = document.createElement("div");
                 imageElement.className = 'image-editor-display';
-                const imageUrl = 'image?resource_type=wiki_image&id=' + parseInt(image.id);
+                const imageUrl = 'image?resource_type=wiki_image&id=' + image.id;
                 let img = document.createElement("img");
                 img.className = "image-editor-display";
                 img.src = imageUrl;
@@ -536,6 +536,14 @@ function updateImages() {
                     navigator.clipboard.writeText(mdTextToInsert);
                 });
 
+                let buttonCustomCopy = document.createElement("button");
+                buttonCustomCopy.type = "button";
+                buttonCustomCopy.className = "image-editor-display btn btn-light btn-sm";
+                buttonCustomCopy.innerText = "Copy Custom";
+                buttonCustomCopy.addEventListener("click", function () {
+                    let htmlimageToInsert = "<span style='display: flex; justify-content: space-between;'><p>My text is on my left and the image on my right</p><><img src='" + imageUrl + "' alt='" + image.name + "' title='" + image.name + "' class='' width='600' height='' align=''><figcaption>" + image.name + "</figcaption></figure></span>";
+                    navigator.clipboard.writeText("\n" + "$$span\n" + htmlimageToInsert + "\n$$\n");
+                });
 
                 let buttonDelete = document.createElement("button");
                 buttonDelete.type = "button";
@@ -559,6 +567,7 @@ function updateImages() {
                     }
                 });
                 buttonContainer.appendChild(buttonCopy);
+                buttonContainer.appendChild(buttonCustomCopy);
                 buttonContainer.appendChild(buttonDelete);
                 imageElement.appendChild(img);
                 imageElement.appendChild(buttonContainer);
@@ -580,6 +589,29 @@ function insertImageUrl() {
     }
     document.getElementById("ImageUrlInput").value = "";
     const mdImage = "![" + desc + "](" + url + ")";
+    editor.insertText(mdImage);
+    closeToastUiModal();
+}
+
+function insertCustomImageUrl() {
+    let desc = document.getElementById("ImageUrlDesc").value;
+    if(!desc.length) {
+        desc = "My text below the image";
+    }
+    document.getElementById("ImageUrlDesc").value = "";
+    const url = document.getElementById("ImageUrlInput").value;
+    document.getElementById("ImageUrlInput").value = "";
+    if(!url.length) {
+        alert("Please enter a valid url");
+        return;
+    }
+    const htmlImage = "<span style='display: flex; justify-content: space-between;'>" +
+        "<p>My text is on my left and the image on my right</p> <figure>" +
+        "<img src='" + url + "' alt='' title='' className='' width='600' height='' align=''>" +
+        "<figcaption>"+ desc +"</figcaption>" +
+        "</figure>" +
+        "</span>";
+    const mdImage = "\n" + "$$span\n" + htmlImage + "\n$$\n";
     editor.insertText(mdImage);
     closeToastUiModal();
 }
