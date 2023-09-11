@@ -75,6 +75,9 @@ public interface ITopicVersionDAO
      */
     TopicVersion load( int nKey, Plugin plugin );
 
+    void deleteByTopicVersion(int nTopicId, Plugin plugin);
+
+
     /**
      * Load the data of all the topicVersion objects and returns them as a collection
      *
