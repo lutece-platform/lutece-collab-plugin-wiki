@@ -9,8 +9,6 @@
     <link rel="stylesheet" href="css/plugins/wiki/darkmode.css" />
     <!-- Editor css -->
     <link rel="stylesheet" href="css/plugins/wiki/toastui/toastui-editor.css" />
-    <!-- The js is loaded here because if loaded at the bottom it could cause issue with the media queries(of the menu) you have the option "disable cache" -->
-    <script src="js/plugins/wiki/wiki_pages/view_page.js" async></script>
 </head>
 <div>
     <div class="container panel panel-default">
@@ -98,5 +96,6 @@
             <hr>
             ${result}
    </div>
-
+<!-- The js is loaded here because if loaded at the bottom it could cause issue with the media queries(of the menu) you have the option "disable cache" -->
+<script src="js/plugins/wiki/wiki_pages/view_page.js" defer></script>
 

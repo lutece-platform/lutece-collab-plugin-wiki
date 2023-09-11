@@ -32,10 +32,7 @@ window.addEventListener("load", (event) => {
   // if there is a wiki-nav then we need to remove the class assigned by default to let more space for the content
     let wikiNavContentWrapper = document.getElementsByClassName('wiki-nav-content-wrapper').length;
     if(wikiNavContentWrapper > 0){
-        console.log('wiki-nav-content-wrapper found');
-        document.getElementsByClassName('container mt-5 p-5')[0].classList.remove('container');
-        document.getElementsByClassName('container mt-5 p-5')[0].classList.remove('p-5');
-        document.getElementsByClassName('container mt-5 p-5')[0].classList.remove('mt-5');
+        document.getElementsByClassName('container mt-5 p-5')[0].class = "";
         document.getElementsByClassName('text-right')[0].parentElement.classList.add('container');
         document.getElementsByClassName('text-right')[0].parentElement.classList.add('mt-5');
         document.getElementsByClassName('text-right')[0].parentElement.classList.add('p-5');
