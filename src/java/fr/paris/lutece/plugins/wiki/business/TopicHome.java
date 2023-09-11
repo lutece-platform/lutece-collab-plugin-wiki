@@ -119,7 +119,7 @@ public final class TopicHome
      *            The topic name
      * @return The topic
      */
-    public static Topic findByPrimaryKey( String strTopicName )
+    public static Topic findByPageName( String strTopicName )
     {
         return _dao.load( strTopicName, _plugin );
     }
@@ -133,4 +133,5 @@ public final class TopicHome
     {
         return _dao.selectTopicsList( _plugin );
     }
+
 }
