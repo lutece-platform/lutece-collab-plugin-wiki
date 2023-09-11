@@ -35,8 +35,6 @@ package fr.paris.lutece.plugins.wiki.web;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import fr.paris.lutece.api.user.User;
 import fr.paris.lutece.plugins.wiki.business.*;
 import fr.paris.lutece.plugins.wiki.service.ContentDeserializer;
@@ -154,16 +152,18 @@ public class WikiDynamicInputs
 */
     public static void updateLastModifyAttemptPage( HttpServletRequest request ) throws IOException, UserNotSignedException
     {
-        StringBuilder sb = new StringBuilder( );
-        BufferedReader reader = request.getReader( );
+        StringBuilder sb = new StringBuilder();
+        BufferedReader reader = request.getReader();
         String line;
-        while ( ( line = reader.readLine( ) ) != null )
-        {
-            sb.append( line );
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
         }
-        String requestBody = sb.toString( );
-        final Gson gson = new GsonBuilder( ).setPrettyPrinting( ).create( );
-        final int topicId = gson.fromJson( requestBody, int.class );
+        String requestBody = sb.toString();
+        // delete the first and last character of the string to parse an int
+        requestBody = requestBody.substring(1);
+        requestBody = requestBody.substring(0, requestBody.length() - 1);
+        final int topicId = Integer.parseInt(requestBody);
+        // parse
         Topic topic = TopicHome.findByPrimaryKey( topicId );
         try
         {
@@ -179,7 +179,7 @@ public class WikiDynamicInputs
         }
         catch( Exception e )
         {
-            AppLogService.error( "Error saving last user opening modify topic page", e );
+            AppLogService.error( "Error saving last user editing topic page", e );
 
         }
     }
