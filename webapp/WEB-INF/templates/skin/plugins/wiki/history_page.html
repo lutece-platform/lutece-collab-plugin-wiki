@@ -1,6 +1,14 @@
 <div class="row">
     <div class="col-sm-12">
         <div class="container panel panel-default">
+            <form id="form-page-delete" action="jsp/site/Portal.jsp" method="post" >
+                <input type="hidden" name="page" value="wiki" />
+                <input type="hidden" name="page_name" value="${topic.pageName}" />
+                <input type="hidden" name="action" value="deletePage" />
+            </form>
+            <#if has_admin_role >
+            <button id="btn-page-delete" class="btn btn-danger" style="position: absolute; right: 400px;" onclick="confirmDeleteTopic()" >#i18n{portal.util.labelDelete}</button>
+            </#if>
             <form method="get" action="jsp/site/Portal.jsp">
                 <input type="hidden" name="page" value="wiki" />
                 <input type="hidden" name="page_name" value="${topic.pageName}" />
@@ -50,6 +58,18 @@
                         ${version.userName!''} ${version.userPseudo!''}
                     </td>
                     <td>${version.editComment}</td>
+                    <#if has_admin_role >
+                    <td>
+                        <#if version.isPublished!=true>
+                        <a href="jsp/site/Portal.jsp?page=wiki&action=confirmRemoveVersion&id_topic_version=${version.idTopicVersion}&page_name=${topic.pageName}" class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </a>
+                    </#if>
+                    <a href="jsp/site/Portal.jsp?page=wiki&view=modifyPage&page_name=${topic.pageName}&id_topic_version=${version.idTopicVersion}"  class="btn btn-default btn-sm"  title="#i18n{wiki.menu.edit}">
+                        <span class="glyphicon glyphicon-edit"></span> #i18n{wiki.menu.edit}
+                    </a>
+                    </td>
+                </#if>
                 </tr>
             </#list>
             </table>

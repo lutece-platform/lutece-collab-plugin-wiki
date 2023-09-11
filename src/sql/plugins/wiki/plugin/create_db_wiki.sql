@@ -27,6 +27,7 @@ CREATE TABLE wiki_topic_version (
   date_edition TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   id_topic_version_previous INT DEFAULT '0' NOT NULL,
   wiki_content LONG VARCHAR,
+  is_published INT DEFAULT '0' NOT NULL,
     PRIMARY KEY (id_topic_version)
 );
 
