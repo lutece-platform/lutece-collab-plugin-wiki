@@ -93,3 +93,9 @@ function copyToClipboard(text) {
     document.execCommand('copy');
     document.body.removeChild(dummy);
 }
+
+/* -------------- Text Alignment -------------- */
+if(document.getElementsByClassName('toastui-editor-contents')[0].innerHTML.indexOf("wiki-align-content-val-") > -1){
+    const alignmentValue = document.getElementsByClassName('toastui-editor-contents')[0].innerHTML.split("wiki-align-content-val-")[1].substring(0,1);
+    document.getElementsByClassName("toastui-editor-contents")[0].classList.add("wiki-align-content-val-"+alignmentValue);
+}

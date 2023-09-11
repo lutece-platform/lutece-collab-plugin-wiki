@@ -136,4 +136,39 @@
     </div>
 </div>
 
+<!------------ modal to align of the whole page ----------------->
+
+
+<div id="selectTextAlignmentModal" class="toastui-editor-popup" style="display: none;" >
+    <div style="position: absolute; top: 50%; left: 50%; z-index: -1;"></div>
+    <button class="btn btn-default" type="button" style="position: absolute; right: 0;" onclick="closeToastUiModal()">
+        <span class="fa fa-times"></span>
+    </button>
+    <div class="toastui-editor-popup-header">
+        <div class="toastui-editor-popup-header-title">Select Text Alignment</div>
+    </div>
+    <div class="toastui-editor-popup-body">
+        <div class="toastui-editor-popup-content-body">
+            <div class="btn-group" role="group" aria-label="...">
+                <button type="button" class="btn btn-default" onclick="selectTextAlignment('wiki-align-content-val-l')">
+                    <div>Left</div>
+                    <span class="fa fa-align-left"></span>
+                </button>
+                <button type="button" class="btn btn-default" onclick="selectTextAlignment('wiki-align-content-val-c')">
+                    <div>Center</div>
+                    <span class="fa fa-align-center"></span>
+                </button>
+                <button type="button" class="btn btn-default" onclick="selectTextAlignment('wiki-align-content-val-r')">
+                    <div>Right</div>
+                    <span class="fa fa-align-right"></span>
+                </button>
+                <button type="button" class="btn btn-default" onclick="selectTextAlignment('wiki-align-content-val-j')">
+                    <div>Justify</div>
+                    <span class="fa fa-align-justify"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!------------------- END OF CUSTOM INPUTS -------------------------->
