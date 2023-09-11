@@ -35,6 +35,9 @@ package fr.paris.lutece.plugins.wiki.web;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import fr.paris.lutece.api.user.User;
 import fr.paris.lutece.plugins.wiki.business.*;
 import fr.paris.lutece.plugins.wiki.service.ContentDeserializer;
 import fr.paris.lutece.plugins.wiki.service.RoleService;
@@ -141,5 +144,43 @@ public class WikiDynamicInputs
             response.getWriter( ).write( res );
 
         return response;
+    }
+/**
+ * Update the name and the time of a user visiting modify page of a topic
+ * @param request
+ * @throws IOException
+ * @throws UserNotSignedException
+ * @throws fr.paris.lutece.portal.service.security.UserNotSignedException
+*/
+    public static void updateLastModifyAttemptPage( HttpServletRequest request ) throws IOException, UserNotSignedException
+    {
+        StringBuilder sb = new StringBuilder( );
+        BufferedReader reader = request.getReader( );
+        String line;
+        while ( ( line = reader.readLine( ) ) != null )
+        {
+            sb.append( line );
+        }
+        String requestBody = sb.toString( );
+        final Gson gson = new GsonBuilder( ).setPrettyPrinting( ).create( );
+        final int topicId = gson.fromJson( requestBody, int.class );
+        Topic topic = TopicHome.findByPrimaryKey( topicId );
+        try
+        {
+            if ( RoleService.hasEditRole( request, topic ) )
+            {
+                User user = WikiAnonymousUser.checkUser( request );
+                TopicHome.updateLastOpenModifyPage( topic.getIdTopic( ), user );
+            }
+            else
+            {
+                throw new UserNotSignedException( );
+            }
+        }
+        catch( Exception e )
+        {
+            AppLogService.error( "Error saving last user opening modify topic page", e );
+
+        }
     }
 }

@@ -81,6 +81,7 @@ import fr.paris.lutece.util.html.Paginator;
 import fr.paris.lutece.util.url.UrlItem;
 
 import java.io.*;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
@@ -101,6 +102,8 @@ public class WikiApp extends MVCApplication
     private static final String TEMPLATE_LIST_WIKI = "skin/plugins/wiki/list_wiki.html";
     private static final String TEMPLATE_MAP_WIKI = "skin/plugins/wiki/map_wiki.html";
     private static final String TEMPLATE_SEARCH_WIKI = "skin/plugins/wiki/search_wiki.html";
+    public final static String TEMPLATE_SOMEBODY_IS_EDITING = "skin/plugins/wiki/somebody_is_editing.html";
+
     private static final String BEAN_SEARCH_ENGINE = "wiki.wikiSearchEngine";
 
     private static final String PROPERTY_PAGE_PATH = "wiki.pagePathLabel";
@@ -145,6 +148,8 @@ public class WikiApp extends MVCApplication
     private static final String VIEW_SEARCH = "search";
     private static final String VIEW_DIFF = "diff";
     private static final String VIEW_LIST_IMAGES = "listImages";
+    public final static String VIEW_SOMEBODY_IS_EDITING = "somebodyIsEditing";
+
     private static final String ACTION_NEW_PAGE = "newPage";
     private static final String ACTION_DELETE_PAGE = "deletePage";
     private static final String ACTION_REMOVE_IMAGE = "removeImage";
@@ -427,9 +432,8 @@ public class WikiApp extends MVCApplication
     @View( VIEW_MODIFY_PAGE )
     public XPage getModifyTopic( HttpServletRequest request ) throws SiteMessageException, UserNotSignedException
     {
-        WikiAnonymousUser.checkUser( request );
+        LuteceUser user = WikiAnonymousUser.checkUser( request );
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Integer nVersion = getVersionTopicVersionId( request );
         Topic topic;
         Topic topicSession = (Topic) request.getSession( ).getAttribute( MARK_TOPIC );
         if ( topicSession != null && topicSession.getPageName( ).equals( strPageName ) )
@@ -440,6 +444,29 @@ public class WikiApp extends MVCApplication
         else
         {
             topic = getTopic( request, strPageName, MODE_EDIT );
+        }
+        // get last user present on modify page for this topic
+        String lastUser = topic.getLastUserEditing( );
+        Timestamp lastDate = topic.getDateLastEditAttempt( );
+        // if it's been less than 17 seconds since the last user, we cannot edit
+        if ( lastUser != null && lastDate != null && !lastUser.equals( user.getName( ) + "_" + user.getLastName( ) ) )
+        {
+            Timestamp now = new Timestamp( System.currentTimeMillis( ) );
+            long diff = now.getTime( ) - lastDate.getTime( );
+            if ( diff < 17000 )
+            {
+                Map<String, String> mapParameters = new ConcurrentHashMap<>( );
+                mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+                mapParameters.put( Constants.PARAMETER_USER_NAME, lastUser );
+                return redirect( request, VIEW_SOMEBODY_IS_EDITING, mapParameters );
+            }
+            else
+            {
+                topic.setLastUserEditing( user.getName( ) + "_" + user.getLastName( ) );
+                Timestamp date = new Timestamp( System.currentTimeMillis( ) );
+                topic.setDateLastEditAttempt( date );
+                TopicHome.updateLastOpenModifyPage( topic.getIdTopic( ), user );
+            }
         }
         String strLocale = WikiLocaleService.getDefaultLanguage( );
         try {
@@ -620,6 +647,22 @@ public class WikiApp extends MVCApplication
         page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
         page.setExtendedPathLabel( getPageExtendedPath( topic, request ) );
 
+        return page;
+    }
+
+    @View( VIEW_SOMEBODY_IS_EDITING )
+    public XPage getSomebodyIsEditing( HttpServletRequest request ) throws SiteMessageException, UserNotSignedException
+    {
+        LuteceUser user = WikiAnonymousUser.checkUser( request );
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        String strUsername = request.getParameter( Constants.PARAMETER_USER_NAME );
+        Topic topic = getTopic( request, strPageName, MODE_EDIT );
+        Map<String, Object> model = getModel( );
+        model.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+        model.put( Constants.PARAMETER_USER_NAME, strUsername );
+        XPage page = getXPage( TEMPLATE_SOMEBODY_IS_EDITING, request.getLocale( ), model );
+        page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
+        page.setExtendedPathLabel( getPageExtendedPath( topic, request ) );
         return page;
     }
     /**

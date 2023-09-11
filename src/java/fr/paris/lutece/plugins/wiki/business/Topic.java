@@ -52,8 +52,8 @@ public class Topic implements IExtendableResource
     private String _strViewRole = Page.ROLE_NONE;
     private String _strEditRole = Page.ROLE_NONE;
     private String _strParentPageName;
-    private String _strModifyPageOpenLastBy;
-    private Timestamp _strModifyPageOpenAt;
+    private String _strLastUserEditing;
+    private Timestamp _dateLastEditAttempt;
 
 
     /**
@@ -227,5 +227,47 @@ public class Topic implements IExtendableResource
         _strParentPageName = strParentPageName;
     }
 
+
+    /**
+     * Returns the last user editing
+     *
+     * @return The last user editing
+     */
+    public String getLastUserEditing ( )
+    {
+        return _strLastUserEditing;
+    }
+    /**
+     * Sets the last user editing
+     *
+     * @param strLastUserEditing
+     *            The last user editing
+     */
+    public void setLastUserEditing ( String strLastUserEditing )
+    {
+        _strLastUserEditing = strLastUserEditing;
+    }
+
+
+    /**
+     * Returns the date of the last user editing
+     *
+     * @return The date of the last user editing
+     */
+    public Timestamp getDateLastEditAttempt ( )
+    {
+        return _dateLastEditAttempt;
+    }
+
+    /**
+     * Sets the date of the last user editing
+     *
+     * @param dateLastEditAttempt
+     *            The date of the last user editing
+     */
+    public void setDateLastEditAttempt ( Timestamp dateLastEditAttempt )
+    {
+        _dateLastEditAttempt = dateLastEditAttempt;
+    }
 
 }

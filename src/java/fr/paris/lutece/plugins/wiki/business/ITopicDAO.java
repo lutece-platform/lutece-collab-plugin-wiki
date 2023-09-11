@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.wiki.business;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 
 /**
@@ -105,4 +106,13 @@ public interface ITopicDAO
      * @return The topic
      */
     Topic load( String strTopicName, Plugin plugin );
+
+    /**
+     * Update the name and the time of a user visiting modify page of a topic
+     * @param nTopicId
+     * @param strUserLogin
+     * @param date
+     * @param plugin
+     */
+    void updateLastOpenModifyPage(int nTopicId, String strUserLogin, Timestamp date, Plugin plugin);
 }
