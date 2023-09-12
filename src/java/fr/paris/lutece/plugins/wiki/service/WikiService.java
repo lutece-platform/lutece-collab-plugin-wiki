@@ -35,9 +35,10 @@ package fr.paris.lutece.plugins.wiki.service;
 
 import fr.paris.lutece.plugins.wiki.business.TopicVersion;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceWikiParser;
+import fr.paris.lutece.plugins.wiki.service.parser.SpecialChar;
 import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
-import java.util.Locale;
-import java.util.regex.Pattern;
+import fr.paris.lutece.portal.service.util.AppLogService;
+
 
 /**
  * Wiki Service
@@ -103,36 +104,26 @@ public final class WikiService extends AbstractCacheableService
         {
             if ( strPageContent == null )
             {
-                String strContent = version.getWikiContent( strLanguage ).getWikiContent( );
-                strPageContent = new LuteceWikiParser( strContent, strPageName, strPageUrl, strLanguage ).toString( );
-                putInCache( sbKey.toString( ), strPageContent );
+                try {
+                    if (version.getWikiContent(strLanguage).getHtmlWikiContent() != null) {
+                        strPageContent = SpecialChar.renderWiki(version.getWikiContent(strLanguage).getHtmlWikiContent());
+                        putInCache(sbKey.toString(), strPageContent);
+                    } else {
+                        String strContent = SpecialChar.renderWiki(version.getWikiContent(strLanguage).getWikiContent());
+                        strPageContent = new LuteceWikiParser(strContent, strPageName, strPageUrl, strLanguage).toString();
+                        putInCache(sbKey.toString(), strPageContent);
+                    }
+                }
+                catch( NullPointerException e )
+                {
+                    AppLogService.error( "WikiService.getWikiPage : " + e.getMessage( ), e );
+                }
+
             }
         }
         return strPageContent;
     }
 
-    /**
-     * Get the Wiki page in text format
-     * 
-     * @param strPageName
-     *            The page name
-     * @param version
-     *            The content version
-     * @param strLanguage
-     *            The language
-     * @return The HTML code
-     */
-    public String getPageSource( String strPageName, TopicVersion version, String strLanguage )
-    {
-        String strContent = version.getWikiContent( strLanguage ).getWikiContent( );
-        strContent = renderSource( strContent );
-        Pattern pattern = Pattern.compile( "^\\s*$", Pattern.MULTILINE );
-        strContent = pattern.matcher( strContent ).replaceAll( "<br>" );
-        pattern = Pattern.compile( "^\\s*(.*)\\s*$", Pattern.MULTILINE );
-        strContent = pattern.matcher( strContent ).replaceAll( "<div>$1</div>" );
-
-        return strContent;
-    }
 
     /**
      * Get the Wiki page in HTML format
@@ -150,29 +141,4 @@ public final class WikiService extends AbstractCacheableService
         return getWikiPage( strPageName, version, null, strLanguage );
     }
 
-    /**
-     * Render the wiki content for the editor (convert special characters)
-     * 
-     * @param version
-     *            The version
-     * @param strLanguage
-     *            The Language
-     * @return The content
-     */
-    public static String renderEditor( TopicVersion version, String strLanguage )
-    {
-        return LuteceWikiParser.renderWiki( version.getWikiContent( strLanguage ).getWikiContent( ) );
-    }
-
-    /**
-     * Render the wiki source content
-     * 
-     * @param strContent
-     *            The wiki page source
-     * @return The content
-     */
-    public static String renderSource( String strContent )
-    {
-        return LuteceWikiParser.renderSource( strContent );
-    }
 }
