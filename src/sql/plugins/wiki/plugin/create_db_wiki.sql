@@ -11,6 +11,9 @@ page_name VARCHAR(100) DEFAULT '' NOT NULL,
 page_view_role VARCHAR(50) DEFAULT '' NOT NULL,
 page_edit_role VARCHAR(50) DEFAULT '' NOT NULL,
 parent_page_name VARCHAR(100) DEFAULT '' NOT NULL,
+last_user_editing VARCHAR(100) DEFAULT '' NOT NULL,
+last_edit_attempt_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
   PRIMARY KEY (id_topic)
 );
 
@@ -41,6 +44,7 @@ CREATE TABLE wiki_topic_version_content (
   locale VARCHAR(50) DEFAULT '' NOT NULL,
   page_title VARCHAR(100) DEFAULT '' NOT NULL,
   wiki_content LONG VARCHAR,
+  html_wiki_content LONG VARCHAR NULL,
     PRIMARY KEY (id_topic_version , locale )
 );
 

@@ -1,0 +1,15 @@
+<%@ page import="fr.paris.lutece.plugins.wiki.web.WikiDynamicInputs"%><%@ page errorPage="../../ErrorPagePortal.jsp" trimDirectiveWhitespaces="true" contentType="application/javascript; charset=UTF-8" %>
+
+    <jsp:useBean id="AutoSaveWiki" scope="request" class="fr.paris.lutece.plugins.wiki.web.WikiDynamicInputs" />
+
+    <%
+    if("modifyPage".equals(request.getParameter("actionName")))
+    {
+         WikiDynamicInputs.modifyPage( request, response );
+    }
+    else if("updateLastModifyAttemptPage".equals(request.getParameter("actionName")))
+    {
+        WikiDynamicInputs.updateLastModifyAttemptPage( request );
+
+    }
+    %>
