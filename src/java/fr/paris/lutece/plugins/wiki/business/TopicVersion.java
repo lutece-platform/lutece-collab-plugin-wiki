@@ -118,6 +118,7 @@ public class TopicVersion
         return _mapWikiContent;
     }
 
+
     /**
      * Sets the Wiki Content
      * 
@@ -277,4 +278,5 @@ public class TopicVersion
     {
         _strUserAvatarUrl = strUserAvatarUrl;
     }
+
 }
