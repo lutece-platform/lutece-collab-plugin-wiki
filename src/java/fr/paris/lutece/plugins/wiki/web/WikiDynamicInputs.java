@@ -37,11 +37,12 @@ package fr.paris.lutece.plugins.wiki.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.wiki.business.*;
 import fr.paris.lutece.plugins.wiki.service.ContentDeserializer;
-import fr.paris.lutece.plugins.wiki.service.RoleService;
 import fr.paris.lutece.plugins.wiki.service.WikiLocaleService;
 import fr.paris.lutece.plugins.wiki.service.parser.SpecialChar;
 import fr.paris.lutece.plugins.wiki.utils.auth.WikiAnonymousUser;
+import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.service.security.LuteceUser;
+import fr.paris.lutece.portal.service.security.SecurityService;
 import fr.paris.lutece.portal.service.security.UserNotSignedException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceHtmlParser;
@@ -71,66 +72,61 @@ public class WikiDynamicInputs
         String requestBody = sb.toString( );
         String wikiPageUrl = "";
 
-        try
-        {
-            ContentDeserializer newContent = ContentDeserializer.deserializeWikiContent( requestBody );
-            Topic topic = TopicHome.findByPageName( newContent.getTopicPageName( ) );
-            LuteceUser user = WikiAnonymousUser.checkUser( request );
+        try {
+            ContentDeserializer newContent = ContentDeserializer.deserializeWikiContent(requestBody);
+            Topic topic = TopicHome.findByPageName(newContent.getTopicPageName());
+            LuteceUser user = WikiAnonymousUser.checkUser(request);
 
-            if ( RoleService.hasEditRole( request, topic ) )
-            {
+            String editRole = topic.getEditRole();
+            if (!Page.ROLE_NONE.equals(editRole) && !SecurityService.getInstance().isUserInRole(request, editRole)) {
+                throw new UserNotSignedException();
+            } else {
+                Integer nVersionId = newContent.getTopicVersion();
+                int nTopicId = topic.getIdTopic();
+                String strComment = newContent.getEditComment();
+                String strLocale = newContent.getLanguage();
+                wikiPageUrl = newContent.getWikiPageUrl();
+                String strParentPageName = newContent.getParentPageName();
+                String strViewRole = newContent.getViewRole();
+                String strEditRole = newContent.getEditRole();
+                String strPageTitle = newContent.getTopicTitle();
+                String strContent = newContent.getTopicContent();
+                String htmlContent = newContent.getWikiHtmlContent();
+                TopicVersion topicVersion = new TopicVersion();
 
-                Integer nVersionId = newContent.getTopicVersion( );
-
-                int nTopicId = topic.getIdTopic( );
-                String strComment = newContent.getEditComment( );
-                String strLocale = newContent.getLanguage( );
-                wikiPageUrl = newContent.getWikiPageUrl( );
-                String strParentPageName = newContent.getParentPageName( );
-                String strViewRole = newContent.getViewRole( );
-                String strEditRole = newContent.getEditRole( );
-                String strPageTitle = newContent.getTopicTitle( );
-                String strContent = newContent.getTopicContent( );
-                String htmlContent = newContent.getWikiHtmlContent( );
-                TopicVersion topicVersion = new TopicVersion( );
-
-                if ( nVersionId != 0 )
-                {
-                    topicVersion = TopicVersionHome.findByPrimaryKey( nVersionId );
+                if (nVersionId != 0) {
+                    topicVersion = TopicVersionHome.findByPrimaryKey(nVersionId);
                 }
-                topicVersion.setUserName( user.getName( ) );
-                topicVersion.setIdTopic( nTopicId );
-                topicVersion.setUserName( user.getName( ) );
-                topicVersion.setEditComment( strComment );
-                htmlContent = LuteceHtmlParser.parseHtml( htmlContent, wikiPageUrl, strPageTitle );
+                topicVersion.setUserName(user.getName());
+                topicVersion.setIdTopic(nTopicId);
+                topicVersion.setUserName(user.getName());
+                topicVersion.setEditComment(strComment);
+                htmlContent = LuteceHtmlParser.parseHtml(htmlContent, wikiPageUrl, strPageTitle);
 
-                WikiContent content = new WikiContent( );
-                if ( nVersionId == 0 )
-                {
-                    for ( String locale : WikiLocaleService.getLanguages( ) )
-                    {
-                        content.setPageTitle( strPageTitle + "_" + locale );
-                        content.setContentLabellingMarkdownLanguage( strContent );
-                        content.setHtmlWikiContent( htmlContent );
-                        topicVersion.addLocalizedWikiContent( locale, content );
+                WikiContent content = new WikiContent();
+                if (nVersionId == 0) {
+                    for (String locale : WikiLocaleService.getLanguages()) {
+                        content.setPageTitle(strPageTitle + "_" + locale);
+                        content.setContentLabellingMarkdownLanguage(strContent);
+                        content.setHtmlWikiContent(htmlContent);
+                        topicVersion.addLocalizedWikiContent(locale, content);
                     }
                 }
-                content.setPageTitle( strPageTitle );
-                content.setContentLabellingMarkdownLanguage( strContent );
-                content.setHtmlWikiContent( htmlContent );
-                topicVersion.addLocalizedWikiContent( strLocale, content );
+                content.setPageTitle(strPageTitle);
+                content.setContentLabellingMarkdownLanguage(strContent);
+                content.setHtmlWikiContent(htmlContent);
+                topicVersion.addLocalizedWikiContent(strLocale, content);
 
-                    TopicVersionHome.addTopicVersion( topicVersion );
-                    topic.setViewRole( strViewRole );
-                    topic.setEditRole( strEditRole );
-                    topic.setParentPageName( strParentPageName );
-                    TopicHome.update( topic );
-
+                TopicVersionHome.addTopicVersion(topicVersion);
+                topic.setViewRole(strViewRole);
+                topic.setEditRole(strEditRole);
+                topic.setParentPageName(strParentPageName);
+                TopicHome.update(topic);
             }
         }
         catch( Exception e )
         {
-            AppLogService.error( "Error saving topic version automatically", e );
+            AppLogService.error( "Error saving topic version", e );
         }
         ObjectMapper mapper = new ObjectMapper();
         HashMap<String, String> result = new HashMap<String, String>( );

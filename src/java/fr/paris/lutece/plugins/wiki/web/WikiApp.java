@@ -441,6 +441,11 @@ public class WikiApp extends MVCApplication
         {
             topic = getTopic( request, strPageName, MODE_EDIT );
         }
+        String viewRole = topic.getEditRole( );
+        if ( !Page.ROLE_NONE.equals( viewRole ) && !SecurityService.getInstance( ).isUserInRole( request, viewRole ) )
+        {
+            SiteMessageService.setMessage( request, MESSAGE_AUTHENTICATION_REQUIRED, SiteMessage.TYPE_ERROR );
+        }
         String strLocale = WikiLocaleService.getDefaultLanguage( );
         try {
             if( request.getParameter( Constants.PARAMETER_LOCAL ) != null )
@@ -553,6 +558,11 @@ public class WikiApp extends MVCApplication
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_VIEW );
+        String viewRole = topic.getEditRole( );
+        if ( !Page.ROLE_NONE.equals( viewRole ) && !SecurityService.getInstance( ).isUserInRole( request, viewRole ) )
+        {
+            SiteMessageService.setMessage( request, MESSAGE_AUTHENTICATION_REQUIRED, SiteMessage.TYPE_ERROR );
+        }
         Map<String, Object> model = getModel( );
         Collection<TopicVersion> listTopicVersions = TopicVersionHome.findAllVersions( topic.getIdTopic( ) );
         fillUsersData( listTopicVersions );
@@ -584,6 +594,11 @@ public class WikiApp extends MVCApplication
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_VIEW );
+        String viewRole = topic.getEditRole( );
+        if ( !Page.ROLE_NONE.equals( viewRole ) && !SecurityService.getInstance( ).isUserInRole( request, viewRole ) )
+        {
+            SiteMessageService.setMessage( request, MESSAGE_AUTHENTICATION_REQUIRED, SiteMessage.TYPE_ERROR );
+        }
         Boolean viewDiffHtml = true;
         if( request.getParameter( Constants.PARAMETER_VIEW_DIFF_HTML ) != null )
         {
@@ -660,8 +675,13 @@ public class WikiApp extends MVCApplication
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         String strName = request.getParameter( Constants.PARAMETER_IMAGE_NAME );
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
-        if ( RoleService.hasAdminRole( request ) )
+        Topic topic = TopicHome.findByPageName( strPageName );
+        String editRole = topic.getEditRole( );
+        if ( !Page.ROLE_NONE.equals( editRole ) && !SecurityService.getInstance( ).isUserInRole( request, editRole ) )
         {
+            return redirect( request, VIEW_MAP);
+        }
+
             MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
             FileItem fileItem = multipartRequest.getFile( Constants.PARAMETER_IMAGE_FILE );
             Image image = new Image( );
@@ -699,7 +719,6 @@ public class WikiApp extends MVCApplication
 
                 ImageHome.create( image );
             }
-        }
 
         Map<String, String> mapParameters = new ConcurrentHashMap<>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName + ANCHOR_IMAGES );
@@ -722,11 +741,15 @@ public class WikiApp extends MVCApplication
         int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_IMAGE_ID ) );
         int nTopicId = Integer.parseInt( request.getParameter( Constants.PARAMETER_TOPIC_ID ) );
         Topic topic = TopicHome.findByPrimaryKey( nTopicId );
-        if ( RoleService.hasEditRole( request, topic ) )
+        String editRole = topic.getEditRole( );
+        if ( !Page.ROLE_NONE.equals( editRole ) && !SecurityService.getInstance( ).isUserInRole( request, editRole ) )
         {
-            ImageHome.remove( nId );
-            addInfo( MESSAGE_IMAGE_REMOVED, getLocale( request ) );
-
+            return redirect( request, VIEW_MAP);
+        }
+        else
+        {
+            ImageHome.remove(nId);
+            addInfo(MESSAGE_IMAGE_REMOVED, getLocale(request));
         }
         return null;
     }
@@ -744,6 +767,15 @@ public class WikiApp extends MVCApplication
     public XPage getConfirmRemoveVersion( HttpServletRequest request ) throws SiteMessageException
     {
         int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_TOPIC_VERSION_ID ) );
+        Topic topic = TopicHome.findByPageName( request.getParameter( Constants.PARAMETER_PAGE_NAME ) );
+        String editRole = topic.getEditRole( );
+
+        if ( !Page.ROLE_NONE.equals( editRole ) && !SecurityService.getInstance( ).isUserInRole( request, editRole ) )
+        {
+            SiteMessageService.setMessage( request, MESSAGE_AUTHENTICATION_REQUIRED, SiteMessage.TYPE_ERROR );
+        }
+        else
+        {
         UrlItem url = new UrlItem( AppPathService.getPortalUrl( ) );
         url.addParameter( Constants.PARAMETER_PAGE, Constants.PLUGIN_NAME );
         url.addParameter( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) );
@@ -751,7 +783,7 @@ public class WikiApp extends MVCApplication
         url.addParameter( Constants.PARAMETER_TOPIC_VERSION_ID, nId );
 
         SiteMessageService.setMessage( request, MESSAGE_CONFIRM_REMOVE_VERSION, SiteMessage.TYPE_CONFIRMATION, url.getUrl( ) );
-
+        }
         return null;
     }
 
@@ -767,8 +799,6 @@ public class WikiApp extends MVCApplication
     @Action( ACTION_REMOVE_VERSION )
     public XPage doRemoveVersion( HttpServletRequest request ) throws UserNotSignedException
     {
-        WikiAnonymousUser.checkUser( request );
-
         // requires admin role
         if ( RoleService.hasAdminRole( request ) )
         {
@@ -794,7 +824,12 @@ public class WikiApp extends MVCApplication
     public XPage getListImages( HttpServletRequest request ) throws JsonProcessingException {
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
         List<String> imageList = new ArrayList<>( );
-
+        Topic topic = TopicHome.findByPrimaryKey( Integer.parseInt(strTopicId));
+        String viewRole = topic.getViewRole( );
+        if ( !Page.ROLE_NONE.equals( viewRole ) && !SecurityService.getInstance( ).isUserInRole( request, viewRole ) )
+        {
+            return redirect( request, VIEW_MAP);
+        }
         if ( strTopicId != null )
         {
             int nTopicId = Integer.parseInt( strTopicId );
