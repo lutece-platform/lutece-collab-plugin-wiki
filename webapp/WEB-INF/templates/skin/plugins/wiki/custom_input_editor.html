@@ -3,14 +3,14 @@
 <div id="selectIconModal" class="toastui-editor-popup" style="display: none;" >
     <div style="position: absolute; top: 50%; left: 50%; z-index: -1;"></div>
     <button class="btn btn-default" type="button" style="position: absolute; right: 0;" onclick="closeToastUiModal()">
-        <span class="fa fa-times"></span>
+        <span class="ti ti-times"></span>
     </button>
     <div class="toastui-editor-popup-header">
         <div class="toastui-editor-popup-header-title">Select FA Icons</div>
     </div>
     <div class="toastui-editor-popup-body">
         <div class="toastui-editor-popup-content-body">
-            <@selectIconFont id='selectIcon' class='' name='resource-icon' showListLabel=true showListIcon=true searchShow=true searchFocus=false searchHighlight=true type='yaml' prefix='fa-' iconsUrl='css/admin/font-awesome-icons.yml' resources=true defaultValue='' />
+            <@selectIconFont  id='selectIcon' class='' name='resource-icon' showListLabel=true showListIcon=true searchShow=true searchFocus=false searchHighlight=true type='json' prefix='ti' iconsUrl='themes/admin/shared/css/vendor/tabler/tabler-icons.json' resources=true defaultValue='' />
         </div>
         <p>Select an icon type Solid or Regular</p>
     </div>
@@ -18,11 +18,11 @@
         <div class="toastui-editor-popup-content-body" style="margin: 25px;">
             <label for="iconSize">Icon Size :</label>
             <select id="iconSize" class="form-control" onchange="changeIconSize()">
-                <option value="fa-1x">fa-1x</option>
-                <option value="fa-2x">fa-2x</option>
-                <option value="fa-3x">fa-3x</option>
-                <option value="fa-4x">fa-4x</option>
-                <option value="fa-5x">fa-5x</option>
+                <option value="fa-sm">fa-sm</option>
+                <option value="">fa</option>
+                <option value="fa-lg">fa-lg</option>
+                <option value="fa-xl">fa-xl</option>
+                <option value="fa-2xl">fa-2xl</option>
             </select>
             <div class="toastui-editor-popup-content-body">
                 Seleted Icon : <span id="selectedIcon"> </span>
@@ -38,7 +38,7 @@
 <div id="selectAlertType" class="toastui-editor-popup" style="display: none;" >
     <div style="position: absolute; top: 50%; left: 50%; z-index: -1;"></div>
     <button class="btn btn-default" type="button" style="position: absolute; right: 0;" onclick="closeToastUiModal()">
-        <span class="fa fa-times"></span>
+        <span class="ti ti-times"></span>
     </button>
     <div class="toastui-editor-popup-header">
         <div class="toastui-editor-popup-header-title">Select an Alert-Box</div>
@@ -55,7 +55,7 @@
 <div id="selectJumbotronModal"  class="toastui-editor-popup" style="display: none;" >
     <div style="position: absolute; top: 50%; left: 50%; z-index: -1;"></div>
     <button class="btn btn-default" type="button" style="position: absolute; right: 0;" onclick="closeToastUiModal()">
-        <span class="fa fa-times"></span>
+        <span class="ti ti-times"></span>
     </button>
     <div class="toastui-editor-popup-header">
         <div class="toastui-editor-popup-header-title">Select a Jumbotron</div>
@@ -75,7 +75,7 @@
 <!------------ modal  select a badge ----------------->
 <div id="selectBadge" class="toastui-editor-popup" style="display: none;" >
     <button class="btn btn-default" type="button" style="position: absolute; right: 0;" onclick="closeToastUiModal()">
-        <span class="fa fa-times"></span>
+        <span class="ti ti-times"></span>
     </button>
     <div class="toastui-editor-popup-header">
         <div class="toastui-editor-popup-header-title">Select a Badge</div>
@@ -118,7 +118,7 @@
 <div id="imageModal" class="toastui-editor-popup" style="display: none;" >
     <div style="position: absolute; top: 50%; left: 50%; z-index: -1;"></div>
     <button class="btn btn-default" type="button" style="position: absolute; right: 0;" onclick="closeToastUiModal()">
-        <span class="fa fa-times"></span>
+        <span class="ti ti-times"></span>
     </button>
     <div class="toastui-editor-popup-header">
         <div class="toastui-editor-popup-header-title">Insert image from an url</div>

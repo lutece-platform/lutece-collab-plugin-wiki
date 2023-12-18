@@ -20,11 +20,11 @@ window.addEventListener("load", (event) => {
     let darkModeLabel = document.getElementById('darkModeLabel');
         if (darkMode === 'true') {
             darkModeId.checked = true;
-            darkModeLabel.innerHTML = '<span class="fa fa-moon fa-2x"></span>';
+            darkModeLabel.innerHTML = '<span class="ti ti-moon fa-lg"></span>';
             document.body.classList.add('darkmode');
         } else {
             darkModeId.checked = false;
-            darkModeLabel.innerHTML = '<span class="fa fa-sun fa-2x"></span>';
+            darkModeLabel.innerHTML = '<span class="ti ti-sun fa-lg"></span>';
             document.body.classList.remove('darkmode');
         }
 });
@@ -44,12 +44,12 @@ function toggleDarkMode() {
     let darkModeLabel = document.getElementById('darkModeLabel');
         if (darkMode === 'true') {
             darkModeId.checked = false;
-            darkModeLabel.innerHTML = '<span class="fa fa-sun fa-2x"></span>';
+            darkModeLabel.innerHTML = '<span class="ti ti-sun fa-lg"></span>';
             document.body.classList.remove('darkmode');
             localStorage.setItem('darkMode', 'false');
         } else {
             darkModeId.checked = true;
-            darkModeLabel.innerHTML = '<span class="fa fa-moon fa-2x"></span>';
+            darkModeLabel.innerHTML = '<span class="ti ti-moon fa-lg"></span>';
             document.body.classList.add('darkmode');
             localStorage.setItem('darkMode', 'true');
         }
