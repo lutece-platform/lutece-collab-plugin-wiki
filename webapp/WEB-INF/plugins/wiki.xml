@@ -31,14 +31,12 @@
         <css-stylesheets-scope>xpage</css-stylesheets-scope>
         <css-stylesheet>wiki/wiki.css</css-stylesheet>
         <css-stylesheet>wiki/toggle_switch.css</css-stylesheet>
-        <css-stylesheet>wiki/prism/prism.css</css-stylesheet>
     </css-stylesheets>
     
     <!-- Specific plugin CSS stylesheet  -->
     <javascript-files>
         <javascript-files-scope>xpage</javascript-files-scope>  
         <javascript-file>wiki/prettify/run_prettify.js?skin=desert</javascript-file>
-        <javascript-file>wiki/prism/prism.js</javascript-file>
     </javascript-files>
 
     <!-- XPages parameters -->

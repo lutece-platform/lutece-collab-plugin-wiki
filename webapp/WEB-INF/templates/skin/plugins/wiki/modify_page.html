@@ -3,12 +3,13 @@
     <!-- Dark mode -->
     <link rel="stylesheet" href="css/plugins/wiki/darkmode.css" />
     <!-- Editor -->
-    <link rel="stylesheet" href="css/plugins/wiki/toastui/toastui-editor-dark.css" />
-    <link rel="stylesheet" href="css/plugins/wiki/toastui/toastui-editor.css" />
-    <link rel="stylesheet" href="css/plugins/wiki/toastui/tui-color-picker.css"/>
-    <link rel="stylesheet" href="css/plugins/wiki/toastui/plugins/min/toastui-editor-plugin-color-syntax.min.css"/>
-    <link rel="stylesheet" href="css/plugins/wiki/toastui/plugins/min/toastui-editor-plugin-table-merged-cell.min.css" />
-    <link rel="stylesheet" href="css/plugins/wiki/toastui/plugins/min/toastui-editor-plugin-code-syntax-highlight.min.css" />
+    <link rel="stylesheet" href="css/toastui/toastui-editor-dark.css" />
+    <link rel="stylesheet" href="css/toastui/toastui-editor.css" />
+    <link rel="stylesheet" href="css/toastui/tui-color-picker.css"/>
+    <link rel="stylesheet" href="css/toastui/plugins/min/toastui-editor-plugin-color-syntax.min.css"/>
+    <link rel="stylesheet" href="css/toastui/plugins/min/toastui-editor-plugin-table-merged-cell.min.css" />
+    <link rel="stylesheet" href="css/toastui/plugins/min/toastui-editor-plugin-code-syntax-highlight.min.css" />
+    <link rel="stylesheet" href="js/admin/lib/prism/prism.css" />
 </head>
 
 <div class="row">
@@ -237,16 +238,17 @@
 
 <script type="text/javascript" src="js/plugins/wiki/jquery/jquery.form.js"></script>
 <!-- Tui Editor integration -->
-<script type="text/javascript"   class="code-js"  src="js/plugins/wiki/tui_editor/cdn/toastui-editor-all.min.js"></script>
+<script type="text/javascript"   class="code-js"  src="js/admin/editors/tui_editor/cdn/toastui-editor-all.min.js"></script>
 <!-- Color Picker -->
-<script type="text/javascript"   class="code-js"  src="js/plugins/wiki/tui_color_picker/tui-color-picker.min.js"></script>
+<script type="text/javascript"   class="code-js"  src="js/admin/lib/tui_color_picker/tui-color-picker.min.js"></script>
 <!-- Editor's Plugin -->
-<script type="text/javascript"  class="code-js"   src="js/plugins/wiki/latex_js/latex.js"></script>
-<script type="text/javascript"  class="code-js"   src="js/plugins/wiki/tui_editor/plugins/editor-plugin-code-syntax-highlight/cdn/toastui-editor-plugin-code-syntax-highlight-all.min.js"></script>
-<script type="text/javascript"  class="code-js"   src="js/plugins/wiki/tui_editor/plugins/editor-plugin-color-syntax/cdn/toastui-editor-plugin-color-syntax.min.js"></script>
-<script type="text/javascript"  class="code-js"   src="js/plugins/wiki/tui_editor/plugins/editor-plugin-table-merged-cell/cdn/toastui-editor-plugin-table-merged-cell.min.js"></script>
+<script type="text/javascript"  class="code-js"   src="js/admin/lib/latex_js/latex.js"></script>
+<script type="text/javascript"  class="code-js"   src="js/admin/editors/tui_editor/plugins/editor-plugin-code-syntax-highlight/cdn/toastui-editor-plugin-code-syntax-highlight-all.min.js"></script>
+<script type="text/javascript"  class="code-js"   src="js/admin/editors/tui_editor/plugins/editor-plugin-color-syntax/cdn/toastui-editor-plugin-color-syntax.min.js"></script>
+<script type="text/javascript"  class="code-js"   src="js/admin/editors/tui_editor/plugins/editor-plugin-table-merged-cell/cdn/toastui-editor-plugin-table-merged-cell.min.js"></script>
 <script type="text/javascript"  class="code-js"   src="js/plugins/wiki/wiki_pages/defaultEditorContent.js" ></script>
 <script type="text/javascript"  class="code-js"   src="js/plugins/wiki/wiki_pages/modify_page.js" ></script>
+<script type="text/javascript"  class="code-js"   src="js/admin/lib/prism/prism.js"></script>
 <script type="text/javascript"  defer>
     // Image upload ajax form
     var formUploadImage = $('#ajax-form-image-upload');
