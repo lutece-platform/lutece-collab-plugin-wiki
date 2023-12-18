@@ -7,10 +7,10 @@
                 <input type="hidden" name="view" value="diff" />
                 <div class="btn-group btn-group-xs pull-right">
                     <button class="btn btn-default" type="submit" title="#i18n{wiki.menu.diff}">
-                        <span class="glyphicon glyphicon-eye-open"></span> #i18n{wiki.menu.diff}
+                        <span class="ti ti-eye"></span> #i18n{wiki.menu.diff}
                     </button>
                     <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
-                        <span class="glyphicon glyphicon-chevron-left"></span> #i18n{wiki.button.backToPage}
+                        <span class="ti ti-chevron-left"></span> #i18n{wiki.button.backToPage}
                     </a>
                     <#list languages_list as language>
                     <#if language = current_language >
@@ -33,9 +33,9 @@
                 <tr>
                     <th>#i18n{wiki.history_page.tableHeader.mostRecent}</th>
                     <th>#i18n{wiki.history_page.tableHeader.lessRecent}</th>
-                    <th><span class="glyphicon glyphicon-calendar"></span> #i18n{wiki.history_page.tableHeader.date}</th>
-                    <th><span class="glyphicon glyphicon-user"></span> #i18n{wiki.history_page.tableHeader.author}</th>
-                    <th><span class="glyphicon glyphicon-comment"></span> #i18n{wiki.history_page.tableHeader.comment}</th>
+                    <th><span class="ti ti-calendar"></span> #i18n{wiki.history_page.tableHeader.date}</th>
+                    <th><span class="ti ti-user"></span> #i18n{wiki.history_page.tableHeader.author}</th>
+                    <th><span class="ti ti-comments"></span> #i18n{wiki.history_page.tableHeader.comment}</th>
                     <#if has_edit_role >
                     <th>#i18n{portal.util.labelActions}</th>
                 </#if>
