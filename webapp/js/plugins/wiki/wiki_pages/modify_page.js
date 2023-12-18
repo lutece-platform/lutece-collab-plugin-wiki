@@ -62,6 +62,7 @@ const editor = new Editor({
     events: {
         change: () => {
             document.getElementById('wiki_content').value = editor.getMarkdown();
+            autoSave();
         },
     },
 });
@@ -360,6 +361,86 @@ tableOfContentButton.addEventListener('click', function() {
 
 });
 
+/*___________________________ AUTO_SAVE  ___________________________*/
+
+
+window.addEventListener("load", (event) => {
+    if( parseInt(document.getElementById('topic_version').value)  !== 0 && window.localStorage.getItem('autoSaveMode') === null){
+        if(confirm('Do you want to activate auto-save mode ? \n\n'+ 'Note: If you activate this mode, the content will be saved when you are typing, updating this topic version.')){
+            window.localStorage.setItem('autoSaveMode', 'true');
+            document.getElementById('autoSaveMode').checked = true;
+        }
+        else{
+            window.localStorage.setItem('autoSaveMode', 'false');
+            document.getElementById('autoSaveMode').checked = false;
+        }
+    }
+    else if (parseInt(document.getElementById('topic_version').value)  !== 0 ) {
+        window.localStorage.getItem('autoSaveMode') === 'true'
+            ? document.getElementById('autoSaveMode').checked = true
+            : document.getElementById('autoSaveMode').checked = false;
+    }
+});
+
+function toggleAutosave(){
+
+    if(parseInt(document.getElementById('topic_version').value)  === 0){
+        alert('In order to save automatically the content, you must manually save a first version');
+        document.getElementById('autoSaveMode').checked = false;
+        document.getElementById('autoSaveLabel').innerText = 'Auto-save mode is deactivated';
+    }
+    else if (parseInt(document.getElementById('topic_version').value)  !== 0){
+        if (document.getElementById('autoSaveMode').checked) {
+            document.getElementById('autoSaveLabel').innerText = 'Auto-save mode is activated';
+            window.localStorage.setItem('autoSaveMode', 'true');
+        } else {
+            document.getElementById('autoSaveLabel').innerText = 'Auto-save mode is deactivated';
+            window.localStorage.setItem('autoSaveMode', 'false');
+        }
+    }
+}
+function displayAutoSave(autoSaveResult){
+    if(autoSaveResult){
+        document.getElementById('autoSave').style.display = 'block';
+        document.getElementById('autoSaveSucess').style.display = 'block';
+    } else{
+        document.getElementById('autoSave').style.display = 'block';
+        document.getElementById('autoSaveFailed').style.display = 'block';
+    }
+    setTimeout(function(){
+        document.getElementById('autoSave').style.display = 'none';
+        document.getElementById('autoSaveSucess').style.display = 'none';
+        document.getElementById('autoSaveFailed').style.display = 'none';
+    }, 3000);
+}
+// if auto save mode is activated and done
+let hasToWait = false;
+function autoSave() {
+    if(document.getElementById('autoSaveMode').checked) {
+        if (!hasToWait) {
+            hasToWait = true;
+            setTimeout(function () {
+                const saveType = "autoSave";
+                callInputs(saveType);
+                hasToWait = false;
+            }, 10000);
+        }
+    }
+}
+
+async function autoSaveContent(version, parentPage, topic_id, topicTitle, topicContent, wikiHtmlContent, wikiPageUrl) {
+    let autoSaveResponse = await fetch('jsp/site/plugins/wiki/WikiDynamicInputs.jsp?actionName=autoSaveWiki', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            credentials: "same-origin"
+        },
+        body: JSON.stringify({topicVersion:version, parentPageName:parentPage, topicId:topic_id, topicTitle: topicTitle, topicContent: topicContent, language: localeJs, wikiHtmlContent: wikiHtmlContent, wikiPageUrl: wikiPageUrl})
+    });
+    let autoSaveResult = await autoSaveResponse;
+    displayAutoSave(autoSaveResult);
+}
 
 /*___________________________ ON LANGUAGE CHANGE  ___________________________*/
 function changeLanguage(locale) {
@@ -405,7 +486,7 @@ function escapeSpecialCharsFromContent( content )
     content = replaceAll("'", '[simpleQuote;', content)
     return content
 }
-function postModification(version, parentPage, topic_id, topicTitle, topicContent, wikiHtmlContent, wikiPageUrl, editComment, viewRole, editRole, topicPageName) {
+function postModification(version, parentPage, topic_id, topicTitle, topicContent, wikiHtmlContent, wikiPageUrl, editComment, viewRole, editRole, publishVersion, createVersion, topicPageName) {
     fetch('jsp/site/plugins/wiki/WikiDynamicInputs.jsp?actionName=modifyPage',{
         method: 'POST',
         headers: {
@@ -413,7 +494,7 @@ function postModification(version, parentPage, topic_id, topicTitle, topicConten
             'Content-Type': 'application/json',
             credentials: "same-origin"
         },
-        body: JSON.stringify({topicVersion:version, parentPageName:parentPage, topicId:topic_id, topicTitle: topicTitle, topicContent: topicContent, language: localeJs, wikiHtmlContent: wikiHtmlContent, wikiPageUrl: wikiPageUrl, editComment: editComment, viewRole: viewRole, editRole: editRole,topicPageName: topicPageName})
+        body: JSON.stringify({topicVersion:version, parentPageName:parentPage, topicId:topic_id, topicTitle: topicTitle, topicContent: topicContent, language: localeJs, wikiHtmlContent: wikiHtmlContent, wikiPageUrl: wikiPageUrl, editComment: editComment, viewRole: viewRole, editRole: editRole,  publishVersion: publishVersion, createVersion: createVersion, topicPageName: topicPageName})
     })
         .then(response => response.json())
         .then(data => {
@@ -427,7 +508,7 @@ function postModification(version, parentPage, topic_id, topicTitle, topicConten
         })
 
 }
-function viewPreview(version, parentPage, topic_id, topicTitle, topicContent, wikiHtmlContent, wikiPageUrl, editComment, viewRole, editRole, topicPageName) {
+function viewPreview(version, parentPage, topic_id, topicTitle, topicContent, wikiHtmlContent, wikiPageUrl, editComment, viewRole, editRole, publishVersion, createVersion, topicPageName) {
     fetch('jsp/site/Portal.jsp?page=wiki&view=preview',{
         method: 'POST',
         headers: {
@@ -466,10 +547,21 @@ function callInputs(saveType) {
     const viewRole = document.getElementById("view_role").value;
     const editRole = document.getElementById("edit_role").value;
     const topicPageName = document.getElementById("page_name").value;
-     if (saveType === "saveNewVersion" ){
-        postModification(version, parentPage, topic_id, topicTitle, topicContent, wikiHtmlContent, wikiPageUrl, editComment, viewRole, editRole,topicPageName);
+    if(saveType === "autoSave"){
+        autoSaveContent(version, parentPage, topic_id, topicTitle, topicContent, wikiHtmlContent, wikiPageUrl, editComment, viewRole, editRole, topicPageName);
+    }
+    else if (saveType === "saveNewVersion" ){
+        const publishVersion = false;
+        const createVersion = true;
+        postModification(version, parentPage, topic_id, topicTitle, topicContent, wikiHtmlContent, wikiPageUrl, editComment, viewRole, editRole, publishVersion, createVersion, topicPageName);
+
+    } else if( saveType === "publish") {
+        const publishVersion = true;
+        const createVersion = true;
+        postModification(version, parentPage, topic_id, topicTitle, topicContent, wikiHtmlContent, wikiPageUrl, editComment, viewRole, editRole, publishVersion, createVersion, topicPageName);
+
     } else if("preview"){
-        viewPreview(version, parentPage, topic_id, topicTitle, topicContent, wikiHtmlContent, wikiPageUrl, editComment, viewRole, editRole, topicPageName);
+        viewPreview(version, parentPage, topic_id, topicTitle, topicContent, wikiHtmlContent, wikiPageUrl, editComment, viewRole, editRole, publishVersion, createVersion, topicPageName);
 
     }
 }
@@ -514,13 +606,13 @@ function updateImages() {
         },
         credentials: "same-origin"
     }).then(response => response.json())
-      .then(data => {
+        .then(data => {
             let imagesContainer = document.getElementById("table-images");
             imagesContainer.innerHTML = "";
             data.forEach(image => {
                 const imageElement = document.createElement("div");
                 imageElement.className = 'image-editor-display';
-                const imageUrl = 'image?resource_type=wiki_image&id=' + parseInt(image.id);
+                const imageUrl = 'image?resource_type=wiki_image&id=' + image.id;
                 let img = document.createElement("img");
                 img.className = "image-editor-display";
                 img.src = imageUrl;

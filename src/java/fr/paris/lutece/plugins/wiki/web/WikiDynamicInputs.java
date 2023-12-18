@@ -57,7 +57,66 @@ import java.util.HashMap;
  */
 public class WikiDynamicInputs
 {
+    public static String autoSaveWiki( HttpServletRequest request ) throws IOException, UserNotSignedException
+    {
+        Boolean saveSuccess = false;
+        StringBuilder sb = new StringBuilder( );
+        BufferedReader reader = request.getReader( );
+        String line;
+        while ( ( line = reader.readLine( ) ) != null )
+        {
+            sb.append( line );
+        }
+        String requestBody = sb.toString( );
+        try
+        {
+            ContentDeserializer newContent = ContentDeserializer.deserializeWikiContent( requestBody );
+            LuteceUser user = WikiAnonymousUser.checkUser( request );
 
+            Topic topic = TopicHome.findByPrimaryKey( newContent.getTopicId( ) );
+            if ( RoleService.hasEditRole( request, topic ) )
+            {
+                int topicVersionId = newContent.getTopicVersion( );
+                int nTopicId = topic.getIdTopic( );
+                TopicVersion topicVersion = TopicVersionHome.findByPrimaryKey( topicVersionId );
+                topicVersion.setIdTopic( nTopicId );
+                topicVersion.setIdTopicVersion( topicVersionId );
+                topicVersion.setUserName( user.getName( ) );
+                if ( topicVersion.getEditComment( ) == null || topicVersion.getEditComment( ).isEmpty( ) )
+                {
+                    topicVersion.setEditComment( "AutoSave" );
+                }
+                topicVersion.setEditComment( topicVersion.getEditComment( ) );
+                topicVersion.setIsPublished( false );
+                topicVersion.setLuteceUserId( user.getFirstName( ) + "-" + user.getName( ) );
+                WikiContent content = new WikiContent( );
+                content.setPageTitle( newContent.getTopicTitle( ) );
+                content.setWikiContent( newContent.getTopicContent( ) );
+                content.setContentLabellingMarkdownLanguage( newContent.getTopicContent( ) );
+                String wikiPageUrl = newContent.getWikiPageUrl( );
+                String htmlContent = LuteceHtmlParser.parseHtml( newContent.getWikiHtmlContent( ), wikiPageUrl, newContent.getTopicTitle( ) );
+                content.setHtmlWikiContent( htmlContent );
+                topicVersion.addLocalizedWikiContent( newContent.getLanguage( ), content );
+                TopicVersionHome.updateTopicVersion( topicVersion );
+                topic.setViewRole( topic.getViewRole( ) );
+                topic.setEditRole( topic.getEditRole( ) );
+                topic.setParentPageName( newContent.getParentPageName( ) );
+                TopicHome.update( topic );
+                saveSuccess = true;
+            }
+            else
+            {
+                throw new UserNotSignedException( );
+            }
+        }
+        catch( Exception e )
+        {
+            AppLogService.error( "Error saving topic version automatically", e );
+        }
+        // return the response in json
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(saveSuccess);
+    }
 
     public static HttpServletResponse modifyPage( HttpServletRequest request, HttpServletResponse response ) throws IOException, UserNotSignedException
     {
@@ -69,6 +128,8 @@ public class WikiDynamicInputs
             sb.append( line );
         }
         String requestBody = sb.toString( );
+        Boolean publish = false;
+        Boolean newVersion = false;
         String wikiPageUrl = "";
 
         try
@@ -81,6 +142,8 @@ public class WikiDynamicInputs
             {
 
                 Integer nVersionId = newContent.getTopicVersion( );
+                newVersion = newContent.getIsCreateVersion( );
+                publish = newContent.getIsPublishVersion( );
 
                 int nTopicId = topic.getIdTopic( );
                 String strComment = newContent.getEditComment( );
@@ -102,6 +165,8 @@ public class WikiDynamicInputs
                 topicVersion.setIdTopic( nTopicId );
                 topicVersion.setUserName( user.getName( ) );
                 topicVersion.setEditComment( strComment );
+                topicVersion.setIsPublished( publish );
+
                 htmlContent = LuteceHtmlParser.parseHtml( htmlContent, wikiPageUrl, strPageTitle );
 
                 WikiContent content = new WikiContent( );
@@ -119,13 +184,21 @@ public class WikiDynamicInputs
                 content.setContentLabellingMarkdownLanguage( strContent );
                 content.setHtmlWikiContent( htmlContent );
                 topicVersion.addLocalizedWikiContent( strLocale, content );
-
+                // if publish is true, cancel publication of previous version
+                if ( publish.equals( true ) )
+                {
+                    String comment = "publication canceled by" + " " + user.getName( );
+                    TopicVersionHome.cancelPublication( nTopicId, comment );
+                }
+                // if newVersion is true or publish is true, create a new version
+                if ( newVersion || publish.equals( true ) )
+                {
                     TopicVersionHome.addTopicVersion( topicVersion );
                     topic.setViewRole( strViewRole );
                     topic.setEditRole( strEditRole );
                     topic.setParentPageName( strParentPageName );
                     TopicHome.update( topic );
-
+                }
             }
         }
         catch( Exception e )
@@ -134,12 +207,22 @@ public class WikiDynamicInputs
         }
         ObjectMapper mapper = new ObjectMapper();
         HashMap<String, String> result = new HashMap<String, String>( );
-
+        if ( publish.equals( true ) )
+        {
             result.put( "action", "publish" );
             result.put( "url", SpecialChar.renderWiki( wikiPageUrl ) );
             String res = mapper.writeValueAsString( result );
             response.getWriter( ).write( res );
-
+        }
+        else
+            if ( newVersion && !publish.equals( true ) )
+            {
+                result.put( "action", "savedInNewVersion" );
+                result.put( "url", SpecialChar.renderWiki( wikiPageUrl ) );
+                String res = mapper.writeValueAsString( result );
+                response.getWriter( ).write( res );
+            }
         return response;
     }
+
 }

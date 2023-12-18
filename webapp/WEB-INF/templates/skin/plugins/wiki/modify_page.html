@@ -67,7 +67,32 @@
             </button>
         </div>
     </div>
+        <!------------ AUTOSAVE ---------------->
+        <div style="display: flex; justify-content: end;  flex-direction: row;">
+            <div style="margin-right: 10px">
+                <#if version??>
+                <label id="autoSaveLabel">#i18n{wiki.modify_page.autoSaveActivated}</label>
+                <#else>
+                <label id="autoSaveLabel">#i18n{wiki.modify_page.autoSaveDesactivated}</label>
+            </#if>
+        </div>
+        <div>
+            <label class="switch">
+                <input id="autoSaveMode" type="checkbox" onchange="toggleAutosave()">
+                <span class="slider round"></span>
+            </label>
+        </div>
+    </div>
++<div style="display: flex; justify-content: end;  flex-direction: row;">
 
+        <div id="autoSave" style="display:none; margin-right: 10px" >
+            <div style=" display: flex; align-items: center">
+                <span  style="margin-left: 10px"> <div class="spinner"></div></span>
+                <div  id="autoSaveSucess" style="display: none; margin-left: 10px">#i18n{wiki.modify_page.autoSaveSucess}</div>
+                <div  id="autoSaveFailed" style="display: none; margin-left: 10px">#i18n{wiki.modify_page.autoSaveFailed}</div>
+            </div>
+        </div>
+    </div>
 <!------------------- DARK MODE -------------------------->
 <div id="darkModeSwitch" style="display: none">
     <div  style="display: flex; justify-content: end;  flex-direction: row; margin-top: 15px" >
@@ -116,7 +141,7 @@
     <div id="tab-${locale}" class="tab-pane active"  role="tabpanel" >
         <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
         <div class="form-group">
-            <input class="form-control" id="page_title_${locale}" type="text" name="page_title_${locale}" value="<#if version?? && version.getWikiContent(locale)??>${version.getWikiContent( locale).pageTitle}</#if>" maxlength="100" />
+            <input class="form-control" id="page_title_${locale}" type="text" name="page_title_${locale}" value="<#if version?? && version.getWikiContent(locale)??>${version.getWikiContent( locale).pageTitle}</#if>" maxlength="100"  onkeydown="autoSave()"/>
         </div>
 
         <div class="form-group">
@@ -164,6 +189,9 @@
         </div>
         <button name="action_modifyPage" class="btn btn-primary"  title="#i18n{wiki.modify_page.buttonModify}" onclick="createVersion()">
             <span class="ti ti-save fa-lg"></span> &nbsp;#i18n{wiki.modify_page.buttonModify}
+        </button>
+        <button name="action_modifyPage" class="btn btn-primary"  title="#i18n{wiki.modify_page.buttonModify}" onclick="publishVersion()">
+            <span class="fa fa-save fa-1x"></span> &nbsp;#i18n{wiki.modify_page.SaveAndPublish}
         </button>
     </div>
     <div class="col-sm-6">

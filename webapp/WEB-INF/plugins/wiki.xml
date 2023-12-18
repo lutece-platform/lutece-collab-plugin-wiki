@@ -30,6 +30,7 @@
     <css-stylesheets>
         <css-stylesheets-scope>xpage</css-stylesheets-scope>
         <css-stylesheet>wiki/wiki.css</css-stylesheet>
+        <css-stylesheet>wiki/spinner.css</css-stylesheet>
         <css-stylesheet>wiki/toggle_switch.css</css-stylesheet>
     </css-stylesheets>
     
