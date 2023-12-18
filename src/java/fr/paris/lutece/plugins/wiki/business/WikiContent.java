@@ -33,6 +33,8 @@
  */
 package fr.paris.lutece.plugins.wiki.business;
 
+import fr.paris.lutece.plugins.wiki.web.Constants;
+
 /**
  * WikiContent
  */
@@ -41,6 +43,7 @@ public class WikiContent
     // Variables declarations
     private String _strPageTitle;
     private String _strWikiContent;
+    private String _strHtmlWikiContent;
 
     /**
      * Returns the PageTitle
@@ -70,7 +73,7 @@ public class WikiContent
      */
     public String getWikiContent( )
     {
-        return _strWikiContent;
+         return _strWikiContent;
     }
 
     /**
@@ -83,4 +86,40 @@ public class WikiContent
     {
         _strWikiContent = strWikiContent;
     }
+
+    /**
+     * Returns the HtmlWikiContent
+     *
+     * @return The HtmlWikiContent
+     */
+    public String getHtmlWikiContent( )
+    {
+        return _strHtmlWikiContent;
+    }
+
+    /**
+     * Sets the HtmlWikiContent
+     *
+     * @param strHtmlWikiContent
+     *            The HtmlWikiContent
+     */
+    public void setHtmlWikiContent( String strHtmlWikiContent )
+    {
+        _strHtmlWikiContent = strHtmlWikiContent;
+    }
+
+
+    /**
+     * Set the WikiContent with labelling MarkdownLanguage
+     * Labelling MarkdownLanguage is used to avoid to differentiate the content of with previous version of with wiki creole and the new one with markdown
+     * @param strWikiContent
+      *            The WikiContent
+     */
+    public void setContentLabellingMarkdownLanguage(String strWikiContent ){
+        {
+            _strWikiContent = Constants.MARKDOWN_TAG+strWikiContent;
+        }
+    }
+
+
 }
