@@ -39,7 +39,27 @@ span.diff-html-conflict {
 /*  background: url(../images/diffunderline.gif) bottom repeat-x; */
   background-color: #f781be; /* light rose */
 }
-
+[class^="ti ti-"] {
+    font-size: 18px;
+}
+.fa-2xs {
+    font-size: 10px;
+}
+.fa-xs{
+    font-size: 12px;
+}
+.fa-sm{
+    font-size: 14px;
+}
+.fa-lg{
+    font-size: 20px;
+}
+.fa-xl{
+    font-size: 24px;
+}
+.fa-2xl{
+    font-size: 32px;
+}
 .markItUp {
     width: 100%;
 }

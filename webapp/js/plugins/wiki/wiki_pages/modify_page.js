@@ -71,7 +71,7 @@ editor.insertToolbarItem({ groupIndex: 0, itemIndex: 0 }, {
     name: 'IconButton',
     tooltip: 'FA Icons',
     text: 'FA',
-    className: 'fa fa-search editor',
+    className: 'ti ti-search editor',
     style: { backgroundImage: 'none' },
 });
 editor.insertToolbarItem({ groupIndex: 0, itemIndex: 1 }, {
@@ -92,7 +92,7 @@ editor.insertToolbarItem({ groupIndex: 0, itemIndex: 3 }, {
     name: 'toc',
     tooltip: 'Table of Contents',
     text: 'TC',
-    className: 'fa fa-list editor',
+    className: 'ti ti-list editor',
     style: { backgroundImage: 'none' },
 });
 editor.insertToolbarItem({ groupIndex: 0, itemIndex: 4 }, {
@@ -106,21 +106,21 @@ editor.insertToolbarItem({ groupIndex: 0, itemIndex: 5 }, {
     name: 'DarkMode',
     tooltip: 'Dark Mode',
     text: 'Da',
-    className: 'fa fa-moon editor',
+    className: 'ti ti-moon editor',
     style: { backgroundImage: 'none' },
 });
 editor.insertToolbarItem({ groupIndex: 0, itemIndex: 6 }, {
     name: 'iframe',
     tooltip: 'insert video or iframe',
     text: 'Vi',
-    className: 'fa fa-video editor',
+    className: 'ti ti-video editor',
     style: { backgroundImage: 'none' },
 });
 editor.insertToolbarItem({ groupIndex: 0, itemIndex: 9 }, {
     name: 'Image',
     tooltip: 'Image',
     text: 'Im',
-    className: 'fa fa-image editor',
+    className: 'ti ti-image editor',
     style: { backgroundImage: 'none' },
 });
 
@@ -176,7 +176,7 @@ function selectAlertBoxType(alertValue) {
     closeToastUiModal();
 }
 /* -------------- VIDEO  -------------- */
-let addVideoButton = document.getElementsByClassName("fa fa-video editor")[0];
+let addVideoButton = document.getElementsByClassName("ti ti-video editor")[0];
 addVideoButton.addEventListener('click', function() {
     alert("You can insert a video or an iframe, for example on youtube, copy the embed code and paste it in the editor such as : " +
         "<iframe width=\"1280\" height=\"720\" src=\"https://www.youtube.com/embed/ODSe4CqVxNU\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>");
@@ -184,7 +184,7 @@ addVideoButton.addEventListener('click', function() {
 
 
 /* -------------- ICONS -------------- */
-let addIconButton = document.getElementsByClassName("fa fa-search editor")[0];
+let addIconButton = document.getElementsByClassName("ti ti-search editor")[0];
 addIconButton.addEventListener('click', function() {
     document.getElementById("selectIconModal").style.display = "block";
 });
@@ -194,7 +194,7 @@ function changeIconSize() {
     const icon = document.getElementById("selectIcon").value;
     const iconSize = document.getElementById("iconSize").value;
     document.getElementById("selectedIcon").style.display = "none";
-    document.getElementById("selectedIcon").innerHTML = '<span class="fa fa-' + icon +" " + iconSize + '"></span><br/>';
+    document.getElementById("selectedIcon").innerHTML = '<span class="ti ti-' + icon +" " + iconSize + '"></span><br/>';
     document.getElementById("selectedIcon").style.display = "block";
 }
 function insertIcon() {
@@ -206,7 +206,7 @@ function insertIcon() {
 document.getElementById("selectIcon").addEventListener("change", function() {
     const icon = document.getElementById("selectIcon").value;
     document.getElementById("iconIsSelected").style.display = "block";
-    document.getElementById("selectedIcon").innerHTML = '<span class="fa fa-' + icon + '"></span><br/>';
+    document.getElementById("selectedIcon").innerHTML = '<span class="ti ti-' + icon + '"></span><br/>';
 });
 
 
@@ -302,7 +302,7 @@ function selectJumbotron(jumbotronValue) {
 }
 
 /* -------------- DARK MODE -------------- */
-const darkModeButton = document.getElementsByClassName("fa fa-moon editor")[0];
+const darkModeButton = document.getElementsByClassName("ti ti-moon editor")[0];
 darkModeButton.addEventListener('click', function() {
     document.getElementById("darkModeSwitch").style.display = "block";
     const htmlToInsert = '<span class="darkModeClassOn"></span>';
@@ -315,14 +315,14 @@ function toggleDarkMode() {
     let darkModeLabel = document.getElementById('darkModeLabel');
         if (darkMode === 'true') {
             darkModeId.checked = false;
-            darkModeLabel.innerHTML = '<span class="fa fa-sun fa-2x"></span>';
+            darkModeLabel.innerHTML = '<span class="ti ti-sun fa-2x"></span>';
             document.body.classList.remove('darkmode');
             document.getElementById('editor').classList.remove('toastui-editor-dark');
 
             localStorage.setItem('darkMode', 'false');
         } else {
             darkModeId.checked = true;
-            darkModeLabel.innerHTML = '<span class="fa fa-moon fa-2x"></span>';
+            darkModeLabel.innerHTML = '<span class="ti ti-moon fa-2x"></span>';
             document.body.classList.add('darkmode');
             document.getElementById('editor').classList.add('toastui-editor-dark');
             localStorage.setItem('darkMode', 'true');
@@ -338,13 +338,13 @@ window.addEventListener("load", (event) => {
     let darkModeLabel = document.getElementById('darkModeLabel');
         if (darkMode === 'true') {
             darkModeId.checked = true;
-            darkModeLabel.innerHTML = '<span class="fa fa-moon fa-2x"></span>';
+            darkModeLabel.innerHTML = '<span class="ti ti-moon fa-2x"></span>';
             document.body.classList.add('darkmode');
             document.getElementById('editor').classList.add('toastui-editor-dark');
 
         } else {
             darkModeId.checked = false;
-            darkModeLabel.innerHTML = '<span class="fa fa-sun fa-2x"></span>';
+            darkModeLabel.innerHTML = '<span class="ti ti-sun fa-2x"></span>';
             document.body.classList.remove('darkmode');
             document.getElementById('editor').classList.remove('toastui-editor-dark');
         }
@@ -353,7 +353,7 @@ window.addEventListener("load", (event) => {
 
 /* -------------- TABLE OF CONTENT -------------- */
 
-const tableOfContentButton = document.getElementsByClassName("fa fa-list editor")[0];
+const tableOfContentButton = document.getElementsByClassName("ti ti-list editor")[0];
 tableOfContentButton.addEventListener('click', function() {
     let tocHtml = '<span class="toc"></span>';
     editor.insertText("$$span\n"+tocHtml+ "\n$$");
@@ -500,7 +500,7 @@ window.addEventListener("load", (event) => {
 });
 
 /* -------------- Images -------------- */
-const imageInsertButton = document.getElementsByClassName("fa fa-image editor")[0];
+const imageInsertButton = document.getElementsByClassName("ti ti-image editor")[0];
 imageInsertButton.addEventListener('click', function() {
     document.getElementById("imageModal").style.display = "block";
 });

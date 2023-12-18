@@ -54,13 +54,13 @@ let defaultEditorContent =  {
         "```\n" +
         "\n" +
         "$$span\n" +
-        "<div class='alert alert-info'> <span class='fa fa-info-circle'></span> This is an info alert </div>\n" +
+        "<div class='alert alert-info'> <span class='ti ti-info-circle'></span> This is an info alert </div>\n" +
         "$$"+
         "\n" +
         "\n" +
         "$$span\n" +
 
-        "<div class='alert alert-danger'> <span class='fa fa-exclamation-triangle'></span> This is an warning alert </div>\n" +
+        "<div class='alert alert-danger'> <span class='ti ti-exclamation-triangle'></span> This is an warning alert </div>\n" +
         "$$\n" +
         "\n" +
         "## Une table des matières :\n" +
@@ -145,11 +145,11 @@ let defaultEditorContent =  {
         "```\n" +
         "\n" +
         "$$span\n" +
-        "<div class='alert alert-info'> <span class='fa fa-info-circle'></span> This is an info alert </div>\n" +
+        "<div class='alert alert-info'> <span class='ti ti-info-circle'></span> This is an info alert </div>\n" +
         "$$"+
         "\n" +
         "$$span\n" +
-        "<div class='alert alert-danger'> <span class='fa fa-exclamation-triangle'></span> This is an warning alert </div>\n" +
+        "<div class='alert alert-danger'> <span class='ti ti-exclamation-triangle'></span> This is an warning alert </div>\n" +
         "$$ \n" +
         "\n" +
         "## A table of contents :\n" +
