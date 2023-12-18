@@ -45,12 +45,17 @@ import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.UserNotSignedException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceHtmlParser;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Upload application
@@ -140,6 +145,49 @@ public class WikiDynamicInputs
             String res = mapper.writeValueAsString( result );
             response.getWriter( ).write( res );
 
+        return response;
+    }
+
+    public static HttpServletResponse getPageHeadings( HttpServletRequest resquest, HttpServletResponse response ) throws IOException, UserNotSignedException
+    {
+        String pageName = resquest.getParameter( "pageName" );
+        String locale = resquest.getParameter( "locale" );
+        Topic topic = TopicHome.findByPageName( pageName );
+
+
+        List<HashMap<String, String>> headings = new ArrayList<HashMap<String, String>>( );
+        try
+        {
+            if ( RoleService.hasEditRole( resquest, topic ) )
+            {
+                // if you merge this after LUT-25169, change findLastVersion to getPublishedVersion
+                TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+                WikiContent wikiContent = topicVersion.getWikiContent( locale );
+                String htmlContent = SpecialChar.renderWiki( wikiContent.getHtmlWikiContent( ) );
+                Document htmlDocument = Jsoup.parse( htmlContent );
+                Element docBody = htmlDocument.body( );
+                for ( Element element : docBody.select( "h1, h2, h3, h4, h5, h6" ) )
+                {
+                    HashMap<String, String> heading = new HashMap<String, String>( );
+                    heading.put( "header_id", element.id( ) );
+                    heading.put( "header_text", element.text( ) );
+                    headings.add( heading );
+                }
+            }
+            else
+            {
+                throw new UserNotSignedException( );
+            }
+        }
+        catch( Exception e )
+        {
+            AppLogService.error( "Error saving last user opening modify topic page", e );
+
+        }
+        ObjectMapper mapper = new ObjectMapper();
+      String res = mapper.writeValueAsString(headings);
+
+        response.getWriter( ).write( res );
         return response;
     }
 }

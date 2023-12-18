@@ -3,8 +3,11 @@
     <jsp:useBean id="AutoSaveWiki" scope="request" class="fr.paris.lutece.plugins.wiki.web.WikiDynamicInputs" />
 
     <%
-  if("modifyPage".equals(request.getParameter("actionName")))
+    if("modifyPage".equals(request.getParameter("actionName")))
     {
          WikiDynamicInputs.modifyPage( request, response );
+    } else if("getPageHeadings".equals(request.getParameter("actionName")))
+    {
+        WikiDynamicInputs.getPageHeadings( request, response );
     }
     %>
