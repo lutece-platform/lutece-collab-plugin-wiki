@@ -151,4 +151,17 @@ margin-left: 20%;
     overflow: auto;
     height: 100%;
 }
+/* class for align content  editor */
 
+.wiki-align-content-val-l {
+    text-align: left;
+}
+.wiki-align-content-val-r {
+    text-align: right;
+}
+.wiki-align-content-val-c {
+    text-align: center;
+}
+.wiki-align-content-val-j {
+    text-align: justify;
+}

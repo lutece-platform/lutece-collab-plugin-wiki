@@ -116,6 +116,13 @@ editor.insertToolbarItem({ groupIndex: 0, itemIndex: 6 }, {
     className: 'ti ti-video editor',
     style: { backgroundImage: 'none' },
 });
+editor.insertToolbarItem({ groupIndex: 0, itemIndex: 7 }, {
+    name: 'textAlignment',
+    tooltip: 'Text Alignment',
+    text: 'TA',
+    className: 'fa fa-align-left editor',
+    style: { backgroundImage: 'none' },
+});
 editor.insertToolbarItem({ groupIndex: 0, itemIndex: 9 }, {
     name: 'Image',
     tooltip: 'Image',
@@ -136,6 +143,26 @@ function closeToastUiModal() {
     }
 }
 
+
+
+/* -------------- Text Alignment -------------- */
+const textAlignmentButton = document.getElementsByClassName("fa fa-align-left editor")[0];
+textAlignmentButton.addEventListener('click', function() {
+    document.getElementById("selectTextAlignmentModal").style.display = "block";
+});
+function selectTextAlignment(alignmentValue) {
+    let el = document.getElementsByClassName("toastui-editor-md-container")[0];
+    for(let i = 0; i < el.classList.length; i++){
+        if(el.classList[i].indexOf("wiki-align-content-val-") > -1){
+            el.classList.remove(el.classList[i]);
+        }
+    }
+    document.getElementsByClassName("toastui-editor-md-container")[0].classList.add(alignmentValue);
+
+    const contentToInsert = '<span class="' + alignmentValue + '"></span>';
+    editor.insertText("$$span\n"+contentToInsert+ "\n$$");
+    closeToastUiModal();
+}
 
 
 window.addEventListener("load", (event) => {
