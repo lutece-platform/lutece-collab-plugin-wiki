@@ -4,28 +4,33 @@
             <div class="btn-group btn-group-xs pull-right">
                 <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
                     <span class="glyphicon glyphicon-chevron-left"></span> #i18n{wiki.button.backToPage}
-                 </a>
+                </a>
                 <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&view=history" title="#i18n{wiki.menu.history}">
                     <span class="glyphicon glyphicon-time"></span> #i18n{wiki.menu.history}
                 </a>
             </div>
             <h1>#i18n{wiki.menu.diff} <small> [${topic.pageName}]</small></h1>
+            <#if view_diff_html >
+            <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&view=diff&new_version=${new_version}&old_version=${old_version}&view_diff_html=false" title="#i18n{wiki.menu.diff.source}">#i18n{wiki.menu.diff.source}</a>
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h2 class="panel-title">#i18n{wiki.menu.diff.html}</h2>
                 </div>
                 <div class="panel-body">
-                    ${diff_html}
+                    ${diff}
                 </div>
             </div>
+            <#else>
+            <a href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&view=diff&new_version=${new_version}&old_version=${old_version}&view_diff_html=true" title="#i18n{wiki.menu.diff.html}">#i18n{wiki.menu.diff.html}</a>
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h2 class="panel-title">#i18n{wiki.menu.diff.source}</h2>
                 </div>
                 <div class="panel-body">
-                    ${diff_source}
+                    ${diff}
                 </div>
             </div>
-        </div>
+        </#if>
     </div>
+</div>
 </div>
