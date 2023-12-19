@@ -30,11 +30,10 @@
     <css-stylesheets>
         <css-stylesheets-scope>xpage</css-stylesheets-scope>
         <css-stylesheet>wiki/wiki.css</css-stylesheet>
-        <css-stylesheet>wiki/markitup/style.css</css-stylesheet>
-        <css-stylesheet>wiki/markitup/wiki/style.css</css-stylesheet>
+        <css-stylesheet>wiki/toggle_switch.css</css-stylesheet>
     </css-stylesheets>
     
-    <!-- Specific plugin CSS stylesheet -->
+    <!-- Specific plugin CSS stylesheet  -->
     <javascript-files>
         <javascript-files-scope>xpage</javascript-files-scope>  
         <javascript-file>wiki/prettify/run_prettify.js?skin=desert</javascript-file>
@@ -47,5 +46,5 @@
             <application-class>fr.paris.lutece.plugins.wiki.web.WikiApp</application-class>
         </application>
     </applications>
-    
+
 </plug-in>
