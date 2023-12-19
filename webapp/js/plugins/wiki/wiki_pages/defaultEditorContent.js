@@ -1,7 +1,7 @@
 let defaultEditorContent =  {
     "fr":"$$span\n" +
         "<div class='h-100 p-5 rounded-3 h-100 p-5 text-bg-dark rounded-3 bg-dark'>\n" +
-        "<h2 class='text-white'> Bienvenue dans le powered by Lutece</h2>\n" +
+        "<h2 class='text-white'> Bienvenue dans le powered by Lutece 🔥🔥🔥</h2>\n" +
         "<p class='text-light'>Cet outil se veut être un outil collaboratif très simple pour votre site Lutece</p>\n" +
         "<a href='https://lutece.paris.fr/fr/' class='btn btn-outline-light text-white' style='text-decoration: none'>Learn more</a>\n" +
         "</div>\n" +
@@ -10,7 +10,7 @@ let defaultEditorContent =  {
         "# Fonctionnalités principales\n" +
         "\n" +
         "\n" +
-        "* Utilisation de la syntaxe standard **Markdown** \n" +
+        "* Utilisation de la syntaxe standard **Markdown**  🚀 \n" +
         "\n" +
         " Possibilité de personnaliser directement en html pour obtenir des rendus spécifiques. Les éléments html autorisés sont : les classes de Lutece ou de bootstrap, des paragraphes, les Headings, les ancres, les images et les div, figure, figcaption. Toujours à l'intérieur des balises custom : \n" +
         "\n" +
@@ -96,7 +96,7 @@ let defaultEditorContent =  {
     "en":
         "$$span\n" +
         "<div class='h-100 p-5 rounded-3 h-100 p-5 text-bg-dark rounded-3 bg-dark'>\n" +
-        "<h2 class='text-white'> Welcome to the Wiki powered by Lutece</h2>\n" +
+        "<h2 class='text-white'> Welcome to the Wiki powered by Lutece 🔥🔥🔥</h2>\n" +
         "<p class='text-light'>This Wiki aims to be a very simple collaborative tool fully integrated to your Lutece site</p>\n" +
         "<a href='https://lutece.paris.fr/fr/' class='btn btn-outline-light text-white' style='text-decoration: none'>Learn more</a>\n" +
         "</div>\n" +
@@ -106,7 +106,7 @@ let defaultEditorContent =  {
         "\n" +
         "- [x] Provide a very simple and efficient Wiki editor with removable Help panel\n" +
         "- [x] Fully integrated to Lutece platform :\n" +
-        "    - [x] Use standard **Markdown** \n" +
+        "    - [x] Use standard **Markdown**  🚀 \n" +
         "- [x] Can be easily customized with the possiblity to add some html. Allowed html elements are : classes from Lutece, bootstrap or your own, paragraphs, Headings, ancres, images, div, figure, figcaption. Alway inside a custom input :\n" +
         "\n" +
         "$$span\n" +

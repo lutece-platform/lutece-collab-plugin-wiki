@@ -43,7 +43,7 @@ CREATE TABLE wiki_topic_version_content (
   wiki_content LONG VARCHAR,
   html_wiki_content LONG VARCHAR NULL,
     PRIMARY KEY (id_topic_version , locale )
-);
+) CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
 --
