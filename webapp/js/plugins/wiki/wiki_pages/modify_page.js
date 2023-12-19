@@ -514,7 +514,7 @@ function updateImages() {
         },
         credentials: "same-origin"
     }).then(response => response.json())
-      .then(data => {
+        .then(data => {
             let imagesContainer = document.getElementById("table-images");
             imagesContainer.innerHTML = "";
             data.forEach(image => {
@@ -529,7 +529,7 @@ function updateImages() {
                 buttonContainer.className = "image-editor-display button-container";
                 let buttonCopy = document.createElement("button");
                 buttonCopy.type = "button";
-                buttonCopy.className = "image-editor-display btn btn-light btn-sm";
+                buttonCopy.className = "image-editor-display btn btn-secondary btn-sm";
                 buttonCopy.innerText = "copy Standard";
                 buttonCopy.addEventListener("click", function () {
                     let mdTextToInsert = "!["+ image.name +"](" + imageUrl + ")";
@@ -584,3 +584,64 @@ function insertImageUrl() {
     closeToastUiModal();
 }
 
+window.onload = function() {
+    const fileInput = document.getElementById("fileInput");
+    const fileSelect = document.getElementById("fileSelect");
+
+    fileSelect.addEventListener("click", e => {
+        fileInput.click();
+    });
+    fileSelect.addEventListener("dragenter", stopEvent, false);
+    fileSelect.addEventListener("dragover", stopEvent, false);
+    fileSelect.addEventListener("drop", drop, false);
+    fileInput.addEventListener("change", e => {
+            handleFiles(e.target.files);
+        },
+        false
+    );
+}
+function drop(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    document.getElementById("fileInput").files = files;
+
+    handleFiles(files);
+}
+function stopEvent(e) {
+    e.stopPropagation();
+    e.preventDefault();
+}
+function handleFiles(files) {
+    const content = document.getElementById("new_image_modal");
+    const nodeToReplace = document.getElementById("new_image_modal").firstChild;
+    document.getElementById("new_image_modal").style.display = "grid";
+    if (files.length > 0 && files[0].type.startsWith("image/")) {
+        const img = document.createElement("img");
+        img.src = window.URL.createObjectURL(files[0]);
+        img.classList.add("uploaded-img");
+        img.onload = function() {
+            window.URL.revokeObjectURL(this.src);
+        };
+        img.id = "uploaded-img";
+        content.replaceChild(img, nodeToReplace.nextSibling);
+        content.classList.add("new-image-modal");
+        const fileName = files[0].name.split(".")[0];
+        document.getElementById("image_name").value = fileName;
+        addEventListener("click", outsideClickImageModal);
+
+
+    }
+}
+function outsideClickImageModal(event) {
+    if (event.target.id !== "new_image_modal" && event.target.id !== "fileSelect" && event.target.id !== "fileInput" && event.target.id !== "uploaded-img" && event.target.id !== "image_name" && event.target.id !== "btn-upload") {
+        document.getElementById("new_image_modal").style.display = "none";
+        removeEventListener("click", outsideClickImageModal);
+    }
+}
+
+function postImageForm(){
+    if(document.getElementById("image_name").value.length > 0){
+        document.getElementById("form-image-upload").submit();
+    }
+}

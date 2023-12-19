@@ -103,7 +103,7 @@ span.diff-html-conflict {
 
 }
 .wiki-content {
-margin-left: 20%;
+    margin-left: 20%;
     margin-right: 10%;
     width: 70%;
 }
@@ -115,7 +115,7 @@ margin-left: 20%;
     }
 }
 .subLinkContainer{
-   margin-left: 10px;
+    margin-left: 10px;
 }
 
 
@@ -147,8 +147,44 @@ margin-left: 20%;
     grid-template-columns: repeat(2, 1fr);
     grid-gap: 10px;
     justify-items: center;
-    align-items: center;
+    justify-content: center;
     overflow: auto;
     height: 100%;
+}
+
+.uploader {
+    border: 1px solid #ccc;
+    box-sizing: content-box;
+    width: 200px;
+    height: 110px;
+    cursor: pointer;
+    display: flex;
+    border-radius: 5px;
+    background: white;
+    justify-content: center;
+    padding-top: 90px;
+}
+.uploader:hover {
+    border: 2px solid #000;
+    background: lightgrey;
+}
+
+.uploaded-img {
+    max-height: 70%;
+    width: 95%;
+}
+
+.new-image-modal {
+    z-index: 200;
+    position: fixed;
+    top: 15%;
+    justify-content: center;
+    left: 0%;
+    width: 100%;
+    max-height: 75%;
+    padding: 10px;
+    background: rgba(255,255,255);
+    border: #2d2d2d solid 1px;
+    border-radius: 5px;
 }
 
