@@ -660,8 +660,12 @@ public class WikiApp extends MVCApplication
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         String strName = request.getParameter( Constants.PARAMETER_IMAGE_NAME );
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
-        if ( RoleService.hasAdminRole( request ) )
+        Topic topic = TopicHome.findByPageName( strPageName );
+        String editRole = topic.getEditRole( );
+        if ( !Page.ROLE_NONE.equals( editRole ) && !SecurityService.getInstance( ).isUserInRole( request, editRole ) )
         {
+                    throw new UserNotSignedException( );
+        }
             MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
             FileItem fileItem = multipartRequest.getFile( Constants.PARAMETER_IMAGE_FILE );
             Image image = new Image( );
@@ -698,7 +702,6 @@ public class WikiApp extends MVCApplication
                 image.setHeight( 500 );
 
                 ImageHome.create( image );
-            }
         }
 
         Map<String, String> mapParameters = new ConcurrentHashMap<>( );
@@ -722,12 +725,14 @@ public class WikiApp extends MVCApplication
         int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_IMAGE_ID ) );
         int nTopicId = Integer.parseInt( request.getParameter( Constants.PARAMETER_TOPIC_ID ) );
         Topic topic = TopicHome.findByPrimaryKey( nTopicId );
-        if ( RoleService.hasEditRole( request, topic ) )
+        String editRole = topic.getEditRole( );
+        if ( !Page.ROLE_NONE.equals( editRole ) && !SecurityService.getInstance( ).isUserInRole( request, editRole ) )
         {
+            throw new UserNotSignedException( );
+        }
             ImageHome.remove( nId );
             addInfo( MESSAGE_IMAGE_REMOVED, getLocale( request ) );
 
-        }
         return null;
     }
 
@@ -791,10 +796,15 @@ public class WikiApp extends MVCApplication
      * @return A JSON flow
      */
     @View( VIEW_LIST_IMAGES )
-    public XPage getListImages( HttpServletRequest request ) throws JsonProcessingException {
+    public XPage getListImages( HttpServletRequest request ) throws JsonProcessingException,UserNotSignedException {
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
         List<String> imageList = new ArrayList<>( );
-
+        Topic topic = TopicHome.findByPrimaryKey( Integer.parseInt( strTopicId ) );
+        String editRole = topic.getEditRole( );
+        if ( !Page.ROLE_NONE.equals( editRole ) && !SecurityService.getInstance( ).isUserInRole( request, editRole ) )
+        {
+            throw new UserNotSignedException( );
+        }
         if ( strTopicId != null )
         {
             int nTopicId = Integer.parseInt( strTopicId );

@@ -37,11 +37,12 @@ package fr.paris.lutece.plugins.wiki.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.wiki.business.*;
 import fr.paris.lutece.plugins.wiki.service.ContentDeserializer;
-import fr.paris.lutece.plugins.wiki.service.RoleService;
 import fr.paris.lutece.plugins.wiki.service.WikiLocaleService;
 import fr.paris.lutece.plugins.wiki.service.parser.SpecialChar;
 import fr.paris.lutece.plugins.wiki.utils.auth.WikiAnonymousUser;
+import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.service.security.LuteceUser;
+import fr.paris.lutece.portal.service.security.SecurityService;
 import fr.paris.lutece.portal.service.security.UserNotSignedException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceHtmlParser;
@@ -77,9 +78,13 @@ public class WikiDynamicInputs
             Topic topic = TopicHome.findByPageName( newContent.getTopicPageName( ) );
             LuteceUser user = WikiAnonymousUser.checkUser( request );
 
-            if ( RoleService.hasEditRole( request, topic ) )
+            String editRole = topic.getEditRole( );
+            if ( !Page.ROLE_NONE.equals( editRole ) && !SecurityService.getInstance( ).isUserInRole( request, editRole ) )
             {
-
+                throw new UserNotSignedException( );
+            }
+            else
+            {
                 Integer nVersionId = newContent.getTopicVersion( );
 
                 int nTopicId = topic.getIdTopic( );
