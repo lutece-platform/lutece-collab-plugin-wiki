@@ -241,10 +241,15 @@ public class WikiIndexer implements SearchIndexer
         // tokenized prior to indexing.
         String strIdSubject = String.valueOf( topic.getPageName( ) );
         doc.add( new Field( SearchItem.FIELD_UID, strIdSubject + "_" + SHORT_NAME_TOPIC, ftNotStored ) );
-
         TopicVersion latestTopicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
         String strWikiContent = latestTopicVersion.getWikiContent( strLanguage ).getWikiContent( );
-        String strWikiResult = new LuteceWikiParser( strWikiContent, topic.getPageName( ), null, strLanguage ).toString( );
+        String strWikiResult = "";
+        if ( latestTopicVersion.getWikiContent( strLanguage ).getHtmlWikiContent() != null ) {
+            strWikiResult = latestTopicVersion.getWikiContent( strLanguage ).getHtmlWikiContent( );
+        } else
+        {
+            strWikiResult = new LuteceWikiParser( strWikiContent, topic.getPageName( ), null, strLanguage ).toString( );
+        }
 
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, TextField.TYPE_NOT_STORED ) );
 

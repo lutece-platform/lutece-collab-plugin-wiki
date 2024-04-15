@@ -1,0 +1,139 @@
+<!-------------------  CUSTOM INPUTS HTML ------------------->
+<!------------ modal to select a FA icon ----------------->
+<div id="selectIconModal" class="toastui-editor-popup" style="display: none;" >
+    <div style="position: absolute; top: 50%; left: 50%; z-index: -1;"></div>
+    <button class="btn btn-default" type="button" style="position: absolute; right: 0;" onclick="closeToastUiModal()">
+        <span class="ti ti-times"></span>
+    </button>
+    <div class="toastui-editor-popup-header">
+        <div class="toastui-editor-popup-header-title">Select FA Icons</div>
+    </div>
+    <div class="toastui-editor-popup-body">
+        <div class="toastui-editor-popup-content-body">
+            <@selectIconFont  id='selectIcon' class='' name='resource-icon' showListLabel=true showListIcon=true searchShow=true searchFocus=false searchHighlight=true type='json' prefix='ti' iconsUrl='themes/admin/shared/css/vendor/tabler/tabler-icons.json' resources=true defaultValue='' />
+        </div>
+        <p>Select an icon type Solid or Regular</p>
+    </div>
+    <div id="iconIsSelected"  style="display: none">
+        <div class="toastui-editor-popup-content-body" style="margin: 25px;">
+            <label for="iconSize">Icon Size :</label>
+            <select id="iconSize" class="form-control" onchange="changeIconSize()">
+                <option value="fa-sm">fa-sm</option>
+                <option value="">fa</option>
+                <option value="fa-lg">fa-lg</option>
+                <option value="fa-xl">fa-xl</option>
+                <option value="fa-2xl">fa-2xl</option>
+            </select>
+            <div class="toastui-editor-popup-content-body">
+                Seleted Icon : <span id="selectedIcon"> </span>
+            </div>
+        </div>
+        <div class="toastui-editor-popup-content-footer"  style="margin: 25px;">
+            <button class="btn btn-primary" type="button" onclick="insertIcon()">Insert</button>
+            <button class="btn btn-default" type="button" onclick="closeToastUiModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+<!------------ modal to select an alert box ----------------->
+<div id="selectAlertType" class="toastui-editor-popup" style="display: none;" >
+    <div style="position: absolute; top: 50%; left: 50%; z-index: -1;"></div>
+    <button class="btn btn-default" type="button" style="position: absolute; right: 0;" onclick="closeToastUiModal()">
+        <span class="ti ti-times"></span>
+    </button>
+    <div class="toastui-editor-popup-header">
+        <div class="toastui-editor-popup-header-title">Select an Alert-Box</div>
+        <select id="alertBoxType" class="form-control" onchange="selectAlertBoxType(this.value)" >
+            <option selected disabled>Select an alert</option>
+            <option value="info">Info</option>
+            <option value="warning">Warning</option>
+            <option value="danger">Danger</option>
+            <option value="success">Success</option>
+        </select>
+    </div>
+</div>
+<!------------ modal to select a jumbotron ----------------->
+<div id="selectJumbotronModal"  class="toastui-editor-popup" style="display: none;" >
+    <div style="position: absolute; top: 50%; left: 50%; z-index: -1;"></div>
+    <button class="btn btn-default" type="button" style="position: absolute; right: 0;" onclick="closeToastUiModal()">
+        <span class="ti ti-times"></span>
+    </button>
+    <div class="toastui-editor-popup-header">
+        <div class="toastui-editor-popup-header-title">Select a Jumbotron</div>
+        <select id="jumbotronType" class="form-control" onchange="selectJumbotron(this.value)" >
+            <option selected disabled>Select a jumbotron</option>
+            <option value="bg-primary text-white" class="p-3 mb-2 bg-primary text-white">.bg-primary</option>
+            <option value="bg-body-tertiary text-dark" class="p-3 mb-2 bg-body-tertiary text-dark">.bg-body-tertiary</option>
+            <option value="bg-success text-white" class="p-3 mb-2 bg-success text-white">.bg-success</option>
+            <option value="bg-danger text-white" class="p-3 mb-2 bg-danger text-white">.bg-danger</option>
+            <option value="bg-warning text-dark" class="p-3 mb-2 bg-warning text-dark">.bg-warning</option>
+            <option value="bg-dark text-white" class="p-3 mb-2 bg-dark text-white">.bg-dark</option>
+            <option value="bg-white text-dark" class="p-3 mb-2 bg-white text-dark">.bg-white</option>
+        </select>
+    </div>
+</div>
+
+<!------------ modal  select a badge ----------------->
+<div id="selectBadge" class="toastui-editor-popup" style="display: none;" >
+    <button class="btn btn-default" type="button" style="position: absolute; right: 0;" onclick="closeToastUiModal()">
+        <span class="ti ti-times"></span>
+    </button>
+    <div class="toastui-editor-popup-header">
+        <div class="toastui-editor-popup-header-title">Select a Badge</div>
+        <select id="badgeType" class="form-control" onchange="selectBadge(this.value)" >
+            <option selected disabled>Select a badge</option>
+            <option value="badge bg-primary" > <span class="badge bg-primary">Primary</span></option>
+            <option value="badge bg-secondary" class="badge bg-secondary">Secondary</option>
+            <option value="badge bg-success" class="badge bg-success">Success</option>
+            <option value="badge bg-danger" class="badge bg-danger">Danger</option>
+            <option value="badge bg-warning" class="badge bg-warning">Warning</option>
+            <option value="badge bg-info" class="badge bg-info">Info</option>
+            <option value="badge bg-light" class="badge bg-light">Light</option>
+            <option value="badge bg-dark" class="badge bg-dark">Dark</option>
+        </select>
+    </div>
+    <div id="badgeIsSelected"  style="display: none">
+        <div class="toastui-editor-popup-content-body" style="margin: 25px;">
+            <label for="badgeSize">Badge Headings :</label>
+            <select id="badgeSize" class="form-control" onchange="changeBadgeSize(this.value)">
+                <option value="div" selected>No headings</option>
+                <option value="h1" class="h1">h1</option>
+                <option value="h2" class="h2">h2</option>
+                <option value="h3" class="h3">h3</option>
+                <option value="h4" class="h4">h4</option>
+                <option value="h5" class="h5">h5</option>
+                <option value="h6" class="h6">h6</option>
+            </select>
+            <div class="toastui-editor-popup-content-body">
+                Selected Badge : <div id="selectedBadge"> </div>
+            </div>
+        </div>
+        <div class="toastui-editor-popup-content-footer"  style="margin: 25px;">
+            <button class="btn btn-primary" type="button" onclick="insertBadge()">Insert</button>
+            <button class="btn btn-default" type="button" onclick="closeToastUiModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!------------ modal to select an uploaded Image ----------------->
+<div id="imageModal" class="toastui-editor-popup" style="display: none;" >
+    <div style="position: absolute; top: 50%; left: 50%; z-index: -1;"></div>
+    <button class="btn btn-default" type="button" style="position: absolute; right: 0;" onclick="closeToastUiModal()">
+        <span class="ti ti-times"></span>
+    </button>
+    <div class="toastui-editor-popup-header">
+        <div class="toastui-editor-popup-header-title">Insert image from an url</div>
+    </div>
+    <!-- modal to insert an image from url-->
+    <div id="imageUrl" >
+        <label for="ImageUrlInput">Image URL</label>
+        <input id="ImageUrlInput" type="text"/>
+        <label for="ImageUrlDesc">Description</label>
+        <input id="ImageUrlDesc" type="text" />
+        <div class="toastui-editor-popup-content-footer"  style="margin:25px 25px;">
+            <button class="btn btn-primary" type="button" onclick="insertImageUrl()">Insert</button>
+            <button class="btn btn-primary" type="button" onclick="insertCustomImageUrl()">Insert custom</button>
+            <button class="btn btn-default" type="button" onclick="closeToastUiModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+<!------------------- END OF CUSTOM INPUTS -------------------------->
