@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.wiki.business;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.sql.DAOUtil;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -47,12 +48,13 @@ public final class TopicDAO implements ITopicDAO
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_topic ) FROM wiki_topic";
     private static final String SQL_QUERY_SELECT = "SELECT id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name FROM wiki_topic WHERE id_topic = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO wiki_topic ( id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name ) VALUES ( ?, ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO wiki_topic ( id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name, last_user_editing, last_edit_attempt_date ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM wiki_topic WHERE id_topic = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE wiki_topic SET id_topic = ?, namespace = ?, page_name = ?, page_view_role = ?, page_edit_role = ?, parent_page_name = ? WHERE id_topic = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name FROM wiki_topic";
-    private static final String SQL_QUERY_SELECT_BY_NAME = "SELECT id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name FROM wiki_topic WHERE page_name  = ?";
-
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name, last_user_editing, last_edit_attempt_date FROM wiki_topic";
+    private static final String SQL_QUERY_SELECT_BY_NAME = "SELECT id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name, last_user_editing, last_edit_attempt_date FROM wiki_topic WHERE page_name  = ?";
+    private static final String SQL_QUERY_UPDATE_LAST_OPEN_MODIFY_PAGE = "UPDATE wiki_topic SET last_user_editing = ?, last_edit_attempt_date=? WHERE id_topic = ?";
+    /**
     /**
      * Generates a new primary key
      *
@@ -91,6 +93,8 @@ public final class TopicDAO implements ITopicDAO
             daoUtil.setString( 4, topic.getViewRole( ) );
             daoUtil.setString( 5, topic.getEditRole( ) );
             daoUtil.setString( 6, topic.getParentPageName( ) );
+            daoUtil.setString( 7, topic.getLastUserEditing( ) );
+            daoUtil.setTimestamp( 8, topic.getDateLastEditAttempt( ) );
 
             daoUtil.executeUpdate( );
         }
@@ -111,14 +115,7 @@ public final class TopicDAO implements ITopicDAO
 
             if ( daoUtil.next( ) )
             {
-                topic = new Topic( );
-
-                topic.setIdTopic( daoUtil.getInt( 1 ) );
-                topic.setNamespace( daoUtil.getInt( 2 ) );
-                topic.setPageName( daoUtil.getString( 3 ) );
-                topic.setViewRole( daoUtil.getString( 4 ) );
-                topic.setEditRole( daoUtil.getString( 5 ) );
-                topic.setParentPageName( daoUtil.getString( 6 ) );
+                topic = setTopicWithDaoUtil(daoUtil);
             }
         }
 
@@ -171,14 +168,7 @@ public final class TopicDAO implements ITopicDAO
 
             while ( daoUtil.next( ) )
             {
-                Topic topic = new Topic( );
-
-                topic.setIdTopic( daoUtil.getInt( 1 ) );
-                topic.setNamespace( daoUtil.getInt( 2 ) );
-                topic.setPageName( daoUtil.getString( 3 ) );
-                topic.setViewRole( daoUtil.getString( 4 ) );
-                topic.setEditRole( daoUtil.getString( 5 ) );
-                topic.setParentPageName( daoUtil.getString( 6 ) );
+                Topic topic = setTopicWithDaoUtil(daoUtil);
 
                 topicList.add( topic );
             }
@@ -202,17 +192,40 @@ public final class TopicDAO implements ITopicDAO
 
             if ( daoUtil.next( ) )
             {
-                topic = new Topic( );
-
-                topic.setIdTopic( daoUtil.getInt( 1 ) );
-                topic.setNamespace( daoUtil.getInt( 2 ) );
-                topic.setPageName( daoUtil.getString( 3 ) );
-                topic.setViewRole( daoUtil.getString( 4 ) );
-                topic.setEditRole( daoUtil.getString( 5 ) );
-                topic.setParentPageName( daoUtil.getString( 6 ) );
+                topic = setTopicWithDaoUtil(daoUtil);
             }
         }
 
+        return topic;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public void updateLastOpenModifyPage(int nTopicId, String strUserLogin, Timestamp date, Plugin plugin ) {
+        try (DAOUtil daoUtil = new DAOUtil(SQL_QUERY_UPDATE_LAST_OPEN_MODIFY_PAGE, plugin)) {
+            daoUtil.setString(1, strUserLogin);
+            daoUtil.setTimestamp(2, date);
+            daoUtil.setInt(3, nTopicId);
+
+            daoUtil.executeUpdate();
+        }
+    }
+
+    /**
+     * set the content of a topic version with doaUtil
+     */
+    public Topic setTopicWithDaoUtil(DAOUtil daoUtil) {
+       Topic topic = new Topic( );
+        topic.setIdTopic( daoUtil.getInt( 1 ) );
+        topic.setNamespace( daoUtil.getInt( 2 ) );
+        topic.setPageName( daoUtil.getString( 3 ) );
+        topic.setViewRole( daoUtil.getString( 4 ) );
+        topic.setEditRole( daoUtil.getString( 5 ) );
+        topic.setParentPageName( daoUtil.getString( 6 ) );
+        topic.setLastUserEditing( daoUtil.getString( 7 ) );
+        topic.setDateLastEditAttempt( daoUtil.getTimestamp( 8 ) );
         return topic;
     }
 }

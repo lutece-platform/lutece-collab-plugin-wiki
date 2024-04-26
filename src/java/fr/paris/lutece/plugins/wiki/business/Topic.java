@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.wiki.business;
 
 import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.service.resource.IExtendableResource;
+import java.sql.Timestamp;
 
 /**
  * This is the business class for the object Topic
@@ -50,6 +51,8 @@ public class Topic implements IExtendableResource
     private String _strViewRole = Page.ROLE_NONE;
     private String _strEditRole = Page.ROLE_NONE;
     private String _strParentPageName;
+    private String _strLastUserEditing;
+   private Timestamp _dateLastEditAttempt;
 
     /**
      * Returns the IdTopic
@@ -220,5 +223,47 @@ public class Topic implements IExtendableResource
     public void setParentPageName( String strParentPageName )
     {
         _strParentPageName = strParentPageName;
+    }
+
+    /**
+     * Returns the last user editing
+     *
+     * @return The last user editing
+     */
+    public String getLastUserEditing ( )
+    {
+        return _strLastUserEditing;
+    }
+    /**
+     * Sets the last user editing
+     *
+     * @param strLastUserEditing
+     *            The last user editing
+     */
+    public void setLastUserEditing ( String strLastUserEditing )
+    {
+        _strLastUserEditing = strLastUserEditing;
+    }
+
+
+    /**
+     * Returns the date of the last user editing
+     *
+     * @return The date of the last user editing
+     */
+    public Timestamp getDateLastEditAttempt ( )
+    {
+        return _dateLastEditAttempt;
+    }
+
+    /**
+     * Sets the date of the last user editing
+     *
+     * @param dateLastEditAttempt
+     *            The date of the last user editing
+     */
+    public void setDateLastEditAttempt ( Timestamp dateLastEditAttempt )
+    {
+        _dateLastEditAttempt = dateLastEditAttempt;
     }
 }
