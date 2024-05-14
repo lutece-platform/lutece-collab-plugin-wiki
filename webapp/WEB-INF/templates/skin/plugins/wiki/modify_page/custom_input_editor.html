@@ -1,0 +1,84 @@
+<!-------------------  CUSTOM INPUTS HTML ------------------->
+<!------------ modal to select a FA icon ----------------->
+<div id="selectIconModal" class="modal-panel" style="display: none;" >
+    <div class="modal-header">
+        <h2>Select FA Icons</h2>
+    </div>
+    <div class="modal-body">
+        <@selectIconFont  id='selectIcon' class='' name='resource-icon' showListLabel=true showListIcon=true searchShow=true searchFocus=false searchHighlight=true type='json' prefix='ti' iconsUrl='themes/admin/shared/css/vendor/tabler/tabler-icons.json' resources=true defaultValue='' />
+        <p>Select an icon type Solid or Regular</p>
+
+        <div id="iconIsSelected">
+            <label for="iconSize">Icon Size :</label>
+            <select id="iconSize" class="form-control" onchange="changeIconSize(this)">
+                <option value="fa-sm">fa-sm</option>
+                <option value="">fa</option>
+                <option value="fa-lg">fa-lg</option>
+                <option value="fa-xl">fa-xl</option>
+                <option value="fa-2xl">fa-2xl</option>
+            </select>
+            Seleted Icon : <span id="selectedIcon"> </span>
+        </div>
+
+        <div class="modal-footer"  style="margin: 25px;">
+            <button class="btn btn-primary" type="button" onclick="insertIcon()">Insert</button>
+            <button class="btn btn-default" type="button" onclick="closeModalAndRemoveListener()">Cancel</button>
+        </div>
+    </div>
+</div>
+<!------------ modal to select an alert box ----------------->
+<div id="selectAlertType" class="modal-panel" style="display: none;" >
+    <div class="modal-header">
+        <h2>Select an Alert-Box</h2>
+    </div>
+    <div class="modal-body">
+    <select id="alertBoxType" class="form-control" onchange="selectAlertBoxType(this.value)" >
+            <option selected disabled>Select an alert</option>
+            <option value="info">Info</option>
+            <option value="warning">Warning</option>
+            <option value="danger">Danger</option>
+            <option value="success">Success</option>
+        </select>
+    </div>
+</div>
+
+<!------------ modal  select a badge ----------------->
+<div id="selectBadge" class="modal-panel" style="display: none;">
+    <div class="modal-header">
+        <h2>Select a Badge</h2>
+    </div>
+    <div class="modal-body">
+    <select id="badgeType" class="form-control" onchange="selectBadge(this.value)" >
+            <option selected disabled>Select a badge</option>
+            <option value="badge bg-primary" > <span class="badge bg-primary">Primary</span></option>
+            <option value="badge bg-secondary" class="badge bg-secondary">Secondary</option>
+            <option value="badge bg-success" class="badge bg-success">Success</option>
+            <option value="badge bg-danger" class="badge bg-danger">Danger</option>
+            <option value="badge bg-warning" class="badge bg-warning">Warning</option>
+            <option value="badge bg-info" class="badge bg-info">Info</option>
+            <option value="badge bg-light" class="badge bg-light">Light</option>
+            <option value="badge bg-dark" class="badge bg-dark">Dark</option>
+        </select>
+    </div>
+    <div id="badgeIsSelected" class="modal-body" style="display: none">
+            <label for="badgeHeadding">Badge Headings :</label>
+            <select id="badgeHeadding" class="form-control" onchange="changeBadgeSize(this.value)">
+                <option value="div" selected>No headings</option>
+                <option value="h1" class="h1">h1</option>
+                <option value="h2" class="h2">h2</option>
+                <option value="h3" class="h3">h3</option>
+                <option value="h4" class="h4">h4</option>
+                <option value="h5" class="h5">h5</option>
+                <option value="h6" class="h6">h6</option>
+            </select>
+            <div class="modal-body">
+                Selected Badge : <div id="selectedBadge"> </div>
+            </div>
+        </div>
+        <div class="modal-footer"  style="margin: 25px;">
+            <button class="btn btn-primary" type="button" onclick="insertBadge()">Insert</button>
+        </div>
+   </div>
+
+
+<!------------------- END OF CUSTOM INPUTS -------------------------->

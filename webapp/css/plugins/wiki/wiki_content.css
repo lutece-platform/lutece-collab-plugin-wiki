@@ -1,0 +1,9 @@
+<!-- Css for list item -->
+.task-list-item{
+    list-style-type: none;
+    margin-left: -20px;
+    padding-left: 20px;
+}
+.task-list-item checked{
+    background-color: #8194fc;
+}

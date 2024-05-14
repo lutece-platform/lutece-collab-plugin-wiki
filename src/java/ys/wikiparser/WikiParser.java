@@ -23,11 +23,18 @@
 package ys.wikiparser;
 
 import static ys.wikiparser.Utils.*;
+import com.vladsch.flexmark.parser.Parser;
+import com.vladsch.flexmark.html.HtmlRenderer;
+import com.vladsch.flexmark.util.data.MutableDataSet;
+import com.vladsch.flexmark.util.misc.Extension;
 
 import java.net.*;
 
 import java.util.HashSet;
-
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.ArrayList;
 /**
  * WikiParser.renderXHTML() is the main method of this class. It takes wiki-text and returns XHTML.
  *
@@ -60,6 +67,7 @@ public class WikiParser
     private static final String [ ] FORMAT_TAG_CLOSE = {
             "</strong>", "</em>", "</span>", "</tt>"
     };
+    public static String CUSTOM_INPUTS_TO_REEMPLACE = "//CustomInputToReEmplace//";
     private int wikiLength;
     private char [ ] wikiChars;
     protected StringBuilder sb = new StringBuilder( );
@@ -78,7 +86,7 @@ public class WikiParser
     private String _strTableClass = "";
     private String _strParentTableClass = "";
     private String _strTocClass = "toc";
-
+    public String markdown = "";
     protected WikiParser( )
     {
         // for use by subclasses only
@@ -130,6 +138,533 @@ public class WikiParser
             sb.append( "</td></tr></table></div>\n" );
 
         completeTOC( );
+    }
+    protected void parseMD( String wikiText )
+    {
+        MutableDataSet options = new MutableDataSet( );
+
+
+        List<Extension> extensions =
+                java.util.Arrays.asList(
+                        com.vladsch.flexmark.ext.escaped.character.EscapedCharacterExtension.create(),
+                    /* Input and Output Example of escaped.character.EscapedCharacterExtension.create(),
+
+                    ```markdown
+                    This is a text with escaped character: \*star\*
+                    ```
+                    **Output:**
+                    ```html
+                    <p>This is a text with escaped character: *star*</p>
+                    ```
+                     */
+                        com.vladsch.flexmark.ext.media.tags.MediaTagsExtension.create( ),
+                      /* Input and Output Example of com.vladsch.flexmark.ext.media.tags.MediaTagsExtension.create( ),
+                        ```markdown
+                        Here is a video link: ![Video](http://example.com/video.mp4)
+                        ```
+                        **Output:**
+                        ```html
+                        <p>Here is a video link: <video src="http://example.com/video.mp4" controls></video></p>
+                        ```
+                         */
+
+                        // marche pas
+                    //    com.vladsch.flexmark.ext.xwiki.macros.MacroExtension.create( ),
+                        /* Input and Output Example of com.vladsch.flexmark.ext.xwiki.macros.MacroExtension.create( ),
+                        ```markdown
+                        This is a macro in XWiki syntax: {{info}}This is an info macro in XWiki syntax.{{/info}}
+                                ```
+                                **Output:**
+                                ```html
+                                <div class="info">This  is an info macro in XWiki syntax.</div>
+                                ```
+                         */
+
+                        // marche pas
+                     //   com.vladsch.flexmark.ext.enumerated.reference.EnumeratedReferenceExtension.create( ),
+                        /* Input and Output Example of com.vladsch.flexmark.ext.enumerated.reference.EnumeratedReferenceExtension
+                        ```markdown
+                        This is a reference: [(1)]
+                         [(1)]: This is the enumerated reference.
+                        *
+                        **Output:**
+                        ```html
+                        <p>This is a reference: <a href="#enumerated-reference-1" id="enumerated-reference-link-1">(1)</a></p>
+                        <p id="enumerated-reference-1">This is the enumerated reference.</p>
+                         */
+
+
+                        com.vladsch.flexmark.ext.tables.TablesExtension.create( ),
+                        /* Input and Output Example of com.vladsch.flexmark.ext.tables.TablesExtension
+                        **Input (Markdown with table):**
+                        ```markdown
+                        | Header 1 | Header 2 |
+                        |----------|----------|
+                        | Cell 1   | Cell 2   |
+                        | Cell 3   | Cell 4   |
+                        ```
+                        **Output (HTML):**
+
+                        ```html
+                        <table>
+                        <thead>
+                        <tr>
+                        <th>Header 1</th>
+                        <th>Header 2</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                        <td>Cell 1</td>
+                        <td>Cell 2</td>
+                        </tr>
+                        <tr>
+                        <td>Cell 3</td>
+                        <td>Cell 4</td>
+                        </tr>
+                        </tbody>
+                        </table>
+                        ```
+                         */
+                        com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension.create( ),
+                        /* Input and Output Example of com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension
+                        **Input (Markdown with strikethrough):**
+                        * **Input (Markdown with strikethrough):**
+
+                        ```markdown
+                        This is a ~~strikethrough~~ text.
+                        ```
+
+                        **Output (HTML):**
+
+                        ```html
+                        <p>This is a <del>strikethrough</del> text.</p>
+                        ```
+                         */
+
+
+                        com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension.create( ),
+                        /* Input and Output Example of com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension
+                          **Input (Markdown with task list):**
+                            ```markdown
+                            - [ ] Task 1
+                            - [x] Task 2
+                            - [ ] Task 3
+                            ```
+
+                            **Output (HTML):**
+
+                            ```html
+                            <ul>
+                            <li class="task-list-item"><input disabled="" type="checkbox"> Task 1</li>
+                            <li class="task-list-item"><input checked="" disabled="" type="checkbox"> Task 2</li>
+                            <li class="task-list-item"><input disabled="" type="checkbox"> Task 3</li>
+                            </ul>
+                            ```
+                         */
+
+// images a ajouter aux liens suivant /img/heart.png
+//                        com.vladsch.flexmark.ext.emoji.EmojiExtension.create( ),
+                        /* Input and Output Example of com.vladsch.flexmark.ext.emoji.EmojiExtension
+                        **Input (Markdown with emoji):**
+                        ```markdown
+                        * :smile:
+                        * :heart:
+                        * :+1:
+                        * :-1:
+                        * :100:
+                        *
+                         ** Output (HTML):**
+                         *
+                         ```html
+                                              <p><img src="/img/smile.png" alt="emoji people:smile" height="20" width="20" align="absmiddle">
+                        <img src="/img/heart.png" alt="emoji people:heart" height="20" width="20" align="absmiddle">
+                        <img src="/img/plus1.png" alt="emoji people:+1" height="20" width="20" align="absmiddle">
+                        <img src="/img/-1.png" alt="emoji people:-1" height="20" width="20" align="absmiddle">
+                        <img src="/img/100.png" alt="emoji symbols:100" height="20" width="20" align="absmiddle"></p>
+                         */
+
+
+                      // fonction pas
+                        // com.vladsch.flexmark.ext.toc.TocExtension.create( ),
+                        /* Input and Output Example of com.vladsch.flexmark.ext.toc.TocExtension
+                          com.vladsch.flexmark.ext.toc.TocExtension.create()
+
+                        # Heading 1
+
+                        ## Subheading 1.1
+
+                        ### Subheading 1.1.1
+
+                        ## Subheading 1.2
+
+                        # Heading 2
+
+                        ## Subheading 2.1
+
+                        <div class="toc">
+                          <ul>
+                            <li><a href="#heading-1">Heading 1</a>
+                              <ul>
+                                <li><a href="#subheading-1-1">Subheading 1.1</a>
+                                  <ul>
+                                    <li><a href="#subheading-1-1-1">Subheading 1.1.1</a></li>
+                                  </ul>
+                                </li>
+                                <li><a href="#subheading-1-2">Subheading 1.2</a></li>
+                              </ul>
+                            </li>
+                            <li><a href="#heading-2">Heading 2</a>
+                              <ul>
+                                <li><a href="#subheading-2-1">Subheading 2.1</a></li>
+                              </ul>
+                            </li>
+                          </ul>
+                        </div>
+                        <h1 id="heading-1">Heading 1</h1>
+                        <h2 id="subheading-1-1">Subheading 1.1</h2>
+                        <h3 id="subheading-1-1-1">Subheading 1.1.1</h3>
+                        <h2 id="subheading-1-2">Subheading 1.2</h2>
+                        <h1 id="heading-2">Heading 2</h1>
+                        <h2 id="subheading-2-1">Subheading 2.1</h2>
+                         */
+
+
+                        com.vladsch.flexmark.ext.typographic.TypographicExtension.create( ),
+                        /* Input and Output Example of com.vladsch.flexmark.ext.typographic.TypographicExtension
+                        **Input (Markdown with typographic characters):**
+                            ```markdown
+                            "Hello, World!"
+
+                            'Hello, World!'
+
+                            --Hello, World!--
+
+                            ...Hello, World...
+                            ```
+
+                            **Output (HTML):**
+
+                            ```html
+                            <p>“Hello, World!”</p>
+
+                            <p>‘Hello, World!’</p>
+
+                            <p>–Hello, World!–</p>
+
+                            <p>…Hello, World…</p>
+                            ```
+                         */
+                        com.vladsch.flexmark.ext.youtube.embedded.YouTubeLinkExtension.create( ),
+                        /* Input and Output Example of com.vladsch.flexmark.ext.youtube.embedded.YouTubeLinkExtension
+                        ```markdown
+                            Check out this cool video: @[](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+                            ```
+                            **Output:**
+
+                            The output will be an HTML string with the YouTube link converted into an embedded YouTube video.
+
+                            ```html
+                            <p>Check out this cool video: <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></p>
+                            ```
+                         */
+
+                       com.vladsch.flexmark.ext.macros.MacrosExtension.create( ),
+                        /* Input and Output Example of com.vladsch.flexmark.ext.macros.MacrosExtension
+                        https://github.com/vsch/flexmark-java/wiki/Macros-Extension
+                        ```markdown
+                         >>>blockMacro
+                            1. item 1
+                            1. item 2
+                            <<<
+
+                            <<<blockMacro>>>
+                            ```
+                            **Output:**
+
+                            ```html
+                        <p>Paragraph with a
+                        <ol>
+                          <li>item 1</li>
+                          <li>item 2</li>
+                        </ol>
+                        inserted.</p>                            ```
+                         */
+                        com.vladsch.flexmark.ext.definition.DefinitionExtension.create( ),
+                         /* Input and Output Example of com.vladsch.flexmark.ext.definition.DefinitionExtension
+                        ```markdown
+                            Term 1
+                            :   Definition 1
+
+                            Term 2
+                            :   Definition 2
+                            ```
+                            **Output:**
+
+                            The output will be an HTML string with the definition list converted into a definition list.
+
+                            ```html
+                            <dl>
+                            <dt>Term 1</dt>
+                            <dd>Definition 1</dd>
+                            <dt>Term 2</dt>
+                            <dd>Definition 2</dd>
+                            </dl>
+                            ```
+                         */
+
+                         com.vladsch.flexmark.ext.autolink.AutolinkExtension.create( )
+                       /* Input and Output Example of com.vladsch.flexmark.ext.autolink.AutolinkExtension
+                        ```markdown
+                            This is a link: <http://www.google.com>
+                            ```
+                            **Output:**
+
+                            The output will be an HTML string with the link converted into an HTML anchor tag.
+
+                            ```html
+                            <p>This is a link: <a href="http://www.google.com">http://www.google.com</a></p>
+                            ```
+                         */
+
+   //                 com.vladsch.flexmark.ext.anchorlink.AnchorLinkExtension.create( )
+                        /* Input and Output Example of com.vladsch.flexmark.ext.anchorlink.AnchorLinkExtension
+
+                        ```markdown
+                            ## Table of Contents
+                            [TOC]
+                            ```
+                            **Output:**
+
+                            The output will be an HTML string with the table of contents converted into a list of links to the headings in the document.
+
+                            ```html
+                            <h2 id="table-of-contents">Table of Contents</h2>
+                            <div class="toc">
+                            <ul>
+                            <li><a href="#heading-1">Heading 1</a></li>
+                            <li><a href="#heading-2">Heading 2</a></li>
+                            </ul>
+                            </div>
+                            <h1 id="heading-1">Heading 1</h1>
+                            <h2 id="heading-2">Heading 2</h2>
+                            ```
+                         */
+                   //     com.vladsch.flexmark.ext.wikilink.WikiLinkExtension.create( ),
+                        /* Input and Output Example of com.vladsch.flexmark.ext.wikilink.WikiLinkExtension
+                        ```markdown
+                            This is a wiki link: [[Wiki Link]]
+                            ```
+                            **Output:**
+
+                            The output will be an HTML string with the wiki link converted into an HTML anchor tag.
+
+                            ```html
+                            <p>This is a wiki link: <a href="Wiki Link">Wiki Link</a></p>
+                            ```
+                         */
+
+                        // fonctionne pas
+                     //   com.vladsch.flexmark.ext.abbreviation.AbbreviationExtension.create( ),
+                        /* Input and Output Example of com.vladsch.flexmark.ext.abbreviation.AbbreviationExtension
+                        ```markdown
+                            *[HTML]: Hyper Text Markup Language
+                            The abbreviation for HTML is *[HTML].
+                            ```
+                            **Output:**
+
+                            The output will be an HTML string with the abbreviation converted
+
+                                ```html
+                                <p>The abbreviation for <abbr title="Hyper Text Markup Language">HTML</abbr> is <abbr title="Hyper Text Markup Language">HTML</abbr>.</p>
+                                ```
+                         */
+
+
+           //             com.vladsch.flexmark.ext.admonition.AdmonitionExtension.create( ),
+                       /* Input and Output Example of com.vladsch.flexmark.ext.admonition.AdmonitionExtension
+                        ```markdown
+                            !!! note
+                            This is a note admonition.
+                            ```
+                            **Output:**
+
+                            The output will be an HTML string with the admonition converted into a styled block.
+
+                            ```html
+                               <div class="adm-block adm-note">
+                                <div class="adm-heading">
+                                <svg class="adm-icon"><use xlink:href="#adm-note"></use></svg><span>Note</span>
+                                </div>
+                                <div class="adm-body">
+                                <p>This is a note admonition.
+                                This Wiki aims to be a very simple collaborative tool fully integrated to your Lutece site</p>
+                                </div>
+                                </div>
+
+                            ```
+                        */
+
+                        // fonctionne pas
+                    //    com.vladsch.flexmark.ext.aside.AsideExtension.create( ),
+                        /* Input and Output Example of com.vladsch.flexmark.ext.aside.AsideExtension
+                        ```markdown
+                            ::: aside
+                            This is an aside block.
+                            :::
+                            ```
+                            **Output:**
+
+                            The output will be an HTML string with the aside block converted into a styled block.
+
+                            ```html
+                            <div class="aside">
+                            <p>This is an aside block.</p>
+                            </div>
+                            ```
+                         */
+
+                        // pour ajouter des class, id et autres attributs aux balises html
+              //          com.vladsch.flexmark.ext.attributes.AttributesExtension.create( ),
+                        /* Input and Output Example of com.vladsch.flexmark.ext.attributes.AttributesExtension
+                        https://github.com/vsch/flexmark-java/wiki/Attributes-Extension
+                        ```markdown
+                            This is a paragraph with a custom attribute {#my-id}
+                            ```info {#not-id} not {title="Title" caption="Cap"} {caption="Caption"}
+                            ```
+                            ```
+                            **Output:**
+
+                            The output will be an HTML string with the custom attribute converted.
+
+                            ```html
+                            <p id="my-id">This is a paragraph with a custom attribute</p>
+                            <pre title="Title" caption="Caption"><code class="language-info"></code></pre>
+                            ```
+                         */
+
+
+
+
+                        // github flavoured markdown extentions
+                //        com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension.create( ),
+                //        com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension.create( ),
+                        //        com.vladsch.flexmark.ext.gfm.issues.GfmIssuesExtension.create( ),
+
+
+                 // Gitlab markdown extention fonctionne pas
+                   //    com.vladsch.flexmark.ext.gitlab.GitLabExtension.create()
+                  /*
+                  **Input (GitLab-flavored Markdown):**
+
+                    ```markdown
+                    # Heading
+
+                    Hello @username, this is a test.
+
+                    - [ ] Task 1
+                    - [x] Task 2
+
+                    See issue #123 for more details.
+
+                    ```
+
+                    **Output (HTML):**
+
+                    ```html
+                    <h1>Heading</h1>
+
+                    <p>Hello <a href="/username">@username</a>, this is a test.</p>
+
+                    <ul>
+                      <li><input type="checkbox" disabled> Task 1</li>
+                      <li><input type="checkbox" disabled checked> Task 2</li>
+                    </ul>
+
+                    <p>See issue <a href="/issues/123">#123</a> for more details.</p>
+
+
+                    ```
+                   */
+
+                        // Set the EXTANCHORLINKS extension to prevent HTML conversion
+                   //     com.vladsch.flexmark.ext.anchorlink.AnchorLinkExtension.create( )
+                );
+        options.set(Parser.EXTENSIONS, extensions);
+        options.set(HtmlRenderer.INDENT_SIZE, 2);
+            options.set(HtmlRenderer.PERCENT_ENCODE_URLS, true);
+        Parser parser = Parser.builder(options).build();
+        HtmlRenderer renderer = HtmlRenderer.builder(options).build();
+        markdown = wikiText;
+        List<String> customInputsHtml = extractCustomInputs();
+
+        com.vladsch.flexmark.util.ast.Node document = parser.parse(markdown);
+        String html = renderer.render(document);
+        String htmlWithCustomInputs = remplaceCustomInputs( html, customInputsHtml );
+        sb = new StringBuilder( htmlWithCustomInputs);
+
+    }
+    /**
+     * Preprocess wiki text before parsing
+     * @param wikiText
+     * @return
+     */
+    public String remplaceCustomInputs( String html, List<String> customInputsHtml )
+    {
+        for ( int i = 0; i < customInputsHtml.size( ); i++ )
+        {
+            html = html.replace( CUSTOM_INPUTS_TO_REEMPLACE +"_"+ i, customInputsHtml.get( i ) );
+        }
+        return html;
+    }
+    /**
+     * get custom inputs from the wiki text
+     * @param wikiText
+     * @return
+     */
+    public List<String> extractCustomInputs ()
+    {
+        // Check what is writen at first between two $$ markers to find custom inputs names
+        List <String> customInputsHtml = new ArrayList <>( );
+        String regex = "\\$\\$(.*?)\\$\\$";
+        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(markdown);
+        int iteration = 0;
+        while (matcher.find()) {
+            // get customInputName if there is one (only letters and numbers)
+            String customInput = matcher.group(1).trim();
+              String customInputName = "";
+            for ( int i = 0; i < customInput.length( ); i++ )
+            {
+
+                char c = customInput.charAt( i );
+                String regexText = "[a-zA-Z0-9]";
+                if (Character.toString(c).matches(regexText))
+                {
+                    customInputName += c;
+                }
+                else {
+                    break;
+                }
+            }
+            // if the custom input is not empty extract params and fill the template thought MarkdownCustomInputs.renderCustomInHtml ( customInput, customInputName );
+            if(customInputName != null && !customInputName.isEmpty())
+            {
+                String html = MarkdownCustomInputs.renderCustomInHtml( customInput, customInputName );
+
+                if(html != null && !html.isEmpty())
+                {
+                    customInputsHtml.add(html);
+                    // Reemplace the custom input by a marker, to reemplace it with the html after the markdown is converted to html
+                    int startIntpot = markdown.indexOf("$$");
+                    int endPostion = markdown.indexOf("$$", startIntpot + 2);
+                    markdown = markdown.substring(0, startIntpot) + markdown.substring(endPostion + 2);
+                    markdown = markdown.substring(0, startIntpot) + CUSTOM_INPUTS_TO_REEMPLACE +"_"+ iteration + markdown.substring(startIntpot);
+                    iteration++;
+                }
+            }
+        }
+      return customInputsHtml;
     }
 
     public String toString( )

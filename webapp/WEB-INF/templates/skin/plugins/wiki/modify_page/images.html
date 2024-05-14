@@ -1,0 +1,52 @@
+
+
+<div class="container panel panel-default">
+    <h3><span class="ti ti-file-image fa-lg"></span> &nbsp; #i18n{wiki.modify_page.titleImages}</h3>
+    <div class="row">
+        <!-- Display images -->
+        <div class="col-sm-8">
+            <div  id="table-images" class="image-grid "></div>
+        </div>
+        <!-- Image upload form -->
+        <div class="col-sm-4">
+            <form id="form-image-upload" action="jsp/site/Portal.jsp" method="post" enctype="multipart/form-data" >
+                <input type="hidden" name="page" value="wiki" />
+                <input type="hidden" name="page_name" value="${topic.pageName}" />
+                <input type="hidden" name="action_uploadImage" value="uploadImage" />
+                <input type="hidden" name="topic_id" value="${topic.idTopic}" />
+                <input type="file" id="fileInput" multiple name="image_file" hidden />
+                <div class="uploader" id="fileSelect">
+                    <p>
+                        #i18n{wiki.modify_page.buttonUpload} Image
+                    </p>
+                </div>
+                <div id="new_image_modal" class="modal-panel" style="display: none;">
+                    <div class="modal-header">
+                    <p>
+                        #i18n{wiki.modify_page.buttonUpload} Image
+                    </p>
+                    </div>
+                    <output></output>
+                    <div class="modal-body">
+                        <label for="image_name">#i18n{wiki.modify_page.labelDescription} (required) :</label>
+                        <input class="form-control" required id="image_name" name="image_name" type="text"  placeholder="#i18n{wiki.modify_page.labelDescription} (required)" aria-required="true" />
+                    </div>
+                    <div id="upload-cancel" class="modal-footer">
+                        <button id="btn-upload" class="btn btn-primary" type="submit" onclick="postImageForm()">
+                            <span class="ti ti-upload fa-lg"></span> &nbsp; #i18n{wiki.modify_page.buttonUpload}
+                        </button>
+                        <button id="btn-cancel" class="btn btn-danger" type="button" onclick="
+                        if (document.getElementById('new_image_modal').style.display !== 'none')
+                           {
+                            document.getElementById('new_image_modal').style.display = 'none';
+                            removeEventListener('click', outsideClickImageModal);
+                           }">
+
+                            <span class="ti ti-times fa-lg"></span> &nbsp; #i18n{wiki.modify_page.buttonCancel}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
