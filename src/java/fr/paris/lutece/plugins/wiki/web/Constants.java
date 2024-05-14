@@ -68,6 +68,8 @@ public final class Constants
     public static final String MESSAGE_PAGE_NOT_EXISTS = "wiki.message.accessDenied.pageNotExists";
     public static final String MESSAGE_PAGE_ALREADY_EXISTS = "wiki.message.accessDenied.pageAlreadyExists";
     public static final String MESSAGE_USER_NOT_IN_ROLE = "wiki.message.accessDenied.userNotInRole";
+    public static final String PARAMETER_LOCAL = "locale";
+    public static final String PARAMETER_ACTION_TOPIC_NAME_LIST = "topicNameList";
 
     /** Private constructor */
     private Constants( )
