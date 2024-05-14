@@ -90,6 +90,16 @@ public class LuteceWikiParser extends WikiParser
         setTocClass( _options.getTocClass( ) );
         parse( renderWiki( strWikiText ) );
     }
+    public LuteceWikiParser( String strWikiText, String strPageName, String strLanguage )
+    {
+        super( );
+        _strPageName = strPageName;
+        _strLanguage = strLanguage;
+        setTableClass( _options.getTableClass( ) );
+        setParentTableClass( _options.getParentTableClass( ) );
+        setTocClass( _options.getTocClass( ) );
+        parseMD( renderWiki( strWikiText ) );
+    }
 
     /**
      * Render specific HTML entities
@@ -126,6 +136,10 @@ public class LuteceWikiParser extends WikiParser
         strRender = strRender.replaceAll( "\\[quot;", "\"" );
         strRender = strRender.replaceAll( "\\[amp;", "&" );
         strRender = strRender.replaceAll( "\\[hashmark;", "#" );
+        strRender = strRender.replaceAll( "\\[simpleQuote;", "'" );
+        strRender = strRender.replaceAll( "\\[codeQuote;", "`" );
+        strRender = strRender.replaceAll( "\\[dollar;", "$" );
+        strRender = strRender.replaceAll( "\\[percent;", "%" );
         return strRender;
     }
 
@@ -145,6 +159,10 @@ public class LuteceWikiParser extends WikiParser
         strRender = strRender.replaceAll( "\\[quot;", "&quot;" );
         strRender = strRender.replaceAll( "\\[amp;", "&amp;" );
         strRender = strRender.replaceAll( "\\[hashmark;", "#" );
+        strRender = strRender.replaceAll( "\\[simpleQuote;", "'" );
+        strRender = strRender.replaceAll( "\\[codeQuote;", "`" );
+        strRender = strRender.replaceAll( "\\[dollar;", "$" );
+        strRender = strRender.replaceAll( "\\[percent;", "%" );
         return strRender;
     }
 

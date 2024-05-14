@@ -59,3 +59,178 @@ span.diff-html-conflict {
 .wiki_underline {
     text-decoration: underline;
 }
+
+/* class if there is a toc */
+.wiki-topic-nav {
+    position: fixed;
+    left: 1%;
+    width: 17%;
+    font-size: large;
+    color: #2d2d2d;
+}
+@media (max-width: 1500px) {
+    .wiki-topic-nav {
+        display: none;
+    }
+}
+
+.wiki-nav-content-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+}
+.wiki-content {
+margin-left: 20%;
+    margin-right: 10%;
+    width: 70%;
+}
+@media (max-width: 1500px) {
+    .wiki-content {
+        margin-left: 10%;
+        margin-right: 10%;
+        width: 80%;
+    }
+}
+.subLinkContainer{
+   margin-left: 10px;
+}
+
+
+/* class image in editor page */
+
+.image-editor-display {
+    position: relative;
+    width: 100%;
+}
+/* Make the image responsive */
+.image-editor-display img {
+    height: 100%;
+}
+
+/* Style the button and place it in the middle of the container/image */
+.image-editor-display .button-container {
+    position: absolute;
+    top: 50%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.image-editor-display .button-container button{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 10px;
+    justify-items: center;
+    align-items: center;
+    overflow: auto;
+    height: 100%;
+}
+
+.uploader {
+    border: 1px solid #ccc;
+    box-sizing: content-box;
+    width: 200px;
+    height: 110px;
+    cursor: pointer;
+    display: flex;
+    border-radius: 5px;
+    background: white;
+    justify-content: center;
+    padding-top: 90px;
+}
+.uploader:hover {
+    border: 2px solid #000;
+    background: lightgrey;
+}
+
+.uploaded-img {
+    max-height: 70%;
+    width: 95%;
+}
+
+.new-image-modal {
+    z-index: 200;
+    position: fixed;
+    top: 15%;
+    justify-content: center;
+    left: 0%;
+    width: 100%;
+    max-height: 75%;
+    padding: 10px;
+    background: rgba(255,255,255);
+    border: #2d2d2d solid 1px;
+    border-radius: 5px;
+}
+
+/* center the modal content */
+.help-panel {
+    z-index: 200;
+    position:absolute;
+    left:0;
+    right:0;
+    top:0;
+    bottom:0;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:auto;
+    margin-bottom:auto;
+    background-color: whitesmoke;
+    padding: 20px;
+    border: 1px solid black;
+    overflow: auto;
+    max-height: 80%;
+    max-width: 80%;
+    font-size: large;
+    padding: 10px;
+    background: rgba(255,255,255);
+    border: #2d2d2d solid 1px;
+    border-radius: 5px;
+}
+
+/* center the modal content */
+.modal-panel {
+    z-index: 200;
+    position:fixed;
+    left:0;
+    right:0;
+    top:0;
+    bottom:0;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:auto;
+    margin-bottom:auto;
+    justify-content: center;
+    background-color: whitesmoke;
+    padding: 20px;
+    border: 1px solid black;
+    overflow: auto;
+    max-height: 80%;
+    max-width: 50%;
+    font-size: large;
+    padding: 10px;
+    background: rgba(255,255,255);
+    border: #2d2d2d solid 1px;
+    border-radius: 5px;
+}
+
+/* center the modal content */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+.modal-body {
+    padding: 10px;
+}
+.modal-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px;}
+

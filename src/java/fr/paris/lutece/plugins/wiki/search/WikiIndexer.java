@@ -244,7 +244,7 @@ public class WikiIndexer implements SearchIndexer
 
         TopicVersion latestTopicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
         String strWikiContent = latestTopicVersion.getWikiContent( strLanguage ).getWikiContent( );
-        String strWikiResult = new LuteceWikiParser( strWikiContent, topic.getPageName( ), null, strLanguage ).toString( );
+        String strWikiResult = new LuteceWikiParser( strWikiContent, topic.getPageName( ), strLanguage ).toString( );
 
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, TextField.TYPE_NOT_STORED ) );
 

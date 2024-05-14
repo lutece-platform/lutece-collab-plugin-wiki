@@ -63,17 +63,17 @@
 </div>
 
 <script type="text/javascript">
-    jQuery(document).ready(function() {
-        $("#btn-new-page").click(function() {
-            $("#div-search").hide();
-            $("#div-new-page").show("slow");
-            $("#input-new-page").focus();
+    window.onload = function() {
+     document.getElementById("btn-new-page").addEventListener("click", function() {
+         document.getElementById("div-search").style.display = "none";
+         document.getElementById("div-new-page").style.display = "block";
+         document.getElementById("input-new-page").focus();
+     });
+        document.getElementById("btn-search").addEventListener("click", function() {
+            document.getElementById("div-new-page").style.display = "none";
+            document.getElementById("div-search").style.display = "block";
+            document.getElementById("input-search").focus();
         });
-        $("#btn-search").click(function() {
-            $("#div-new-page").hide();
-            $("#div-search").show("slow");
-            $("#input-search").focus();
-        });
-    });
+    };
 </script>
 
