@@ -1,0 +1,38 @@
+<!------------ Menu ---------------->
+<div class="row">
+    <div class="container panel panel-default">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="btn-group btn-group-xs pull-right">
+                    <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
+                        <span class="fa fa-chevron-left fa-1x"></span> #i18n{wiki.button.backToPage}
+                    </a>
+                    <button name="view_preview" class="btn btn-default" type="submit" title="#i18n{wiki.menu.preview}" onclick="validate(this)">
+                        <span class="glyphicon glyphicon-eye-open"></span> #i18n{wiki.menu.preview}
+                    </button>                        <#if has_admin_role >
+                    <form id="form-page-delete" action="jsp/site/Portal.jsp" method="post" >
+                        <input type="hidden" name="page" value="wiki" />
+                        <input type="hidden" name="page_name" value="${topic.pageName}" />
+                        <input type="hidden" name="action" value="deletePage" />
+                    </form>
+                    <button  class="btn btn-danger" class="btn btn-danger" title="#i18n{portal.util.labelDelete}"  onclick="confirmDeleteTopic()">
+                        <span class="fa fa-trash fa-1x"></span> #i18n{portal.util.labelDelete}
+                    </button>
+                </#if>
+                <button id="btn-help" class="btn btn-default" type="button" title="#i18n{wiki.menu.help}" onclick="showThisElementFromId('markdown_help')">
+                    <span class="fa fa-question fa-1x"></span> #i18n{wiki.menu.help}
+                </button>
+            </div>
+        </div>
+        <!-------- change language -------->
+        <label for="select_language_list">Select a language with a select :</label>
+        <select id="select_language_list" class="form-control" onchange="changeLanguage(this.value)" >
+            <#list languages_list as thisLocale>
+            <#if locale == thisLocale>
+            <option value="${locale}" selected>${locale}</option>
+            <#else>
+            <option value="${thisLocale}">${thisLocale}</option>
+        </#if>
+    </#list>
+    </select>
+</div>

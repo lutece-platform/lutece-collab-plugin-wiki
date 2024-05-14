@@ -6,9 +6,8 @@
                     <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
                         <span class="glyphicon glyphicon-chevron-left"></span> #i18n{wiki.button.backToPage}
                     </a>
-                    <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=modifyPage&page_name=${topic.pageName}" title="#i18n{wiki.button.backToEdit}">
-                        <span class="glyphicon glyphicon-edit"></span> #i18n{wiki.button.backToEdit}
-                    </a>
+                    <button class="btn btn-default"  onclick="history.back()"> <span class="fa fa-chevron-left fa-2x"></span>#i18n{wiki.button.backToEdit}</button>
+
                 </div>
             </div>
 

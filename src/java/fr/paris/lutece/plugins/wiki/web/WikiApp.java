@@ -105,7 +105,7 @@ import org.bouncycastle.i18n.LocaleString;
 @Controller( xpageName = "wiki", pageTitleProperty = "wiki.pageTitle", pagePathProperty = "wiki.pagePathLabel" )
 public class WikiApp extends MVCApplication
 {
-    private static final String TEMPLATE_MODIFY_WIKI = "skin/plugins/wiki/modify_page.html";
+    private static final String TEMPLATE_MODIFY_WIKI = "skin/plugins/wiki/modify_page/modify_page.html";
     private static final String TEMPLATE_PREVIEW_WIKI = "skin/plugins/wiki/preview_page.html";
     private static final String TEMPLATE_VIEW_WIKI = "skin/plugins/wiki/view_page.html";
     private static final String TEMPLATE_VIEW_HISTORY_WIKI = "skin/plugins/wiki/history_page.html";
@@ -195,6 +195,7 @@ public class WikiApp extends MVCApplication
 
     private static final int MODE_VIEW = 0;
     private static final int MODE_EDIT = 1;
+    private static final String MARK_VERSION = "version";
 
     // private fields
     private String _strCurrentPageIndex;
@@ -407,6 +408,10 @@ public class WikiApp extends MVCApplication
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         String strParentPageName = request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME );
+        if ( strParentPageName == null )
+        {
+            strParentPageName = "home";
+        }
         String strPageTitle = strPageName;
         strPageName = WikiUtils.normalize( strPageName );
 
@@ -444,6 +449,11 @@ public class WikiApp extends MVCApplication
         checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        String strLocale = getLanguage( request );
+        if( request.getParameter( Constants.PARAMETER_LOCAL ) != null )
+        {
+            strLocale = request.getParameter( Constants.PARAMETER_LOCAL );
+        }
 
         Topic topic;
         Topic topicSession = (Topic) request.getSession( ).getAttribute( MARK_TOPIC );
@@ -469,24 +479,35 @@ public class WikiApp extends MVCApplication
             topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
             if ( topicVersion != null )
             {
-                String strLanguage = getLanguage( request );
-                WikiContent content = topicVersion.getWikiContent( strLanguage );
-                content.setWikiContent( WikiService.renderEditor( topicVersion, strLanguage ) );
+
+                WikiContent content = topicVersion.getWikiContent( strLocale );
+                content.setWikiContent( LuteceWikiParser.renderWiki( content.getWikiContent( ) ) );
+                topicVersion.addLocalizedWikiContent( strLocale, content );
+            } else
+            {
+                topicVersion = new TopicVersion( );
+                topicVersion.setIdTopic( topic.getIdTopic( ) );
+                WikiContent content = new WikiContent( );
+                content.setPageTitle( topic.getPageName( ) );
+                content.setWikiContent( "" );
+                content.setPageTitle( topic.getPageName( ));
+                topicVersion.addLocalizedWikiContent( strLocale, content );
             }
-        }
+            }
 
         ReferenceList topicRefList = getTopicsReferenceListForUser( request, true );
         topicRefList.removeIf( x -> x.getCode( ).equals( topic.getPageName( ) ) );
 
         Map<String, Object> model = getModel( );
         model.put( MARK_TOPIC, topic );
-        model.put( MARK_LATEST_VERSION, topicVersion );
+        model.put( MARK_VERSION, topicVersion );
         model.put( MARK_PAGE_ROLES_LIST, RoleService.getUserRoles( request ) );
         model.put( MARK_EDIT_ROLE, RoleService.hasEditRole( request, topic ) );
         model.put( MARK_ADMIN_ROLE, RoleService.hasAdminRole( request ) );
         model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages( ) );
         model.put( MARK_REFLIST_TOPIC, topicRefList );
-
+        model.put( Constants.PARAMETER_LOCAL, strLocale );
+        model.put( Constants.PARAMETER_ACTION_TOPIC_NAME_LIST, getTopicNameListForUser( request ) );
         ExtendableResourcePluginActionManager.fillModel( request, null, model, Integer.toString( topic.getIdTopic( ) ), Topic.RESOURCE_TYPE );
 
         XPage page = getXPage( TEMPLATE_MODIFY_WIKI, request.getLocale( ), model );
@@ -509,35 +530,59 @@ public class WikiApp extends MVCApplication
     public XPage doModifyTopic( HttpServletRequest request ) throws UserNotSignedException
     {
         LuteceUser user = checkUser( request );
-
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
-
-        if ( RoleService.hasEditRole( request, topic ) )
-        {
-            String strPreviousVersionId = request.getParameter( Constants.PARAMETER_PREVIOUS_VERSION_ID );
             String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
-            String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT );
-            String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE );
-            String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE );
+            String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT )!= null?request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT ):"";
+            String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE )!= null?request.getParameter( Constants.PARAMETER_VIEW_ROLE ):Page.ROLE_NONE;
+            String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE )!= null?request.getParameter( Constants.PARAMETER_EDIT_ROLE ):Page.ROLE_NONE;
             String strParentPageName = request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME );
-            int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
             int nTopicId = Integer.parseInt( strTopicId );
-
-            TopicVersion topicVersion = new TopicVersion( );
+            String strLanguage = getLanguage( request );
+            String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
+            String strContent = request.getParameter( Constants.PARAMETER_CONTENT + "_" + strLanguage );
+           TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+        if ( topicVersion == null )
+        {
+            topicVersion = new TopicVersion( );
             topicVersion.setIdTopic( nTopicId );
             topicVersion.setUserName( user.getName( ) );
             topicVersion.setEditComment( strComment );
-            topicVersion.setIdTopicVersionPrevious( nPreviousVersionId );
-            for ( String strLanguage : WikiLocaleService.getLanguages( ) )
+            topicVersion.setIdTopicVersionPrevious( 0 );
+
+            for ( String strLang : WikiLocaleService.getLanguages( ) )
             {
-                String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
-                String strContent = request.getParameter( Constants.PARAMETER_CONTENT + "_" + strLanguage );
                 WikiContent content = new WikiContent( );
                 content.setPageTitle( strPageTitle );
                 content.setWikiContent( strContent );
-                topicVersion.addLocalizedWikiContent( strLanguage, content );
+                topicVersion.addLocalizedWikiContent( strLang, content );
             }
+        }
+        else
+        {
+            topicVersion.setUserName( user.getName( ) );
+            topicVersion.setEditComment( strComment );
+            topicVersion.setIdTopicVersionPrevious( topicVersion.getIdTopicVersion( ) );
+
+            for ( String strLang : WikiLocaleService.getLanguages( ) )
+            {
+                if ( strLang.equals( strLanguage ) )
+                {
+                    WikiContent content = new WikiContent( );
+                    content.setPageTitle( strPageTitle );
+                    content.setWikiContent( LuteceWikiParser.renderWiki( strContent ) );
+                    topicVersion.addLocalizedWikiContent( strLanguage, content );
+                }
+                else
+                    if ( topicVersion.getWikiContent( strLang ) != null )
+                    {
+                        WikiContent content = topicVersion.getWikiContent( strLang );
+                        content.setWikiContent( LuteceWikiParser.renderWiki( content.getWikiContent( ) ) );
+                        topicVersion.addLocalizedWikiContent( strLang, content );
+                    }
+
+            }
+        }
 
             TopicVersionHome.addTopicVersion( topicVersion );
 
@@ -545,7 +590,6 @@ public class WikiApp extends MVCApplication
             topic.setEditRole( strEditRole );
             topic.setParentPageName( strParentPageName );
             TopicHome.update( topic );
-        }
 
         Map<String, String> mapParameters = new ConcurrentHashMap<>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
@@ -566,29 +610,36 @@ public class WikiApp extends MVCApplication
     public XPage getPreviewTopic( HttpServletRequest request ) throws SiteMessageException, UserNotSignedException
     {
         LuteceUser user = checkUser( request );
-
-        String strPreviousVersionId = request.getParameter( Constants.PARAMETER_PREVIOUS_VERSION_ID );
+        String strPreviousVersionId = request.getParameter( "id_topic_version" );
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
         String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT );
         String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE );
         String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE );
         String strParentPageName = request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME );
-        int nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
-        int nTopicId = Integer.parseInt( strTopicId );
-
+        String strLanguage = getLanguage( request );
         TopicVersion topicVersion = new TopicVersion( );
-        topicVersion.setIdTopic( nTopicId );
+        int nPreviousVersionId = 0;
+        if(strPreviousVersionId != null)
+        {
+            nPreviousVersionId = Integer.parseInt( strPreviousVersionId );
+            int nTopicId = Integer.parseInt( strTopicId );
+             topicVersion = TopicVersionHome.findLastVersion( nTopicId );
+        }
+        topicVersion.setIdTopic( Integer.parseInt( strTopicId ) );
         topicVersion.setUserName( user.getName( ) );
         topicVersion.setEditComment( strComment );
         topicVersion.setIdTopicVersionPrevious( nPreviousVersionId );
-        for ( String strLanguage : WikiLocaleService.getLanguages( ) )
+        for ( String strLang : WikiLocaleService.getLanguages( ) )
         {
-            String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
-            String strContent = request.getParameter( Constants.PARAMETER_CONTENT + "_" + strLanguage );
-            WikiContent content = new WikiContent( );
-            content.setPageTitle( strPageTitle );
-            content.setWikiContent( LuteceWikiParser.renderWiki( strContent ) );
-            topicVersion.addLocalizedWikiContent( strLanguage, content );
+            if ( strLang.equals( strLanguage ) )
+            {
+                String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE  );
+                String strContent = request.getParameter( Constants.PARAMETER_CONTENT + "_" + strLanguage );
+                WikiContent content = new WikiContent( );
+                content.setPageTitle( strPageTitle );
+                content.setWikiContent( LuteceWikiParser.renderWiki( strContent ) );
+                topicVersion.addLocalizedWikiContent( strLanguage, content );
+            }
         }
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
@@ -600,9 +651,8 @@ public class WikiApp extends MVCApplication
         request.getSession( ).setAttribute( MARK_TOPIC, topic );
         request.getSession( ).setAttribute( MARK_LATEST_VERSION, topicVersion );
 
-        String strLanguage = getLanguage( request );
         String strContent = request.getParameter( Constants.PARAMETER_CONTENT + "_" + strLanguage );
-        String strPageContent = new LuteceWikiParser( strContent, strPageName, null, strLanguage ).toString( );
+        String strPageContent = new LuteceWikiParser( strContent, strPageName, strLanguage ).toString( );
         String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
 
         Map<String, Object> model = getModel( );
@@ -610,6 +660,7 @@ public class WikiApp extends MVCApplication
         model.put( MARK_TOPIC, topic );
         model.put( MARK_LATEST_VERSION, topicVersion );
         model.put( MARK_TOPIC_TITLE, strPageTitle );
+        model.put( MARK_VERSION, topicVersion );
 
         XPage page = getXPage( TEMPLATE_PREVIEW_WIKI, request.getLocale( ), model );
         page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
@@ -617,7 +668,59 @@ public class WikiApp extends MVCApplication
 
         return page;
     }
+    @Action( "wikiCreoleToMd" )
+    public  XPage wikiCreoleToMd(  javax.servlet.http.HttpServletRequest request  ) throws UserNotSignedException
+    {
+        LuteceUser user = checkUser( request );
 
+        for ( fr.paris.lutece.plugins.wiki.business.Topic topic : fr.paris.lutece.plugins.wiki.business.TopicHome.getTopicsList( ) )
+        {
+            List<String> lang = java.util.Arrays.asList( "en", "fr" );
+            fr.paris.lutece.plugins.wiki.business.TopicVersion topicVersion = fr.paris.lutece.plugins.wiki.business.TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+
+            for ( String strLanguage : lang )
+            {
+                String strWikiText = topicVersion.getWikiContent( strLanguage ).getWikiContent( );
+                String strPageName = topic.getPageName();
+
+                String strPageUrl = fr.paris.lutece.portal.service.util.AppPathService.getBaseUrl( ) +
+                        "/jsp/site/Portal.jsp?page=wiki&view=page&page_name=" + strPageName + "&language=" + strLanguage;
+
+                String htmlContent = new LuteceWikiParser( strWikiText, strPageName, strPageUrl, strLanguage ).toString( );
+                htmlContent = renderCustomContent( htmlContent );
+
+                org.jsoup.nodes.Document htmlDocument = org.jsoup.Jsoup.parse( htmlContent );
+                org.jsoup.nodes.Element docBody = htmlDocument.body( );
+
+                com.vladsch.flexmark.util.data.MutableDataSet options = new com.vladsch.flexmark.util.data.MutableDataSet( );
+
+                options.set( com.vladsch.flexmark.html.HtmlRenderer.HARD_BREAK, "<br />\n" );
+                options.set( com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter.BR_AS_PARA_BREAKS, false );
+                options.set( com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter.OUTPUT_ATTRIBUTES_ID, false );
+                options.set( com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter.BR_AS_EXTRA_BLANK_LINES, false );
+
+                String markdown = com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter.builder( options ).build( ).convert( docBody.toString( ) );
+
+                fr.paris.lutece.plugins.wiki.business.WikiContent content = new fr.paris.lutece.plugins.wiki.business.WikiContent( );
+                content.setPageTitle( topic.getPageName( ) );
+                content.setWikiContent( markdown );
+                topicVersion.addLocalizedWikiContent( strLanguage, content );
+
+            }
+            topicVersion.setIdTopic( topic.getIdTopic() );
+            topicVersion.setUserName( user.getName( ) );
+            topicVersion.setEditComment( "wikiCreoleToMd" );
+            topicVersion.setIdTopicVersionPrevious( topicVersion.getIdTopicVersion() );
+            fr.paris.lutece.plugins.wiki.business.TopicVersionHome.addTopicVersion( topicVersion );
+
+            fr.paris.lutece.plugins.wiki.business.TopicHome.update( topic );
+        }
+
+        java.util.Map<String, String> mapParameters = new java.util.concurrent.ConcurrentHashMap<>( );
+        mapParameters.put( fr.paris.lutece.plugins.wiki.web.Constants.PARAMETER_PAGE_NAME, "home" );
+
+        return redirect( request, VIEW_PAGE, mapParameters );
+    }
     /**
      * Displays the history page
      *
@@ -1061,6 +1164,21 @@ public class WikiApp extends MVCApplication
 
         return list;
     }
+    /*
+     * @return the list of pages for user with topic name as value
+     * @param request
+     */
+    private List<String> getTopicNameListForUser( HttpServletRequest request )
+    {
+        List<String> list = new ArrayList<>( );
+
+        for ( Topic topic : getTopicsForUser( request ) )
+        {
+            list.add( topic.getPageName( ) );
+        }
+
+        return list;
+    }
 
     /**
      * Builds the page title
@@ -1315,4 +1433,30 @@ public class WikiApp extends MVCApplication
     {
         return getTopicTitle( topic, getLanguage( request ) );
     }
+
+
+    public static String renderCustomContent( String str )
+    {
+        str = str.replaceAll( "\\\\", "" );
+        str = str.replaceAll( "\\[lt;", "<" );
+        str = str.replaceAll( "\\[gt;", ">" );
+        str = str.replaceAll( "\\[nbsp;", "&nbsp;" );
+        str = str.replaceAll( "\\[quot;", "'" );
+        str = str.replaceAll( "\\[amp;", "&" );
+        str = str.replaceAll( "\\[hashmark;", "#" );
+        str = str.replaceAll( "\\[codeQuote;", "`" );
+        str = str.replaceAll( "\\[simpleQuote;", "'" );
+        str = str.replaceAll( "badge badge-", "badge badge-badge bg-" );
+        str = str.replaceAll( "label label-", "badge badge-badge bg-" );
+        str = str.replaceAll( "glyphicon glyphicon-warning-sign", "fa fa-exclamation-triangle" );
+        str = str.replaceAll( "glyphicon glyphicon-info-sign", "fa fa-info-circle" );
+        str = str.replaceAll( "glyphicon glyphicon-question-sign", "fa fa-question-circle" );
+        str = str.replaceAll( "glyphicon glyphicon-ok-sign", "fa fa-check-circle" );
+        str = str.replaceAll( "glyphicon glyphicon-remove-sign", "fa fa-times-circle" );
+        str = str.replaceAll( "glyphicon glyphicon-chevron-right", "fa fa-chevron-right" );
+        str = str.replaceAll( "glyphicon glyphicon-chevron-left", "fa fa-chevron-left" );
+        str = str.replaceAll( "glyphicon glyphicon-chevron-up", "fa fa-chevron-up" );
+        return str;
+    }
+
 }
