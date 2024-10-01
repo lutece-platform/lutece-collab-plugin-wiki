@@ -113,6 +113,7 @@ public class WikiApp extends MVCApplication
     private static final String TEMPLATE_LIST_WIKI = "skin/plugins/wiki/list_wiki.html";
     private static final String TEMPLATE_MAP_WIKI = "skin/plugins/wiki/map_wiki.html";
     private static final String TEMPLATE_SEARCH_WIKI = "skin/plugins/wiki/search_wiki.html";
+    private static final String TEMPLATE_MODIFY_PUBLISHED = "skin/plugins/wiki/modify_published.html";
 
     private static final String BEAN_SEARCH_ENGINE = "wiki.wikiSearchEngine";
 
@@ -161,6 +162,7 @@ public class WikiApp extends MVCApplication
     private static final String VIEW_SEARCH = "search";
     private static final String VIEW_DIFF = "diff";
     private static final String VIEW_LIST_IMAGES = "listImages";
+    private static final String VIEW_MODIFY_PUBLISHED = "modifyPublished";
 
     private static final String ACTION_NEW_PAGE = "newPage";
     private static final String ACTION_MODIFY_PAGE = "modifyPage";
@@ -171,6 +173,8 @@ public class WikiApp extends MVCApplication
     private static final String ACTION_CONFIRM_REMOVE_VERSION = "confirmRemoveVersion";
     private static final String ACTION_UPLOAD_IMAGE = "uploadImage";
     private static final String ACTION_CHANGE_LANGUAGE = "changeLanguage";
+    private static final String ACTION_CANCEL_PUBLISH_PAGE = "cancelPublication";
+    private static final String ACTION_CREATE_VERSION_FROM_PUBLISHED = "createVersionFromPublished";
 
     private static final String MESSAGE_IMAGE_REMOVED = "wiki.message.image.removed";
     private static final String MESSAGE_CONFIRM_REMOVE_IMAGE = "wiki.message.confirmRemoveImage";
@@ -180,6 +184,7 @@ public class WikiApp extends MVCApplication
     private static final String MESSAGE_VERSION_REMOVED = "wiki.message.version.removed";
     private static final String MESSAGE_AUTHENTICATION_REQUIRED = "wiki.message.authenticationRequired";
     private static final String MESSAGE_PATH_HIDDEN = "wiki.message.path.hidden";
+    private static final String MESSAGE_NO_PUBLISHED_VERSION = "wiki.view_page.noPublishedVersion";
 
     private static final String ANCHOR_IMAGES = "#images";
 
@@ -362,14 +367,17 @@ public class WikiApp extends MVCApplication
         }
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_VIEW );
-        TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+        TopicVersion version = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
         if ( version == null )
         {
-            UrlItem url = new UrlItem( AppPathService.getBaseUrl( request ) + AppPathService.getPortalUrl( ) );
-            url.addParameter( Constants.PARAMETER_PAGE, Constants.PLUGIN_NAME );
-            url.addParameter( Constants.PARAMETER_ACTION, ACTION_NEW_PAGE );
-            url.addParameter( Constants.PARAMETER_PAGE_NAME, strPageName );
-            return redirect( request, url.getUrl( ) );
+            version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+          String strPageTitle = topic.getPageName( );
+            String strLanguage = getLanguage( request );
+            String strContent = I18nService.getLocalizedString( "wiki.page.notPublished", getLocale( request ) );
+            WikiContent content = new WikiContent( );
+            content.setPageTitle( strPageTitle );
+            content.setWikiContent( strContent );
+            version.addLocalizedWikiContent( strLanguage, content );
         }
         fillUserData( version );
         String strWikiPage = WikiService.instance( ).getWikiPage( strPageName, version, getPageUrl( request ), getLanguage( request ) );
@@ -450,40 +458,31 @@ public class WikiApp extends MVCApplication
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         String strLocale = getLanguage( request );
+        Integer nVersion = getVersionTopicVersionId( request );
         if( request.getParameter( Constants.PARAMETER_LOCAL ) != null )
         {
             strLocale = request.getParameter( Constants.PARAMETER_LOCAL );
         }
 
-        Topic topic;
-        Topic topicSession = (Topic) request.getSession( ).getAttribute( MARK_TOPIC );
-        if ( topicSession != null && topicSession.getPageName( ).equals( strPageName ) )
-        {
-            topic = topicSession;
-            request.getSession( ).removeAttribute( MARK_TOPIC );
-        }
-        else
-        {
-            topic = getTopic( request, strPageName, MODE_EDIT );
-        }
+        Topic topic = TopicHome.findByPrimaryKey( strPageName );
 
         TopicVersion topicVersion;
-        TopicVersion topicVersionSession = (TopicVersion) request.getSession( ).getAttribute( MARK_LATEST_VERSION );
-        if ( topicVersionSession != null && topicVersionSession.getIdTopic( ) == topic.getIdTopic( ) )
+        if( nVersion != null )
         {
-            topicVersion = topicVersionSession;
-            request.getSession( ).removeAttribute( MARK_LATEST_VERSION );
+            topicVersion = TopicVersionHome.findByPrimaryKey( nVersion );
         }
-        else
-        {
+        else {
             topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-            if ( topicVersion != null )
-            {
 
-                WikiContent content = topicVersion.getWikiContent( strLocale );
-                content.setWikiContent( LuteceWikiParser.renderWiki( content.getWikiContent( ) ) );
-                topicVersion.addLocalizedWikiContent( strLocale, content );
-            } else
+        }
+        if (topicVersion!= null && topicVersion.getIsPublished( ) )
+        {
+            Map<String, String> mapParameters = new ConcurrentHashMap<>( );
+            mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+            return redirect( request, VIEW_MODIFY_PUBLISHED, mapParameters );
+        }
+
+            if (topicVersion == null)
             {
                 topicVersion = new TopicVersion( );
                 topicVersion.setIdTopic( topic.getIdTopic( ) );
@@ -493,7 +492,7 @@ public class WikiApp extends MVCApplication
                 content.setPageTitle( topic.getPageName( ));
                 topicVersion.addLocalizedWikiContent( strLocale, content );
             }
-            }
+
 
         ReferenceList topicRefList = getTopicsReferenceListForUser( request, true );
         topicRefList.removeIf( x -> x.getCode( ).equals( topic.getPageName( ) ) );
@@ -537,11 +536,20 @@ public class WikiApp extends MVCApplication
             String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE )!= null?request.getParameter( Constants.PARAMETER_VIEW_ROLE ):Page.ROLE_NONE;
             String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE )!= null?request.getParameter( Constants.PARAMETER_EDIT_ROLE ):Page.ROLE_NONE;
             String strParentPageName = request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME );
+            Boolean publish = Boolean.parseBoolean(request.getParameter( Constants.PARAMETER_PUBLISH ));
             int nTopicId = Integer.parseInt( strTopicId );
             String strLanguage = getLanguage( request );
             String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
             String strContent = request.getParameter( Constants.PARAMETER_CONTENT + "_" + strLanguage );
            TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+        if ( publish )
+        {
+            TopicVersion previousPublished = TopicVersionHome.getPublishedVersion( nTopicId );
+            if ( previousPublished != null )
+            {
+                TopicVersionHome.updatePublishedVersion( previousPublished.getIdTopicVersion(), false );
+            }
+        }
         if ( topicVersion == null )
         {
             topicVersion = new TopicVersion( );
@@ -557,8 +565,7 @@ public class WikiApp extends MVCApplication
                 content.setWikiContent( strContent );
                 topicVersion.addLocalizedWikiContent( strLang, content );
             }
-        }
-        else
+        } else
         {
             topicVersion.setUserName( user.getName( ) );
             topicVersion.setEditComment( strComment );
@@ -583,9 +590,8 @@ public class WikiApp extends MVCApplication
 
             }
         }
-
+        topicVersion.setIsPublished( publish );
             TopicVersionHome.addTopicVersion( topicVersion );
-
             topic.setViewRole( strViewRole );
             topic.setEditRole( strEditRole );
             topic.setParentPageName( strParentPageName );
@@ -675,7 +681,7 @@ public class WikiApp extends MVCApplication
 
         for ( fr.paris.lutece.plugins.wiki.business.Topic topic : fr.paris.lutece.plugins.wiki.business.TopicHome.getTopicsList( ) )
         {
-            List<String> lang = java.util.Arrays.asList( "en", "fr" );
+            List<String> lang = WikiLocaleService.getLanguages( );
             fr.paris.lutece.plugins.wiki.business.TopicVersion topicVersion = fr.paris.lutece.plugins.wiki.business.TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
 
             for ( String strLanguage : lang )
@@ -698,7 +704,6 @@ public class WikiApp extends MVCApplication
                 options.set( com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter.BR_AS_PARA_BREAKS, false );
                 options.set( com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter.OUTPUT_ATTRIBUTES_ID, false );
                 options.set( com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter.BR_AS_EXTRA_BLANK_LINES, false );
-
                 String markdown = com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter.builder( options ).build( ).convert( docBody.toString( ) );
 
                 fr.paris.lutece.plugins.wiki.business.WikiContent content = new fr.paris.lutece.plugins.wiki.business.WikiContent( );
@@ -711,8 +716,13 @@ public class WikiApp extends MVCApplication
             topicVersion.setUserName( user.getName( ) );
             topicVersion.setEditComment( "wikiCreoleToMd" );
             topicVersion.setIdTopicVersionPrevious( topicVersion.getIdTopicVersion() );
+            topicVersion.setIsPublished( true );
             fr.paris.lutece.plugins.wiki.business.TopicVersionHome.addTopicVersion( topicVersion );
-
+            TopicVersion previousPublished = TopicVersionHome.getPublishedVersion( topic.getIdTopic() );
+            if ( previousPublished != null )
+            {
+                TopicVersionHome.updatePublishedVersion( previousPublished.getIdTopicVersion(), false );
+            }
             fr.paris.lutece.plugins.wiki.business.TopicHome.update( topic );
         }
 
@@ -1009,6 +1019,99 @@ public class WikiApp extends MVCApplication
         }
 
         return responseJSON( array.toString( ) );
+    }
+    /**
+     * Displays the options if you want to modify published
+     *
+     * @param request
+     *            The HTTP request
+     * @return The XPage
+     * @throws SiteMessageException
+     *             if an exception occurs
+     */
+    @View( VIEW_MODIFY_PUBLISHED )
+    public XPage doModifyPublished( HttpServletRequest request ) throws UserNotSignedException
+    {
+        checkUser( request );
+
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        strPageName = WikiUtils.normalize( strPageName );
+
+        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+        Map<String, Object> model = getModel( );
+
+        model.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+
+        XPage page = getXPage( TEMPLATE_MODIFY_PUBLISHED, request.getLocale( ), model );
+        page.setTitle( getPageTitle( getTopicTitle( request, topic ) ) );
+        page.setExtendedPathLabel( getPageExtendedPath( topic, request ) );
+        return page;
+    }
+
+    /**
+     * Creates a new version from the published version
+     *
+     * @param request
+     *            The HTTP request
+     * @return The XPage
+     * @throws UserNotSignedException
+     *             if the user is not signed
+     */
+    @Action( ACTION_CREATE_VERSION_FROM_PUBLISHED )
+    public XPage doCreateVersionFromPublished( HttpServletRequest request ) throws UserNotSignedException
+    {
+        LuteceUser user = WikiAnonymousUser.checkUser( request );
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+
+        if ( RoleService.hasEditRole( request, topic ) )
+        {
+            TopicVersion publishedVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
+            publishedVersion.setUserName( user.getName( ) );
+            publishedVersion.setEditComment( "Version created from the published version" );
+            publishedVersion.setIdTopicVersionPrevious( publishedVersion.getIdTopicVersion( ) );
+            publishedVersion.setIsPublished( false );
+
+            TopicVersionHome.addTopicVersion( publishedVersion );
+        }
+
+        Map<String, String> mapParameters = new ConcurrentHashMap<>( );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
+
+        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
+    }
+
+    /**
+     * Cancel publication of a page
+     *
+     * @param request
+     *            The HTTP request
+     * @return The XPage
+     * @throws UserNotSignedException
+     *             if the user is not signed
+     */
+    @Action( ACTION_CANCEL_PUBLISH_PAGE )
+    public XPage doUnpublish( HttpServletRequest request ) throws UserNotSignedException
+    {
+        LuteceUser user = WikiAnonymousUser.checkUser( request );
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
+        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+        TopicVersion publishedVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
+
+        if ( RoleService.hasEditRole( request, topic ) )
+        {
+            TopicVersion previousPublished = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
+            if ( previousPublished != null )
+            {
+                previousPublished.setIsPublished( false );
+                TopicVersionHome.updateTopicVersion( previousPublished );
+            }
+        }
+        Integer topicVersionId = publishedVersion.getIdTopicVersion( );
+        Map<String, String> mapParameters = new ConcurrentHashMap<>( );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, topic.getPageName( ) );
+        mapParameters.put( Constants.PARAMETER_TOPIC_VERSION_ID, String.valueOf( topicVersionId ) );
+        return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
     }
 
     // /////////////////// Utils ////////////////////////////
@@ -1394,7 +1497,12 @@ public class WikiApp extends MVCApplication
             strLanguage = request.getParameter( PARAMETER_LANGUAGE );
             setLanguage( request, strLanguage );
         }
-
+        else
+        {
+            // otherwise, consider the language stored in the user's session
+            strLanguage = LocaleService.getUserSelectedLocale( request ).getLanguage( );
+            setLanguage( request, strLanguage );
+        }
         return LocaleService.getContextUserLocale( request ).getLanguage( );
     }
 
@@ -1409,7 +1517,7 @@ public class WikiApp extends MVCApplication
      */
     private String getTopicTitle( Topic topic, String strLanguage )
     {
-        TopicVersion version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+        TopicVersion version = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
         if ( version != null && StringUtils.isNotEmpty( version.getWikiContent( strLanguage ).getPageTitle( ) ) )
         {
             return version.getWikiContent( strLanguage ).getPageTitle( );
@@ -1458,5 +1566,23 @@ public class WikiApp extends MVCApplication
         str = str.replaceAll( "glyphicon glyphicon-chevron-up", "fa fa-chevron-up" );
         return str;
     }
+    /**
+     * Retrieves the current selected version from the parameter
+     *
+     * @param request
+     *            The request
+     * @return The Language
+     */
+    private Integer getVersionTopicVersionId( HttpServletRequest request )
+    {
+        Integer versionId = null;
 
+        if ( request.getParameter( Constants.PARAMETER_TOPIC_VERSION_ID ) != null )
+        {
+            versionId = Integer.parseInt( request.getParameter( Constants.PARAMETER_TOPIC_VERSION_ID ) );
+            return versionId;
+        }
+
+        return versionId;
+    }
 }

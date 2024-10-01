@@ -62,4 +62,3 @@ function changeLanguage(locale) {
     }
     window.location.replace(url);
 }
-

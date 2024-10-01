@@ -151,4 +151,42 @@ public final class TopicVersionHome
     {
         return _dao.loadAllVersions( idTopic, _plugin );
     }
+
+    /**
+     * Overwrite the topic's version
+     *
+     * @param topicVersion
+     *            The topicVersion id
+     * @return void
+     */
+    public static void updateTopicVersion(TopicVersion topicVersion)
+    {
+        _dao.updateTopicVersion( topicVersion, _plugin );
+    }
+
+    /**
+     * Get the published version of a topic
+     *
+     * @param topicId
+     *            The topic id
+     * @return void
+     */
+    public static TopicVersion getPublishedVersion(int topicId)
+    {
+        return _dao.getPublishedVersion(topicId, _plugin);
+    }
+    /**
+     * Update the published version of a topic
+     *
+     * @param idVersion
+     *            The topic version id
+     * @param isPublished
+     *            The published status
+     * @return void
+     */
+    public static void updatePublishedVersion(int idVersion, boolean isPublished)
+    {
+        _dao.updatePublishedVersion(idVersion, isPublished, _plugin);
+    }
+
 }
