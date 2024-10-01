@@ -53,6 +53,10 @@
         <button name="action_modifyPage" type="submit" class="btn btn-primary"  title="#i18n{wiki.modify_page.buttonModify}" onclick="validate(this)">
             <span class="fa fa-save fa-1x"></span> &nbsp;#i18n{wiki.modify_page.buttonModify}
         </button>
+        <@input type='hidden' id='publish' name='publish' value='false' />
+        <button name="action_modifyPage"  type="submit"  class="btn btn-primary"  title="#i18n{wiki.modify_page.SaveAndPublish}" onclick="publishVersion(this)">
+            <span class="fa fa-save fa-1x"></span> &nbsp;#i18n{wiki.modify_page.SaveAndPublish}
+        </button>
     </div>
     <div class="col-sm-6">
         <div class="well">
