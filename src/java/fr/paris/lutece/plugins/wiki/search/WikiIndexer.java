@@ -242,18 +242,29 @@ public class WikiIndexer implements SearchIndexer
         String strIdSubject = String.valueOf( topic.getPageName( ) );
         doc.add( new Field( SearchItem.FIELD_UID, strIdSubject + "_" + SHORT_NAME_TOPIC, ftNotStored ) );
 
-        TopicVersion latestTopicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-        String strWikiContent = latestTopicVersion.getWikiContent( strLanguage ).getWikiContent( );
-        String strWikiResult = new LuteceWikiParser( strWikiContent, topic.getPageName( ), strLanguage ).toString( );
+        String strWikiResult = "";
+        TopicVersion topicVersion = null;
 
+        TopicVersion publishedTopicVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
+        if ( publishedTopicVersion.getWikiContent( strLanguage ) != null ) {
+            topicVersion = publishedTopicVersion;
+            strWikiResult = publishedTopicVersion.getWikiContent( strLanguage ).getWikiContent( );
+            strWikiResult = new LuteceWikiParser( strWikiResult, topic.getPageName( ), null, strLanguage ).toString( );
+        } else
+        {
+            TopicVersion latestTopicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+            topicVersion = latestTopicVersion;
+            String strWikiContent = latestTopicVersion.getWikiContent( strLanguage ).getWikiContent( );
+            strWikiResult = new LuteceWikiParser( strWikiContent, topic.getPageName( ), null, strLanguage ).toString( );
+        }
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, TextField.TYPE_NOT_STORED ) );
 
-        String strDate = DateTools.dateToString( latestTopicVersion.getDateEdition( ), DateTools.Resolution.DAY );
+        String strDate = DateTools.dateToString( topicVersion.getDateEdition( ), DateTools.Resolution.DAY );
         doc.add( new Field( SearchItem.FIELD_DATE, strDate, fieldType ) );
 
         // Add the subject name as a separate Text field, so that it can be
         // searched separately.
-        doc.add( new Field( SearchItem.FIELD_TITLE, latestTopicVersion.getWikiContent( strLanguage ).getPageTitle( ), fieldType ) );
+        doc.add( new Field( SearchItem.FIELD_TITLE, publishedTopicVersion.getWikiContent( strLanguage ).getPageTitle( ), fieldType ) );
 
         doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType( ), fieldType ) );
 

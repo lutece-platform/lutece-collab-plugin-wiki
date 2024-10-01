@@ -65,11 +65,13 @@ public final class Constants
     public static final String PARAMETER_IMAGE_FILE = "image_file";
     public static final String PARAMETER_IMAGE_ID = "id_image";
     public static final String PARAMETER_TOPIC_VERSION_ID = "id_topic_version";
+    public static final String PARAMETER_PUBLISH = "publish";
     public static final String MESSAGE_PAGE_NOT_EXISTS = "wiki.message.accessDenied.pageNotExists";
     public static final String MESSAGE_PAGE_ALREADY_EXISTS = "wiki.message.accessDenied.pageAlreadyExists";
     public static final String MESSAGE_USER_NOT_IN_ROLE = "wiki.message.accessDenied.userNotInRole";
     public static final String PARAMETER_LOCAL = "locale";
     public static final String PARAMETER_ACTION_TOPIC_NAME_LIST = "topicNameList";
+    public static final String MESSAGE_CANCELED_BY = "wiki.message.cancelBy";
 
     /** Private constructor */
     private Constants( )

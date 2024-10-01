@@ -3,8 +3,8 @@
 -- Dumping data for table wiki_topic_version
 --
 
-INSERT INTO wiki_topic_version (id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous) 
-VALUES (1,'',1,'admin','2014-05-31 14:42:56',7);
+INSERT INTO wiki_topic_version (id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous, is_published)
+VALUES (1,'',1,'admin','2014-05-31 14:42:56',0,'1');
 
 
 --
