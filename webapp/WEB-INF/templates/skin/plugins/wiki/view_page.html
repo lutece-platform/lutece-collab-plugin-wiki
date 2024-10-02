@@ -1,14 +1,24 @@
-<div class="row">
-    <div class="col-sm-12">
-        <div class="container panel panel-default">
+<head lang="en">
+
+    <meta charset="UTF-8" />
+    <!-- DARK MODE -->
+    <link rel="stylesheet" href="css/plugins/wiki/darkmode.css" />
+    <!-- Editor css -->
+    <link rel="stylesheet" href="css/toastui/toastui-editor.css" />
+    <link rel="stylesheet" href="js/admin/lib/prism/prism.css" />
+</head>
+<div>
+    <div class="container panel panel-default">
             <div class="text-right">
-                <small>${lastVersion.dateEdition} ${lastVersion.userName!''} ${lastVersion.userPseudo!''} 
+                <#if lastVersion?? >
+                <small>${lastVersion.dateEdition} ${lastVersion.userName!''} ${lastVersion.userPseudo!''}
                 <img class="avatar-small img-circle" src="${lastVersion.userAvatarUrl!''}" alt="avatar" />
                 <#if isExtendInstalled?? && isExtendInstalled >
-                    &nbsp;<span class="glyphicon glyphicon-eye-open"></span> 
+                    &nbsp;<span class="glyphicon glyphicon-eye-open"></span>
                     @Extender[${topic.idTopic},WIKI,hit,{show:true}]@
                 </#if>
                 </small>
+                </#if>
             </div>
             <div class="btn-group btn-group-xs pull-right">
                 <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=map" title="#i18n{wiki.menu.map}">
@@ -17,13 +27,15 @@
                 <button class="btn btn-default" id="btn-search" type="button" title="#i18n{wiki.menu.search}" >
                     <span class="glyphicon glyphicon-search"></span> #i18n{wiki.menu.search}
                 </button>
+                <#if has_edit_role >
                 <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=modifyPage&page_name=${topic.pageName}" title="#i18n{wiki.menu.edit}">
                     <span class="glyphicon glyphicon-edit"></span> #i18n{wiki.menu.edit}
                 </a>
                 <button class="btn btn-default" id="btn-new-page" type="button" title="#i18n{wiki.menu.create}">
                    <span class="glyphicon glyphicon-plus-sign"></span> #i18n{wiki.menu.create}
                 </button>
-                <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=history&page_name=${topic.pageName}" title="#i18n{wiki.menu.history}">
+            </#if>
+    <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=history&page_name=${topic.pageName}" title="#i18n{wiki.menu.history}">
                     <span class="glyphicon glyphicon-time"></span> #i18n{wiki.menu.history}
                 </a>
                 <#list languages_list as language>
@@ -36,12 +48,23 @@
                   </#if>
                 </#list>
             </div>
-
+<!------------------- DARK MODE -------------------------->
+<div id="darkModeSwitch" style="display: none">
+    <div  style="display: flex; justify-content: end;  flex-direction: row; margin-top: 15px" >
+        <div style="margin-right: 10px">
+            <div id="darkModeLabel"><span class="ti ti-sun fa-lg"></span></div>
+        </div>
+        <label class="switch">
+            <input  id="darkModeId"   type="checkbox"  onchange="toggleDarkMode()" >
+            <span class="slider round"></span>
+        </label>
+    </div>
+</div>
+<!---------------------------------------------->
             <div id="div-new-page" style="display:none">
-                <form class="form-search" action="jsp/site/Portal.jsp" method="post" >
+                <form class="form-search" action="jsp/site/Portal.jsp" method="get" >
                     <input type="hidden" name="page" value="wiki" />
                     <input type="hidden" name="action" value="newPage" />
-
                     <div class="input-append">
                         <input class="search-query col-sm-4" id="input-new-page" type="text" name="page_name" /> &nbsp;
                         <button class="btn btn-primary btn-xs" type="submit" >
@@ -52,7 +75,7 @@
             </div>
 
             <div id="div-search" style="display:none">
-                <form class="form-search" action="jsp/site/Portal.jsp" method="post">
+                <form class="form-search" action="jsp/site/Portal.jsp" method="get">
                     <input type="hidden" name="page" value="wiki" />
                     <input type="hidden" name="view" value="search" />
                     #i18n{wiki.search_wiki.search} :
@@ -66,33 +89,10 @@
             </div>
 
             <h1 id="wiki-heading">${topic_title}</h1>
-            <hr>
-            <div>
-               ${result}
-            </div>
-            <#if isExtendInstalled?? && isExtendInstalled >
-                <div class="pull-right">
-                    @Extender[${topic.idTopic},WIKI,opengraph]@
-                </div>
-                @Extender[${topic.idTopic},WIKI,feedback]@
-                @Extender[${topic.idTopic},WIKI,rating,{show:"all"}]@
-                @Extender[${topic.idTopic},WIKI,comment]@
-            </#if>
-        </div>        
-    </div>
 </div>
+            <hr>
+            ${result}
+   </div>
+<script src="js/plugins/wiki/wiki_pages/view_page.js" defer></script>
+<script type="text/javascript"  class="code-js"   src="js/admin/lib/prism/prism.js"></script>
 
-<script type="text/javascript">
-    jQuery(document).ready(function() {
-        $("#btn-new-page").click(function() {
-            $("#div-search").hide();
-            $("#div-new-page").show("slow");
-            $("#input-new-page").focus();
-        });
-        $("#btn-search").click(function() {
-            $("#div-new-page").hide();
-            $("#div-search").show("slow");
-            $("#input-search").focus();
-        });
-    });
-</script>

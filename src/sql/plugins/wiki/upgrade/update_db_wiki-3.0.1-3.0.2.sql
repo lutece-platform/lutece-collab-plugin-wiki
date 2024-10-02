@@ -1,1 +1,2 @@
-ALTER TABLE wiki_topic ADD COLUMN parent_page_name VARCHAR(100) DEFAULT '' NOT NULL;
+ALTER TABLE wiki_topic_version_content ADD html_wiki_content LONG VARCHAR NULL;
+
