@@ -66,6 +66,12 @@
             <version>2.4</version>
             <classifier>jdk15</classifier>
         </dependency>
+        <!-- Used to convert html to markdown -->
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-all</artifactId>
+            <version>0.62.2</version>
+        </dependency>
     </dependencies>
 
     <properties>
