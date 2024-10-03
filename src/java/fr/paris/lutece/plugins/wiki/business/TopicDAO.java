@@ -38,7 +38,8 @@ import fr.paris.lutece.util.sql.DAOUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
+import java.sql.Timestamp;
+import java.util.Map;
 /**
  * This class provides Data Access methods for Topic objects
  */
@@ -52,7 +53,9 @@ public final class TopicDAO implements ITopicDAO
     private static final String SQL_QUERY_UPDATE = "UPDATE wiki_topic SET id_topic = ?, namespace = ?, page_name = ?, page_view_role = ?, page_edit_role = ?, parent_page_name = ? WHERE id_topic = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name FROM wiki_topic";
     private static final String SQL_QUERY_SELECT_BY_NAME = "SELECT id_topic, namespace, page_name, page_view_role, page_edit_role, parent_page_name FROM wiki_topic WHERE page_name  = ?";
-
+    private static final String SQL_UPDATE_LAST_EDIT_ATTEMPT = "UPDATE wiki_last_edits SET name_user_editing = ?, date_modification = ? WHERE id_topic = ?";
+    private static final String SQL_QUERY_GET_LAST_EDIT_ATTEMPT = "SELECT name_user_editing, date_modification FROM wiki_last_edits WHERE id_topic = ?";
+    private static final String SQL_CREATE_LAST_EDIT_ATTEMPT = "INSERT INTO wiki_last_edits ( id_topic, name_user_editing, date_modification ) VALUES ( ?, ?, ? )";
     /**
      * Generates a new primary key
      *
@@ -215,4 +218,77 @@ public final class TopicDAO implements ITopicDAO
 
         return topic;
     }
+/*
+UPDATE wiki_last_edits
+* @param nIdTopic
+*            The IdTopic
+* @param strLuteceUserId
+*            The LuteceUserId
+* @param timestamp
+*            The DateEdition
+ */
+@Override
+public void updateLastEditAttempt( int nIdTopic, String strLuteceUserName )
+{
+    Map map = getLastEditAttempt( nIdTopic );
+    if ( map.containsKey( "name_user_editing" ) )
+    {
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_UPDATE_LAST_EDIT_ATTEMPT ) )
+        {
+            daoUtil.setString( 1, strLuteceUserName );
+            daoUtil.setTimestamp( 2, new Timestamp( System.currentTimeMillis( ) ) );
+            daoUtil.setInt( 3, nIdTopic );
+
+            daoUtil.executeUpdate( );
+        }
+        catch( Exception e )
+        {
+            e.printStackTrace( );
+        }
+    }
+    else
+    {
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_CREATE_LAST_EDIT_ATTEMPT ) )
+        {
+            daoUtil.setInt( 1, nIdTopic );
+            daoUtil.setString( 2, strLuteceUserName );
+            daoUtil.setTimestamp( 3, new Timestamp( System.currentTimeMillis( ) ) );
+
+            daoUtil.executeUpdate( );
+        }
+    }
 }
+    @Override
+    public Map getLastEditAttempt( int nIdTopic )
+    {
+        Map map = new java.util.HashMap( );
+        try( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_GET_LAST_EDIT_ATTEMPT ) )
+        {
+            daoUtil.setInt( 1, nIdTopic );
+            daoUtil.executeQuery( );
+
+            if ( daoUtil.next( ) )
+            {
+                // if it's less than a minute return the user name
+                Timestamp timestamp = daoUtil.getTimestamp( 2 );
+
+                if( timestamp != null && ( System.currentTimeMillis( ) - timestamp.getTime( ) ) < 60000 )
+                {
+                    map.put( "name_user_editing", daoUtil.getString( 1 ) );
+                    map.put( "is_editing", true );
+                }
+                else if ( timestamp != null )
+                {
+                    map.put( "name_user_editing", daoUtil.getString( 1 ) );
+                    map.put( "is_editing", false );
+                }
+                else
+                {
+                    map.put( "is_editing", false );
+                }
+            }
+        }
+        return map;
+    }
+}
+

@@ -270,7 +270,7 @@ function buildMarkdownToc() {
         const text = heading.slice(1).join(" ");
         const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
         const uri = "jsp/site/Portal.jsp?page=wiki&view=page&page_name="+ document.getElementById("page_name").value + "#" + id;
-        toc += "  ".repeat(level - 1) + "- [" + text + "](" + uri + ")" + ceir.lineDrop;
+        toc += "".repeat(level - 1) + "- [" + text + "](" + uri + ")" + ceir.lineDrop;
     }
     editor.insertText(ceir.lineDrop+toc+ ceir.lineDrop);
 }
