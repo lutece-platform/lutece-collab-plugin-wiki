@@ -62,3 +62,14 @@ CREATE TABLE wiki_image
 	PRIMARY KEY (id_image)
 );
 
+--
+-- Structure for table wiki_user_modifying
+--
+DROP TABLE IF EXISTS wiki_last_edits;
+CREATE TABLE wiki_last_edits
+(
+    id_topic INT NOT NULL,
+    name_user_editing VARCHAR(100) DEFAULT '' NOT NULL,
+    date_modification DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    PRIMARY KEY (id_topic)
+);

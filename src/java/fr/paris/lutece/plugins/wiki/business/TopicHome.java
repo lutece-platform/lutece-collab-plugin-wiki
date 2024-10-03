@@ -133,4 +133,33 @@ public final class TopicHome
     {
         return _dao.selectTopicsList( _plugin );
     }
+
+    /**
+     * update the last edit attempt
+     *
+     * @param nIdTopic
+     *           The topic id
+     * @param strLuteceUserName
+     *           The LuteceUserId
+     * @param timestamp
+     *          The DateEdition
+     */
+    public static void updateLastEditAttempt( int nIdTopic, String strLuteceUserName )
+    {
+        _dao.updateLastEditAttempt( nIdTopic, strLuteceUserName );
+    }
+
+   /**
+     * Get the last edit attempt
+     *
+     * @param nIdTopic
+     *            The topic id
+     * @return The last edit attempt
+
+     */
+
+    public static java.util.Map getLastEditAttempt( int nIdTopic )
+    {
+        return _dao.getLastEditAttempt( nIdTopic );
+    }
 }
