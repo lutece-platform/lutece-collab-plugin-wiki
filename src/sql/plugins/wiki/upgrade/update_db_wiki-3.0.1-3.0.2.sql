@@ -13,3 +13,14 @@ UPDATE wiki_topic_version
         AND wiki_topic_version.id_topic_version = max_versions.max_id_topic_version
 SET wiki_topic_version.is_published = 1;
 
+--
+-- Structure for table wiki_user_modifying
+--
+DROP TABLE IF EXISTS wiki_last_edits;
+CREATE TABLE wiki_last_edits
+(
+    id_topic INT NOT NULL,
+    name_user_editing VARCHAR(100) DEFAULT '' NOT NULL,
+    date_modification DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    PRIMARY KEY (id_topic)
+);

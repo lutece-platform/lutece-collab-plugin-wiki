@@ -62,3 +62,21 @@ function changeLanguage(locale) {
     }
     window.location.replace(url);
 }
+
+/*___________________________ UPDATE EDIT ATTEMPT  ___________________________*/
+function updateWhoIsEditing() {
+    const topicId = document.getElementById("topic_id").value;
+    fetch( 'jsp/site/Portal.jsp?page=wiki&action=updateLastEditAttempt&topic_id='+ topicId, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: "same-origin"
+    }).then(response => response.toString())
+}
+window.addEventListener("load", function() {
+    updateWhoIsEditing();
+    setInterval(function () {
+     updateWhoIsEditing();
+    }, 50000);
+});

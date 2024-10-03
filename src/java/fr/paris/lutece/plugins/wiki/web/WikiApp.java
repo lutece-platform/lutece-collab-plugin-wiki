@@ -175,7 +175,7 @@ public class WikiApp extends MVCApplication
     private static final String ACTION_CHANGE_LANGUAGE = "changeLanguage";
     private static final String ACTION_CANCEL_PUBLISH_PAGE = "cancelPublication";
     private static final String ACTION_CREATE_VERSION_FROM_PUBLISHED = "createVersionFromPublished";
-
+    private static final String ACTION_UPDATE_LAST_EDIT_ATTEMPT = "updateLastEditAttempt";
     private static final String MESSAGE_IMAGE_REMOVED = "wiki.message.image.removed";
     private static final String MESSAGE_CONFIRM_REMOVE_IMAGE = "wiki.message.confirmRemoveImage";
     private static final String MESSAGE_NAME_MANDATORY = "wiki.message.error.name.notNull";
@@ -410,7 +410,8 @@ public class WikiApp extends MVCApplication
      *             if an encoding exception occurs
      */
     @Action( ACTION_NEW_PAGE )
-    public XPage doCreateTopic( HttpServletRequest request ) throws UserNotSignedException, UnsupportedEncodingException
+    public XPage doCreateTopic( HttpServletRequest request )
+            throws UserNotSignedException, UnsupportedEncodingException, fr.paris.lutece.portal.service.message.SiteMessageException
     {
         checkUser( request );
 
@@ -465,7 +466,23 @@ public class WikiApp extends MVCApplication
         }
 
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
+        Map userEditing = TopicHome.getLastEditAttempt( topic.getIdTopic() );
+        if( userEditing != null && !userEditing.isEmpty() )
+        {
 
+            Boolean isEditing = (Boolean) userEditing.get( "is_editing" );
+            if( isEditing )
+            {
+                String strUserEditing = (String) userEditing.get( "name_user_editing" );
+                if( strUserEditing != null && !strUserEditing.isEmpty() && !getRegistredUser( request ).getName().equals( strUserEditing ) )
+                {
+                Object[] messageArgs = { strUserEditing };
+                String strMessageKey = "wiki.message.error.pageAlreadyEditing";
+                String titleMessageKey = "wiki.message.error.somebodyIsEditing";
+                SiteMessageService.setMessage( request, strMessageKey,messageArgs,titleMessageKey, SiteMessage.TYPE_STOP );
+                }
+            }
+        }
         TopicVersion topicVersion;
         if( nVersion != null )
         {
@@ -1114,6 +1131,20 @@ public class WikiApp extends MVCApplication
         return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
     }
 
+    /**
+     * update last edit attempt
+     * @param request
+     * @return
+     * @throws UserNotSignedException
+     */
+    @Action( ACTION_UPDATE_LAST_EDIT_ATTEMPT )
+    public XPage doUpdateLastEditAttempt( HttpServletRequest request ) throws UserNotSignedException
+    {
+        LuteceUser user = checkUser( request );
+        int topicId = Integer.parseInt(request.getParameter( fr.paris.lutece.plugins.wiki.web.Constants.PARAMETER_TOPIC_ID ));
+        TopicHome.updateLastEditAttempt( topicId, user.getName( ) );
+        return responseJSON( "ok" );
+    }
     // /////////////////// Utils ////////////////////////////
     /**
      * Checks the connected user

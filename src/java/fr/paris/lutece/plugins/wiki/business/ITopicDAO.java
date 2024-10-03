@@ -105,4 +105,24 @@ public interface ITopicDAO
      * @return The topic
      */
     Topic load( String strTopicName, Plugin plugin );
+
+       /**
+        UPDATE wiki_last_edits
+        * @param nIdTopic
+        *            The IdTopic
+        * @param strLuteceUserName
+        *            The LuteceUserId
+        * @param timestamp
+        *            The DateEdition
+         */
+    void updateLastEditAttempt( int nIdTopic, String strLuteceUserName );
+
+    /**
+     * Get the last edit attempt
+     *
+     * @param nIdTopic
+     *            The topic id
+     * @return The last edit attempt
+     */
+    java.util.Map getLastEditAttempt( int nIdTopic );
 }
