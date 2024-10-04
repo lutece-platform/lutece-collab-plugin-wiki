@@ -98,6 +98,11 @@ import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.i18n.LocaleString;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 /**
  * This class provides a simple implementation of an XPage
@@ -163,6 +168,7 @@ public class WikiApp extends MVCApplication
     private static final String VIEW_DIFF = "diff";
     private static final String VIEW_LIST_IMAGES = "listImages";
     private static final String VIEW_MODIFY_PUBLISHED = "modifyPublished";
+    private static final String VIEW_GET_PAGE_HEADINGS = "getPageHeadings";
 
     private static final String ACTION_NEW_PAGE = "newPage";
     private static final String ACTION_MODIFY_PAGE = "modifyPage";
@@ -1141,9 +1147,57 @@ public class WikiApp extends MVCApplication
     public XPage doUpdateLastEditAttempt( HttpServletRequest request ) throws UserNotSignedException
     {
         LuteceUser user = checkUser( request );
+
         int topicId = Integer.parseInt(request.getParameter( fr.paris.lutece.plugins.wiki.web.Constants.PARAMETER_TOPIC_ID ));
+        if(getTopicIdListForUser( request ).contains( topicId ))
+        {
+            throw new UserNotSignedException( );
+        }
         TopicHome.updateLastEditAttempt( topicId, user.getName( ) );
         return responseJSON( "ok" );
+    }
+    @View( VIEW_GET_PAGE_HEADINGS )
+    public XPage getPageHeadings( HttpServletRequest request ) throws UserNotSignedException, com.fasterxml.jackson.core.JsonProcessingException
+    {
+        String pageName = request.getParameter( "pageName" );
+        String locale = request.getParameter( "locale" );
+        Topic topic = TopicHome.findByPrimaryKey( pageName );
+
+
+        List<HashMap<String, String>> headings = new ArrayList<HashMap<String, String>>( );
+        try
+        {
+            if ( getTopicNameListForUser( request ).contains( pageName ) )
+            {
+                // if you merge this after LUT-25169, change findLastVersion to getPublishedVersion
+                TopicVersion topicVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
+                WikiContent wikiContent = topicVersion.getWikiContent( locale );
+
+                String htmlContent = WikiService.instance( ).getWikiPage( pageName, topicVersion, getPageUrl( request ), locale );
+
+                Document htmlDocument = Jsoup.parse( htmlContent );
+                Element docBody = htmlDocument.body( );
+                for ( Element element : docBody.select( "h1, h2, h3, h4, h5, h6" ) )
+                {
+                    HashMap<String, String> heading = new HashMap<String, String>( );
+                    heading.put( "header_id", element.id( ) );
+                    heading.put( "header_text", element.text( ) );
+                    headings.add( heading );
+                }
+            }
+            else
+            {
+                throw new UserNotSignedException( );
+            }
+        }
+        catch ( Exception e )
+        {
+            throw new UserNotSignedException( );
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        String res = mapper.writeValueAsString(headings);
+
+        return responseJSON( res );
     }
     // /////////////////// Utils ////////////////////////////
     /**
@@ -1313,6 +1367,22 @@ public class WikiApp extends MVCApplication
 
         return list;
     }
+    /*
+     * @return the list of pages for user with topic name as value
+     * @param request
+     */
+    private List<Integer> getTopicIdListForUser( HttpServletRequest request )
+    {
+        List<Integer> list = new ArrayList<>( );
+
+        for ( Topic topic : getTopicsForUser( request ) )
+        {
+            list.add( topic.getIdTopic( ) );
+        }
+
+        return list;
+    }
+
 
     /**
      * Builds the page title
