@@ -200,7 +200,8 @@ function createToolbarItemOption(colorPickerContainer, i18n) {
     return {
         name: 'color',
         tooltip: i18n.get('Text color'),
-        className: PREFIX + "toolbar-icons color",
+        className: "color-toolbar-icons-color",
+        text: 'C',
         popup: {
             className: PREFIX + "popup-color",
             body: colorPickerContainer,
@@ -267,9 +268,15 @@ function colorSyntaxPlugin(context, options) {
                 if (selectedColor) {
                     var slice = selection.content();
                     var textContent = slice.content.textBetween(0, slice.content.size, '\n');
-                    var openTag = "<span style=\"color: " + selectedColor + "\">";
-                    var closeTag = "</span>";
-                    var colored = "" + openTag + textContent + closeTag;
+                    if(textContent === null || textContent === undefined || textContent === "" || textContent.size === 0){
+                        textContent = "My text is colored";
+                    }
+                    textContent = "color={{"+ selectedColor +"}} message={{"+textContent+"}}"
+                    var openTagInMD = "\n$$cl\n";
+                    var closeTagInMD = "\n$$\n";
+                    var colored = openTagInMD + textContent + closeTagInMD;
+                    var openTag = "\n"+"<span style=\"color: " + selectedColor + "\">";
+                    var closeTag = "</span>"+"\n";
                     tr.replaceSelectionWith(schema.text(colored)).setSelection(createSelection(tr, selection, pmState.TextSelection, openTag, closeTag));
                     dispatch(tr);
                     return true;
