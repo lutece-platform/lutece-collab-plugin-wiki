@@ -565,7 +565,11 @@ public class WikiApp extends MVCApplication
             String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
             String strContent = request.getParameter( Constants.PARAMETER_CONTENT + "_" + strLanguage );
            TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-        if ( publish )
+        if(!RoleService.hasEditRole( request, TopicHome.findByPrimaryKey( strTopicId ) ) )
+        {
+            throw new UserNotSignedException(  );
+        }
+            if ( publish )
         {
             TopicVersion previousPublished = TopicVersionHome.getPublishedVersion( nTopicId );
             if ( previousPublished != null )
@@ -647,6 +651,10 @@ public class WikiApp extends MVCApplication
         String strParentPageName = request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME );
         String strLanguage = getLanguage( request );
         TopicVersion topicVersion = new TopicVersion( );
+        if(!RoleService.hasEditRole( request, TopicHome.findByPrimaryKey( strTopicId ) ) )
+        {
+            throw new UserNotSignedException(  );
+        }
         int nPreviousVersionId = 0;
         if(strPreviousVersionId != null)
         {
@@ -701,7 +709,10 @@ public class WikiApp extends MVCApplication
     public  XPage wikiCreoleToMd(  javax.servlet.http.HttpServletRequest request  ) throws UserNotSignedException
     {
         LuteceUser user = checkUser( request );
-
+        if( !RoleService.hasAdminRole( request ) )
+        {
+            throw new UserNotSignedException(  );
+        }
         for ( fr.paris.lutece.plugins.wiki.business.Topic topic : fr.paris.lutece.plugins.wiki.business.TopicHome.getTopicsList( ) )
         {
             List<String> lang = WikiLocaleService.getLanguages( );
@@ -800,7 +811,6 @@ public class WikiApp extends MVCApplication
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = getTopic( request, strPageName, MODE_VIEW );
-
         String strNewVersion = request.getParameter( Constants.PARAMETER_NEW_VERSION );
         String strOldVersion = request.getParameter( Constants.PARAMETER_OLD_VERSION );
         int nNewTopicVersion = Integer.parseInt( strNewVersion );
@@ -874,6 +884,10 @@ public class WikiApp extends MVCApplication
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         FileItem fileItem = multipartRequest.getFile( Constants.PARAMETER_IMAGE_FILE );
+        if(!RoleService.hasEditRole( request, TopicHome.findByPrimaryKey( strPageName ) ))
+        {
+            throw new UserNotSignedException( );
+        }
         Image image = new Image( );
         boolean bError = false;
 
@@ -954,8 +968,11 @@ public class WikiApp extends MVCApplication
     {
         checkUser( request );
         int nId = Integer.parseInt( request.getParameter( Constants.PARAMETER_IMAGE_ID ) );
-        ImageHome.remove( nId );
-        addInfo( MESSAGE_IMAGE_REMOVED, getLocale( request ) );
+        if ( RoleService.hasAdminRole( request ) )
+        {
+            ImageHome.remove( nId );
+            addInfo( MESSAGE_IMAGE_REMOVED, getLocale( request ) );
+        }
 
         Map<String, String> mapParameters = new ConcurrentHashMap<>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) + ANCHOR_IMAGES );
@@ -1023,11 +1040,14 @@ public class WikiApp extends MVCApplication
      * @return A JSON flow
      */
     @View( VIEW_LIST_IMAGES )
-    public XPage getListImages( HttpServletRequest request )
+    public XPage getListImages( HttpServletRequest request ) throws UserNotSignedException
     {
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
         JSONArray array = new JSONArray( );
-
+         if(!getTopicIdListForUser( request ).contains( strTopicId ))
+        {
+            throw new UserNotSignedException( );
+        }
         if ( strTopicId != null )
         {
             int nTopicId = Integer.parseInt( strTopicId );
@@ -1059,7 +1079,10 @@ public class WikiApp extends MVCApplication
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         strPageName = WikiUtils.normalize( strPageName );
-
+        if( !getTopicNameListForUser( request ).contains( strPageName ) )
+        {
+            throw new UserNotSignedException( );
+        }
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
         Map<String, Object> model = getModel( );
 
@@ -1116,7 +1139,6 @@ public class WikiApp extends MVCApplication
     @Action( ACTION_CANCEL_PUBLISH_PAGE )
     public XPage doUnpublish( HttpServletRequest request ) throws UserNotSignedException
     {
-        LuteceUser user = WikiAnonymousUser.checkUser( request );
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByPrimaryKey( strPageName );
         TopicVersion publishedVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
@@ -1149,7 +1171,8 @@ public class WikiApp extends MVCApplication
         LuteceUser user = checkUser( request );
 
         int topicId = Integer.parseInt(request.getParameter( fr.paris.lutece.plugins.wiki.web.Constants.PARAMETER_TOPIC_ID ));
-        if(getTopicIdListForUser( request ).contains( topicId ))
+        Topic topic = TopicHome.findByPrimaryKey( topicId );
+        if ( !RoleService.hasEditRole( request, topic ) )
         {
             throw new UserNotSignedException( );
         }
@@ -1171,7 +1194,6 @@ public class WikiApp extends MVCApplication
             {
                 // if you merge this after LUT-25169, change findLastVersion to getPublishedVersion
                 TopicVersion topicVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
-                WikiContent wikiContent = topicVersion.getWikiContent( locale );
 
                 String htmlContent = WikiService.instance( ).getWikiPage( pageName, topicVersion, getPageUrl( request ), locale );
 
