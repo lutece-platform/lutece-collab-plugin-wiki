@@ -39,7 +39,27 @@ span.diff-html-conflict {
 /*  background: url(../images/diffunderline.gif) bottom repeat-x; */
   background-color: #f781be; /* light rose */
 }
-
+[class^="ti ti-"] {
+    font-size: 18px;
+}
+.fa-2xs {
+    font-size: 10px;
+}
+.fa-xs{
+    font-size: 12px;
+}
+.fa-sm{
+    font-size: 14px;
+}
+.fa-lg{
+    font-size: 20px;
+}
+.fa-xl{
+    font-size: 24px;
+}
+.fa-2xl{
+    font-size: 32px;
+}
 .markItUp {
     width: 100%;
 }
@@ -58,4 +78,90 @@ span.diff-html-conflict {
 
 .wiki_underline {
     text-decoration: underline;
+}
+
+/* class if there is a toc */
+.wiki-topic-nav {
+    position: fixed;
+    left: 1%;
+    width: 16%;
+    font-size: large;
+    color: #2d2d2d;
+    margin-top: -9%;
+}
+@media (max-width: 1500px) {
+    .wiki-topic-nav {
+        display: none;
+    }
+}
+
+.wiki-nav-content-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+}
+.wiki-content {
+margin-left: 20%;
+    margin-right: 10%;
+    width: 70%;
+}
+@media (max-width: 1500px) {
+    .wiki-content {
+        margin-left: 10%;
+        margin-right: 10%;
+        width: 80%;
+    }
+}
+.subLinkContainer{
+   margin-left: 10px;
+}
+
+
+/* class image in editor page */
+
+.image-editor-display {
+    position: relative;
+    width: 100%;
+}
+/* Make the image responsive */
+.image-editor-display img {
+    height: 100%;
+}
+
+/* Style the button and place it in the middle of the container/image */
+.image-editor-display .button-container {
+    position: absolute;
+    top: 50%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.image-editor-display .button-container button{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 10px;
+    justify-items: center;
+    align-items: center;
+    overflow: auto;
+    height: 100%;
+}
+/* class for align content  editor */
+
+.wiki-align-content-val-l {
+    text-align: left;
+}
+.wiki-align-content-val-r {
+    text-align: right;
+}
+.wiki-align-content-val-c {
+    text-align: center;
+}
+.wiki-align-content-val-j {
+    text-align: justify;
 }
