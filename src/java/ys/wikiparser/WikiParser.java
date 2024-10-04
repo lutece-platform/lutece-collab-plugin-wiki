@@ -27,7 +27,6 @@ import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import com.vladsch.flexmark.util.misc.Extension;
-
 import java.net.*;
 
 import java.util.HashSet;
@@ -593,6 +592,8 @@ public class WikiParser
         options.set(Parser.EXTENSIONS, extensions);
         options.set(HtmlRenderer.INDENT_SIZE, 2);
             options.set(HtmlRenderer.PERCENT_ENCODE_URLS, true);
+        options.set(HtmlRenderer.GENERATE_HEADER_ID, true);
+        options.set(HtmlRenderer.RENDER_HEADER_ID, true);
         Parser parser = Parser.builder(options).build();
         HtmlRenderer renderer = HtmlRenderer.builder(options).build();
         markdown = wikiText;
