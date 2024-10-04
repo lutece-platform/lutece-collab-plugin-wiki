@@ -12,7 +12,7 @@ let editor = new Editor({
     height: '800px',
     initialValue: wikiContent,
     scrollSync: false,
-    plugins: [[codeSyntaxHighlight, { highlighter: Prism }], colorSyntax, tableMergedCell, iconsPlugin, alertPlugin, badgePlugin],
+    plugins: [[codeSyntaxHighlight, { highlighter: Prism }], colorSyntax, tableMergedCell, iconsPlugin, alertPlugin, badgePlugin, customColorPlugin],
     toolbarItems: [
         ['heading', 'bold', 'italic', 'strike'],
         ['hr', 'quote'],
@@ -71,6 +71,9 @@ const ceir = {
     internalLinks: {
         buttonOpenModalClass: "fa fa-link editor",
         selectInternalLinkModalId: "selectInternalLinkModal",
+    },
+    color:{
+        colorOpenVar: "color={{",
     }
 }
 
@@ -379,4 +382,22 @@ function showThisElementFromId(elementId) {
     openedWikiModalId = elementId;
     this.event.stopPropagation();
     hideElementOnClickOutSide(elementId);
+}
+/** -------------- Wiki color plugin -------------- */
+function customColorPlugin() {
+    const toHTMLRenderers = {
+        cl(node) {
+            const color = node.literal.split(ceir.color.colorOpenVar)[1].split(ceir.varClose)[0];
+            const message = node.literal.split(ceir.messageVarOpen)[1].split(ceir.varClose)[0];
+           let colorElement = document.createElement('span');
+            colorElement.style.color = color;
+            colorElement.innerText = message;
+            return [
+                { type: 'openTag', tagName: 'span', outerNewLine: true },
+                { type: 'html', content: colorElement.outerHTML },
+                { type: 'closeTag', tagName: 'span', outerNewLine: true }
+            ];
+        },
+    }
+    return { toHTMLRenderers }
 }
