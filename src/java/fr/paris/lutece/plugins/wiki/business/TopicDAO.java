@@ -194,7 +194,7 @@ public final class TopicDAO implements ITopicDAO
      * {@inheritDoc }
      */
     @Override
-    public Topic load( String strTopicName, Plugin plugin )
+    public Topic loadByName( String strTopicName, Plugin plugin )
     {
         Topic topic = null;
 

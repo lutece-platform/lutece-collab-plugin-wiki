@@ -104,7 +104,7 @@ public interface ITopicDAO
      *            The plugin
      * @return The topic
      */
-    Topic load( String strTopicName, Plugin plugin );
+    Topic loadByName( String strTopicName, Plugin plugin );
 
        /**
         UPDATE wiki_last_edits
