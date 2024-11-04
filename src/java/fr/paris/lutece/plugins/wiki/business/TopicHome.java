@@ -119,9 +119,9 @@ public final class TopicHome
      *            The topic name
      * @return The topic
      */
-    public static Topic findByPrimaryKey( String strTopicName )
+    public static Topic findByName( String strTopicName )
     {
-        return _dao.load( strTopicName, _plugin );
+        return _dao.loadByName( strTopicName, _plugin );
     }
 
     /**

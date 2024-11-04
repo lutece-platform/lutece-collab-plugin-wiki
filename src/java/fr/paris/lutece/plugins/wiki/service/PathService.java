@@ -65,7 +65,7 @@ public final class PathService
 
         while ( StringUtils.isNotEmpty( topic.getParentPageName( ) ) && !topic.getPageName( ).equals( strWikiRootPageName ) )
         {
-            topic = TopicHome.findByPrimaryKey( topic.getParentPageName( ) );
+            topic = TopicHome.findByName( topic.getParentPageName( ) );
 
             if ( topic == null || isTopicInList( topicList, topic ) )
             {
