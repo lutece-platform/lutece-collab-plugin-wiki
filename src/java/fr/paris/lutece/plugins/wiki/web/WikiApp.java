@@ -430,7 +430,7 @@ public class WikiApp extends MVCApplication
         String strPageTitle = strPageName;
         strPageName = WikiUtils.normalize( strPageName );
 
-        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+        Topic topic = TopicHome.findByName( strPageName );
         if ( topic == null )
         {
             topic = new Topic( );
@@ -471,7 +471,7 @@ public class WikiApp extends MVCApplication
             strLocale = request.getParameter( Constants.PARAMETER_LOCAL );
         }
 
-        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+        Topic topic = TopicHome.findByName( strPageName );
         Map userEditing = TopicHome.getLastEditAttempt( topic.getIdTopic() );
         if( userEditing != null && !userEditing.isEmpty() )
         {
@@ -553,7 +553,7 @@ public class WikiApp extends MVCApplication
     {
         LuteceUser user = checkUser( request );
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+        Topic topic = TopicHome.findByName( strPageName );
             String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
             String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT )!= null?request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT ):"";
             String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE )!= null?request.getParameter( Constants.PARAMETER_VIEW_ROLE ):Page.ROLE_NONE;
@@ -565,7 +565,7 @@ public class WikiApp extends MVCApplication
             String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
             String strContent = request.getParameter( Constants.PARAMETER_CONTENT + "_" + strLanguage );
            TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-        if(!RoleService.hasEditRole( request, TopicHome.findByPrimaryKey( strTopicId ) ) )
+        if(!RoleService.hasEditRole( request, topic ) )
         {
             throw new UserNotSignedException(  );
         }
@@ -651,7 +651,7 @@ public class WikiApp extends MVCApplication
         String strParentPageName = request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME );
         String strLanguage = getLanguage( request );
         TopicVersion topicVersion = new TopicVersion( );
-        if(!RoleService.hasEditRole( request, TopicHome.findByPrimaryKey( strTopicId ) ) )
+        if(!RoleService.hasEditRole( request, TopicHome.findByName( strTopicId ) ) )
         {
             throw new UserNotSignedException(  );
         }
@@ -680,7 +680,7 @@ public class WikiApp extends MVCApplication
         }
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+        Topic topic = TopicHome.findByName( strPageName );
         topic.setViewRole( strViewRole );
         topic.setEditRole( strEditRole );
         topic.setParentPageName( strParentPageName );
@@ -855,7 +855,7 @@ public class WikiApp extends MVCApplication
         checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+        Topic topic = TopicHome.findByName( strPageName );
 
         // Requires Admin role
         if ( RoleService.hasAdminRole( request ) )
@@ -884,7 +884,7 @@ public class WikiApp extends MVCApplication
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         FileItem fileItem = multipartRequest.getFile( Constants.PARAMETER_IMAGE_FILE );
-        if(!RoleService.hasEditRole( request, TopicHome.findByPrimaryKey( strPageName ) ))
+        if(!RoleService.hasEditRole( request, TopicHome.findByName( strPageName ) ))
         {
             throw new UserNotSignedException( );
         }
@@ -1083,7 +1083,7 @@ public class WikiApp extends MVCApplication
         {
             throw new UserNotSignedException( );
         }
-        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+        Topic topic = TopicHome.findByName( strPageName );
         Map<String, Object> model = getModel( );
 
         model.put( Constants.PARAMETER_PAGE_NAME, strPageName );
@@ -1108,7 +1108,7 @@ public class WikiApp extends MVCApplication
     {
         LuteceUser user = WikiAnonymousUser.checkUser( request );
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+        Topic topic = TopicHome.findByName( strPageName );
 
         if ( RoleService.hasEditRole( request, topic ) )
         {
@@ -1140,7 +1140,7 @@ public class WikiApp extends MVCApplication
     public XPage doUnpublish( HttpServletRequest request ) throws UserNotSignedException
     {
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
-        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+        Topic topic = TopicHome.findByName( strPageName );
         TopicVersion publishedVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
 
         if ( RoleService.hasEditRole( request, topic ) )
@@ -1184,7 +1184,7 @@ public class WikiApp extends MVCApplication
     {
         String pageName = request.getParameter( "pageName" );
         String locale = request.getParameter( "locale" );
-        Topic topic = TopicHome.findByPrimaryKey( pageName );
+        Topic topic = TopicHome.findByName( pageName );
 
 
         List<HashMap<String, String>> headings = new ArrayList<HashMap<String, String>>( );
@@ -1267,7 +1267,7 @@ public class WikiApp extends MVCApplication
      */
     private Topic getTopic( HttpServletRequest request, String strPageName, int nMode ) throws SiteMessageException, UserNotSignedException
     {
-        Topic topic = TopicHome.findByPrimaryKey( strPageName );
+        Topic topic = TopicHome.findByName( strPageName );
 
         if ( topic == null )
         {
@@ -1469,7 +1469,7 @@ public class WikiApp extends MVCApplication
         while ( topic != null && !topic.getParentPageName( ).isEmpty( ) && topic.getParentPageName( ) != null
                 && !topic.getParentPageName( ).equals( strWikiRootPageName ) && !isNameInReferenceList( list, URL_VIEW_PAGE + topic.getParentPageName( ) ) )
         {
-            topic = TopicHome.findByPrimaryKey( topic.getParentPageName( ) );
+            topic = TopicHome.findByName( topic.getParentPageName( ) );
 
             if ( topic != null )
             {
