@@ -377,9 +377,13 @@ public class WikiApp extends MVCApplication
         if ( version == null )
         {
             version = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
+            if(version == null)
+            {
+            	SiteMessageService.setMessage(request, MESSAGE_NO_PUBLISHED_VERSION, SiteMessage.TYPE_ERROR);
+            }
           String strPageTitle = topic.getPageName( );
             String strLanguage = getLanguage( request );
-            String strContent = I18nService.getLocalizedString( "wiki.page.notPublished", getLocale( request ) );
+            String strContent = I18nService.getLocalizedString( MESSAGE_NO_PUBLISHED_VERSION, getLocale( request ) );
             WikiContent content = new WikiContent( );
             content.setPageTitle( strPageTitle );
             content.setWikiContent( strContent );
@@ -419,7 +423,7 @@ public class WikiApp extends MVCApplication
     public XPage doCreateTopic( HttpServletRequest request )
             throws UserNotSignedException, UnsupportedEncodingException, fr.paris.lutece.portal.service.message.SiteMessageException
     {
-        checkUser( request );
+    	LuteceUser user = checkUser( request );
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         String strParentPageName = request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME );
@@ -440,6 +444,31 @@ public class WikiApp extends MVCApplication
             topic.setParentPageName( strParentPageName );
 
             TopicHome.create( topic );
+            
+            String strLocale = getLanguage( request );
+            if( request.getParameter( Constants.PARAMETER_LOCAL ) != null )
+            {
+                strLocale = request.getParameter( Constants.PARAMETER_LOCAL );
+            }
+            
+            String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT )!= null?request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT ):"";
+            String strContent = "";
+            TopicVersion topicVersion = new TopicVersion( );
+            topicVersion.setIdTopic( topic.getIdTopic( ) );
+            topicVersion.setUserName( user.getName( ) );
+            topicVersion.setEditComment( strComment );
+            topicVersion.setIdTopicVersionPrevious( 0 );
+            topicVersion.setIsPublished( false );
+            for ( String strLang : WikiLocaleService.getLanguages( ) )
+            {
+                WikiContent content = new WikiContent( );
+                content.setPageTitle( strPageTitle );
+                content.setWikiContent( strContent );
+                topicVersion.addLocalizedWikiContent( strLang, content );
+            }
+            
+            TopicVersionHome.addTopicVersion( topicVersion );
+            TopicHome.update( topic );
         }
 
         Map<String, String> mapParameters = new ConcurrentHashMap<>( );
@@ -717,7 +746,9 @@ public class WikiApp extends MVCApplication
         {
             List<String> lang = WikiLocaleService.getLanguages( );
             fr.paris.lutece.plugins.wiki.business.TopicVersion topicVersion = fr.paris.lutece.plugins.wiki.business.TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-
+			if (topicVersion == null) {
+				continue;
+			}
             for ( String strLanguage : lang )
             {
                 String strWikiText = topicVersion.getWikiContent( strLanguage ).getWikiContent( );
@@ -1142,20 +1173,22 @@ public class WikiApp extends MVCApplication
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByName( strPageName );
         TopicVersion publishedVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
-
-        if ( RoleService.hasEditRole( request, topic ) )
-        {
-            TopicVersion previousPublished = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
-            if ( previousPublished != null )
-            {
-                previousPublished.setIsPublished( false );
-                TopicVersionHome.updateTopicVersion( previousPublished );
-            }
-        }
-        Integer topicVersionId = publishedVersion.getIdTopicVersion( );
         Map<String, String> mapParameters = new ConcurrentHashMap<>( );
+        if ( publishedVersion != null )
+        {
+	        if ( RoleService.hasEditRole( request, topic ) )
+	        {
+	            TopicVersion previousPublished = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
+	            if ( previousPublished != null )
+	            {
+	                previousPublished.setIsPublished( false );
+	                TopicVersionHome.updateTopicVersion( previousPublished );
+	            }
+	        }
+	        Integer topicVersionId = publishedVersion.getIdTopicVersion( );
+        	mapParameters.put( Constants.PARAMETER_TOPIC_VERSION_ID, String.valueOf( topicVersionId ) );
+        }
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, topic.getPageName( ) );
-        mapParameters.put( Constants.PARAMETER_TOPIC_VERSION_ID, String.valueOf( topicVersionId ) );
         return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
     }
 
@@ -1546,7 +1579,7 @@ public class WikiApp extends MVCApplication
      */
     private void fillUserData( TopicVersion version )
     {
-        String strUserId = version.getLuteceUserId( );
+        String strUserId = version.getUserName( );
 
         LuteceUser user = SecurityService.getInstance( ).getUser( strUserId );
 
