@@ -99,7 +99,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
             daoUtil.setInt( 1, topicVersion.getIdTopicVersion( ) );
             daoUtil.setString( 2, topicVersion.getEditComment( ) );
             daoUtil.setInt( 3, topicVersion.getIdTopic( ) );
-            daoUtil.setString( 4, topicVersion.getLuteceUserId( ) );
+            daoUtil.setString( 4, topicVersion.getUserName( ) );
             daoUtil.setTimestamp( 5, topicVersion.getDateEdition( ) );
             daoUtil.setBoolean(7, topicVersion.getIsPublished());
 
@@ -392,7 +392,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
         topicVersion.setIdTopicVersion(daoUtil.getInt(1));
         topicVersion.setEditComment(daoUtil.getString(2));
         topicVersion.setIdTopic(daoUtil.getInt(3));
-        topicVersion.setLuteceUserId(daoUtil.getString(4));
+        topicVersion.setUserName(daoUtil.getString(4));
         topicVersion.setDateEdition(daoUtil.getTimestamp(5));
         topicVersion.setIdTopicVersionPrevious(daoUtil.getInt(6));
         topicVersion.setIsPublished(daoUtil.getBoolean(7));
