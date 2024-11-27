@@ -3,8 +3,8 @@
         <#list list_topic as topic>
         <li>
             <a href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}">${map_topic_title[topic.pageName]}</a>
-            <#if (map_topic_children[topic.pageName])??>
-                <@mapLevel map_topic_children[topic.pageName] map_topic_children map_topic_title/>
+            <#if (map_topic_children[map_topic_title[topic.pageName]])??>
+                <@mapLevel map_topic_children[map_topic_title[topic.pageName]] map_topic_children map_topic_title/>
             </#if>
         </li>
         </#list>
@@ -65,13 +65,13 @@
 
             <h1>#i18n{wiki.map_wiki.title}</h1>
             <hr>
-            <#if (map_topic_children[wiki_root_page_name])??>
+            <#if (map_topic_children[map_topic_title[wiki_root_page_name]])??>
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <a class="panel-title" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${wiki_root_page_name}">${map_topic_title[wiki_root_page_name]}</a>
                     </div>
                     <div class="panel-body">
-                        <@mapLevel map_topic_children[wiki_root_page_name] map_topic_children map_topic_title/>
+                        <@mapLevel map_topic_children[map_topic_title[wiki_root_page_name]] map_topic_children map_topic_title/>
                     </div>
                 </div>
             </#if>
@@ -82,9 +82,9 @@
                         <div class="panel-heading">
                             <a class="panel-title" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}">${map_topic_title[topic.pageName]}</a>
                         </div>
-                        <#if (map_topic_children[topic.pageName])??>
+                        <#if (map_topic_children[map_topic_title[topic.pageName]])??>
                             <div class="panel-body">
-                                <@mapLevel map_topic_children[topic.pageName] map_topic_children map_topic_title/>
+                                <@mapLevel map_topic_children[map_topic_title[topic.pageName]] map_topic_children map_topic_title/>
                             </div>
                         </#if>
                     </div>
