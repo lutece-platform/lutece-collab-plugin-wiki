@@ -30,6 +30,16 @@
     <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=history&page_name=${topic.pageName}" title="#i18n{wiki.menu.history}">
                     <span class="glyphicon glyphicon-time"></span> #i18n{wiki.menu.history}
                 </a>
+                <#if has_admin_role >
+                    <form id="form-page-delete" action="jsp/site/Portal.jsp" method="post" >
+                        <input type="hidden" name="page" value="wiki" />
+                        <input type="hidden" name="page_name" value="${topic.pageName}" />
+                        <input type="hidden" name="action" value="deletePage" />
+                    </form>
+                    <button  class="btn btn-danger" class="btn btn-danger" title="#i18n{portal.util.labelDelete}"  onclick="confirmDeleteTopic()">
+                        <span class="fa fa-trash fa-1x"></span> #i18n{portal.util.labelDelete}
+                    </button>
+                </#if>
                 <#list languages_list as language>
                   <#if language = current_language >
                     <span class="label label-info">${language}</span>
@@ -88,4 +98,5 @@
         });
     });
 </script>
+<script type="text/javascript"  class="code-js"   src="js/plugins/wiki/wiki_pages/modify_page.js"></script>
 
