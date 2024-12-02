@@ -746,7 +746,7 @@ public class WikiApp extends MVCApplication
         {
             List<String> lang = WikiLocaleService.getLanguages( );
             fr.paris.lutece.plugins.wiki.business.TopicVersion topicVersion = fr.paris.lutece.plugins.wiki.business.TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-			if (topicVersion == null) {
+			if (topicVersion == null || topicVersion.getWikiContents().isEmpty()) {
 				continue;
 			}
             for ( String strLanguage : lang )
@@ -887,10 +887,14 @@ public class WikiApp extends MVCApplication
 
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByName( strPageName );
-
+   
         // Requires Admin role
         if ( RoleService.hasAdminRole( request ) )
         {
+        	List<String> lang = WikiLocaleService.getLanguages();
+			for (String strLang : lang) {
+				TopicHome.setChildrenToEmptyParent( TopicVersionHome.findLastVersion( topic.getIdTopic( ) ).getWikiContent( strLang ).getPageTitle( ) );
+			}
             TopicHome.remove( topic.getIdTopic( ) );
         }
 

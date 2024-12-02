@@ -56,6 +56,7 @@ public final class TopicDAO implements ITopicDAO
     private static final String SQL_UPDATE_LAST_EDIT_ATTEMPT = "UPDATE wiki_last_edits SET name_user_editing = ?, date_modification = ? WHERE id_topic = ?";
     private static final String SQL_QUERY_GET_LAST_EDIT_ATTEMPT = "SELECT name_user_editing, date_modification FROM wiki_last_edits WHERE id_topic = ?";
     private static final String SQL_CREATE_LAST_EDIT_ATTEMPT = "INSERT INTO wiki_last_edits ( id_topic, name_user_editing, date_modification ) VALUES ( ?, ?, ? )";
+    private static final String SQL_UPDATE_TO_EMPTY_PARENT_PAGE = "UPDATE wiki_topic SET parent_page_name = '' WHERE parent_page_name = ?";
     /**
      * Generates a new primary key
      *
@@ -290,5 +291,15 @@ public void updateLastEditAttempt( int nIdTopic, String strLuteceUserName )
         }
         return map;
     }
+
+	@Override
+	public void setChildrenToEmptyParent(String strPageTitle) {
+		try ( DAOUtil daoUtil = new DAOUtil( SQL_UPDATE_TO_EMPTY_PARENT_PAGE ) ) 
+		{
+			daoUtil.setString( 1, strPageTitle );
+			daoUtil.executeUpdate( );
+		}
+		
+	}
 }
 
