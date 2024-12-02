@@ -162,4 +162,14 @@ public final class TopicHome
     {
         return _dao.getLastEditAttempt( nIdTopic );
     }
+    
+    /**
+     * Set children to empty parent
+     * @param nIdTopic
+     *           The topic id
+     */
+	public static void setChildrenToEmptyParent(String strPageTitle) 
+	{
+		_dao.setChildrenToEmptyParent(strPageTitle);
+	}
 }
