@@ -125,4 +125,11 @@ public interface ITopicDAO
      * @return The last edit attempt
      */
     java.util.Map getLastEditAttempt( int nIdTopic );
+
+    /**
+     * Set children to empty parent
+     * @param nIdTopic
+     *           The topic id
+     */
+	void setChildrenToEmptyParent(String strPageTitle);
 }
