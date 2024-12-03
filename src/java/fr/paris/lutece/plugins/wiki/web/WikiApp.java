@@ -1008,9 +1008,9 @@ public class WikiApp extends MVCApplication
             ImageHome.remove( nId );
             addInfo( MESSAGE_IMAGE_REMOVED, getLocale( request ) );
         }
-
+        
         Map<String, String> mapParameters = new ConcurrentHashMap<>( );
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME, request.getParameter( Constants.PARAMETER_PAGE_NAME ) + ANCHOR_IMAGES );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, TopicHome.findByPrimaryKey( nId ).getPageName( ) + ANCHOR_IMAGES );
 
         return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
     }
@@ -1079,13 +1079,13 @@ public class WikiApp extends MVCApplication
     {
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
         JSONArray array = new JSONArray( );
-         if(!getTopicIdListForUser( request ).contains( strTopicId ))
+        int nTopicId = strTopicId!=null ? Integer.parseInt( strTopicId ) : null;
+         if(!getTopicIdListForUser( request ).contains( nTopicId ))
         {
             throw new UserNotSignedException( );
         }
         if ( strTopicId != null )
         {
-            int nTopicId = Integer.parseInt( strTopicId );
             List<Image> list = ImageHome.findByTopic( nTopicId );
             for ( Image image : list )
             {
