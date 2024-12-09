@@ -147,6 +147,7 @@ public class WikiApp extends MVCApplication
     private static final String MARK_LIST_TOPIC_VERSION = "listTopicVersion";
     private static final String MARK_PAGE_ROLES_LIST = "page_roles_list";
     private static final String MARK_QUERY = "query";
+    private static final String MARK_QUERY_ENCODED = "query_encoded";
     private static final String MARK_PAGINATOR = "paginator";
     private static final String MARK_NB_ITEMS_PER_PAGE = "nb_items_per_page";
     private static final String MARK_EDIT_ROLE = "has_edit_role";
@@ -345,8 +346,15 @@ public class WikiApp extends MVCApplication
         Map<String, Object> model = getModel( );
         model.put( MARK_RESULT, paginator.getPageItems( ) );
         model.put( MARK_QUERY, strQuery );
+        String strQueryEncoded = "";
+        try {
+			strQueryEncoded = URLEncoder.encode( strQuery, "UTF-8" );
+		} catch (UnsupportedEncodingException e) {}
+        model.put( MARK_QUERY_ENCODED, strQueryEncoded );
         model.put( MARK_PAGINATOR, paginator );
         model.put( MARK_NB_ITEMS_PER_PAGE, String.valueOf( _nItemsPerPage ) );
+        model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages( ) );
+        model.put( MARK_CURRENT_LANGUAGE, getLanguage( request ) );
 
         XPage page = getXPage( TEMPLATE_SEARCH_WIKI, getLocale( request ), model );
         page.setTitle( getPageTitle( I18nService.getLocalizedString( PROPERTY_TITLE_SEARCH, getLocale( request ) ) ) );
