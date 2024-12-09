@@ -57,6 +57,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexOptions;
 
 /**
  * Wiki Indexer
@@ -223,16 +224,27 @@ public class WikiIndexer implements SearchIndexer
         // make a new, empty document
         Document doc = new Document( );
 
-        FieldType fieldType = new FieldType( StringField.TYPE_STORED );
-        fieldType.setOmitNorms( false );
+        FieldType fieldTypeDocs = new FieldType( StringField.TYPE_STORED );
+        fieldTypeDocs.setOmitNorms( false );
+        fieldTypeDocs.setIndexOptions(IndexOptions.DOCS);
 
-        FieldType ftNotStored = new FieldType( StringField.TYPE_NOT_STORED );
-        ftNotStored.setOmitNorms( false );
-        ftNotStored.setTokenized( false );
+        FieldType ftNotStoredDocs = new FieldType( StringField.TYPE_NOT_STORED );
+        ftNotStoredDocs.setOmitNorms( false );
+        ftNotStoredDocs.setTokenized( false );
+        ftNotStoredDocs.setIndexOptions(IndexOptions.DOCS);
+        
+        FieldType fieldTypeDocsFreqsPos = new FieldType( StringField.TYPE_STORED );
+        fieldTypeDocsFreqsPos.setOmitNorms( false );
+        fieldTypeDocsFreqsPos.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
+        
+        FieldType ftNotStoredDocsFreqsPos = new FieldType( StringField.TYPE_NOT_STORED );
+        ftNotStoredDocsFreqsPos.setOmitNorms( false );
+        ftNotStoredDocsFreqsPos.setTokenized( false );
+        ftNotStoredDocsFreqsPos.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
         // Add the url as a field named "url". Use an UnIndexed field, so
         // that the url is just stored with the question/answer, but is not
         // searchable.
-        doc.add( new Field( SearchItem.FIELD_URL, strUrl, fieldType ) );
+        doc.add( new Field( SearchItem.FIELD_URL, strUrl, fieldTypeDocs ) );
 
         // Add the uid as a field, so that index can be incrementally
         // maintained.
@@ -240,7 +252,7 @@ public class WikiIndexer implements SearchIndexer
         // is not
         // tokenized prior to indexing.
         String strIdSubject = String.valueOf( topic.getPageName( ) );
-        doc.add( new Field( SearchItem.FIELD_UID, strIdSubject + "_" + SHORT_NAME_TOPIC, ftNotStored ) );
+        doc.add( new Field( SearchItem.FIELD_UID, strIdSubject + "_" + SHORT_NAME_TOPIC, ftNotStoredDocsFreqsPos ) );
 
         String strWikiResult = "";
         TopicVersion topicVersion = null;
@@ -260,17 +272,17 @@ public class WikiIndexer implements SearchIndexer
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, TextField.TYPE_NOT_STORED ) );
 
         String strDate = DateTools.dateToString( topicVersion.getDateEdition( ), DateTools.Resolution.DAY );
-        doc.add( new Field( SearchItem.FIELD_DATE, strDate, fieldType ) );
+        doc.add( new Field( SearchItem.FIELD_DATE, strDate, fieldTypeDocsFreqsPos ) );
 
         // Add the subject name as a separate Text field, so that it can be
         // searched separately.
-        doc.add( new Field( SearchItem.FIELD_TITLE, publishedTopicVersion.getWikiContent( strLanguage ).getPageTitle( ), fieldType ) );
+        doc.add( new Field( SearchItem.FIELD_TITLE, publishedTopicVersion.getWikiContent( strLanguage ).getPageTitle( ), fieldTypeDocs) );
 
-        doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType( ), fieldType ) );
+        doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType( ), fieldTypeDocs ) );
 
-        doc.add( new Field( SearchItem.FIELD_ROLE, topic.getViewRole( ), fieldType ) );
+        doc.add( new Field( SearchItem.FIELD_ROLE, topic.getViewRole( ), fieldTypeDocs ) );
 
-        doc.add( new Field( SearchItem.FIELD_METADATA, strLanguage, fieldType ) );
+        doc.add( new Field( SearchItem.FIELD_METADATA, strLanguage, fieldTypeDocs ) );
 
         return doc;
     }
