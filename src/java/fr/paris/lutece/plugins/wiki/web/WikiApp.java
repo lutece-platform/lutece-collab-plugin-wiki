@@ -399,7 +399,39 @@ public class WikiApp extends MVCApplication
         }
         fillUserData( version );
         String strWikiPage = WikiService.instance( ).getWikiPage( strPageName, version, getPageUrl( request ), getLanguage( request ) );
+        
+        Collection<Topic> listTopic = getTopicsForUser( request );
+
+        String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, AppPropertiesService.getProperty( PAGE_DEFAULT ) );
+
+        Map<String, String> mapTopicTitle = new HashMap( );
+        Map<String, List<Topic>> mapTopicChildren = new HashMap( );
+
+        for ( Topic topicSideBar : listTopic )
+        {
+            mapTopicTitle.put( topicSideBar.getPageName( ), getTopicTitle( request, topicSideBar ) );
+
+            String strParentPageName = topicSideBar.getParentPageName( );
+            if ( strParentPageName != null && !topicSideBar.getPageName( ).isEmpty( ) )
+            {
+                if ( mapTopicChildren.containsKey( strParentPageName ) )
+                {
+                    mapTopicChildren.get( strParentPageName ).add( topicSideBar );
+                }
+                else
+                {
+                    List<Topic> listChildren = new ArrayList<>( );
+                    listChildren.add( topicSideBar );
+                    mapTopicChildren.put( strParentPageName, listChildren );
+                }
+            }
+        }
+
         Map<String, Object> model = getModel( );
+        model.put( MARK_MAP_TOPIC_TITLE, mapTopicTitle );
+        model.put( MARK_MAP_TOPIC_CHILDREN, mapTopicChildren );
+        model.put( MARK_WIKI_ROOT_PAGE_NAME, strWikiRootPageName );
+        
         model.put( MARK_RESULT, strWikiPage );
         model.put( MARK_TOPIC, topic );
         model.put( MARK_TOPIC_TITLE, getTopicTitle( request, topic ) );

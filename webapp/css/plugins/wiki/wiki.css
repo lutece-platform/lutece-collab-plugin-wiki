@@ -1,59 +1,5 @@
-
-#syntax_help {
-    font-size: 85%;
-}
-
-#syntax_help td {
-    line-height: 1.1;
-}
-
-#syntax_help hr {
-    margin-top: 5px;
-    margin-bottom: 3px;
-}
-
-
-/*
- * Styles for the HTML Diff
- */
-span.diff-html-added {
-  font-size: 100%;
-  background-color: #ccffcc; /* light green */
-  cursor: pointer;
-}
-
-span.diff-html-removed {
-  font-size: 100%;
-  text-decoration: line-through;
-  background-color: #fdc6c6; /* light red */
-    cursor: pointer;
-}
-
-span.diff-html-changed {
-  background: url(../images/diffunderline.gif) bottom repeat-x;
-  background-color: #c6c6fd; /* light blue */
-  cursor: pointer;
-}
-
-span.diff-html-conflict {
-/*  background: url(../images/diffunderline.gif) bottom repeat-x; */
-  background-color: #f781be; /* light rose */
-}
-
-.markItUp {
-    width: 100%;
-}
-
-.markItUpEditor {
-    width: 100%;
-}
-
 .wiki_center {
     text-align: center;
-}
-
-.wiki_indent {
-    margin-left: 1em;
 }
 
 .wiki_underline {
@@ -233,4 +179,14 @@ margin-left: 20%;
     flex-direction: row;
     justify-content: space-between;
     padding: 10px;}
+    
+.sidebar {
+	width: 200px;
+	position: fixed;
+	left: 90px;
+	top: 200px; 
+}
 
+.sidebar ul {
+    margin-left: 10px
+}
