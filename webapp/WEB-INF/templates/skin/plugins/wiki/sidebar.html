@@ -1,0 +1,49 @@
+<#macro mapLevel list_topic map_topic_children map_topic_title>
+    <ul class="nav flex-column">
+        <#list list_topic as topic_iteration>
+	        <li class="nav-item">
+		        <#if topic.pageName == topic_iteration.pageName >
+		            <a class="nav-link active" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}">${map_topic_title[topic.pageName]}</a>
+		        <#else>
+		        	<a class="nav-link" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic_iteration.pageName}">${map_topic_title[topic_iteration.pageName]}</a>
+		        </#if>
+		        <#if (map_topic_children[map_topic_title[topic_iteration.pageName]])??>
+		            <@mapLevel map_topic_children[map_topic_title[topic_iteration.pageName]] map_topic_children map_topic_title/>
+		        </#if>
+	        </li>
+        </#list>
+    </ul>
+</#macro>
+
+<aside class="sidebar">
+	<nav class="nav nav-pills nav-fill">
+		<ul class="nav flex-column">
+			<#if (map_topic_children[map_topic_title[wiki_root_page_name]])??>
+				<li class="nav-item">
+					<#if topic.pageName == wiki_root_page_name >
+				    	<a class="nav-link active" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${wiki_root_page_name}">${map_topic_title[wiki_root_page_name]}</a>
+				    <#else>
+				    	<a class="nav-link" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${wiki_root_page_name}">${map_topic_title[wiki_root_page_name]}</a>
+				    </#if>
+			    </li>
+				<@mapLevel map_topic_children[map_topic_title[wiki_root_page_name]] map_topic_children map_topic_title/>
+			</#if>
+			<#if (map_topic_children[""])??>
+			    <#list map_topic_children[""] as topic_iteration>
+			        <#if topic_iteration.pageName != wiki_root_page_name >
+			        	<li class="nav-item">
+				        	<#if topic.pageName == topic_iteration.pageName >
+				            	<a class="nav-link active" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic_iteration.pageName}">${map_topic_title[topic_iteration.pageName]}</a>
+				            <#else>
+				                <a class="nav-link" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic_iteration.pageName}">${map_topic_title[topic_iteration.pageName]}</a>
+				            </#if>
+			            </li>
+			            <#if (map_topic_children[map_topic_title[topic_iteration.pageName]])??>
+			                <@mapLevel map_topic_children[map_topic_title[topic_iteration.pageName]] map_topic_children map_topic_title/>
+			            </#if>
+			        </#if>
+			    </#list>
+			</#if>
+		</ul>
+	</nav>
+</aside>
