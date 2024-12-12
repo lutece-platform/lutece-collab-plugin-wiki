@@ -1,103 +1,102 @@
-
 <div>
-    <div class="container panel panel-default">
-            <div class="text-right">
-                <#if lastVersion?? >
-                <small>${lastVersion.dateEdition} ${lastVersion.userName!''} ${lastVersion.userPseudo!''}
-                <img class="avatar-small img-circle" src="${lastVersion.userAvatarUrl!''}" alt="avatar" />
-                <#if isExtendInstalled?? && isExtendInstalled >
-                    &nbsp;<span class="glyphicon glyphicon-eye-open"></span>
-                    @Extender[${topic.idTopic},WIKI,hit,{show:true}]@
-                </#if>
-                </small>
-                </#if>
-            </div>
-            <div class="btn-group btn-group-xs pull-right">
-                <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=map" title="#i18n{wiki.menu.map}">
-                    <span class="glyphicon glyphicon-list"></span> #i18n{wiki.menu.map}
-                </a>
-                <button class="btn btn-default" id="btn-search" type="button" title="#i18n{wiki.menu.search}" >
-                    <span class="glyphicon glyphicon-search"></span> #i18n{wiki.menu.search}
-                </button>
-                <#if has_edit_role >
-                <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=modifyPage&page_name=${topic.pageName}" title="#i18n{wiki.menu.edit}">
-                    <span class="glyphicon glyphicon-edit"></span> #i18n{wiki.menu.edit}
-                </a>
-                <button class="btn btn-default" id="btn-new-page" type="button" title="#i18n{wiki.menu.create}">
-                   <span class="glyphicon glyphicon-plus-sign"></span> #i18n{wiki.menu.create}
-                </button>
+    <div class="container p-3">
+        <div class="text-end">
+            <#if lastVersion?? >
+            <small>${lastVersion.dateEdition} ${lastVersion.userName!''} ${lastVersion.userPseudo!''}
+            <img class="avatar-small rounded-circle" src="${lastVersion.userAvatarUrl!''}" alt="avatar" />
+            <#if isExtendInstalled?? && isExtendInstalled >
+                &nbsp;<span class="bi bi-eye"></span>
+                @Extender[${topic.idTopic},WIKI,hit,{show:true}]@
             </#if>
-    <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=history&page_name=${topic.pageName}" title="#i18n{wiki.menu.history}">
-                    <span class="glyphicon glyphicon-time"></span> #i18n{wiki.menu.history}
+            </small>
+            </#if>
+        </div>
+
+        <div class="btn-group btn-group-sm">
+            <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=map" title="#i18n{wiki.menu.map}">
+                <span class="bi bi-list"></span> #i18n{wiki.menu.map}
+            </a>
+            <button class="btn btn-outline-secondary" id="btn-search" type="button" title="#i18n{wiki.menu.search}">
+                <span class="bi bi-search"></span> #i18n{wiki.menu.search}
+            </button>
+            <#if has_edit_role >
+            <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=modifyPage&page_name=${topic.pageName}" title="#i18n{wiki.menu.edit}">
+                <span class="bi bi-pencil"></span> #i18n{wiki.menu.edit}
+            </a>
+            <button class="btn btn-outline-secondary" id="btn-new-page" type="button" title="#i18n{wiki.menu.create}">
+                <span class="bi bi-plus-circle"></span> #i18n{wiki.menu.create}
+            </button>
+            </#if>
+
+            <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=history&page_name=${topic.pageName}" title="#i18n{wiki.menu.history}">
+                <span class="bi bi-clock-history"></span> #i18n{wiki.menu.history}
+            </a>
+
+            <#if has_admin_role >
+            <form id="form-page-delete" action="jsp/site/Portal.jsp" method="post">
+                <input type="hidden" name="page" value="wiki" />
+                <input type="hidden" name="page_name" value="${topic.pageName}" />
+                <input type="hidden" name="action" value="deletePage" />
+            </form>
+            <button class="btn btn-danger" title="#i18n{portal.util.labelDelete}" onclick="confirmDeleteTopic()">
+                <span class="bi bi-trash"></span> #i18n{portal.util.labelDelete}
+            </button>
+            </#if>
+
+            <#list languages_list as language>
+            <#if language = current_language >
+                <h6><span class="badge bg-info">${language}</span></h6>
+            <#else>
+                <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=page&&page_name=${topic.pageName}&language=${language}">
+                    ${language}
                 </a>
-                <#if has_admin_role >
-                    <form id="form-page-delete" action="jsp/site/Portal.jsp" method="post" >
-                        <input type="hidden" name="page" value="wiki" />
-                        <input type="hidden" name="page_name" value="${topic.pageName}" />
-                        <input type="hidden" name="action" value="deletePage" />
-                    </form>
-                    <button  class="btn btn-danger" class="btn btn-danger" title="#i18n{portal.util.labelDelete}"  onclick="confirmDeleteTopic()">
-                        <span class="fa fa-trash fa-1x"></span> #i18n{portal.util.labelDelete}
-                    </button>
-                </#if>
-                <#list languages_list as language>
-                  <#if language = current_language >
-                    <span class="label label-info">${language}</span>
-                  <#else>
-                        <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&&page_name=${topic.pageName}&language=${language}">
-                            ${language}
-                        </a>
-                  </#if>
-                </#list>
-            </div>
-<!---------------------------------------------->
-            <div id="div-new-page" style="display:none">
-                <form class="form-search" action="jsp/site/Portal.jsp" method="get" >
-                    <input type="hidden" name="page" value="wiki" />
-                    <input type="hidden" name="action" value="newPage" />
-                    <div class="input-append">
-                        <input class="search-query col-sm-4" id="input-new-page" type="text" name="page_name" /> &nbsp;
-                        <button class="btn btn-primary btn-xs" type="submit" >
-                            <span class="glyphicon glyphicon-plus-sign"></span> #i18n{wiki.list_wiki.create}
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </#if>
+            </#list>
+        </div>
 
-            <div id="div-search" style="display:none">
-                <form class="form-search" action="jsp/site/Portal.jsp" method="get">
-                    <input type="hidden" name="page" value="wiki" />
-                    <input type="hidden" name="view" value="search" />
-                    #i18n{wiki.search_wiki.search} :
-                    <div class="input-append">
-                        <input class="search-query" id="input-search" type="text" name="query" />
-                        <button class="btn btn-primary btn-xs" type="submit" >
-                            <span class="glyphicon glyphicon-search"></span>
-                        </button>
-                    </div>
-                </form>
-            </div>
+        <div id="div-new-page" style="display:none">
+            <form class="d-flex" action="jsp/site/Portal.jsp" method="get">
+                <input type="hidden" name="page" value="wiki" />
+                <input type="hidden" name="action" value="newPage" />
+                <input class="form-control me-2" id="input-new-page" type="text" name="page_name" placeholder="#i18n{wiki.list_wiki.create}" />
+                <button class="btn btn-primary btn-sm" type="submit">
+                    <span class="bi bi-plus-circle"></span> #i18n{wiki.list_wiki.create}
+                </button>
+            </form>
+        </div>
 
-            <h1 id="wiki-heading">${topic_title}</h1>
+        <div id="div-search" style="display:none">
+            <form class="d-flex" action="jsp/site/Portal.jsp" method="get">
+                <input type="hidden" name="page" value="wiki" />
+                <input type="hidden" name="view" value="search" />
+                #i18n{wiki.search_wiki.search} :
+                <input class="form-control me-2" id="input-search" type="text" name="query" placeholder="#i18n{wiki.search_wiki.search}" />
+                <button class="btn btn-primary btn-sm" type="submit">
+                    <span class="bi bi-search"></span>
+                </button>
+            </form>
+        </div>
+
+        <h1 id="wiki-heading">${topic_title}</h1>
+    </div>
+    <hr>
+    ${result}
 </div>
-            <hr>
-            ${result}
-   </div>
 
 <script type="text/javascript">
-    jQuery(document).ready(function() {
-        $("#btn-new-page").click(function() {
-            $("#div-search").hide();
-            $("#div-new-page").show("slow");
-            $("#input-new-page").focus();
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("btn-new-page").addEventListener("click", function() {
+            document.getElementById("div-search").style.display = 'none';
+            document.getElementById("div-new-page").style.display = 'block';
+            document.getElementById("input-new-page").focus();
         });
-        $("#btn-search").click(function() {
-            $("#div-new-page").hide();
-            $("#div-search").show("slow");
-            $("#input-search").focus();
+        document.getElementById("btn-search").addEventListener("click", function() {
+            document.getElementById("div-new-page").style.display = 'none';
+            document.getElementById("div-search").style.display = 'block';
+            document.getElementById("input-search").focus();
         });
     });
 </script>
-<script type="text/javascript"  class="code-js"   src="js/plugins/wiki/wiki_pages/modify_page.js"></script>
-<#include "sidebar.html">
 
+<script type="text/javascript" class="code-js" src="js/plugins/wiki/wiki_pages/modify_page.js"></script>
+<#include "sidebar.html">

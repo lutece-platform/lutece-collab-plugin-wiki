@@ -1,60 +1,59 @@
 <div class="row">
-    <div class="col-sm-12">
-        <div class="container panel panel-default">
-            <div class="btn-group btn-group-xs pull-right">
-                <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=map" title="#i18n{wiki.menu.map}">
-                    <span class="glyphicon glyphicon-list"></span> #i18n{wiki.menu.map}
+    <div class="col-12">
+        <div class="container py-3">
+            <div class="btn-group btn-group-sm mb-3">
+                <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=map" title="#i18n{wiki.menu.map}">
+                    <span class="bi bi-list"></span> #i18n{wiki.menu.map}
                 </a>
-                <button class="btn btn-default" id="btn-new-page" type="button" title="#i18n{wiki.menu.create}">
-                   <span class="glyphicon glyphicon-plus-sign"></span> #i18n{wiki.menu.create}
+                <button class="btn btn-outline-secondary" id="btn-new-page" type="button" title="#i18n{wiki.menu.create}">
+                   <span class="bi bi-plus-square"></span> #i18n{wiki.menu.create}
                </button>
-                <button class="btn btn-default" id="btn-search" type="button" title="#i18n{wiki.menu.search}" >
-                    <span class="glyphicon glyphicon-search"></span>  #i18n{wiki.menu.search}
+                <button class="btn btn-outline-secondary" id="btn-search" type="button" title="#i18n{wiki.menu.search}">
+                    <span class="bi bi-search"></span> #i18n{wiki.menu.search}
                </button>
                 <#list languages_list as language>
                     <#if language = current_language >
-                        <span class="label label-info">${language}</span>
+                        <h5><span class="badge bg-info">${language}</span></h5>
                     <#else>
-                        <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=list&language=${language}">
+                        <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=list&language=${language}">
                             ${language}
                         </a>
                     </#if>
                 </#list>
             </div>
 
-            <div id="div-new-page" style="display:none">
-                <form class="form-search" action="jsp/site/Portal.jsp" method="post" >
+            <div id="div-new-page" class="d-none">
+                <form class="form-search" action="jsp/site/Portal.jsp" method="post">
                     <input type="hidden" name="page" value="wiki" />
                     <input type="hidden" name="action" value="newPage" />
-
-                    <div class="input-append">
-                        <input class="search-query col-sm-4" id="input-new-page" type="text" name="page_name" /> &nbsp;
-                        <button class="btn btn-primary btn-xs" type="submit" >
-                            <span class="glyphicon glyphicon-plus-sign"></span> #i18n{wiki.list_wiki.create}
+                    <div class="input-group">
+                        <input class="form-control" id="input-new-page" type="text" name="page_name" />
+                        <button class="btn btn-primary" type="submit">
+                            <span class="bi bi-plus-square"></span> #i18n{wiki.list_wiki.create}
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div id="div-search" style="display:none">
+            <div id="div-search" class="d-none">
                 <form class="form-search" action="jsp/site/Portal.jsp" method="post">
                     <input type="hidden" name="page" value="wiki" />
                     <input type="hidden" name="view" value="search" />
                     #i18n{wiki.search_wiki.search} :
-                    <div class="input-append">
-                        <input class="search-query" id="input-search" type="text" name="query" />
-                        <button class="btn btn-primary btn-xs" type="submit" >
-                            <span class="glyphicon glyphicon-search"></span>
+                    <div class="input-group">
+                        <input class="form-control" id="input-search" type="text" name="query" />
+                        <button class="btn btn-primary" type="submit">
+                            <span class="bi bi-search"></span>
                         </button>
                     </div>
                 </form>
             </div>
 
             <h1>#i18n{wiki.list_wiki.title}</h1>
-            <ul>
+            <ul class="list-unstyled">
                 <#list map_topic_title as page_name, page_title>
                 <li>
-                    <a href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${page_name}">${page_title}</a>
+                    <h5><a href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${page_name}">${page_title}</a></h5>
                 </li>
                 </#list>
             </ul>
@@ -64,16 +63,15 @@
 
 <script type="text/javascript">
     window.onload = function() {
-     document.getElementById("btn-new-page").addEventListener("click", function() {
-         document.getElementById("div-search").style.display = "none";
-         document.getElementById("div-new-page").style.display = "block";
-         document.getElementById("input-new-page").focus();
-     });
+        document.getElementById("btn-new-page").addEventListener("click", function() {
+            document.getElementById("div-search").classList.add("d-none");
+            document.getElementById("div-new-page").classList.remove("d-none");
+            document.getElementById("input-new-page").focus();
+        });
         document.getElementById("btn-search").addEventListener("click", function() {
-            document.getElementById("div-new-page").style.display = "none";
-            document.getElementById("div-search").style.display = "block";
+            document.getElementById("div-new-page").classList.add("d-none");
+            document.getElementById("div-search").classList.remove("d-none");
             document.getElementById("input-search").focus();
         });
     };
 </script>
-

@@ -1,34 +1,34 @@
 <#macro mapLevel list_topic map_topic_children map_topic_title>
-    <ul>
-        <#list list_topic as topic>
-        <li>
-            <a href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}">${map_topic_title[topic.pageName]}</a>
-            <#if (map_topic_children[map_topic_title[topic.pageName]])??>
-                <@mapLevel map_topic_children[map_topic_title[topic.pageName]] map_topic_children map_topic_title/>
-            </#if>
-        </li>
+    <ul class="nav flex-column">
+        <#list list_topic as topic_iteration>
+	        <li class="nav-item">
+		        <h5><a class="nav-link" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic_iteration.pageName}">${map_topic_title[topic_iteration.pageName]}</a></h5>
+		        <#if (map_topic_children[map_topic_title[topic_iteration.pageName]])??>
+		            <@mapLevel map_topic_children[map_topic_title[topic_iteration.pageName]] map_topic_children map_topic_title/>
+		        </#if>
+	        </li>
         </#list>
     </ul>
 </#macro>
 
 <div class="row">
-    <div class="col-sm-12">
-        <div class="container panel panel-default">
-            <div class="btn-group btn-group-xs pull-right">
-                <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=list" title="#i18n{wiki.menu.list}">
-                    <span class="glyphicon glyphicon-list"></span> #i18n{wiki.menu.list}
+    <div class="col-12">
+        <div class="container py-3">
+            <div class="btn-group btn-group-sm mb-3">
+                <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=list" title="#i18n{wiki.menu.list}">
+                    <span class="bi bi-list"></span> #i18n{wiki.menu.list}
                 </a>
-                <button class="btn btn-default" id="btn-new-page" type="button" title="#i18n{wiki.menu.create}">
-                   <span class="glyphicon glyphicon-plus-sign"></span> #i18n{wiki.menu.create}
+                <button class="btn btn-outline-secondary" id="btn-new-page" type="button" title="#i18n{wiki.menu.create}">
+                   <span class="bi bi-plus-square"></span> #i18n{wiki.menu.create}
                 </button>
-                <button class="btn btn-default" id="btn-search" type="button" title="#i18n{wiki.menu.search}" >
-                    <span class="glyphicon glyphicon-search"></span>  #i18n{wiki.menu.search}
+                <button class="btn btn-outline-secondary" id="btn-search" type="button" title="#i18n{wiki.menu.search}">
+                    <span class="bi bi-search"></span> #i18n{wiki.menu.search}
                 </button>
                 <#list languages_list as language>
                     <#if language = current_language >
-                        <span class="label label-info">${language}</span>
+                        <h5><span class="badge bg-info">${language}</span></h5>
                     <#else>
-                        <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=list&language=${language}">
+                        <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=list&language=${language}">
                             ${language}
                         </a>
                     </#if>
@@ -36,14 +36,13 @@
             </div>
 
             <div id="div-new-page" style="display:none">
-                <form class="form-search" action="jsp/site/Portal.jsp" method="post" >
+                <form class="form-search" action="jsp/site/Portal.jsp" method="post">
                     <input type="hidden" name="page" value="wiki" />
                     <input type="hidden" name="action" value="newPage" />
-
-                    <div class="input-append">
-                        <input class="search-query col-sm-4" id="input-new-page" type="text" name="page_name" /> &nbsp;
-                        <button class="btn btn-primary btn-xs" type="submit" >
-                            <span class="glyphicon glyphicon-plus-sign"></span> #i18n{wiki.list_wiki.create}
+                    <div class="input-group">
+                        <input class="form-control" id="input-new-page" type="text" name="page_name" />
+                        <button class="btn btn-primary" type="submit">
+                            <span class="bi bi-plus-square"></span> #i18n{wiki.list_wiki.create}
                         </button>
                     </div>
                 </form>
@@ -54,10 +53,10 @@
                     <input type="hidden" name="page" value="wiki" />
                     <input type="hidden" name="view" value="search" />
                     #i18n{wiki.search_wiki.search} :
-                    <div class="input-append">
-                        <input class="search-query" id="input-search" type="text" name="query" />
-                        <button class="btn btn-primary btn-xs" type="submit" >
-                            <span class="glyphicon glyphicon-search"></span>
+                    <div class="input-group">
+                        <input class="form-control" id="input-search" type="text" name="query" />
+                        <button class="btn btn-primary" type="submit">
+                            <span class="bi bi-search"></span>
                         </button>
                     </div>
                 </form>
@@ -65,32 +64,30 @@
 
             <h1>#i18n{wiki.map_wiki.title}</h1>
             <hr>
-            <#if (map_topic_children[map_topic_title[wiki_root_page_name]])??>
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <a class="panel-title" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${wiki_root_page_name}">${map_topic_title[wiki_root_page_name]}</a>
-                    </div>
-                    <div class="panel-body">
-                        <@mapLevel map_topic_children[map_topic_title[wiki_root_page_name]] map_topic_children map_topic_title/>
-                    </div>
-                </div>
-            </#if>
-            <#if (map_topic_children[""])??>
-                <#list map_topic_children[""] as topic>
-                    <#if topic.pageName != wiki_root_page_name >
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <a class="panel-title" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}">${map_topic_title[topic.pageName]}</a>
-                        </div>
-                        <#if (map_topic_children[map_topic_title[topic.pageName]])??>
-                            <div class="panel-body">
-                                <@mapLevel map_topic_children[map_topic_title[topic.pageName]] map_topic_children map_topic_title/>
-                            </div>
-                        </#if>
-                    </div>
-                    </#if>
-                </#list>
-            </#if>
+            <div class="subLinkContainer">
+	            <nav class="nav nav-pills nav-fill">
+					<ul class="nav flex-column">
+						<#if (map_topic_children[map_topic_title[wiki_root_page_name]])??>
+							<li class="nav-item">
+							    <h5><a class="nav-link" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${wiki_root_page_name}">${map_topic_title[wiki_root_page_name]}</a></h5>
+						    </li>
+							<@mapLevel map_topic_children[map_topic_title[wiki_root_page_name]] map_topic_children map_topic_title/>
+						</#if>
+						<#if (map_topic_children[""])??>
+						    <#list map_topic_children[""] as topic_iteration>
+						        <#if topic_iteration.pageName != wiki_root_page_name >
+						        	<li class="nav-item">
+							            <h5><a class="nav-link" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic_iteration.pageName}">${map_topic_title[topic_iteration.pageName]}</a></h5>
+						            </li>
+						            <#if (map_topic_children[map_topic_title[topic_iteration.pageName]])??>
+						                <@mapLevel map_topic_children[map_topic_title[topic_iteration.pageName]] map_topic_children map_topic_title/>
+						            </#if>
+						        </#if>
+						    </#list>
+						</#if>
+					</ul>
+				</nav>
+			</div>
         </div>
     </div>
 </div>
@@ -109,4 +106,3 @@
         });
     });
 </script>
-
