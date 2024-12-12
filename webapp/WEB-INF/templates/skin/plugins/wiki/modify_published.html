@@ -1,17 +1,22 @@
 <div class="row">
-  <div class="col-sm-12">
-    <div class="container panel panel-default">
+  <div class="col-12">
+    <div class="container py-3">
 
-          <form id="createVersionFromPublish" action="jsp/site/Portal.jsp" method="post" >
-            <input type="hidden" name="page" value="wiki" />
-            <input type="hidden" name="page_name" value="${page_name}" />
-            <button id="CreateVersionFromPublished" name="action_createVersionFromPublished" type="submit" class="btn btn-default" >#i18n{wiki.modify_page.CreateNewFromPublished} </button>
-            <button id="CancelPublication" name="action_cancelPublication" type="submit" class="btn btn-danger" >#i18n{wiki.modify_page.buttonCancelPublish} </button>
-          </form>
-          <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${page_name}" title="#i18n{wiki.button.backToPage}">
-              <span class="fa fa-chevron-left"></span> #i18n{wiki.button.backToPage}
-          </a>
-        </div>
+      <form id="createVersionFromPublish" action="jsp/site/Portal.jsp" method="post">
+        <input type="hidden" name="page" value="wiki" />
+        <input type="hidden" name="page_name" value="${page_name}" />
+        <button id="CreateVersionFromPublished" name="action_createVersionFromPublished" type="submit" class="btn btn-outline-secondary">
+          #i18n{wiki.modify_page.CreateNewFromPublished}
+        </button>
+        <button id="CancelPublication" name="action_cancelPublication" type="submit" class="btn btn-outline-danger">
+          #i18n{wiki.modify_page.buttonCancelPublish}
+        </button>
+      </form>
 
+      <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${page_name}" title="#i18n{wiki.button.backToPage}">
+        <span class="bi bi-chevron-left"></span> #i18n{wiki.button.backToPage}
+      </a>
+
+    </div>
   </div>
 </div>

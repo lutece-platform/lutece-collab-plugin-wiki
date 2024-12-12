@@ -1,58 +1,59 @@
 <div class="row">
-    <div class="col-sm-12">
-        <div class="col-sm-4 well">
-        	<div class="btn-group btn-group-xs pull-right">
-	            <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=map" title="#i18n{wiki.menu.map}">
-	                <span class="glyphicon glyphicon-list"></span> #i18n{wiki.menu.map}
-	            </a>
-	            <#list languages_list as language>
-	              <#if language = current_language >
-	                <span class="label label-info">${language}</span>
-	              <#else>
-	                    <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=search&query=${query_encoded}&language=${language}">
-	                        ${language}
-	                    </a>
-	              </#if>
-	            </#list>
+    <div class="col-12">
+        <div class="col-12 col-md-4 p-3">
+            <div class="btn-group btn-group-sm">
+                <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=map" title="#i18n{wiki.menu.map}">
+                    <span class="bi bi-list"></span> #i18n{wiki.menu.map}
+                </a>
+                <#list languages_list as language>
+                  <#if language = current_language >
+                    <h6><span class="badge bg-info">${language}</span></h6>
+                  <#else>
+                    <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=search&query=${query_encoded}&language=${language}">
+                        ${language}
+                    </a>
+                  </#if>
+                </#list>
             </div>
-            <form class="form-search" method="post" action="jsp/site/Portal.jsp">
+
+            <form class="d-flex" method="post" action="jsp/site/Portal.jsp">
                 <input type="hidden" name="page" value="wiki" />
                 <input type="hidden" name="view" value="search" />
-                <div class="input-append">
+                <div class="input-group mb-3">
                     <#if query?exists>
-                    <input class="search-query span10" type="text" name="query" value="${query}" />
+                    <input class="form-control" type="text" name="query" value="${query}" />
                     <#else>
-                    <input class="search-query span10" type="text" name="query" value="" />
+                    <input class="form-control" type="text" name="query" value="" />
                     </#if>
-                    <button class="btn" type="submit" >
-                        <span class="glyphicon glyphicon-search"></span>
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <span class="bi bi-search"></span>
                     </button>
-                </div> 
+                </div>
                 <@pagination paginator=paginator />
                 <div>
                     <!-- Number of feeds per page selector -->
                     #i18n{wiki.search_wiki.labelItemsPerPage} :
-                    <select name="items_per_page" class="span4">
-                        <#list [ "10" , "20" , "50" , "100" ] as nb>
-                        <#if nb_items_per_page = nb >
-                        <option selected="selected" value="${nb}">${nb}</option>
-                        <#else>
-                        <option value="${nb}">${nb}</option>
-                        </#if>
+                    <select name="items_per_page" class="form-select">
+                        <#list [ "10", "20", "50", "100" ] as nb>
+                            <#if nb_items_per_page = nb >
+                            <option selected="selected" value="${nb}">${nb}</option>
+                            <#else>
+                            <option value="${nb}">${nb}</option>
+                            </#if>
                         </#list>
                     </select>
                 </div>
             </form>
         </div>
 
-        <div class="col-sm-8">
+        <div class="col-12 col-md-8">
             <h1>#i18n{wiki.search_wiki.title}</h1>
             <ul>
                 <#list result as topic>
                 <li>
-                    <a href="${topic.url}">
+                    <h5><a href="${topic.url}">
                         ${topic.title}
-                    </a>
+                    </a></h5>
                 </li>
                 </#list>
             </ul>
@@ -62,13 +63,13 @@
 </div>
 
 <script type="text/javascript">
-jQuery(document).ready(function() {
-    $("#btn-new-page").click(function() {
-        $("#div-search").hide();
-        $("#div-new-page").show("slow");
-        $("#input-new-page").focus();
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("btn-new-page").addEventListener("click", function() {
+        document.getElementById("div-search").style.display = 'none';
+        document.getElementById("div-new-page").style.display = 'block';
+        document.getElementById("input-new-page").focus();
     });
 });
 </script>
 
-<script type="text/javascript"  class="code-js"   src="js/plugins/wiki/wiki_pages/modify_page.js"></script>
+<script type="text/javascript" class="code-js" src="js/plugins/wiki/wiki_pages/modify_page.js"></script>

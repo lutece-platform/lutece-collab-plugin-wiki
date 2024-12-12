@@ -1,28 +1,33 @@
 <div class="row">
-    <div class="col-sm-12">
-        <div class="container panel panel-default">
-            <div class="btn-group btn-group-xs pull-right">
-                <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
-                    <span class="glyphicon glyphicon-chevron-left"></span> #i18n{wiki.button.backToPage}
+    <div class="col-12">
+        <div class="container py-3">
+            <div class="btn-group btn-group-sm">
+                <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
+                    <span class="bi bi-chevron-left"></span> #i18n{wiki.button.backToPage}
                 </a>
-                <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&view=history" title="#i18n{wiki.menu.history}">
-                    <span class="glyphicon glyphicon-time"></span> #i18n{wiki.menu.history}
+                <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&page_name=${topic.pageName}&view=history" title="#i18n{wiki.menu.history}">
+                    <span class="bi bi-clock"></span> #i18n{wiki.menu.history}
                 </a>
             </div>
+
             <h1>#i18n{wiki.menu.diff} <small> [${topic.pageName}]</small></h1>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h2 class="panel-title">#i18n{wiki.menu.diff.html}</h2>
+
+            <!-- Diff HTML Panel -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h2 class="card-title">#i18n{wiki.menu.diff.html}</h2>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                     ${diff_html}
                 </div>
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h2 class="panel-title">#i18n{wiki.menu.diff.source}</h2>
+
+            <!-- Diff Source Panel -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">#i18n{wiki.menu.diff.source}</h2>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                     ${diff_source}
                 </div>
             </div>
