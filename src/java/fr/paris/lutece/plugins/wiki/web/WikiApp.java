@@ -715,12 +715,13 @@ public class WikiApp extends MVCApplication
         String strPreviousVersionId = request.getParameter( "id_topic_version" );
         String strTopicId = request.getParameter( Constants.PARAMETER_TOPIC_ID );
         String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT );
+        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE );
         String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE );
         String strParentPageName = request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME );
         String strLanguage = getLanguage( request );
         TopicVersion topicVersion = new TopicVersion( );
-        if(!RoleService.hasEditRole( request, TopicHome.findByName( strTopicId ) ) )
+        if(!RoleService.hasEditRole( request, TopicHome.findByName( strPageName ) ) )
         {
             throw new UserNotSignedException(  );
         }
@@ -748,7 +749,6 @@ public class WikiApp extends MVCApplication
             }
         }
 
-        String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
         Topic topic = TopicHome.findByName( strPageName );
         topic.setViewRole( strViewRole );
         topic.setEditRole( strEditRole );
