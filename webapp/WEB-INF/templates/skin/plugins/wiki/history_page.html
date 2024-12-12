@@ -1,80 +1,90 @@
 <div class="row">
-    <div class="col-sm-12">
-        <div class="container panel panel-default">
-            <form id="form-page-delete" action="jsp/site/Portal.jsp" method="post" >
+    <div class="col-12">
+        <div class="container py-3">
+            <form id="form-page-delete" action="jsp/site/Portal.jsp" method="post">
                 <input type="hidden" name="page" value="wiki" />
                 <input type="hidden" name="page_name" value="${topic.pageName}" />
                 <input type="hidden" name="action" value="deletePage" />
             </form>
+            
             <#if has_admin_role >
-            <button id="btn-page-delete" class="btn btn-danger" style="position: absolute; right: 400px;" onclick="confirmDeleteTopic()" >#i18n{portal.util.labelDelete}</button>
+            <button id="btn-page-delete" class="btn btn-danger position-absolute" style="right: 400px;" onclick="confirmDeleteTopic()">
+                <span class="bi bi-trash"></span> #i18n{portal.util.labelDelete}
+            </button>
             </#if>
+
             <form method="get" action="jsp/site/Portal.jsp">
                 <input type="hidden" name="page" value="wiki" />
                 <input type="hidden" name="page_name" value="${topic.pageName}" />
                 <input type="hidden" name="view" value="diff" />
-                <div class="btn-group btn-group-xs pull-right">
-                    <button class="btn btn-default" type="submit" title="#i18n{wiki.menu.diff}">
-                        <span class="glyphicon glyphicon-eye-open"></span> #i18n{wiki.menu.diff}
+
+                <div class="btn-group btn-group-sm mb-3">
+                    <button class="btn btn-outline-secondary" type="submit" title="#i18n{wiki.menu.diff}">
+                        <span class="bi bi-eye"></span> #i18n{wiki.menu.diff}
                     </button>
-                    <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
-                        <span class="glyphicon glyphicon-chevron-left"></span> #i18n{wiki.button.backToPage}
+                    <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
+                        <span class="bi bi-chevron-left"></span> #i18n{wiki.button.backToPage}
                     </a>
                     <#list languages_list as language>
-                    <#if language = current_language >
-                    <span class="label label-info">${language}</span>
-                    <#else>
-                    <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=history&&page_name=${topic.pageName}&language=${language}">
-                        ${language}
-                    </a>
-                </#if>
-            </#list>
+                        <#if language = current_language >
+                            <h5><span class="badge bg-info">${language}</span></h5>
+                        <#else>
+                            <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=history&&page_name=${topic.pageName}&language=${language}">
+                                ${language}
+                            </a>
+                        </#if>
+                    </#list>
+                </div>
+                
+                <h1>#i18n{wiki.menu.history} <small>[${topic.pageName}]</small></h1>
+
+                <@messages infos=infos />
+
+                <div>
+                    <p>#i18n{wiki.history_page.explanation}</p>
+
+                    <table class="table table-condensed table-striped">
+                        <thead>
+                            <tr>
+                                <th>#i18n{wiki.history_page.tableHeader.mostRecent}</th>
+                                <th>#i18n{wiki.history_page.tableHeader.lessRecent}</th>
+                                <th><span class="bi bi-calendar"></span> #i18n{wiki.history_page.tableHeader.date}</th>
+                                <th><span class="bi bi-person"></span> #i18n{wiki.history_page.tableHeader.author}</th>
+                                <th><span class="bi bi-chat-left"></span> #i18n{wiki.history_page.tableHeader.comment}</th>
+                                <#if has_edit_role >
+                                    <th>#i18n{portal.util.labelActions}</th>
+                                </#if>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <#list listTopicVersion as version>
+                                <tr>
+                                    <td><input name="new_version" id="new_version" type="radio" value="${version.idTopicVersion}" <#if version_index == 0> checked </#if> ></td>
+                                    <td><input name="old_version" id="old_version" type="radio" value="${version.idTopicVersion}" <#if version_index == 1> checked </#if> ></td>
+                                    <td>${version.dateEdition}</td>
+                                    <td>
+                                        <img class="avatar-small img-circle" src="${version.userAvatarUrl!''}" alt="avatar" />
+                                        ${version.userName!''} ${version.userPseudo!''}
+                                    </td>
+                                    <td>${version.editComment}</td>
+                                    <#if has_admin_role >
+                                    <td>
+                                        <#if version.isPublished != true>
+                                            <a href="jsp/site/Portal.jsp?page=wiki&action=confirmRemoveVersion&id_topic_version=${version.idTopicVersion}&page_name=${topic.pageName}" class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}">
+                                                <span class="bi bi-trash"></span>
+                                            </a>
+                                        </#if>
+                                        <a href="jsp/site/Portal.jsp?page=wiki&view=modifyPage&page_name=${topic.pageName}&id_topic_version=${version.idTopicVersion}" class="btn btn-outline-secondary btn-sm" title="#i18n{wiki.menu.edit}">
+                                            <span class="bi bi-pencil"></span> #i18n{wiki.menu.edit}
+                                        </a>
+                                    </td>
+                                    </#if>
+                                </tr>
+                            </#list>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
         </div>
-        <h1>#i18n{wiki.menu.history} <small> [${topic.pageName}]</small></h1>
-
-        <@messages infos=infos />
-
-        <div>
-            <p>#i18n{wiki.history_page.explanation}</p>
-
-            <table class="table table-condensed table-striped">
-                <tr>
-                    <th>#i18n{wiki.history_page.tableHeader.mostRecent}</th>
-                    <th>#i18n{wiki.history_page.tableHeader.lessRecent}</th>
-                    <th><span class="glyphicon glyphicon-calendar"></span> #i18n{wiki.history_page.tableHeader.date}</th>
-                    <th><span class="glyphicon glyphicon-user"></span> #i18n{wiki.history_page.tableHeader.author}</th>
-                    <th><span class="glyphicon glyphicon-comment"></span> #i18n{wiki.history_page.tableHeader.comment}</th>
-                    <#if has_edit_role >
-                    <th>#i18n{portal.util.labelActions}</th>
-                </#if>
-                </tr>
-                <#list listTopicVersion as version >
-                <tr>
-                    <td><input name="new_version" id="new_version" type="radio" value="${version.idTopicVersion}" <#if version_index == 0> checked </#if> ></td>
-                    <td><input name="old_version" id="old_version" type="radio" value="${version.idTopicVersion}" <#if version_index == 1> checked </#if> ></td>
-                    <td>${version.dateEdition}</td>
-                    <td>
-                        <img class="avatar-small img-circle" src="${version.userAvatarUrl!''}" alt="avatar" />
-                        ${version.userName!''} ${version.userPseudo!''}
-                    </td>
-                    <td>${version.editComment}</td>
-                    <#if has_admin_role >
-                    <td>
-                        <#if version.isPublished!=true>
-                        <a href="jsp/site/Portal.jsp?page=wiki&action=confirmRemoveVersion&id_topic_version=${version.idTopicVersion}&page_name=${topic.pageName}" class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}">
-                            <span class="glyphicon glyphicon-trash"></span>
-                        </a>
-                    </#if>
-                    <a href="jsp/site/Portal.jsp?page=wiki&view=modifyPage&page_name=${topic.pageName}&id_topic_version=${version.idTopicVersion}"  class="btn btn-default btn-sm"  title="#i18n{wiki.menu.edit}">
-                        <span class="glyphicon glyphicon-edit"></span> #i18n{wiki.menu.edit}
-                    </a>
-                    </td>
-                </#if>
-                </tr>
-            </#list>
-            </table>
-        </div>
-        </form>
     </div>
-</div>
 </div>

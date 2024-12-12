@@ -7,74 +7,77 @@
     <input type="hidden" id="page_name" name="page_name" value="${topic.pageName}" />
     <input type="hidden" id="topic_id" name="topic_id" value="${topic.idTopic}" />
     <#if version??>
-    <input id="topic_version" type="hidden" name="id_topic_version" value="${version.idTopicVersion}" />
+        <input id="topic_version" type="hidden" name="id_topic_version" value="${version.idTopicVersion}" />
     <#else>
+        <input id="topic_version"  type="hidden" name="id_topic_version" value="0" />
+    </#if>
 
-    <input id="topic_version"  type="hidden" name="id_topic_version" value="0" />
-</#if>
-
-<div class="tab-content">
-    <div id="tab-${locale}" class="tab-pane active"  role="tabpanel" >
-        <label for="page_title">#i18n{wiki.modify_page.pageTitle} :</label>
-        <div class="form-group">
-            <input class="form-control" id="page_title_${locale}" type="text" name="page_title_${locale}" value="<#if version?? && version.getWikiContent(locale)??>${version.getWikiContent( locale).pageTitle}</#if>" maxlength="100" />
-        </div>
-
-        <div class="form-group">
-            <label for="parent_page_name">#i18n{wiki.modify_page.labelParentPageName} :</label>
-            <#assign topicList=reflist_topic >
-            <select id="parent_page_name" name="parent_page_name" class="form-control">
-                <#list topicList as parentPage>
-                <#if topic.parentPageName == parentPage.name>
-                <option value="${parentPage.name}" selected>${parentPage.name}</option>
-                <#else>
-                <option value="${parentPage.name}">${parentPage.name}</option>
-            </#if>
-        </#list>
-        </select>
-    </div>
-</div>
-<!-- wiki content that goes in the editor-->
-<input id="wiki_content" class="form-control" name="content_${locale}" rows="20"
-       value="<#if version??>${version.getWikiContent(locale).wikiContent?html}<#else></#if>" type="hidden"/>
-<!-- the js editor goes in div with the id 'editor' -->
-<div class="form-group">
-    <div class="code-html tui-doc-contents">
-        <div id="editor"></div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-sm-6">
-        <div class="form-group">
-            <label for="modification_comment"><span class="fa fa-comment-dots fa-1x"></span> &nbsp; #i18n{wiki.modify_page.labelComment} :</label>
-            <input class="form-control" type="text" id="modification_comment" name="modification_comment" maxlength="50"/>
-        </div>
-        <button name="action_modifyPage" type="submit" class="btn btn-primary"  title="#i18n{wiki.modify_page.buttonModify}" onclick="validate(this)">
-            <span class="fa fa-save fa-1x"></span> &nbsp;#i18n{wiki.modify_page.buttonModify}
-        </button>
-        <@input type='hidden' id='publish' name='publish' value='false' />
-        <button name="action_modifyPage"  type="submit"  class="btn btn-primary"  title="#i18n{wiki.modify_page.SaveAndPublish}" onclick="publishVersion(this)">
-            <span class="fa fa-save fa-1x"></span> &nbsp;#i18n{wiki.modify_page.SaveAndPublish}
-        </button>
-    </div>
-    <div class="col-sm-6">
-        <div class="well">
-            <legend><span class="fa fa-user fa-1x"></span> &nbsp; #i18n{wiki.modify_page.titleRole}</legend>
-            <div class="form-group row">
-                <label class="col-sm-5 col-form-label" for="view_role">#i18n{wiki.modify_page.labelViewRole} :</label>
-                <div class="col-sm-7">
-                    <@select name="view_role" id="view_role" default_value="${topic.viewRole}" items=page_roles_list sort=true />
-                </div>
+    <div class="tab-content">
+        <div id="tab-${locale}" class="tab-pane active" role="tabpanel">
+            <label for="page_title" class="form-label">#i18n{wiki.modify_page.pageTitle} :</label>
+            <div class="mb-3">
+                <input class="form-control" id="page_title_${locale}" type="text" name="page_title_${locale}" 
+                       value="<#if version?? && version.getWikiContent(locale)??>${version.getWikiContent(locale).pageTitle}</#if>" maxlength="100" />
             </div>
 
-            <div class="form-group row">
-                <label class="col-sm-5 col-form-label" for="edit_role">#i18n{wiki.modify_page.labelEditRole} :</label>
-                <div class="col-sm-7">
-                    <@select name="edit_role" id="edit_role" default_value="${topic.editRole}" items=page_roles_list sort=true />
-                </div>
+            <div class="mb-3">
+                <label for="parent_page_name" class="form-label">#i18n{wiki.modify_page.labelParentPageName} :</label>
+                <#assign topicList=reflist_topic>
+                <select id="parent_page_name" name="parent_page_name" class="form-control">
+                    <#list topicList as parentPage>
+                        <#if topic.parentPageName == parentPage.name>
+                            <option value="${parentPage.name}" selected>${parentPage.name}</option>
+                        <#else>
+                            <option value="${parentPage.name}">${parentPage.name}</option>
+                        </#if>
+                    </#list>
+                </select>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- wiki content that goes in the editor-->
+    <input id="wiki_content" class="form-control" name="content_${locale}" rows="20"
+           value="<#if version??>${version.getWikiContent(locale).wikiContent?html}<#else></#if>" type="hidden"/>
+
+    <!-- the js editor goes in div with the id 'editor' -->
+    <div class="mb-3">
+        <div class="code-html tui-doc-contents">
+            <div id="editor"></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="mb-3">
+                <label for="modification_comment" class="form-label"><span class="fa fa-comment-dots fa-1x"></span> &nbsp; #i18n{wiki.modify_page.labelComment} :</label>
+                <input class="form-control" type="text" id="modification_comment" name="modification_comment" maxlength="50"/>
+            </div>
+            <button name="action_modifyPage" type="submit" class="btn btn-primary" title="#i18n{wiki.modify_page.buttonModify}" onclick="validate(this)">
+                <span class="fa fa-save fa-1x"></span> &nbsp;#i18n{wiki.modify_page.buttonModify}
+            </button>
+            <@input type='hidden' id='publish' name='publish' value='false' />
+            <button name="action_modifyPage" type="submit" class="btn btn-primary" title="#i18n{wiki.modify_page.SaveAndPublish}" onclick="publishVersion(this)">
+                <span class="fa fa-save fa-1x"></span> &nbsp;#i18n{wiki.modify_page.SaveAndPublish}
+            </button>
+        </div>
+        <div class="col-sm-6">
+            <div class="well">
+                <legend><span class="fa fa-user fa-1x"></span> &nbsp; #i18n{wiki.modify_page.titleRole}</legend>
+                <div class="mb-3 row">
+                    <label class="col-sm-5 col-form-label" for="view_role">#i18n{wiki.modify_page.labelViewRole} :</label>
+                    <div class="col-sm-7">
+                        <@select name="view_role" id="view_role" default_value="${topic.viewRole}" items=page_roles_list sort=true />
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <label class="col-sm-5 col-form-label" for="edit_role">#i18n{wiki.modify_page.labelEditRole} :</label>
+                    <div class="col-sm-7">
+                        <@select name="edit_role" id="edit_role" default_value="${topic.editRole}" items=page_roles_list sort=true />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>

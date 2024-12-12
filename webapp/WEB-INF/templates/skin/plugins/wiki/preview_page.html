@@ -1,13 +1,14 @@
 <div class="row">
-    <div class="col-sm-12">
-        <div class="container panel panel-default">
-            <div class="panel-body">
-                <div class="btn-group btn-group-xs pull-right">
-                    <a class="btn btn-default" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
-                        <span class="glyphicon glyphicon-chevron-left"></span> #i18n{wiki.button.backToPage}
+    <div class="col-12">
+        <div class="container py-3">
+            <div class="d-flex justify-content-end mb-3">
+                <div class="btn-group btn-group-sm">
+                    <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic.pageName}" title="#i18n{wiki.button.backToPage}">
+                        <span class="bi bi-chevron-left"></span> #i18n{wiki.button.backToPage}
                     </a>
-                    <button class="btn btn-default"  onclick="history.back()"> <span class="fa fa-chevron-left fa-2x"></span>#i18n{wiki.button.backToEdit}</button>
-
+                    <button class="btn btn-outline-secondary" onclick="history.back()"> 
+                        <span class="fa fa-chevron-left fa-2x"></span>#i18n{wiki.button.backToEdit}
+                    </button>
                 </div>
             </div>
 
