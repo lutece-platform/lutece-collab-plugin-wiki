@@ -181,7 +181,7 @@ margin-left: 20%;
     padding: 10px;}
     
 .sidebar {
-	width: 200px;
+	max-width: 300px;
 	position: fixed;
 	left: 90px;
 	top: 200px; 
