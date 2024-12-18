@@ -192,6 +192,7 @@ public class WikiApp extends MVCApplication
     private static final String MESSAGE_AUTHENTICATION_REQUIRED = "wiki.message.authenticationRequired";
     private static final String MESSAGE_PATH_HIDDEN = "wiki.message.path.hidden";
     private static final String MESSAGE_NO_PUBLISHED_VERSION = "wiki.view_page.noPublishedVersion";
+    private static final String MESSAGE_TITLE_TOO_LONG = "wiki.message.titleTooLong";
 
     private static final String ANCHOR_IMAGES = "#images";
 
@@ -409,7 +410,7 @@ public class WikiApp extends MVCApplication
 
         for ( Topic topicSideBar : listTopic )
         {
-            mapTopicTitle.put( topicSideBar.getPageName( ), getTopicTitle( request, topicSideBar ) );
+            mapTopicTitle.put( topicSideBar.getPageName( ), getTopicTitle( request, topicSideBar ).replace( '_', ' ' ) );
 
             String strParentPageName = topicSideBar.getParentPageName( );
             if ( strParentPageName != null && !topicSideBar.getPageName( ).isEmpty( ) )
@@ -472,6 +473,9 @@ public class WikiApp extends MVCApplication
             strParentPageName = "home";
         }
         String strPageTitle = strPageName;
+		if (strPageTitle.length() > 100) {
+			SiteMessageService.setMessage(request, MESSAGE_TITLE_TOO_LONG, SiteMessage.TYPE_ERROR);
+		}
         strPageName = WikiUtils.normalize( strPageName );
 
         Topic topic = TopicHome.findByName( strPageName );
@@ -616,9 +620,11 @@ public class WikiApp extends MVCApplication
      * @return The redirect URL
      * @throws UserNotSignedException
      *             If user not connected
+     * @throws SiteMessageException 
+     * 	            If the title is too long
      */
     @Action( ACTION_MODIFY_PAGE )
-    public XPage doModifyTopic( HttpServletRequest request ) throws UserNotSignedException
+    public XPage doModifyTopic( HttpServletRequest request ) throws UserNotSignedException, SiteMessageException
     {
         LuteceUser user = checkUser( request );
         String strPageName = request.getParameter( Constants.PARAMETER_PAGE_NAME );
@@ -632,6 +638,9 @@ public class WikiApp extends MVCApplication
             int nTopicId = Integer.parseInt( strTopicId );
             String strLanguage = getLanguage( request );
             String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
+            if (strPageTitle.length() > 100) {
+    			SiteMessageService.setMessage( request, MESSAGE_TITLE_TOO_LONG, SiteMessage.TYPE_ERROR );
+    		}
             String strContent = request.getParameter( Constants.PARAMETER_CONTENT + "_" + strLanguage );
            TopicVersion topicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
         if(!RoleService.hasEditRole( request, topic ) )
