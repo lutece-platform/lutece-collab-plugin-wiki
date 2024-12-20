@@ -1009,7 +1009,7 @@ public class WikiApp extends MVCApplication
         }
 
         Map<String, String> mapParameters = new ConcurrentHashMap<>( );
-        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName + ANCHOR_IMAGES );
+        mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
 
         return redirect( request, VIEW_MODIFY_PAGE, mapParameters );
     }
