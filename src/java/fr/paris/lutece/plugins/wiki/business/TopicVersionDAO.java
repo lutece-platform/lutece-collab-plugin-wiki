@@ -53,7 +53,7 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
     private static final String SQL_QUERY_SELECT_LAST_BY_TOPIC_ID = "SELECT id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous, is_published FROM wiki_topic_version WHERE id_topic = ?  ORDER BY  date_edition DESC LIMIT 1";
     private static final String SQL_QUERY_SELECT_BY_TOPIC_ID = "SELECT id_topic_version, edit_comment, id_topic, lutece_user_id, date_edition, id_topic_version_previous, is_published FROM wiki_topic_version WHERE id_topic = ?  ORDER BY  date_edition DESC ";
     private static final String SQL_QUERY_DELETE_BY_TOPIC_ID = "DELETE FROM wiki_topic_version WHERE id_topic = ? ";
-    private static final String SQL_QUERY_SELECT_CONTENT = "SELECT locale, page_title, wiki_content FROM wiki_topic_version_content WHERE id_topic_version = ?";
+    private static final String SQL_QUERY_SELECT_CONTENT = "SELECT locale, page_title, CONVERT (wiki_content using utf8) FROM wiki_topic_version_content WHERE id_topic_version = ?";
     private static final String SQL_QUERY_INSERT_CONTENT = "INSERT INTO wiki_topic_version_content ( id_topic_version, locale, page_title, wiki_content ) VALUES ( ?, ?, ?, ?) ";
     private static final String SQL_QUERY_DELETE_CONTENT = "DELETE FROM wiki_topic_version_content WHERE id_topic_version = ? ";
     private static final String SQL_QUERY_DELETE_CONTENT_BY_TOPIC_ID = "DELETE a.* FROM wiki_topic_version_content a, wiki_topic_version b WHERE a.id_topic_version = b.id_topic_version AND b.id_topic = ? ";
