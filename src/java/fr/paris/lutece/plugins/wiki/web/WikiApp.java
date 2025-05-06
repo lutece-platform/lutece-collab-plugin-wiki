@@ -783,68 +783,7 @@ public class WikiApp extends MVCApplication
 
         return page;
     }
-    @Action( "wikiCreoleToMd" )
-    public  XPage wikiCreoleToMd(  javax.servlet.http.HttpServletRequest request  ) throws UserNotSignedException
-    {
-        LuteceUser user = checkUser( request );
-        if( !RoleService.hasAdminRole( request ) )
-        {
-            throw new UserNotSignedException(  );
-        }
-        for ( fr.paris.lutece.plugins.wiki.business.Topic topic : fr.paris.lutece.plugins.wiki.business.TopicHome.getTopicsList( ) )
-        {
-            List<String> lang = WikiLocaleService.getLanguages( );
-            fr.paris.lutece.plugins.wiki.business.TopicVersion topicVersion = fr.paris.lutece.plugins.wiki.business.TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-			if (topicVersion == null || topicVersion.getWikiContents().isEmpty()) {
-				continue;
-			}
-            for ( String strLanguage : lang )
-            {
-                String strWikiText = topicVersion.getWikiContent( strLanguage ).getWikiContent( );
-                String strPageName = topic.getPageName();
 
-                String strPageUrl = fr.paris.lutece.portal.service.util.AppPathService.getBaseUrl( ) +
-                        "/jsp/site/Portal.jsp?page=wiki&view=page&page_name=" + strPageName + "&language=" + strLanguage;
-
-                String htmlContent = new LuteceWikiParser( strWikiText, strPageName, strPageUrl, strLanguage ).toString( );
-                htmlContent = renderCustomContent( htmlContent );
-
-                org.jsoup.nodes.Document htmlDocument = org.jsoup.Jsoup.parse( htmlContent );
-                org.jsoup.nodes.Element docBody = htmlDocument.body( );
-
-                com.vladsch.flexmark.util.data.MutableDataSet options = new com.vladsch.flexmark.util.data.MutableDataSet( );
-
-                options.set( com.vladsch.flexmark.html.HtmlRenderer.HARD_BREAK, "<br />\n" );
-                options.set( com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter.BR_AS_PARA_BREAKS, false );
-                options.set( com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter.OUTPUT_ATTRIBUTES_ID, false );
-                options.set( com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter.BR_AS_EXTRA_BLANK_LINES, false );
-                String markdown = com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter.builder( options ).build( ).convert( docBody.toString( ) );
-
-                fr.paris.lutece.plugins.wiki.business.WikiContent content = new fr.paris.lutece.plugins.wiki.business.WikiContent( );
-                content.setPageTitle( topic.getPageName( ) );
-                content.setWikiContent( markdown );
-                topicVersion.addLocalizedWikiContent( strLanguage, content );
-
-            }
-            topicVersion.setIdTopic( topic.getIdTopic() );
-            topicVersion.setUserName( user.getName( ) );
-            topicVersion.setEditComment( "wikiCreoleToMd" );
-            topicVersion.setIdTopicVersionPrevious( topicVersion.getIdTopicVersion() );
-            topicVersion.setIsPublished( true );
-            fr.paris.lutece.plugins.wiki.business.TopicVersionHome.addTopicVersion( topicVersion );
-            TopicVersion previousPublished = TopicVersionHome.getPublishedVersion( topic.getIdTopic() );
-            if ( previousPublished != null )
-            {
-                TopicVersionHome.updatePublishedVersion( previousPublished.getIdTopicVersion(), false );
-            }
-            fr.paris.lutece.plugins.wiki.business.TopicHome.update( topic );
-        }
-
-        java.util.Map<String, String> mapParameters = new java.util.concurrent.ConcurrentHashMap<>( );
-        mapParameters.put( fr.paris.lutece.plugins.wiki.web.Constants.PARAMETER_PAGE_NAME, "home" );
-
-        return redirect( request, VIEW_PAGE, mapParameters );
-    }
     /**
      * Displays the history page
      *
@@ -1751,30 +1690,6 @@ public class WikiApp extends MVCApplication
         return getTopicTitle( topic, getLanguage( request ) );
     }
 
-
-    public static String renderCustomContent( String str )
-    {
-        str = str.replaceAll( "\\\\", "" );
-        str = str.replaceAll( "\\[lt;", "<" );
-        str = str.replaceAll( "\\[gt;", ">" );
-        str = str.replaceAll( "\\[nbsp;", "&nbsp;" );
-        str = str.replaceAll( "\\[quot;", "'" );
-        str = str.replaceAll( "\\[amp;", "&" );
-        str = str.replaceAll( "\\[hashmark;", "#" );
-        str = str.replaceAll( "\\[codeQuote;", "`" );
-        str = str.replaceAll( "\\[simpleQuote;", "'" );
-        str = str.replaceAll( "badge badge-", "badge badge-badge bg-" );
-        str = str.replaceAll( "label label-", "badge badge-badge bg-" );
-        str = str.replaceAll( "glyphicon glyphicon-warning-sign", "fa fa-exclamation-triangle" );
-        str = str.replaceAll( "glyphicon glyphicon-info-sign", "fa fa-info-circle" );
-        str = str.replaceAll( "glyphicon glyphicon-question-sign", "fa fa-question-circle" );
-        str = str.replaceAll( "glyphicon glyphicon-ok-sign", "fa fa-check-circle" );
-        str = str.replaceAll( "glyphicon glyphicon-remove-sign", "fa fa-times-circle" );
-        str = str.replaceAll( "glyphicon glyphicon-chevron-right", "fa fa-chevron-right" );
-        str = str.replaceAll( "glyphicon glyphicon-chevron-left", "fa fa-chevron-left" );
-        str = str.replaceAll( "glyphicon glyphicon-chevron-up", "fa fa-chevron-up" );
-        return str;
-    }
     /**
      * Retrieves the current selected version from the parameter
      *

@@ -591,9 +591,11 @@ public class WikiParser
                 );
         options.set(Parser.EXTENSIONS, extensions);
         options.set(HtmlRenderer.INDENT_SIZE, 2);
-            options.set(HtmlRenderer.PERCENT_ENCODE_URLS, true);
+        options.set(HtmlRenderer.PERCENT_ENCODE_URLS, true);
         options.set(HtmlRenderer.GENERATE_HEADER_ID, true);
         options.set(HtmlRenderer.RENDER_HEADER_ID, true);
+        options.set(HtmlRenderer.ESCAPE_HTML, true);
+        options.set(HtmlRenderer.ESCAPE_INLINE_HTML, false);
         Parser parser = Parser.builder(options).build();
         HtmlRenderer renderer = HtmlRenderer.builder(options).build();
         markdown = wikiText;
