@@ -7,3 +7,4 @@ CREATE TABLE wiki_last_edits
     date_modification DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (id_topic)
 );
+ALTER TABLE wiki_topic_version_content CHANGE  wiki_content wiki_content mediumblob;

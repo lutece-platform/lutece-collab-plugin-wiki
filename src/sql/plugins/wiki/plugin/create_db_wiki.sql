@@ -41,7 +41,7 @@ CREATE TABLE wiki_topic_version_content (
   id_topic_version INT DEFAULT '0' NOT NULL,
   locale VARCHAR(50) DEFAULT '' NOT NULL,
   page_title VARCHAR(100) DEFAULT '' NOT NULL,
-  wiki_content LONG VARCHAR,
+  wiki_content MEDIUMBLOB,
     PRIMARY KEY (id_topic_version , locale )
 );
 
