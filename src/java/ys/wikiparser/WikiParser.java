@@ -449,22 +449,9 @@ public class WikiParser
                             <h2 id="heading-2">Heading 2</h2>
                             ```
                          */
-                   //     com.vladsch.flexmark.ext.wikilink.WikiLinkExtension.create( ),
-                        /* Input and Output Example of com.vladsch.flexmark.ext.wikilink.WikiLinkExtension
-                        ```markdown
-                            This is a wiki link: [[Wiki Link]]
-                            ```
-                            **Output:**
-
-                            The output will be an HTML string with the wiki link converted into an HTML anchor tag.
-
-                            ```html
-                            <p>This is a wiki link: <a href="Wiki Link">Wiki Link</a></p>
-                            ```
-                         */
 
                         // fonctionne pas
-                     //   com.vladsch.flexmark.ext.abbreviation.AbbreviationExtension.create( ),
+                    //    com.vladsch.flexmark.ext.abbreviation.AbbreviationExtension.create( ),
                         /* Input and Output Example of com.vladsch.flexmark.ext.abbreviation.AbbreviationExtension
                         ```markdown
                             *[HTML]: Hyper Text Markup Language
@@ -596,6 +583,14 @@ public class WikiParser
         options.set(HtmlRenderer.RENDER_HEADER_ID, true);
         options.set(HtmlRenderer.ESCAPE_HTML, true);
         options.set(HtmlRenderer.ESCAPE_INLINE_HTML, false);
+        
+        String _strTableClass = "table";
+
+        // Configure tables with custom classes
+        if (_strTableClass != null && !_strTableClass.isEmpty()) {
+            options.set(com.vladsch.flexmark.ext.tables.TablesExtension.CLASS_NAME, _strTableClass);
+        }
+        
         Parser parser = Parser.builder(options).build();
         HtmlRenderer renderer = HtmlRenderer.builder(options).build();
         markdown = wikiText;
