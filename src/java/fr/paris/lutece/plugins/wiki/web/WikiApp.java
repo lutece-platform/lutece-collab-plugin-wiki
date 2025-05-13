@@ -66,6 +66,7 @@ import fr.paris.lutece.portal.service.security.SecurityService;
 import fr.paris.lutece.portal.service.security.UserNotSignedException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
@@ -286,21 +287,27 @@ public class WikiApp extends MVCApplication
 
         for ( Topic topic : listTopic )
         {
-            mapTopicTitle.put( topic.getPageName( ), getTopicTitle( request, topic ) );
+            try{
+                mapTopicTitle.put( topic.getPageName( ), getTopicTitle( request, topic ) );
 
-            String strParentPageName = topic.getParentPageName( );
-            if ( strParentPageName != null && !topic.getPageName( ).isEmpty( ) )
+                String strParentPageName = topic.getParentPageName( );
+                if ( strParentPageName != null && !topic.getPageName( ).isEmpty( ) )
+                {
+                    if ( mapTopicChildren.containsKey( strParentPageName ) )
+                    {
+                        mapTopicChildren.get( strParentPageName ).add( topic );
+                    }
+                    else
+                    {
+                        List<Topic> listChildren = new ArrayList<>( );
+                        listChildren.add( topic );
+                        mapTopicChildren.put( strParentPageName, listChildren );
+                    }
+                }
+            }
+            catch ( Exception e )
             {
-                if ( mapTopicChildren.containsKey( strParentPageName ) )
-                {
-                    mapTopicChildren.get( strParentPageName ).add( topic );
-                }
-                else
-                {
-                    List<Topic> listChildren = new ArrayList<>( );
-                    listChildren.add( topic );
-                    mapTopicChildren.put( strParentPageName, listChildren );
-                }
+                AppLogService.error( "Error while getting topic title for " + topic.getPageName( ), e );
             }
         }
 
@@ -410,21 +417,28 @@ public class WikiApp extends MVCApplication
 
         for ( Topic topicSideBar : listTopic )
         {
-            mapTopicTitle.put( topicSideBar.getPageName( ), getTopicTitle( request, topicSideBar ).replace( '_', ' ' ) );
+            try
+{
+                mapTopicTitle.put( topicSideBar.getPageName( ), getTopicTitle( request, topicSideBar ).replace( '_', ' ' ) );
 
-            String strParentPageName = topicSideBar.getParentPageName( );
-            if ( strParentPageName != null && !topicSideBar.getPageName( ).isEmpty( ) )
+                String strParentPageName = topicSideBar.getParentPageName( );
+                if ( strParentPageName != null && !topicSideBar.getPageName( ).isEmpty( ) )
+                {
+                    if ( mapTopicChildren.containsKey( strParentPageName ) )
+                    {
+                        mapTopicChildren.get( strParentPageName ).add( topicSideBar );
+                    }
+                    else
+                    {
+                        List<Topic> listChildren = new ArrayList<>( );
+                        listChildren.add( topicSideBar );
+                        mapTopicChildren.put( strParentPageName, listChildren );
+                    }
+                }
+            }
+            catch ( Exception e )
             {
-                if ( mapTopicChildren.containsKey( strParentPageName ) )
-                {
-                    mapTopicChildren.get( strParentPageName ).add( topicSideBar );
-                }
-                else
-                {
-                    List<Topic> listChildren = new ArrayList<>( );
-                    listChildren.add( topicSideBar );
-                    mapTopicChildren.put( strParentPageName, listChildren );
-                }
+                AppLogService.error( "Error while getting topic title for " + topicSideBar.getPageName( ), e );
             }
         }
 

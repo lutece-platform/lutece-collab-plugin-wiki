@@ -252,7 +252,7 @@ public class WikiIndexer implements SearchIndexer
         // is not
         // tokenized prior to indexing.
         String strIdSubject = String.valueOf( topic.getPageName( ) );
-        doc.add( new Field( SearchItem.FIELD_UID, strIdSubject + "_" + SHORT_NAME_TOPIC, ftNotStoredDocsFreqsPos ) );
+        doc.add( new Field( SearchItem.FIELD_UID, strIdSubject + "_" + SHORT_NAME_TOPIC, ftNotStoredDocs ) );
 
         String strWikiResult = "";
         TopicVersion topicVersion = null;
@@ -272,11 +272,11 @@ public class WikiIndexer implements SearchIndexer
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, TextField.TYPE_NOT_STORED ) );
 
         String strDate = DateTools.dateToString( topicVersion.getDateEdition( ), DateTools.Resolution.DAY );
-        doc.add( new Field( SearchItem.FIELD_DATE, strDate, fieldTypeDocsFreqsPos ) );
+        doc.add( new Field( SearchItem.FIELD_DATE, strDate, fieldTypeDocs ) );
 
         // Add the subject name as a separate Text field, so that it can be
         // searched separately.
-        doc.add( new Field( SearchItem.FIELD_TITLE, publishedTopicVersion.getWikiContent( strLanguage ).getPageTitle( ), fieldTypeDocs) );
+        doc.add( new Field( SearchItem.FIELD_TITLE, publishedTopicVersion.getWikiContent( strLanguage ).getPageTitle( ), fieldTypeDocsFreqsPos ) );
 
         doc.add( new Field( SearchItem.FIELD_TYPE, getDocumentType( ), fieldTypeDocs ) );
 
