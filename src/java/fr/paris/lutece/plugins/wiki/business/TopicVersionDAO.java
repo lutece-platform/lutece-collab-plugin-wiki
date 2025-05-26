@@ -61,6 +61,8 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
     private static final String SQL_QUERY_UPDATE_IS_PUBLISHED = "UPDATE wiki_topic_version SET is_published=? WHERE id_topic_version = ? ";
     private static final  String SQL_QUERY_DELETE_CONTENT_BY_TOPIC_VERSION_ID = "DELETE FROM wiki_topic_version_content WHERE id_topic_version = ? ";
     private static final String SQL_QUERY_DELETE_BY_TOPIC_VERSION_ID = "DELETE FROM wiki_topic_version WHERE id_topic_version = ? ";
+    private static final String SQL_QUERY_PAGE_NAME_FROM_PAGE_TITLE = "SELECT wt.page_name FROM wiki_topic wt JOIN wiki_topic_version wtv ON wt.id_topic = wtv.id_topic JOIN wiki_topic_version_content wtvc ON wtv.id_topic_version = wtvc.id_topic_version WHERE wtvc.page_title = ? AND wtvc.locale = ? AND wtv.is_published = 1 LIMIT 1";
+
 
 
     /**
@@ -414,6 +416,22 @@ public final class TopicVersionDAO implements ITopicVersionDAO {
             daoUtil.setInt( 2, idVersion );
             daoUtil.executeUpdate( );
         }
+    }
+
+    @Override
+    public String getPageNameFromTitle(String pageTitle, String locale, Plugin plugin) {
+        String strPageName = null;
+        try (DAOUtil daoUtil = new DAOUtil(SQL_QUERY_PAGE_NAME_FROM_PAGE_TITLE, plugin)) {
+            daoUtil.setString(1, pageTitle);
+            daoUtil.setString(2, locale);
+            daoUtil.executeQuery();
+
+            if (daoUtil.next()) {
+                strPageName = daoUtil.getString(1);
+            }
+        }
+
+        return strPageName;
     }
 
 

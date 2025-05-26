@@ -281,8 +281,8 @@ public class WikiApp extends MVCApplication
 
         String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, AppPropertiesService.getProperty( PAGE_DEFAULT ) );
 
-        Map<String, String> mapTopicTitle = new HashMap( );
-        Map<String, List<Topic>> mapTopicChildren = new HashMap( );
+        Map<String, String> mapTopicTitle = new HashMap<String,String>( );
+        Map<String, List<Topic>> mapTopicChildren = new HashMap<String,List<Topic>>( );
 
         for ( Topic topic : listTopic )
         {
@@ -633,10 +633,10 @@ public class WikiApp extends MVCApplication
             String strComment = request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT )!= null?request.getParameter( Constants.PARAMETER_MODIFICATION_COMMENT ):"";
             String strViewRole = request.getParameter( Constants.PARAMETER_VIEW_ROLE )!= null?request.getParameter( Constants.PARAMETER_VIEW_ROLE ):Page.ROLE_NONE;
             String strEditRole = request.getParameter( Constants.PARAMETER_EDIT_ROLE )!= null?request.getParameter( Constants.PARAMETER_EDIT_ROLE ):Page.ROLE_NONE;
-            String strParentPageName = request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME );
             Boolean publish = Boolean.parseBoolean(request.getParameter( Constants.PARAMETER_PUBLISH ));
             int nTopicId = Integer.parseInt( strTopicId );
             String strLanguage = getLanguage( request );
+            String strParentPageName = TopicVersionHome.getPageNameFromTitle( request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME ), strLanguage );
             String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
             if (strPageTitle.length() > 100) {
     			SiteMessageService.setMessage( request, MESSAGE_TITLE_TOO_LONG, SiteMessage.TYPE_ERROR );

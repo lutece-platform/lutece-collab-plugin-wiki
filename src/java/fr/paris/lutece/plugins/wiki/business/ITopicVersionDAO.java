@@ -140,4 +140,13 @@ public interface ITopicVersionDAO
      * @param isPublished
      */
     void updatePublishedVersion( int idVersion, boolean isPublished, fr.paris.lutece.portal.service.plugin.Plugin plugin );
+
+    /**
+     * Get the page_name with the page_title
+     * @param pageTitle
+     * @param locale
+     * @param plugin
+     * @return the page name
+     */
+    String getPageNameFromTitle( String pageTitle, String locale, Plugin plugin );
 }
