@@ -189,4 +189,16 @@ public final class TopicVersionHome
         _dao.updatePublishedVersion(idVersion, isPublished, _plugin);
     }
 
+    /**
+     * Get the page_name with the page_title
+     * @param pageTitle
+     *           The page title
+     * @param locale
+     *          The locale
+     * @return the page name
+     */
+    public static String getPageNameFromTitle( String pageTitle, String locale )
+    {
+        return _dao.getPageNameFromTitle( pageTitle, locale, _plugin );
+    }
 }

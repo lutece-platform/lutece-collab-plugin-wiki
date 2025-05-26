@@ -7,8 +7,8 @@
 		        <#else>
 		        	<h5><a class="nav-link w-100" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic_iteration.pageName}">${map_topic_title[topic_iteration.pageName]}</a></h5>
 		        </#if>
-		        <#if (map_topic_children[map_topic_title[topic_iteration.pageName]])??>
-		            <@mapLevel map_topic_children[map_topic_title[topic_iteration.pageName]] map_topic_children map_topic_title/>
+		        <#if (map_topic_children[topic_iteration.pageName])??>
+		            <@mapLevel map_topic_children[topic_iteration.pageName] map_topic_children map_topic_title/>
 		        </#if>
 	        </li>
         </#list>
@@ -18,7 +18,7 @@
 <aside class="sidebar">
 	<nav class="nav nav-pills w-100">
 		<ul class="nav flex-column w-100">
-			<#if (map_topic_children[map_topic_title[wiki_root_page_name]])??>
+			<#if (map_topic_children[wiki_root_page_name])??>
 				<li class="nav-item w-100">
 					<#if topic.pageName == wiki_root_page_name >
 				    	<h5><a class="nav-link active w-100" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${wiki_root_page_name}">${map_topic_title[wiki_root_page_name]}</a></h5>
@@ -26,7 +26,7 @@
 				    	<h5><a class="nav-link w-100" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${wiki_root_page_name}">${map_topic_title[wiki_root_page_name]}</a></h5>
 				    </#if>
 			    </li>
-				<@mapLevel map_topic_children[map_topic_title[wiki_root_page_name]] map_topic_children map_topic_title/>
+				<@mapLevel map_topic_children[wiki_root_page_name] map_topic_children map_topic_title/>
 			</#if>
 			<#if (map_topic_children[""])??>
 			    <#list map_topic_children[""] as topic_iteration>
@@ -38,8 +38,8 @@
 				                <h5><a class="nav-link w-100" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic_iteration.pageName}">${map_topic_title[topic_iteration.pageName]}</a></h5>
 				            </#if>
 			            </li>
-			            <#if (map_topic_children[map_topic_title[topic_iteration.pageName]])??>
-			                <@mapLevel map_topic_children[map_topic_title[topic_iteration.pageName]] map_topic_children map_topic_title/>
+			            <#if (map_topic_children[topic_iteration.pageName])??>
+			                <@mapLevel map_topic_children[topic_iteration.pageName] map_topic_children map_topic_title/>
 			            </#if>
 			        </#if>
 			    </#list>
