@@ -23,15 +23,12 @@
             <div class="mb-3">
                 <label for="parent_page_name" class="form-label">#i18n{wiki.modify_page.labelParentPageName} :</label>
                 <#assign topicList=reflist_topic>
-                <select id="parent_page_name" name="parent_page_name" class="form-control">
-                    <#list topicList as parentPage>
-                        <#if topic.parentPageName == parentPage.name>
-                            <option value="${parentPage.name}" selected>${parentPage.name}</option>
-                        <#else>
-                            <option value="${parentPage.name}">${parentPage.name}</option>
-                        </#if>
-                    </#list>
-                </select>
+                <input id="parent_page_name" list="datalistTopics" name="parent_page_name" class="form-control" placeholder="Type to search..." value="${map_topic_title[topic.parentPageName]}" required>
+                <datalist id="datalistTopics">
+                <#list topicList as parentPage>
+                    <option value="${parentPage.name}">
+                </#list>
+                </datalist>
             </div>
         </div>
     </div>

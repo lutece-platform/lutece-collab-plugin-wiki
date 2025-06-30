@@ -256,7 +256,9 @@ public class LuteceWikiParser extends WikiParser
     {
         String [ ] link = split( strText, '|' );
         URI uri = null;
-
+        if(strText.contains(" ")) {
+            return; // ignore links with spaces
+        }
         try
         { // validate URI
             uri = new URI( link [0].trim( ) );
