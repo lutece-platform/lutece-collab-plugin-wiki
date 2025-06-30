@@ -307,7 +307,7 @@ public class WikiApp extends MVCApplication
             }
             catch ( Exception e )
             {
-                AppLogService.error( "Error while getting topic title for " + topic.getPageName( ), e );
+                AppLogService.error( "Error while getting topic title for {}",topic.getPageName( ), e ); 
             }
         }
 
@@ -438,7 +438,7 @@ public class WikiApp extends MVCApplication
             }
             catch ( Exception e )
             {
-                AppLogService.error( "Error while getting topic title for " + topicSideBar.getPageName( ), e );
+                AppLogService.error( "Error while getting topic title for {}",topicSideBar.getPageName( ), e );  
             }
         }
 
@@ -604,6 +604,22 @@ public class WikiApp extends MVCApplication
             }
 
 
+        Collection<Topic> listTopic = getTopicsForUser( request );
+        Map<String, String> mapTopicTitle = new HashMap<>( );
+        for ( Topic topicSideBar : listTopic )
+        {
+            try
+            {
+                mapTopicTitle.put( topicSideBar.getPageName( ), getTopicTitle( request, topicSideBar ) );
+            }
+            catch ( Exception e )
+            {
+                AppLogService.error( "Error while getting topic title for {}",topicSideBar.getPageName( ), e );  
+            }
+        }
+
+        String strWikiRootPageName = DatastoreService.getDataValue( DSKEY_WIKI_ROOT_PAGENAME, AppPropertiesService.getProperty( PAGE_DEFAULT ) );
+
         ReferenceList topicRefList = getTopicsReferenceListForUser( request, true );
         topicRefList.removeIf( x -> x.getCode( ).equals( topic.getPageName( ) ) );
 
@@ -612,6 +628,8 @@ public class WikiApp extends MVCApplication
         model.put( MARK_VERSION, topicVersion );
         model.put( MARK_PAGE_ROLES_LIST, RoleService.getUserRoles( request ) );
         model.put( MARK_EDIT_ROLE, RoleService.hasEditRole( request, topic ) );
+        model.put( MARK_MAP_TOPIC_TITLE, mapTopicTitle );
+        model.put( MARK_WIKI_ROOT_PAGE_NAME, strWikiRootPageName );
         model.put( MARK_ADMIN_ROLE, RoleService.hasAdminRole( request ) );
         model.put( MARK_LANGUAGES_LIST, WikiLocaleService.getLanguages( ) );
         model.put( MARK_REFLIST_TOPIC, topicRefList );
@@ -650,7 +668,7 @@ public class WikiApp extends MVCApplication
             Boolean publish = Boolean.parseBoolean(request.getParameter( Constants.PARAMETER_PUBLISH ));
             int nTopicId = Integer.parseInt( strTopicId );
             String strLanguage = getLanguage( request );
-            String strParentPageName = TopicVersionHome.getPageNameFromTitle( request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME ), strLanguage );
+            String strParentPageName = TopicVersionHome.getPageNameFromTitle( request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME ), strLanguage ) != null ? TopicVersionHome.getPageNameFromTitle( request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME ), strLanguage ) : "";
             String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
             if (strPageTitle.length() > 100) {
     			SiteMessageService.setMessage( request, MESSAGE_TITLE_TOO_LONG, SiteMessage.TYPE_ERROR );
