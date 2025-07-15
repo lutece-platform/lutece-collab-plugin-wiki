@@ -1,4 +1,8 @@
 ![](https://dev.lutece.paris.fr/jenkins/buildStatus/icon?job=collab-plugin-wiki-deploy)
+[![Alerte](https://dev.lutece.paris.fr/sonar/api/project_badges/measure?project=fr.paris.lutece.plugins%3Aplugin-wiki&metric=alert_status)](https://dev.lutece.paris.fr/sonar/dashboard?id=fr.paris.lutece.plugins%3Aplugin-wiki)
+[![Line of code](https://dev.lutece.paris.fr/sonar/api/project_badges/measure?project=fr.paris.lutece.plugins%3Aplugin-wiki&metric=ncloc)](https://dev.lutece.paris.fr/sonar/dashboard?id=fr.paris.lutece.plugins%3Aplugin-wiki)
+[![Coverage](https://dev.lutece.paris.fr/sonar/api/project_badges/measure?project=fr.paris.lutece.plugins%3Aplugin-wiki&metric=coverage)](https://dev.lutece.paris.fr/sonar/dashboard?id=fr.paris.lutece.plugins%3Aplugin-wiki)
+
 # Plugin wiki
 
 ## Introduction
@@ -7,7 +11,7 @@
 
 
  
-* Use standard Wikicreole syntax
+* Use standard Markdown syntax
 * Provide a very simple and efficient Wiki editor with removable Help panel
 * Can be easily customized by macros to add new rendering features (such as Bootstrap Jumbotron !)
 

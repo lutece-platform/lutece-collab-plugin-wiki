@@ -1,4 +1,8 @@
 ![](https://dev.lutece.paris.fr/jenkins/buildStatus/icon?job=collab-plugin-wiki-deploy)
+[![Alerte](https://dev.lutece.paris.fr/sonar/api/project_badges/measure?project=fr.paris.lutece.plugins%3Aplugin-wiki&metric=alert_status)](https://dev.lutece.paris.fr/sonar/dashboard?id=fr.paris.lutece.plugins%3Aplugin-wiki)
+[![Line of code](https://dev.lutece.paris.fr/sonar/api/project_badges/measure?project=fr.paris.lutece.plugins%3Aplugin-wiki&metric=ncloc)](https://dev.lutece.paris.fr/sonar/dashboard?id=fr.paris.lutece.plugins%3Aplugin-wiki)
+[![Coverage](https://dev.lutece.paris.fr/sonar/api/project_badges/measure?project=fr.paris.lutece.plugins%3Aplugin-wiki&metric=coverage)](https://dev.lutece.paris.fr/sonar/dashboard?id=fr.paris.lutece.plugins%3Aplugin-wiki)
+
 # Plugin wiki
 
 ## Introduction
@@ -7,20 +11,20 @@
 
 
  
-* Utilise la syntaxe du standard Wikicreole
-* Fournit un éditeur Wiki très simple et efficace avec un panneau d'aide amovible
-* Peut être facilement personnalisé par des macros pour ajouter de nouvelles fonctionnalités de rendu
+* Utilise la syntaxe du standard Markdown
+* Fournit un Ã©diteur Wiki trÃ¨s simple et efficace avec un panneau d'aide amovible
+* Peut Ãªtre facilement personnalisÃ© par des macros pour ajouter de nouvelles fonctionnalitÃ©s de rendu
 
 
- **Entièrement intégré à la plate-forme Lutece :** 
+ **EntiÃ¨rement intÃ©grÃ© Ã  la plate-forme Lutece :** 
 
 
  
-* Utilise l'authentification et les rôles MyLutece
+* Utilise l'authentification et les rÃ´les MyLutece
 * Compatible avec le plugin Extend et tous ses modules (commentaire, notation, hits, opengraph...)
 * Supporte les avatars et les pseudos de Lutece
-* Utilise le thème graphique du site. Il changera de la même façon que tout le site lorsque le thème sera modifié
-* Les skins de rendu de code peuvent être gérés dans "Propriétés du site"
+* Utilise le thÃ¨me graphique du site. Il changera de la mÃªme faÃ§on que tout le site lorsque le thÃ¨me sera modifiÃ©
+* Les skins de rendu de code peuvent Ãªtre gÃ©rÃ©s dans "PropriÃ©tÃ©s du site"
 
 
 
