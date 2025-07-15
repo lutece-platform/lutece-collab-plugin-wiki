@@ -11,7 +11,7 @@
                 </p>
                 <p>
                     <ul>
-                        <li>Use standard Wikicreole syntax</li>
+                        <li>Use standard Markdown syntax</li>
                         <li>Provide a very simple and efficient Wiki editor with removable Help panel</li>
                         <li>Can be easily customized by macros to add new rendering features (such as Bootstrap Jumbotron !)</li>
                     </ul>
