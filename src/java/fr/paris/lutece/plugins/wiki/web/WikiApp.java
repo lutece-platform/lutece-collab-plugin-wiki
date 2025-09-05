@@ -48,10 +48,12 @@ import fr.paris.lutece.plugins.wiki.service.WikiService;
 import fr.paris.lutece.plugins.wiki.service.WikiUtils;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceWikiParser;
 import fr.paris.lutece.plugins.wiki.utils.auth.WikiAnonymousUser;
+import fr.paris.lutece.portal.business.event.ResourceEvent;
 import fr.paris.lutece.portal.business.page.Page;
 import fr.paris.lutece.portal.business.role.RoleHome;
 import fr.paris.lutece.portal.service.content.XPageAppService;
 import fr.paris.lutece.portal.service.datastore.DatastoreService;
+import fr.paris.lutece.portal.service.event.ResourceEventManager;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.SiteMessage;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
@@ -527,6 +529,11 @@ public class WikiApp extends MVCApplication
             
             TopicVersionHome.addTopicVersion( topicVersion );
             TopicHome.update( topic );
+            
+            ResourceEvent resourceEvent = new ResourceEvent( );
+            resourceEvent.setIdResource( String.valueOf( topic.getIdTopic( ) ) );
+            resourceEvent.setTypeResource( Topic.RESOURCE_TYPE );
+            ResourceEventManager.fireAddedResource( resourceEvent );
         }
 
         Map<String, String> mapParameters = new ConcurrentHashMap<>( );
@@ -733,6 +740,11 @@ public class WikiApp extends MVCApplication
             topic.setEditRole( strEditRole );
             topic.setParentPageName( strParentPageName );
             TopicHome.update( topic );
+            
+            ResourceEvent resourceEvent = new ResourceEvent( );
+            resourceEvent.setIdResource( String.valueOf( topic.getIdTopic( ) ) );
+            resourceEvent.setTypeResource( Topic.RESOURCE_TYPE );
+            ResourceEventManager.fireUpdatedResource( resourceEvent );
 
         Map<String, String> mapParameters = new ConcurrentHashMap<>( );
         mapParameters.put( Constants.PARAMETER_PAGE_NAME, strPageName );
@@ -914,8 +926,13 @@ public class WikiApp extends MVCApplication
         	List<String> lang = WikiLocaleService.getLanguages();
 			for (String strLang : lang) {
 				TopicHome.setChildrenToEmptyParent( TopicVersionHome.findLastVersion( topic.getIdTopic( ) ).getWikiContent( strLang ).getPageTitle( ) );
-			}
+			}           
             TopicHome.remove( topic.getIdTopic( ) );
+
+            ResourceEvent resourceEvent = new ResourceEvent( );
+            resourceEvent.setIdResource( String.valueOf( topic.getIdTopic( ) ) );
+            resourceEvent.setTypeResource( Topic.RESOURCE_TYPE );
+            ResourceEventManager.fireDeletedResource( resourceEvent );
         }
 
         return redirectView( request, VIEW_HOME );
