@@ -353,7 +353,25 @@ public class WikiApp extends MVCApplication
         SearchEngine engine = (SearchEngine) SpringContextService.getBean( BEAN_SEARCH_ENGINE );
         List<SearchResult> listResults = engine.getSearchResults( strQuery, request );
 
-        Paginator paginator = new Paginator( listResults, _nItemsPerPage, urlWikiXpage.getUrl( ), Constants.PARAMETER_PAGE_INDEX, _strCurrentPageIndex );
+        // Filter results to show only pages that the user can view
+        List<String> visiblePageNames = getTopicNameListForUser( request );
+        List<SearchResult> filteredResults = new ArrayList<>( );
+        
+        for ( SearchResult result : listResults )
+        {
+            // The ID contains the page name in the format: "pageName_TOPIC"
+            String strId = result.getId( );
+            if ( strId != null && strId.contains( "_" ) )
+            {
+                String strPageName = strId.substring( 0, strId.lastIndexOf( "_" ) );
+                if ( visiblePageNames.contains( strPageName ) )
+                {
+                    filteredResults.add( result );
+                }
+            }
+        }
+
+        Paginator paginator = new Paginator( filteredResults, _nItemsPerPage, urlWikiXpage.getUrl( ), Constants.PARAMETER_PAGE_INDEX, _strCurrentPageIndex );
 
         Map<String, Object> model = getModel( );
         model.put( MARK_RESULT, paginator.getPageItems( ) );
