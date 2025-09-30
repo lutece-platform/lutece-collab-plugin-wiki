@@ -248,26 +248,28 @@ public class WikiIndexer implements SearchIndexer
 
         // Add the uid as a field, so that index can be incrementally
         // maintained.
-        // This field is not stored with question/answer, it is indexed, but it
-        // is not
-        // tokenized prior to indexing.
+        // This field is stored with the document and indexed without tokenization
         String strIdSubject = String.valueOf( topic.getPageName( ) );
-        doc.add( new Field( SearchItem.FIELD_UID, strIdSubject + "_" + SHORT_NAME_TOPIC, ftNotStoredDocs ) );
+        doc.add( new Field( SearchItem.FIELD_UID, strIdSubject + "_" + SHORT_NAME_TOPIC, fieldTypeDocsFreqsPos ) );
 
         String strWikiResult = "";
         TopicVersion topicVersion = null;
 
         TopicVersion publishedTopicVersion = TopicVersionHome.getPublishedVersion( topic.getIdTopic( ) );
+        
+        // Only index published versions
+        if ( publishedTopicVersion == null )
+        {
+            return null;
+        }
+        
         if ( publishedTopicVersion.getWikiContent( strLanguage ) != null ) {
             topicVersion = publishedTopicVersion;
             strWikiResult = publishedTopicVersion.getWikiContent( strLanguage ).getWikiContent( );
             strWikiResult = new LuteceWikiParser( strWikiResult, topic.getPageName( ), null, strLanguage ).toString( );
         } else
         {
-            TopicVersion latestTopicVersion = TopicVersionHome.findLastVersion( topic.getIdTopic( ) );
-            topicVersion = latestTopicVersion;
-            String strWikiContent = latestTopicVersion.getWikiContent( strLanguage ).getWikiContent( );
-            strWikiResult = new LuteceWikiParser( strWikiContent, topic.getPageName( ), null, strLanguage ).toString( );
+            return null;
         }
         doc.add( new Field( SearchItem.FIELD_CONTENTS, strWikiResult, TextField.TYPE_NOT_STORED ) );
 
