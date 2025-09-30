@@ -1,12 +1,12 @@
 <#macro mapLevel list_topic map_topic_children map_topic_title>
     <ul class="nav flex-column">
         <#list list_topic as topic_iteration>
-	        <li class="nav-item">
-		        <h5><a class="nav-link" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic_iteration.pageName}">${map_topic_title[topic_iteration.pageName]}</a></h5>
-		        <#if (map_topic_children[topic_iteration.pageName])??>
-		            <@mapLevel map_topic_children[topic_iteration.pageName] map_topic_children map_topic_title/>
-		        </#if>
-	        </li>
+          <li class="nav-item">
+           <h5><a class="nav-link" href="jsp/site/Portal.jsp?page=wiki&view=page&page_name=${topic_iteration.pageName}">${map_topic_title[topic_iteration.pageName]}</a></h5>
+           <#if (map_topic_children[topic_iteration.pageName])??>
+               <@mapLevel map_topic_children[topic_iteration.pageName] map_topic_children map_topic_title/>
+           </#if>
+          </li>
         </#list>
     </ul>
 </#macro>

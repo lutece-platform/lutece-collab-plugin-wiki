@@ -47,6 +47,7 @@ import fr.paris.lutece.plugins.wiki.service.WikiLocaleService;
 import fr.paris.lutece.plugins.wiki.service.WikiService;
 import fr.paris.lutece.plugins.wiki.service.WikiUtils;
 import fr.paris.lutece.plugins.wiki.service.parser.LuteceWikiParser;
+import ys.wikiparser.Utils;
 import fr.paris.lutece.plugins.wiki.utils.auth.WikiAnonymousUser;
 import fr.paris.lutece.portal.business.event.ResourceEvent;
 import fr.paris.lutece.portal.business.page.Page;
@@ -54,6 +55,7 @@ import fr.paris.lutece.portal.business.role.RoleHome;
 import fr.paris.lutece.portal.service.content.XPageAppService;
 import fr.paris.lutece.portal.service.datastore.DatastoreService;
 import fr.paris.lutece.portal.service.event.ResourceEventManager;
+import fr.paris.lutece.portal.service.html.OwaspXSSSanitizer;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.SiteMessage;
 import fr.paris.lutece.portal.service.message.SiteMessageException;
@@ -255,7 +257,7 @@ public class WikiApp extends MVCApplication
 
         for ( Topic topic : listTopic )
         {
-            mapTopicTitle.put( topic.getPageName( ), getTopicTitle( request, topic ) );
+            mapTopicTitle.put( topic.getPageName( ), Utils.unescapeHTML(getTopicTitle( request, topic )) );
         }
 
         Map<String, Object> model = getModel( );
@@ -290,7 +292,7 @@ public class WikiApp extends MVCApplication
         for ( Topic topic : listTopic )
         {
             try{
-                mapTopicTitle.put( topic.getPageName( ), getTopicTitle( request, topic ) );
+                mapTopicTitle.put( topic.getPageName( ), Utils.unescapeHTML(getTopicTitle( request, topic )) );
 
                 String strParentPageName = topic.getParentPageName( );
                 if ( strParentPageName != null && !topic.getPageName( ).isEmpty( ) )
@@ -421,7 +423,7 @@ public class WikiApp extends MVCApplication
         {
             try
 {
-                mapTopicTitle.put( topicSideBar.getPageName( ), getTopicTitle( request, topicSideBar ).replace( '_', ' ' ) );
+                mapTopicTitle.put( topicSideBar.getPageName( ), Utils.unescapeHTML(getTopicTitle( request, topicSideBar ).replace( '_', ' ' )) );
 
                 String strParentPageName = topicSideBar.getParentPageName( );
                 if ( strParentPageName != null && !topicSideBar.getPageName( ).isEmpty( ) )
@@ -451,7 +453,7 @@ public class WikiApp extends MVCApplication
         
         model.put( MARK_RESULT, strWikiPage );
         model.put( MARK_TOPIC, topic );
-        model.put( MARK_TOPIC_TITLE, getTopicTitle( request, topic ) );
+        model.put( MARK_TOPIC_TITLE, Utils.unescapeHTML(getTopicTitle( request, topic )) );
         model.put( MARK_LATEST_VERSION, version );
         model.put( MARK_EDIT_ROLE, RoleService.hasEditRole( request, topic ) );
         model.put( MARK_ADMIN_ROLE, RoleService.hasAdminRole( request ) );
@@ -617,7 +619,7 @@ public class WikiApp extends MVCApplication
         {
             try
             {
-                mapTopicTitle.put( topicSideBar.getPageName( ), getTopicTitle( request, topicSideBar ) );
+                mapTopicTitle.put( topicSideBar.getPageName( ), Utils.unescapeHTML(getTopicTitle( request, topicSideBar )) );
             }
             catch ( Exception e )
             {
@@ -676,7 +678,12 @@ public class WikiApp extends MVCApplication
             int nTopicId = Integer.parseInt( strTopicId );
             String strLanguage = getLanguage( request );
             String strParentPageName = TopicVersionHome.getPageNameFromTitle( request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME ), strLanguage ) != null ? TopicVersionHome.getPageNameFromTitle( request.getParameter( Constants.PARAMETER_PARENT_PAGE_NAME ), strLanguage ) : "";
-            String strPageTitle = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
+            String strPageTitleUnsafe = request.getParameter( Constants.PARAMETER_PAGE_TITLE + "_" + strLanguage );
+            strPageTitleUnsafe = Utils.unescapeSpecialChars( strPageTitleUnsafe );
+            OwaspXSSSanitizer sanitizer = new OwaspXSSSanitizer( );
+            sanitizer.init();
+            String strPageTitle = sanitizer.sanitize( strPageTitleUnsafe );
+            System.out.println("Page Title: " + strPageTitle);
             if (strPageTitle.length() > 100) {
     			SiteMessageService.setMessage( request, MESSAGE_TITLE_TOO_LONG, SiteMessage.TYPE_ERROR );
     		}
