@@ -407,4 +407,33 @@ public class Utils
     {
         return ( ( s == null ) || ( s.length( ) == 0 ) );
     }
+
+    /**
+     * Removes the character escaping that was done in JavaScript
+     * This method reverses the escaping performed by escapeSpecialCharsFromContent()
+     * in modify_page.js
+     * 
+     * @param content
+     *            The escaped content
+     * @return The unescaped content
+     */
+    public static String unescapeSpecialChars( String content )
+    {
+        if ( content == null )
+        {
+            return null;
+        }
+        
+        // Reverse the escaping done in JavaScript modify_page.js
+        content = content.replace( "[lt;", "<" );
+        content = content.replace( "[gt;", ">" );
+        content = content.replace( "[quot;", "\"" );
+        content = content.replace( "[nbsp;", "&nbsp;" );
+        content = content.replace( "[amp;", "&" );
+        content = content.replace( "[hashmark;", "#" );
+        content = content.replace( "[codeQuote;", "`" );
+        content = content.replace( "[simpleQuote;", "'" );
+        
+        return content;
+    }
 }

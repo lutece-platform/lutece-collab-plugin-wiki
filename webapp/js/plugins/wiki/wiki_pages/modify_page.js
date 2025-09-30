@@ -28,6 +28,31 @@ function escapeSpecialCharsFromContent( content )
     return content
 }
 
+// Fonction inverse pour dé-échapper le contenu
+function unescapeSpecialCharsFromContent( content )
+{
+    if (!content) return '';
+    content = replaceAll( '\\[lt;' , '<' , content );
+    content = replaceAll( '\\[gt;' , '>' , content );
+    content = replaceAll( '\\[quot;' , '"' , content );
+    content = replaceAll( '\\[nbsp;' , '&nbsp;' , content );
+    content = replaceAll( '\\[amp;' , '&' , content );
+    content = replaceAll( '\\[hashmark;' , '#' , content );
+    content = replaceAll('\\[codeQuote;', '`', content)
+    content = replaceAll("\\[simpleQuote;", "'", content)
+    content = replaceAll('\\[dollar;', '$', content)
+    content = replaceAll('\\[percent;', '%', content)
+    return content
+}
+
+// Fonction pour dé-échapper HTML standard
+function unescapeHTML(text) {
+    if (!text) return '';
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = text;
+    return textarea.value;
+}
+
 function publishVersion(thisButton)
 {
   document.getElementById("publish").value = 'true';
@@ -36,11 +61,15 @@ function publishVersion(thisButton)
 
 function validate(thisButton)
 {
-    const topicContent = escapeSpecialCharsFromContent(document.getElementById("wiki_content").value);
-    document.getElementById("wiki_content").value = topicContent;
+    // Le contenu wiki est déjà échappé par l'éditeur, pas besoin de le ré-échapper
+    // const topicContent = escapeSpecialCharsFromContent(document.getElementById("wiki_content").value);
+    // document.getElementById("wiki_content").value = topicContent;
+    
+    // Échapper seulement le titre
     const title = document.getElementById("page_title_" + localeJs).value;
     let topicTitle = escapeSpecialCharsFromContent(title);
     document.getElementById("page_title_" + localeJs).value = topicTitle;
+    
     const buttonName = thisButton.name;
     const wikiForm = document.getElementById("form_wiki");
     if(buttonName === "action_modifyPage"){

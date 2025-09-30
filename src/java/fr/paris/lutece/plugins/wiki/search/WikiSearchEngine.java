@@ -40,6 +40,7 @@ import fr.paris.lutece.portal.service.search.SearchItem;
 import fr.paris.lutece.portal.service.search.SearchResult;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.web.l10n.LocaleService;
+import ys.wikiparser.Utils;
 
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
@@ -152,7 +153,7 @@ public class WikiSearchEngine implements SearchEngine
             }
 
             result.setUrl( item.getUrl( ) );
-            result.setTitle( item.getTitle( ) );
+            result.setTitle( Utils.unescapeSpecialChars(item.getTitle( )) );
             result.setSummary( item.getSummary( ) );
             result.setType( item.getType( ) );
             listDest.add( result );
