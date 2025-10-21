@@ -1,0 +1,67 @@
+<#ftl output_format="HTML">
+<div class="row">
+    <div class="col-12">
+        <h1 class="text-break">${revision.title!'#i18n{wiki.revision.view.pageTitle}'}</h1>
+
+        <div class="mb-3 text-muted">
+            <small>
+                #i18n{wiki.revision.number}: ${revision.revisionNumber} |
+                #i18n{wiki.revision.author}: ${revision.author!''} |
+                #i18n{wiki.revision.date}: ${revision.dateCreation!''}
+                <#if revision.isCurrent>
+                    <span class="badge bg-primary">#i18n{wiki.revision.current}</span>
+                </#if>
+            </small>
+        </div>
+        <#include "commons/messages.html" />
+
+        <#if revision.comment?has_content>
+            <div class="alert alert-info">
+                <strong>#i18n{wiki.revision.comment}:</strong> ${revision.comment}
+            </div>
+        </#if>
+
+        <#if revision.description?has_content>
+            <div class="lead mb-4">
+                ${revision.description}
+            </div>
+        </#if>
+
+        <#if revision.content?has_content>
+            <div class="wiki-content wiki-markdown-content mb-4" id="wiki-content-revision-${revision.id}">
+            </div>
+        <#else>
+            <div class="alert alert-warning">
+                #i18n{wiki.message.noContent}
+            </div>
+        </#if>
+
+        <div class="btn-group mb-3" role="group">
+            <#if item??>
+                <a href="${item.viewUrl}" class="btn btn-light btn-sm">
+                    #i18n{wiki.action.back}
+                </a>
+
+                <#if !revision.isCurrent>
+                    <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&action=restoreRevision&id_revision=${revision.id}&token=${token}" class="btn btn-light btn-sm">
+                        #i18n{wiki.revision.restore}
+                    </a>
+                </#if>
+            </#if>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="css/plugins/wiki/github-highlight.css">
+<link rel="stylesheet" href="css/plugins/wiki/wiki-marked.css">
+<script src="js/plugins/wiki/marked/marked-wiki.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    <#if revision.content?has_content>
+    <#noautoesc>
+    var content = "${revision.content?js_string}";
+    </#noautoesc>
+    MarkedWiki.render('#wiki-content-revision-${revision.id}', content);
+    </#if>
+});
+</script>

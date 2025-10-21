@@ -1,0 +1,147 @@
+<#ftl output_format="HTML">
+<div class="wiki-hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <div class="wiki-hero-title">
+                        <h1 class="display-4 fw-bold">#i18n{wiki.item.searchUsers}</h1>
+                        <p class="lead text-muted mb-4">
+                            <#if permission_type?? && permission_type == "VIEW">
+                                #i18n{wiki.search.descriptionView}
+                            <#elseif permission_type?? && permission_type == "EDIT">
+                                #i18n{wiki.search.descriptionEdit}
+                            <#else>
+                                #i18n{wiki.search.description}
+                            </#if>
+                        </p>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8 col-md-10">
+                                    <#include "commons/messages.html" />
+
+                            <div class="card" style="border-radius: 20px;">
+                                <div class="card-body p-4">
+                                    <form method="post" action="jsp/site/Portal.jsp">
+                                        <input type="hidden" name="page" value="wikiitemmanagement">
+                                        <input type="hidden" name="action" value="searchUsers">
+                                        <input type="hidden" name="code" value="${item.code}">
+                                        <#if permission_type??>
+                                            <input type="hidden" name="permission_type" value="${permission_type}">
+                                        </#if>
+
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-4">
+                                                <input type="text" class="form-control" name="search_lastname" placeholder="#i18n{wiki.search.lastname}" value="${search_lastname!""}">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input type="text" class="form-control" name="search_givenname" placeholder="#i18n{wiki.search.givenname}" value="${search_givenname!""}">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input type="text" class="form-control" name="search_email" placeholder="#i18n{wiki.search.email}" value="${search_email!""}">
+                                            </div>
+                                        </div>
+
+                                        <#if attribute_mapping_list?? && attribute_mapping_list?size gt 0>
+                                            <#assign hasSearchedAttributes = false>
+                                            <#if searched_attributes??>
+                                                <#list searched_attributes?keys as key>
+                                                    <#if searched_attributes[key]?has_content>
+                                                        <#assign hasSearchedAttributes = true>
+                                                        <#break>
+                                                    </#if>
+                                                </#list>
+                                            </#if>
+                                            <div class="mb-3">
+                                                <a class="btn btn-link text-muted p-0" data-bs-toggle="collapse" href="#advancedSearch" role="button" aria-expanded="${hasSearchedAttributes?string('true', 'false')}" aria-controls="advancedSearch">
+                                                    <i class="ti ti-adjustments-horizontal me-1"></i>#i18n{wiki.search.advancedSearch}
+                                                </a>
+                                                <div class="collapse<#if hasSearchedAttributes> show</#if> mt-3" id="advancedSearch">
+                                                    <div class="row g-3">
+                                                        <#list attribute_mapping_list as mapping>
+                                                            <#list mylutece_attributes_list as attr>
+                                                                <#if attr.idAttribute == mapping.id>
+                                                                    <div class="col-md-4">
+                                                                        <input type="text" class="form-control" name="provider_attribute_${mapping.idProviderAttribute}" placeholder="${attr.title}" value="${(searched_attributes[mapping.idProviderAttribute])!""}">
+                                                                    </div>
+                                                                </#if>
+                                                            </#list>
+                                                        </#list>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </#if>
+
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <button type="submit" class="btn btn-dark rounded-pill px-4">
+                                                <i class="ti ti-search me-2"></i>#i18n{wiki.action.search}
+                                            </button>
+                                            <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=modifyItem&code=${item.code}" class="btn btn-light rounded-pill px-4">
+                                                #i18n{wiki.action.cancel}
+                                            </a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <#if search_results??>
+                        <div class="row justify-content-center mt-4">
+                            <div class="col-lg-8 col-md-10">
+                                <#if search_results?size gt 0>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>#i18n{wiki.search.user.name}</th>
+                                                    <th>#i18n{wiki.search.user.email}</th>
+                                                    <th>#i18n{wiki.search.user.login}</th>
+                                                    <th class="text-end">#i18n{wiki.search.user.actions}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <#list search_results as user>
+                                                    <tr>
+                                                        <td>${user.givenName!""} ${user.lastName!""}</td>
+                                                        <td>${user.email!""}</td>
+                                                        <td>${user.login!""}</td>
+                                                        <td class="text-end">
+                                                            <#if permission_type?? && permission_type == "VIEW">
+                                                                <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&action=addUserPermission&code=${item.code}&user_guid=${user.providerUserId}&permission_type=VIEW&token=${token}" class="btn btn-dark btn-sm">
+                                                                    <i class="ti ti-plus me-1"></i>#i18n{wiki.action.add}
+                                                                </a>
+                                                            <#elseif permission_type?? && permission_type == "EDIT">
+                                                                <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&action=addUserPermission&code=${item.code}&user_guid=${user.providerUserId}&permission_type=EDIT&token=${token}" class="btn btn-light btn-sm">
+                                                                    <i class="ti ti-plus me-1"></i>#i18n{wiki.action.add}
+                                                                </a>
+                                                            <#else>
+                                                                <div class="btn-group" role="group">
+                                                                    <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&action=addUserPermission&code=${item.code}&user_guid=${user.providerUserId}&permission_type=VIEW&token=${token}" class="btn btn-sm btn-light" title="#i18n{wiki.action.addView}">
+                                                                        <i class="ti ti-eye"></i>
+                                                                    </a>
+                                                                    <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&action=addUserPermission&code=${item.code}&user_guid=${user.providerUserId}&permission_type=EDIT&token=${token}" class="btn btn-sm btn-outline-success" title="#i18n{wiki.action.addEdit}">
+                                                                        <i class="ti ti-pencil"></i>
+                                                                    </a>
+                                                                </div>
+                                                            </#if>
+                                                        </td>
+                                                    </tr>
+                                                </#list>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <#else>
+                                    <div class="alert alert-warning">
+                                        #i18n{wiki.search.noResults}
+                                    </div>
+                                </#if>
+                            </div>
+                        </div>
+                    </#if>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

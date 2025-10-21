@@ -1,0 +1,30 @@
+<#ftl output_format="HTML">
+<#-- Display error messages -->
+<#if errors?has_content>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <#list errors as error>
+            <p>${error.message}</p>
+        </#list>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</#if>
+
+<#-- Display warning messages -->
+<#if warnings?has_content>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <#list warnings as warning>
+            <p>${warning.message}</p>
+        </#list>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</#if>
+
+<#-- Display info messages -->
+<#if infos?has_content>
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <#list infos as info>
+            <p>${info.message}</p>
+        </#list>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</#if>

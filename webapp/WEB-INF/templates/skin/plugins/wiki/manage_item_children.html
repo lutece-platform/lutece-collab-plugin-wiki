@@ -1,0 +1,200 @@
+<#ftl output_format="HTML">
+<div class="wiki-hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <div class="wiki-hero-title">
+                        <#if item??>
+                            <#if child_types?? && child_types?size gt 1>
+                                <h1 class="display-4 fw-bold">#i18n{wiki.action.manageContent}</h1>
+                            <#elseif child_type??>
+                                <h1 class="display-4 fw-bold">#i18n{wiki.action.manage${child_type?cap_first}s}</h1>
+                            <#else>
+                                <h1 class="display-4 fw-bold">#i18n{wiki.action.manageContent}</h1>
+                            </#if>
+                            <p class="lead text-muted mb-4">#i18n{wiki.xpage.manageChildren.description}</p>
+                        <#else>
+                            <h1 class="display-4 fw-bold">#i18n{wiki.action.manageSpaces}</h1>
+                            <p class="lead text-muted mb-4">#i18n{wiki.xpage.manageSpaces.description}</p>
+                        </#if>
+                    </div>
+
+                    <div class="d-flex justify-content-center mb-4 gap-2">
+                        <#if item??>
+                            <#if child_types?? && child_types?size gt 1>
+                                <#list child_types as ct>
+                                    <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=createItem&entity_type=${ct}&parent_code=${item.code}" class="btn btn-light">
+                                        + #i18n{wiki.action.create${ct?cap_first}}
+                                    </a>
+                                </#list>
+                            <#elseif child_type??>
+                                <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=createItem&entity_type=${child_type}&parent_code=${item.code}" class="btn btn-light">
+                                    + #i18n{wiki.action.create${child_type?cap_first}}
+                                </a>
+                            </#if>
+                        <#else>
+                            <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=createItem&entity_type=space" class="btn btn-light">
+                                + #i18n{wiki.action.newSpace}
+                            </a>
+                        </#if>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <#include "commons/messages.html" />
+
+        <#if children?has_content>
+            <form method="post" action="jsp/site/Portal.jsp" id="reorderForm">
+                <input type="hidden" name="page" value="wikiitemmanagement">
+                <#if item??>
+                    <input type="hidden" name="action" value="doReorderItemChildren">
+                    <input type="hidden" name="code" value="${item.code}">
+                <#else>
+                    <input type="hidden" name="action" value="doReorderSpaces">
+                </#if>
+                <input type="hidden" name="token" value="${token}">
+
+                <div id="sortable-list" class="list-group mb-3">
+                    <#list children as child>
+                        <div class="list-group-item draggable-item" draggable="true" data-id="${child.id}">
+                            <input type="hidden" name="child_id" value="${child.id}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <i class="ti ti-grip-vertical me-2" style="cursor: grab;"></i>
+                                    <div>
+                                        <strong>
+                                            <#if child.currentRevision?? && child.currentRevision.title?has_content>
+                                                ${child.currentRevision.title}
+                                            <#else>
+                                                ${child.code}
+                                            </#if>
+                                        </strong>
+                                        <br>
+                                        <small class="text-muted">${child.code}</small>
+                                    </div>
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=modifyItem&code=${child.code}" class="btn btn-light btn-sm">
+                                        <i class="ti ti-edit"></i>
+                                    </a>
+                                    <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&action=confirmRemoveItem&code=${child.code}" class="btn btn-light btn-sm">
+                                        <i class="ti ti-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </#list>
+                </div>
+
+                <div class="d-flex gap-2 mb-3">
+                    <button type="submit" class="btn btn-dark rounded-pill px-4">#i18n{wiki.action.save}</button>
+                    <#if item??>
+                        <a href="${item.viewUrl}" class="btn btn-light rounded-pill px-4">
+                            #i18n{wiki.action.back}
+                        </a>
+                    <#else>
+                        <a href="jsp/site/Portal.jsp?page=wiki" class="btn btn-light rounded-pill px-4">
+                            #i18n{wiki.action.back}
+                        </a>
+                    </#if>
+                </div>
+            </form>
+        <#else>
+            <div class="alert alert-info">
+                #i18n{wiki.message.noChildren}
+            </div>
+            <div class="mt-3">
+                <#if item??>
+                    <a href="${item.viewUrl}" class="btn btn-light">
+                        #i18n{wiki.action.back}
+                    </a>
+                <#else>
+                    <a href="jsp/site/Portal.jsp?page=wiki" class="btn btn-light">
+                        #i18n{wiki.action.back}
+                    </a>
+                </#if>
+            </div>
+        </#if>
+        </div>
+    </div>
+</div>
+
+<style>
+.draggable-item.dragging {
+    opacity: 0.5;
+}
+.draggable-item.drag-over {
+    border-top: 2px solid #0d6efd;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const list = document.getElementById('sortable-list');
+    if (!list) return;
+
+    let draggedElement = null;
+
+    // Drag and drop handlers
+    const items = list.querySelectorAll('.draggable-item');
+    items.forEach(item => {
+        item.addEventListener('dragstart', handleDragStart);
+        item.addEventListener('dragend', handleDragEnd);
+        item.addEventListener('dragover', handleDragOver);
+        item.addEventListener('drop', handleDrop);
+        item.addEventListener('dragleave', handleDragLeave);
+    });
+
+    function handleDragStart(e) {
+        draggedElement = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+    }
+
+    function handleDragEnd(e) {
+        this.classList.remove('dragging');
+        items.forEach(item => item.classList.remove('drag-over'));
+    }
+
+    function handleDragOver(e) {
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+
+    function handleDrop(e) {
+        if (e.stopPropagation) {
+            e.stopPropagation();
+        }
+
+        if (draggedElement !== this) {
+            const allItems = [...list.querySelectorAll('.draggable-item')];
+            const draggedIndex = allItems.indexOf(draggedElement);
+            const targetIndex = allItems.indexOf(this);
+
+            if (draggedIndex < targetIndex) {
+                this.parentNode.insertBefore(draggedElement, this.nextSibling);
+            } else {
+                this.parentNode.insertBefore(draggedElement, this);
+            }
+        }
+
+        this.classList.remove('drag-over');
+        return false;
+    }
+
+    function handleDragLeave(e) {
+        this.classList.remove('drag-over');
+    }
+});
+</script>

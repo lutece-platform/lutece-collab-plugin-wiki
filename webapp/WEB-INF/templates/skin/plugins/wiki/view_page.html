@@ -1,109 +1,74 @@
-<div>
-    <div class="container p-3">
-        <div class="text-end">
-            <#if lastVersion?? >
-            <small>${lastVersion.dateEdition} ${lastVersion.userName!''} ${lastVersion.userPseudo!''}
-            <img class="avatar-small rounded-circle" src="${lastVersion.userAvatarUrl!''}" alt="avatar" />
-            <#if isExtendInstalled?? && isExtendInstalled >
-                &nbsp;<span class="bi bi-eye"></span>
-                @Extender[${topic.idTopic},WIKI,hit,{show:true}]@
-            </#if>
-            </small>
+<#ftl output_format="HTML">
+<#if chapter??><#assign current_chapter = chapter></#if>
+<#assign current_page = page>
+<div class="row">
+    <div class="wiki-sidebar-col">
+        <div class="sticky-top" style="top: 20px;">
+            <#if book??>
+                <#include "commons/sidebar.html">
+            <#elseif space??>
+                <#include "commons/sidebar_space.html">
             </#if>
         </div>
-
-        <div class="btn-group btn-group-sm">
-            <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=map" title="#i18n{wiki.menu.map}">
-                <span class="bi bi-list"></span> #i18n{wiki.menu.map}
-            </a>
-            <button class="btn btn-outline-secondary" id="btn-search" type="button" title="#i18n{wiki.menu.search}">
-                <span class="bi bi-search"></span> #i18n{wiki.menu.search}
-            </button>
-            <#if has_edit_role >
-            <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=modifyPage&page_name=${topic.pageName}" title="#i18n{wiki.menu.edit}">
-                <span class="bi bi-pencil"></span> #i18n{wiki.menu.edit}
-            </a>
-            <button class="btn btn-outline-secondary" id="btn-new-page" type="button" title="#i18n{wiki.menu.create}">
-                <span class="bi bi-plus-circle"></span> #i18n{wiki.menu.create}
-            </button>
-            </#if>
-
-            <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=history&page_name=${topic.pageName}" title="#i18n{wiki.menu.history}">
-                <span class="bi bi-clock-history"></span> #i18n{wiki.menu.history}
-            </a>
-
-            <#if has_admin_role >
-            <form id="form-page-delete" action="jsp/site/Portal.jsp" method="post">
-                <input type="hidden" name="page" value="wiki" />
-                <input type="hidden" name="page_name" value="${topic.pageName}" />
-                <input type="hidden" name="action" value="deletePage" />
-            </form>
-            <button class="btn btn-danger" title="#i18n{portal.util.labelDelete}" onclick="confirmDeleteTopic()">
-                <span class="bi bi-trash"></span> #i18n{portal.util.labelDelete}
-            </button>
-            </#if>
-
-            <#list languages_list as language>
-            <#if language = current_language >
-                <h6><span class="badge bg-info">${language}</span></h6>
-            <#else>
-                <a class="btn btn-outline-secondary" href="jsp/site/Portal.jsp?page=wiki&view=page&&page_name=${topic.pageName}&language=${language}">
-                    ${language}
-                </a>
-            </#if>
-            </#list>
-        </div>
-
-        <div id="div-new-page" style="display:none">
-            <form class="d-flex" action="jsp/site/Portal.jsp" method="get">
-                <input type="hidden" name="page" value="wiki" />
-                <input type="hidden" name="action" value="newPage" />
-                <input class="form-control me-2" id="input-new-page" type="text" name="page_name" placeholder="#i18n{wiki.list_wiki.create}" />
-                <button class="btn btn-primary btn-sm" type="submit">
-                    <span class="bi bi-plus-circle"></span> #i18n{wiki.list_wiki.create}
-                </button>
-            </form>
-        </div>
-
-        <div id="div-search" style="display:none">
-            <form class="d-flex" action="jsp/site/Portal.jsp" method="get">
-                <input type="hidden" name="page" value="wiki" />
-                <input type="hidden" name="view" value="search" />
-                #i18n{wiki.search_wiki.search} :
-                <input class="form-control me-2" id="input-search" type="text" name="query" placeholder="#i18n{wiki.search_wiki.search}" />
-                <button class="btn btn-primary btn-sm" type="submit">
-                    <span class="bi bi-search"></span>
-                </button>
-            </form>
-        </div>
-
-        <h1 id="wiki-heading">${topic_title}</h1>
     </div>
-    <hr>
-    <div>
-    	<div class="sticky-right">
-	    	${result}
-	    </div>
-	    <div class="sticky-left">
-	    	<#include "sidebar.html">
-	    </div>
+    <div class="col px-5 pt-0 wiki-markdown-col">
+        <#if !page.published>
+            <div class="mb-3">
+                <span class="badge bg-danger">#i18n{wiki.label.unpublished}</span>
+            </div>
+        </#if>
+
+        <#include "commons/messages.html" />
+
+
+        <#if page.currentRevision??>
+
+
+            <#if page.currentRevision.content?has_content>
+                <div class="wiki-content wiki-markdown-content mb-4" id="wiki-content-${page.id}">
+                </div>
+            </#if>
+        <#else>
+            <#if can_edit>
+                <div class="alert alert-warning">
+                    #i18n{wiki.message.noContentEditor}
+                </div>
+            <#else>
+                <div class="alert alert-warning">
+                    #i18n{wiki.message.noContent}
+                </div>
+            </#if>
+        </#if>
+    </div>
+
+    <!-- Table of Contents Column -->
+    <div class="wiki-toc-col">
+        <div class="sticky-top" style="top: 20px;">
+            <nav id="wiki-toc" class="toc-sidebar">
+                <h6>#i18n{wiki.page.onThisPage}</h6>
+                <ul class="toc-list nav flex-column">
+                    <!-- TOC will be generated here by JavaScript -->
+                </ul>
+            </nav>
+        </div>
     </div>
 </div>
 
-<script type="text/javascript">
-    document.addEventListener("DOMContentLoaded", function() {
-        document.getElementById("btn-new-page").addEventListener("click", function() {
-            document.getElementById("div-search").style.display = 'none';
-            document.getElementById("div-new-page").style.display = 'block';
-            document.getElementById("input-new-page").focus();
-        });
-        document.getElementById("btn-search").addEventListener("click", function() {
-            document.getElementById("div-new-page").style.display = 'none';
-            document.getElementById("div-search").style.display = 'block';
-            document.getElementById("input-search").focus();
-        });
-    });
+<link rel="stylesheet" href="css/plugins/wiki/github-highlight.css">
+<link rel="stylesheet" href="css/plugins/wiki/wiki-marked.css">
+<script src="js/plugins/wiki/marked/marked-wiki.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    <#if page.currentRevision?? && page.currentRevision.content?has_content>
+    <#noautoesc>
+    const content = "${page.currentRevision.content?js_string}";
+    </#noautoesc>
+    await MarkedWiki.render('#wiki-content-${page.id}', content);
+    await MarkedWiki.generateTOC('#wiki-content-${page.id}', '.toc-list');
+    </#if>
+});
 </script>
 
-<script type="text/javascript" class="code-js" src="js/plugins/wiki/wiki_pages/modify_page.js"></script>
-
+<#if is_module_ai_present?? && is_module_ai_present>
+    <#include "/skin/plugins/wiki/modules/ai/chat.html">
+</#if>

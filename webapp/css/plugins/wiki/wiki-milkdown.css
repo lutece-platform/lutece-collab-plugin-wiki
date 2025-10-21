@@ -1,0 +1,171 @@
+/* Lutece Wiki - Milkdown Theme Frame Overrides */
+
+/* Allow slash menu to overflow editor container and parent card */
+#editor-container,
+#editor-container .milkdown,
+#editor-container .ProseMirror,
+.card:has(#editor-container),
+.card-body:has(#editor-container) {
+    overflow: visible !important;
+}
+
+.milkdown .milkdown-slash-menu {
+    z-index: 10000 !important;
+}
+
+/* Editor loading state */
+.wiki-editor-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    width: 100%;
+}
+
+#editor-container.wiki-editor-ready .wiki-editor-loader {
+    display: none;
+}
+
+/* Remove excessive padding for readonly mode */
+.milkdown .ProseMirror[contenteditable="false"] {
+    padding: 0;
+}
+
+.milkdown .milkdown-image-block>.image-wrapper {
+    margin: inherit !important;
+}
+
+/* Hide editing controls in readonly mode */
+.milkdown .ProseMirror[contenteditable="false"] .milkdown-image-block .operation {
+    display: none !important;
+}
+
+.milkdown .ProseMirror[contenteditable="false"] .milkdown-image-block .image-resize-handle {
+    display: none !important;
+}
+
+.milkdown .ProseMirror[contenteditable="false"] .milkdown-image-block .caption-input {
+    display: none !important;
+}
+
+.milkdown .ProseMirror[contenteditable="false"] .milkdown-image-block.selected>.image-wrapper:before {
+    background: transparent !important;
+}
+
+/* Cursor pointer for images in readonly mode */
+.milkdown .ProseMirror[contenteditable="false"] .milkdown-image-block>.image-wrapper {
+    cursor: pointer !important;
+}
+
+.milkdown .milkdown-image-block .image-edit .link-importer .placeholder {
+    background: transparent !important;
+    color: inherit !important;
+        width: 100%;
+}
+
+
+.milkdown .milkdown-image-block>.image-edit .link-importer .placeholder .uploader {
+    cursor: pointer;
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+ .milkdown .milkdown-image-block>.image-edit .link-importer .placeholder .uploader > .milkdown-icon {
+    display:none !important;
+ }
+
+/* .milkdown .ProseMirror[contenteditable="false"] .table-wrapper {
+    display : none !important;
+} */
+
+/* Image lightbox styles */
+.wiki-image-lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.wiki-image-lightbox.active {
+    opacity: 1;
+}
+
+.wiki-image-lightbox .lightbox-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+}
+
+.wiki-image-lightbox .lightbox-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 2rem;
+    z-index: 1;
+}
+
+.wiki-image-lightbox .lightbox-content img {
+    max-width: 90%;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.wiki-image-lightbox .lightbox-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #212529;
+    transition: all 0.2s;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.wiki-image-lightbox .lightbox-close:hover {
+    background: #ffffff;
+    transform: scale(1.1);
+}
+
+.wiki-image-lightbox .lightbox-caption {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: #ffffff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    max-width: 80%;
+    text-align: center;
+}

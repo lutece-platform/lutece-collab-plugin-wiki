@@ -1,0 +1,96 @@
+/* AI Processing Styles - Skeleton wave effect */
+
+.milkdown .ProseMirror .ai-processing {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.3) 0%,
+    rgba(226, 232, 240, 0.5) 20%,
+    rgba(255, 255, 255, 0.8) 40%,
+    rgba(226, 232, 240, 0.5) 60%,
+    rgba(226, 232, 240, 0.3) 80%,
+    rgba(226, 232, 240, 0.3) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: 4px;
+  padding: 2px 0;
+  animation: ai-skeleton-wave 1.5s ease-in-out infinite;
+}
+
+@keyframes ai-skeleton-wave {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Dark theme support */
+.milkdown-theme-nord-dark .ProseMirror .ai-processing,
+.milkdown-theme-crepe-dark .ProseMirror .ai-processing,
+.milkdown-theme-frame-dark .ProseMirror .ai-processing {
+  background: linear-gradient(
+    90deg,
+    rgba(71, 85, 105, 0.3) 0%,
+    rgba(71, 85, 105, 0.5) 20%,
+    rgba(148, 163, 184, 0.6) 40%,
+    rgba(71, 85, 105, 0.5) 60%,
+    rgba(71, 85, 105, 0.3) 80%,
+    rgba(71, 85, 105, 0.3) 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* AI Editor Overlay */
+.ai-editor-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(var(--bs-dark-rgb), 0.85);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  border-radius: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-overlay-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 32px;
+  background: var(--bs-body-bg);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+}
+
+.ai-overlay-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(var(--bs-primary-rgb), 0.2);
+  border-top-color: var(--bs-primary);
+  border-radius: 50%;
+  animation: ai-overlay-spin 1s linear infinite;
+}
+
+@keyframes ai-overlay-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ai-overlay-message {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--bs-body-color);
+}
+
+.ai-overlay-counter {
+  font-size: 13px;
+  color: var(--bs-secondary-color);
+  font-variant-numeric: tabular-nums;
+}

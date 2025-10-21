@@ -1,0 +1,60 @@
+/* Syntax highlighting for Properties/INI files in CodeMirror */
+
+/* Comments (lines starting with # or ;) */
+.cm-content .ͼw,
+.cm-content .cm-comment {
+  color: #5c6370;
+  font-style: italic;
+}
+
+/* Property keys (before =) */
+.cm-content .ͼt,
+.cm-content .cm-property,
+.cm-content .cm-keyword {
+  color: #e06c75;
+}
+
+/* Values (after =) */
+.cm-content .ͼu,
+.cm-content .cm-string {
+  color: #98c379;
+}
+
+/* Section headers [section] */
+.cm-content .ͼv,
+.cm-content .cm-header,
+.cm-content .cm-bracket {
+  color: #61afef;
+  font-weight: bold;
+}
+
+/* Operators (=, :) */
+.cm-content .ͼs,
+.cm-content .cm-operator {
+  color: #abb2bf;
+}
+
+/* Numbers */
+.cm-content .ͼr,
+.cm-content .cm-number {
+  color: #d19a66;
+}
+
+/* For dark theme compatibility */
+.milkdown-theme-crepe-dark .cm-content .ͼw,
+.milkdown-theme-nord-dark .cm-content .ͼw,
+.milkdown-theme-frame-dark .cm-content .ͼw {
+  color: #7f848e;
+}
+
+.milkdown-theme-crepe-dark .cm-content .ͼt,
+.milkdown-theme-nord-dark .cm-content .ͼt,
+.milkdown-theme-frame-dark .cm-content .ͼt {
+  color: #ff6b6b;
+}
+
+.milkdown-theme-crepe-dark .cm-content .ͼu,
+.milkdown-theme-nord-dark .cm-content .ͼu,
+.milkdown-theme-frame-dark .cm-content .ͼu {
+  color: #51cf66;
+}

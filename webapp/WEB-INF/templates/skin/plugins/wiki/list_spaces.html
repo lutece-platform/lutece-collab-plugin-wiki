@@ -1,0 +1,138 @@
+<#ftl output_format="HTML">
+<style>
+    #wikiAiChatBtn {
+        display: none
+    }
+    .card-space {
+        position: relative;
+    }
+    .card-space .card-pointer {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        opacity: 0;
+        transform: translate(-4px, 4px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        color: var(--bs-emphasis-color);
+    }
+    .card-space:hover .card-pointer {
+        opacity: 1;
+        transform: translate(0);
+    }
+</style>
+<div class="wiki-hero-section mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <div class="wiki-hero-title">
+                        <h1 class="display-4 fw-bold">#i18n{wiki.xpage.listWiki.pageTitle}</h1>
+                        <p class="lead text-muted mb-4">#i18n{wiki.xpage.listWiki.description}</p>
+                    </div>
+
+                    <div class="d-flex justify-content-center mb-4 gap-2">
+                        <#if can_create_space>
+                            <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=createItem&entity_type=space"
+                                class="btn btn-light">
+                                + #i18n{wiki.action.newSpace}
+                            </a>
+                        </#if>
+                        <#if is_wiki_admin?? && is_wiki_admin>
+                            <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=manageSpaces"
+                                class="btn btn-light">
+                                #i18n{wiki.action.manageSpaces}
+                            </a>
+                        </#if>
+                    </div>
+
+                    <#if !(is_module_ai_present?? && is_module_ai_present)>
+                        <div class="row justify-content-center">
+                            <div class="col-lg-7 col-md-9">
+                                <form method="get" action="jsp/site/Portal.jsp" class="wiki-chat-form">
+                                    <input type="hidden" name="page" value="wiki">
+                                    <input type="hidden" name="view" value="search">
+                                    <div class="wiki-chat-wrapper">
+                                        <div class="input-group input-group-lg wiki-chat-bar input-search mb-3">
+                                            <input type="text" name="query" class="form-control"
+                                                placeholder="#i18n{wiki.search.placeholder}" required autofocus>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="ti ti-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </#if>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <#include "commons/messages.html" />
+
+            <div class="row mt-4">
+                <#if all_items?has_content>
+                    <#list all_items as item>
+                        <div class="col-md-12 col-lg-6 col-xl-4 mb-3">
+                            <a href="${item.viewUrl}" class="card card-space h-100 d-flex flex-column text-decoration-none text-body">
+                                <div class="card-pointer">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M16.243 6.757a1 1 0 0 1 1 1v7.072a1 1 0 0 1-2 0v-4.657L8.464 16.95a1 1 0 0 1-1.414-1.414l6.778-6.779H9.172a1 1 0 0 1 0-2h7.07Z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <#if item.icon?has_content>
+                                        <div class="mb-2">
+                                            <i class="${item.icon}" style="font-size: 1.5rem;"></i>
+                                        </div>
+                                    </#if>
+                                    <#if item.currentRevision??>
+                                        <h5 class="card-title text-break">
+                                            <#if item.currentRevision.title?has_content>
+                                                ${item.currentRevision.title}
+                                            <#else>
+                                                ${item.code}
+                                            </#if>
+                                            <#if !item.published>
+                                                <span class="badge bg-danger ms-2">#i18n{wiki.label.unpublished}</span>
+                                            </#if>
+                                        </h5>
+                                        <#if item.currentRevision.description?has_content>
+                                            <p class="card-text">${item.currentRevision.description}</p>
+                                        </#if>
+                                    <#else>
+                                        <h5 class="card-title text-break">
+                                            ${item.code}
+                                            <#if !item.published>
+                                                <span class="badge bg-danger ms-2">#i18n{wiki.label.unpublished}</span>
+                                            </#if>
+                                        </h5>
+                                        <p class="card-text text-muted">#i18n{wiki.message.noContent}</p>
+                                    </#if>
+                                </div>
+                            </a>
+                        </div>
+                    </#list>
+                </#if>
+            </div>
+
+            <#if !all_items?has_content>
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 text-center">
+                        <i class="fw-bold">#i18n{wiki.message.noItems}</i>
+                    </div>
+                </div>
+            </#if>
+        </div>
+    </div>
+</div>
+
+<#if is_module_ai_present?? && is_module_ai_present>
+    <#include "/skin/plugins/wiki/modules/ai/chat.html">
+</#if>

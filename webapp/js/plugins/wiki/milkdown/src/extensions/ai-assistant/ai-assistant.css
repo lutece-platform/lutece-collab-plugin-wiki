@@ -1,0 +1,16 @@
+.ai-toolbar-text {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 0 4px;
+  color: var(--bs-body-color);
+}
+
+.milkdown-toolbar button:has(.ai-toolbar-text) {
+  min-width: auto;
+  padding: 6px 12px;
+}
+
+.milkdown-toolbar button:has(.ai-toolbar-text):hover {
+  background-color: var(--hover-bg, rgba(0, 0, 0, 0.05));
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2023, City of Paris
+ * Copyright (c) 2002-2026, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,21 +33,30 @@
  */
 package fr.paris.lutece.plugins.wiki.service;
 
+import java.io.Serializable;
+
+import fr.paris.lutece.plugins.wiki.service.cache.WikiCacheService;
+import fr.paris.lutece.plugins.wiki.service.search.WikiSearchEventListener;
+import fr.paris.lutece.portal.service.fileimage.FileImagePublicService;
 import fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation;
 
 /**
- * Wiki Plugin
+ * Wiki plugin implementation
  */
-public class WikiPlugin extends PluginDefaultImplementation
+public final class WikiPlugin extends PluginDefaultImplementation implements Serializable
 {
     public static final String PLUGIN_NAME = "wiki";
+    private static final long serialVersionUID = 1L;
 
     /**
-     * Initialize the Wiki Plugin
+     * {@inheritDoc}
      */
     @Override
     public void init( )
     {
-        ImageService.getInstance( ).register( );
+        WikiCacheService.getInstance( ).initCache( );
+        WikiSearchEventListener.getInstance( ).register( );
+        FileImagePublicService.init( );
     }
+
 }

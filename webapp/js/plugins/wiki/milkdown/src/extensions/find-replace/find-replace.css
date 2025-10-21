@@ -1,0 +1,136 @@
+.toolbar-dropdown-custom {
+  min-width: 280px;
+}
+
+.find-replace-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.find-replace-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.find-replace-input {
+  flex: 1;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.875rem;
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.find-replace-input:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+.find-replace-input::placeholder {
+  color: var(--bs-secondary-color);
+}
+
+.find-replace-counter {
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color);
+  white-space: nowrap;
+  min-width: 3.5rem;
+  text-align: right;
+}
+
+.find-replace-options {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.find-replace-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color);
+  cursor: pointer;
+  user-select: none;
+}
+
+.find-replace-checkbox input[type="checkbox"] {
+  width: 0.875rem;
+  height: 0.875rem;
+  cursor: pointer;
+}
+
+.find-replace-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.25rem;
+}
+
+.find-replace-btn {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.find-replace-btn:hover {
+  background: var(--bs-primary-bg-subtle);
+  border-color: var(--bs-primary);
+}
+
+.find-replace-btn:active {
+  transform: scale(0.98);
+}
+
+.find-replace-btn-nav {
+  min-width: 2rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.find-replace-toolbar-text {
+  font-size: 0.8125rem;
+}
+
+/* Highlights in editor */
+.find-highlight {
+  background-color: rgba(255, 235, 59, 0.4);
+  border-radius: 2px;
+}
+
+.find-highlight-current {
+  background-color: rgba(255, 152, 0, 0.6);
+  box-shadow: 0 0 0 1px rgba(255, 152, 0, 0.8);
+}
+
+/* Dark mode */
+[data-bs-theme="dark"] .find-highlight {
+  background-color: rgba(255, 235, 59, 0.3);
+}
+
+[data-bs-theme="dark"] .find-highlight-current {
+  background-color: rgba(255, 152, 0, 0.5);
+  box-shadow: 0 0 0 1px rgba(255, 152, 0, 0.7);
+}
+
+@media (max-width: 640px) {
+  .toolbar-dropdown-custom {
+    min-width: 240px;
+  }
+
+  .find-replace-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.6875rem;
+  }
+}

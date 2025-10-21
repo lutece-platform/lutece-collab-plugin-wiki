@@ -1,5 +1,4 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
     <parent>
         <artifactId>lutece-global-pom</artifactId>
         <groupId>fr.paris.lutece.tools</groupId>
@@ -10,7 +9,7 @@
     <groupId>fr.paris.lutece.plugins</groupId>
     <artifactId>plugin-wiki</artifactId>
     <packaging>lutece-plugin</packaging>
-    <version>4.0.1-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
     <name>Lutece wiki plugin</name>
 
     <repositories>
@@ -42,55 +41,20 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-avatar</artifactId>
-            <version>[1.2.0,1.9.9)</version>
+            <artifactId>plugin-rest</artifactId>
+            <version>[3.3.1-alpha2]</version>
             <type>lutece-plugin</type>
         </dependency>
         <dependency>
-            <groupId>org.htmlparser</groupId>
-            <artifactId>htmlparser</artifactId>
-            <version>1.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.outerj.daisy</groupId>
-            <artifactId>daisydiff</artifactId>
-            <version>1.2-NX1</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge.nekohtml</groupId>
-            <artifactId>nekohtml</artifactId>
-            <version>1.9.20</version>
-        </dependency>
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>2.9.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>common</artifactId>
-            <version>3.6.200-v20130402-1505</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.json-lib</groupId>
-            <artifactId>json-lib</artifactId>
-            <version>2.4</version>
-            <classifier>jdk15</classifier>
-        </dependency>
-        <!-- Used to convert html to markdown -->
-        <dependency>
-            <groupId>com.vladsch.flexmark</groupId>
-            <artifactId>flexmark-all</artifactId>
-            <version>0.62.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
-            <artifactId>owasp-java-html-sanitizer</artifactId>
-            <version>20240325.1</version>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-mylutece-users</artifactId>
+            <version>[1.0.0-SNAPSHOT,1.9.9)</version>
+            <type>lutece-plugin</type>
         </dependency>
     </dependencies>
 
-    <properties>
+   <properties>
+        <targetJdk>17</targetJdk>
         <componentName>wiki</componentName>
         <jiraProjectName>WIKI</jiraProjectName>
         <jiraComponentId>10361</jiraComponentId>
@@ -100,7 +64,6 @@
         <connection>scm:git:https://github.com/lutece-platform/lutece-collab-plugin-wiki.git</connection>
         <developerConnection>scm:git:https://github.com/lutece-platform/lutece-collab-plugin-wiki.git</developerConnection>
         <url>https://github.com/lutece-platform/lutece-collab-plugin-wiki.git</url>
-        <tag>lutece-collab-plugin-wiki-2.1.2</tag>
+        <tag>HEAD</tag>
     </scm>
-
 </project>

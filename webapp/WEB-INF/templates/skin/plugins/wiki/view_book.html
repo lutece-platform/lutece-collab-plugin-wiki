@@ -1,0 +1,66 @@
+<#ftl output_format="HTML">
+<#assign on_book_home = true>
+<div class="row">
+    <div class="wiki-sidebar-col">
+        <div class="sticky-top">
+            <#include "commons/sidebar.html">
+        </div>
+    </div>
+    <div class="col px-5 pt-0 wiki-markdown-col">
+        <#if !book.published>
+            <div class="mb-3">
+                <span class="badge bg-danger">#i18n{wiki.label.unpublished}</span>
+            </div>
+        </#if>
+
+        <#include "commons/messages.html" />
+
+        <#if book.currentRevision??>
+            <#if book.currentRevision.content?has_content>
+                <div class="wiki-content wiki-markdown-content mb-4" id="wiki-content-${book.id}">
+                </div>
+            </#if>
+        <#else>
+            <#if can_edit>
+                <div class="alert alert-warning">
+                    #i18n{wiki.message.noContentEditor}
+                </div>
+            <#else>
+                <div class="alert alert-warning">
+                    #i18n{wiki.message.noContent}
+                </div>
+            </#if>
+        </#if>
+    </div>
+
+    <#if book.currentRevision?? && book.currentRevision.content?has_content>
+    <div class="wiki-toc-col">
+        <div class="sticky-top" style="top: 20px;">
+            <nav id="wiki-toc" class="toc-sidebar">
+                <h6>#i18n{wiki.page.onThisPage}</h6>
+                <ul class="toc-list nav flex-column">
+                </ul>
+            </nav>
+        </div>
+    </div>
+    </#if>
+</div>
+
+<link rel="stylesheet" href="css/plugins/wiki/github-highlight.css">
+<link rel="stylesheet" href="css/plugins/wiki/wiki-marked.css">
+<script src="js/plugins/wiki/marked/marked-wiki.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    <#if book.currentRevision?? && book.currentRevision.content?has_content>
+    <#noautoesc>
+    const content = "${book.currentRevision.content?js_string}";
+    </#noautoesc>
+    await MarkedWiki.render('#wiki-content-${book.id}', content);
+    await MarkedWiki.generateTOC('#wiki-content-${book.id}', '.toc-list');
+    </#if>
+});
+</script>
+
+<#if is_module_ai_present?? && is_module_ai_present>
+    <#include "/skin/plugins/wiki/modules/ai/chat.html">
+</#if>

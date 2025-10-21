@@ -1,75 +1,51 @@
+CREATE TABLE wiki_item (
+    id_item INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(100) NOT NULL,
+    icon VARCHAR(100) DEFAULT NULL,
+    is_published BOOLEAN DEFAULT FALSE,
+    view_role VARCHAR(100) DEFAULT 'none',
+    edit_role VARCHAR(100) DEFAULT 'none',
+    item_type ENUM('space', 'category', 'book', 'chapter', 'page') NOT NULL,
+    id_parent INT,
+    item_order INT DEFAULT 0,
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    date_modification TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_code (code),
+    INDEX idx_item_type (item_type),
+    INDEX idx_parent_type (id_parent, item_type),
+    INDEX idx_parent_order (id_parent, item_order),
+    CONSTRAINT fk_item_parent FOREIGN KEY (id_parent) REFERENCES wiki_item(id_item) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
---
--- Structure for table wiki_topic
---
+-- Revision table
+CREATE TABLE wiki_revision (
+    id_revision INT AUTO_INCREMENT PRIMARY KEY,
+    entity_id INT NOT NULL,
+    revision_number INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    content MEDIUMTEXT,
+    comment VARCHAR(500),
+    author VARCHAR(100),
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_current BOOLEAN DEFAULT FALSE,
+    UNIQUE KEY uk_entity_revision (entity_id, revision_number),
+    INDEX idx_entity_current (entity_id, is_current),
+    INDEX idx_date_creation (date_creation DESC),
+    CONSTRAINT fk_revision_entity FOREIGN KEY (entity_id) REFERENCES wiki_item(id_item) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS wiki_topic;
-CREATE TABLE wiki_topic (		
-id_topic INT DEFAULT '0' NOT NULL,
-namespace INT DEFAULT '0' NOT NULL,
-page_name VARCHAR(100) DEFAULT '' NOT NULL,
-page_view_role VARCHAR(50) DEFAULT '' NOT NULL,
-page_edit_role VARCHAR(50) DEFAULT '' NOT NULL,
-parent_page_name VARCHAR(100) DEFAULT '' NOT NULL,
-  PRIMARY KEY (id_topic)
-);
+-- User permissions table
+CREATE TABLE wiki_item_user_permission (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_item INT NOT NULL,
+    user_guid VARCHAR(255) NOT NULL,
+    user_display_name VARCHAR(255) NOT NULL,
+    permission_type VARCHAR(10) NOT NULL,
+    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_item_user_permission (id_item, user_guid, permission_type),
+    INDEX idx_item_permission (id_item, permission_type),
+    INDEX idx_user_permission (user_guid, permission_type),
+    CONSTRAINT fk_permission_item FOREIGN KEY (id_item) REFERENCES wiki_item(id_item) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
---
--- Structure for table wiki_topic_version
---
-
-DROP TABLE IF EXISTS wiki_topic_version;
-CREATE TABLE wiki_topic_version (
-  id_topic_version INT DEFAULT '0' NOT NULL,
-  edit_comment VARCHAR(50) DEFAULT '' NOT NULL,
-  id_topic INT DEFAULT '0' NOT NULL,
-  lutece_user_id VARCHAR(50) DEFAULT '' NOT NULL ,
-  date_edition TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  id_topic_version_previous INT DEFAULT '0' NOT NULL,
-  wiki_content LONG VARCHAR,
-  is_published INT DEFAULT '0' NOT NULL,
-    PRIMARY KEY (id_topic_version)
-);
-
-
---
--- Structure for table wiki_topic_version
---
-
-DROP TABLE IF EXISTS wiki_topic_version_content;
-CREATE TABLE wiki_topic_version_content (
-  id_topic_version INT DEFAULT '0' NOT NULL,
-  locale VARCHAR(50) DEFAULT '' NOT NULL,
-  page_title VARCHAR(100) DEFAULT '' NOT NULL,
-  wiki_content MEDIUMBLOB,
-    PRIMARY KEY (id_topic_version , locale )
-);
-
-
---
--- Structure for table wiki_image
---
-DROP TABLE IF EXISTS wiki_image;
-CREATE TABLE wiki_image
-(
- 	id_image INT DEFAULT 0 NOT NULL,
-	name VARCHAR(255) DEFAULT NULL,
-	mime_type VARCHAR(50) DEFAULT NULL,
-	file_value LONG VARBINARY,
-        id_topic INT DEFAULT NULL,
-	width INT DEFAULT NULL,
-	height INT DEFAULT NULL,
-	PRIMARY KEY (id_image)
-);
-
---
--- Structure for table wiki_user_modifying
---
-DROP TABLE IF EXISTS wiki_last_edits;
-CREATE TABLE wiki_last_edits
-(
-    id_topic INT NOT NULL,
-    name_user_editing VARCHAR(100) DEFAULT '' NOT NULL,
-    date_modification DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    PRIMARY KEY (id_topic)
-);

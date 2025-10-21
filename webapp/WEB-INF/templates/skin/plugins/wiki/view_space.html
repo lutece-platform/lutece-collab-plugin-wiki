@@ -1,0 +1,57 @@
+<#ftl output_format="HTML">
+<div class="row">
+    <div class="wiki-sidebar-col">
+        <div class="sticky-top">
+            <#include "commons/sidebar_space.html">
+        </div>
+    </div>
+    <div class="col px-5 pt-0 wiki-markdown-col">
+        <#if !space.published>
+            <div class="mb-3">
+                <span class="badge bg-danger">#i18n{wiki.label.unpublished}</span>
+            </div>
+        </#if>
+
+        <#include "commons/messages.html" />
+
+        <#if space.currentRevision?? && space.currentRevision.content?has_content>
+            <div class="wiki-content wiki-markdown-content mb-4" id="wiki-content-${space.id}">
+            </div>
+        </#if>
+
+        <#if !(space.currentRevision?? && space.currentRevision.content?has_content)>
+            <p class="fw-bold fst-italic">#i18n{wiki.message.spaceEmpty}</p>
+        </#if>
+    </div>
+
+    <#if space.currentRevision?? && space.currentRevision.content?has_content>
+    <div class="wiki-toc-col">
+        <div class="sticky-top" style="top: 20px;">
+            <nav id="wiki-toc" class="toc-sidebar">
+                <h6>#i18n{wiki.page.onThisPage}</h6>
+                <ul class="toc-list nav flex-column">
+                </ul>
+            </nav>
+        </div>
+    </div>
+    </#if>
+</div>
+
+<#if space.currentRevision?? && space.currentRevision.content?has_content>
+<link rel="stylesheet" href="css/plugins/wiki/github-highlight.css">
+<link rel="stylesheet" href="css/plugins/wiki/wiki-marked.css">
+<script src="js/plugins/wiki/marked/marked-wiki.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    <#noautoesc>
+    const content = "${space.currentRevision.content?js_string}";
+    </#noautoesc>
+    await MarkedWiki.render('#wiki-content-${space.id}', content);
+    await MarkedWiki.generateTOC('#wiki-content-${space.id}', '.toc-list');
+});
+</script>
+</#if>
+
+<#if is_module_ai_present?? && is_module_ai_present>
+    <#include "/skin/plugins/wiki/modules/ai/chat.html">
+</#if>

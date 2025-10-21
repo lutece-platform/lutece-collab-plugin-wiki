@@ -1,0 +1,208 @@
+<#ftl output_format="HTML">
+<link rel="stylesheet" href="css/plugins/wiki/wiki-layout.css">
+
+<button class="btn btn-dark d-lg-none mb-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">Menu</button>
+
+<div class="offcanvas-lg offcanvas-start d-flex flex-column h-100 fs-6 p-lg-0 pe-lg-4" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebarOffcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-3 p-lg-0 w-100">
+        <div class="w-100">
+             <#if book?? && !(is_module_ai_present?? && is_module_ai_present)>
+            <div class="py-3">
+                <form method="get" action="jsp/site/Portal.jsp">
+                <input type="hidden" name="page" value="wiki">
+                <input type="hidden" name="view" value="search">
+                <input type="hidden" name="book" value="${book.code}">
+                <div class="wiki-chat-wrapper">
+                    <div class="input-group wiki-chat-bar wiki-chat-bar-sm input-search">
+                        <input type="text" name="query" class="form-control"
+                               placeholder="#i18n{wiki.search.inBook.placeholder}" required>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ti ti-search"></i>
+                        </button>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </#if>
+        <ul class="list-unstyled w-100">
+            <#if space??>
+                <li class="py-2">
+                    <a href="${space.viewUrl}"
+                       class="text-decoration-none px-2 d-flex align-items-center text-muted">
+                        <i class="ti ti-arrow-left me-2"></i><#if space.currentRevision?? && space.currentRevision.title?has_content>${space.currentRevision.title}<#else>${space.code}</#if>
+                    </a>
+                </li>
+            </#if>
+            <#if book??>
+                <li class="py-2">
+                    <strong class="d-flex w-100 align-items-center justify-content-between fw-semibold mb-2">
+                        <a href="${book.viewUrl}"
+                           class="text-decoration-none px-2 h6 mb-0 fw-semibold w-100 <#if on_book_home??>text-primary<#else></#if>">
+                            <#if book.currentRevision?? && book.currentRevision.title?has_content>${book.currentRevision.title}<#else>${book.code}</#if>
+                        </a>
+                        <#if can_edit?? && can_edit>
+                            <div class="wiki-book-actions dropdown">
+                                <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="ti ti-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=modifyItem&code=${book.code}"><i class="ti ti-edit me-2"></i>#i18n{wiki.action.modify}</a></li>
+                                    <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=manageItemChildren&code=${book.code}"><i class="ti ti-list me-2"></i>#i18n{wiki.action.manageOrder}</a></li>
+                                    <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=createItem&entity_type=chapter&parent_code=${book.code}"><i class="ti ti-plus me-2"></i>#i18n{wiki.action.createChapter}</a></li>
+                                    <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=createItem&entity_type=page&parent_code=${book.code}"><i class="ti ti-file-plus me-2"></i>#i18n{wiki.action.createPage}</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="jsp/site/Portal.jsp?page=wikiitemmanagement&action=confirmRemoveItem&code=${book.code}"><i class="ti ti-trash me-2"></i>#i18n{wiki.action.delete}</a></li>
+                                </ul>
+                            </div>
+                        </#if>
+                    </strong>
+                    <ul class="list-unstyled fw-normal small wiki-page-list">
+                        <#if is_module_quiz_present?? && is_module_quiz_present>
+                        <li class="wiki-page-item">
+                            <a href="jsp/site/Portal.jsp?page=quiz&view=quizList&book_id=${book.id}"
+                               class="wiki-page-link w-100 <#if on_quiz_list??>active</#if>">
+                                <i class="ti ti-brain me-1"></i>#i18n{module.wiki.quiz.quiz.testYourKnowledge}
+                            </a>
+                        </li>
+                        </#if>
+                        <li class="wiki-page-item">
+                            <a href="jsp/site/Portal.jsp?page=wiki&view=bookActivity&book=${book.code}"
+                               class="wiki-page-link w-100 <#if on_book_activity??>active</#if>">
+                                <i class="ti ti-activity me-1"></i>#i18n{wiki.action.activity}
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </#if>
+            <#if book_children?has_content>
+                <#list book_children as child>
+                    <#assign hasEditRights = chapter_edit_rights?? && chapter_edit_rights[child.id?c]?? && chapter_edit_rights[child.id?c]>
+                    <#if child.type.code == "page">
+                        <li class="wiki-page-item">
+                            <a href="${child.viewUrl}"
+                               class="wiki-page-link w-100 <#if current_page?? && current_page.code == child.code>active</#if>">
+                                <#if child.currentRevision?? && child.currentRevision.title?has_content>
+                                    ${child.currentRevision.title}
+                                <#else>
+                                    ${child.code}
+                                </#if>
+                            </a>
+                            <#if hasEditRights>
+                                <div class="wiki-page-actions dropdown">
+                                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="ti ti-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=modifyItem&code=${child.code}"><i class="ti ti-edit me-2"></i>#i18n{wiki.action.modify}</a></li>
+                                        <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=moveItem&code=${child.code}"><i class="ti ti-arrows-move me-2"></i>#i18n{wiki.action.move}</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="jsp/site/Portal.jsp?page=wikiitemmanagement&action=confirmRemoveItem&code=${child.code}"><i class="ti ti-trash me-2"></i>#i18n{wiki.action.delete}</a></li>
+                                    </ul>
+                                </div>
+                            </#if>
+                        </li>
+                    <#elseif child.type.code == "chapter">
+                        <#assign chapter = child>
+                        <#if (chapter.children?? && chapter.children?has_content) || hasEditRights>
+                        <li class="py-2 wiki-chapter-item w-100">
+                            <strong class="d-flex w-100 align-items-center justify-content-between fw-semibold mb-2">
+                                <i class="px-2 mb-0 fw-semibold text-muted">
+                                    <#if chapter.currentRevision?? && chapter.currentRevision.title?has_content>
+                                        ${chapter.currentRevision.title}
+                                    <#else>
+                                        ${chapter.code}
+                                    </#if>
+                                </i>
+                                <#if hasEditRights>
+                                    <div class="wiki-chapter-actions dropdown">
+                                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="ti ti-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=modifyItem&code=${chapter.code}"><i class="ti ti-edit me-2"></i>#i18n{wiki.action.modify}</a></li>
+                                            <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=manageItemChildren&code=${chapter.code}"><i class="ti ti-list me-2"></i>#i18n{wiki.action.managePages}</a></li>
+                                            <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=createItem&entity_type=page&parent_code=${chapter.code}"><i class="ti ti-plus me-2"></i>#i18n{wiki.action.createPage}</a></li>
+                                            <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=moveItem&code=${chapter.code}"><i class="ti ti-arrows-move me-2"></i>#i18n{wiki.action.move}</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item text-danger" href="jsp/site/Portal.jsp?page=wikiitemmanagement&action=confirmRemoveItem&code=${chapter.code}"><i class="ti ti-trash me-2"></i>#i18n{wiki.action.delete}</a></li>
+                                        </ul>
+                                    </div>
+                                </#if>
+                            </strong>
+
+                            <#if chapter.children?? && chapter.children?has_content>
+                                <ul class="list-unstyled fw-normal small wiki-page-list">
+                                    <#list chapter.children as wikiPage>
+                                        <li class="wiki-page-item">
+                                            <a href="${wikiPage.viewUrl}"
+                                               class="wiki-page-link w-100 <#if current_page?? && current_page.code == wikiPage.code>active</#if>">
+                                                <#if wikiPage.currentRevision?? && wikiPage.currentRevision.title?has_content>
+                                                    ${wikiPage.currentRevision.title}
+                                                <#else>
+                                                    ${wikiPage.code}
+                                                </#if>
+                                            </a>
+                                            <#if hasEditRights>
+                                                <div class="wiki-page-actions dropdown">
+                                                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="ti ti-dots-vertical"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=modifyItem&code=${wikiPage.code}"><i class="ti ti-edit me-2"></i>#i18n{wiki.action.modify}</a></li>
+                                                        <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=moveItem&code=${wikiPage.code}"><i class="ti ti-arrows-move me-2"></i>#i18n{wiki.action.move}</a></li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li><a class="dropdown-item text-danger" href="jsp/site/Portal.jsp?page=wikiitemmanagement&action=confirmRemoveItem&code=${wikiPage.code}"><i class="ti ti-trash me-2"></i>#i18n{wiki.action.delete}</a></li>
+                                                    </ul>
+                                                </div>
+                                            </#if>
+                                        </li>
+                                    </#list>
+                                </ul>
+                            <#elseif hasEditRights>
+                                <div class="card p-3 small mb-0 ms-2">
+                                    <strong>#i18n{wiki.sidebar.emptyChapter.title}</strong>
+                                    #i18n{wiki.sidebar.emptyChapter.message}
+                                    <div class="mt-2">
+                                        <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=createItem&entity_type=page&parent_code=${chapter.code}" class="btn btn-primary btn-sm">
+                                            #i18n{wiki.action.createPage}
+                                        </a>
+                                    </div>
+                                </div>
+                            </#if>
+                        </li>
+                        </#if>
+                    </#if>
+                </#list>
+            <#elseif can_edit?? && can_edit && book??>
+                <li class="py-2">
+                    <div class="card p-3 small mb-0">
+                        <strong>#i18n{wiki.sidebar.emptyBook.title}</strong>
+                        #i18n{wiki.sidebar.emptyBook.message}
+                        <div class="mt-2">
+                            <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=createItem&entity_type=chapter&parent_code=${book.code}" class="btn btn-primary btn-sm">
+                                #i18n{wiki.action.createChapter}
+                            </a>
+                        </div>
+                    </div>
+                </li>
+            </#if>
+        </ul>
+    </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const activeLink = document.querySelector('.wiki-page-link.active');
+    if (activeLink) {
+        activeLink.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+    }
+});
+</script>

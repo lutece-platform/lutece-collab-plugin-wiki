@@ -1,0 +1,203 @@
+.tb-picker {
+    position: relative;
+    display: block;
+}
+
+.tbp-wrapper {
+    position: relative;
+}
+
+.tbp-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 10px;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: 30px;
+    background: var(--bs-secondary-bg, #fff);
+    cursor: pointer;
+    min-width: 200px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.tbp-trigger:hover {
+    border-color: var(--bs-primary, #0d6efd);
+}
+
+.tbp-trigger:focus {
+    outline: none;
+    border-color: var(--bs-primary, #0d6efd);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+.tbp-preview {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bs-tertiary-bg, #f8f9fa);
+    border-radius: 6px;
+    font-size: 20px;
+    color: var(--bs-body-color, #212529);
+}
+
+.tbp-preview.empty {
+    color: var(--bs-secondary-color, #6c757d);
+}
+
+.tbp-label {
+    flex: 1;
+    font-size: 14px;
+    color: var(--bs-body-color, #212529);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tbp-arrow {
+    font-size: 12px;
+    color: var(--bs-secondary-color, #6c757d);
+    transition: transform 0.2s;
+}
+
+.tb-picker.open .tbp-arrow {
+    transform: rotate(180deg);
+}
+
+.tbp-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1050;
+    margin-top: 4px;
+    padding: 12px;
+    background: var(--bs-secondary-bg, #fff);
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    display: none;
+    min-width: 320px;
+}
+
+.tb-picker.open .tbp-panel {
+    display: block;
+}
+
+.tbp-search {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    background: var(--bs-tertiary-bg, #f8f9fa);
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.tbp-search:focus {
+    border-color: var(--bs-primary, #0d6efd);
+}
+
+.tbp-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.tbp-icon {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bs-tertiary-bg, #f8f9fa);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.tbp-icon i {
+    font-size: 22px;
+    color: var(--bs-body-color, #212529);
+}
+
+.tbp-icon:hover {
+    background: var(--bs-primary, #0d6efd);
+    transform: scale(1.05);
+}
+
+.tbp-icon:hover i {
+    color: #fff;
+}
+
+.tbp-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--bs-border-color, #dee2e6);
+}
+
+.tbp-prev,
+.tbp-next {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    background: var(--bs-primary, #0d6efd);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.tbp-prev:hover:not(:disabled),
+.tbp-next:hover:not(:disabled) {
+    background: var(--bs-primary-hover, #0b5ed7);
+}
+
+.tbp-prev:disabled,
+.tbp-next:disabled {
+    background: var(--bs-secondary-bg, #e9ecef);
+    color: var(--bs-secondary-color, #6c757d);
+    cursor: not-allowed;
+}
+
+.tbp-page-info {
+    font-size: 13px;
+    color: var(--bs-secondary-color, #6c757d);
+}
+
+.tbp-no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 20px;
+    color: var(--bs-secondary-color, #6c757d);
+    font-size: 14px;
+}
+
+.tbp-loading {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    gap: 10px;
+    color: var(--bs-secondary-color, #6c757d);
+    font-size: 14px;
+}
+
+.tbp-spinner {
+    font-size: 24px;
+    animation: tbp-spin 1s linear infinite;
+}
+
+@keyframes tbp-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

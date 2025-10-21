@@ -1,107 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
-    <bean id="wiki.topicDAO"  class="fr.paris.lutece.plugins.wiki.business.TopicDAO" />
-    <bean id="wiki.topicVersionDAO"  class="fr.paris.lutece.plugins.wiki.business.TopicVersionDAO" />
-    <bean id="wiki.imageDAO"  class="fr.paris.lutece.plugins.wiki.business.ImageDAO" />
 
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+       xmlns:p="http://www.springframework.org/schema/p">
 
-    <!-- Search Engine -->
-    <bean id="wiki.wikiSearchEngine" class="fr.paris.lutece.plugins.wiki.search.WikiSearchEngine" />
+    <!-- DAO -->
+    <bean id="wiki.wikiItemDAO" class="fr.paris.lutece.plugins.wiki.business.item.WikiItemDAO" />
+    <bean id="wiki.revisionDAO" class="fr.paris.lutece.plugins.wiki.business.revision.RevisionDAO" />
 
+    <!-- Cache Service -->
+    <bean id="wiki.cacheService" class="fr.paris.lutece.plugins.wiki.service.cache.WikiCacheService"
+          factory-method="getInstance" />
 
-    <!-- Extend resource service -->
-    <bean id="wiki.extendableResourceService" class="fr.paris.lutece.plugins.wiki.service.WikiExtendableResourceService" />
+    <!-- Search Event Listener -->
+    <bean id="wiki.searchEventListener" class="fr.paris.lutece.plugins.wiki.service.search.WikiSearchEventListener"
+          factory-method="getInstance" />
 
-    <!-- Parser Options -->
-    <bean id="wiki.parser.options" class="fr.paris.lutece.plugins.wiki.service.parser.ParserOptions" >
-        <property name="tableClass">
-            <value>table table-condensed table-striped table-bordered</value>
-        </property>
-        <property name="imageClass">
-            <value>img-responsive</value>
-        </property>
-        <property name="sizedImageClass">
-            <value></value>
-        </property>
-        <property name="tocClass">
-            <value>well</value>
-        </property>
-    </bean>
+    <!-- Asynchronous Upload Handler -->
+    <bean id="wiki.asynchronousUploadHandler" class="fr.paris.lutece.plugins.wiki.service.file.WikiAsynchronousUploadHandler" />
 
-    <!-- Macros -->
-    <bean id="wiki.macroDefault" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
-        <property name="name">
-            <value>code</value>
-        </property>
-        <property name="before">
-            <value>&lt;pre class="prettyprint"&gt;</value>
-        </property>
-        <property name="after">
-            <value>&lt;/pre&gt;</value>
-        </property>
-    </bean>
-    <bean id="wiki.macroInfoBox" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
-        <property name="name">
-            <value>info</value>
-        </property>
-        <property name="before">
-            <value>&lt;div class="alert alert-info"&gt;&lt;span class="glyphicon glyphicon-info-sign" &gt;&lt;/span&gt; </value>
-        </property>
-        <property name="after">
-            <value>&lt;/div&gt;</value>
-        </property>
-    </bean>
-    <bean id="wiki.macroWarningBox" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
-        <property name="name">
-            <value>warning</value>
-        </property>
-        <property name="before">
-            <value>&lt;div class="alert alert-danger"&gt;&lt;span class="glyphicon glyphicon-warning-sign" &gt;&lt;/span&gt; </value>
-        </property>
-        <property name="after">
-            <value>&lt;/div&gt;</value>
-        </property>
-    </bean>
-    <bean id="wiki.macroBadge" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
-        <property name="name">
-            <value>badge</value>
-        </property>
-        <property name="before">
-            <value>&lt;span class="badge" &gt;</value>
-        </property>
-        <property name="after">
-            <value>&lt;/span&gt;</value>
-        </property>
-    </bean>
-    <bean id="wiki.macroIcon" class="fr.paris.lutece.plugins.wiki.service.parser.TextWrapperMacro">
-        <property name="name">
-            <value>icon</value>
-        </property>
-        <property name="before">
-            <value>&lt;span class="fa fa-</value>
-        </property>
-        <property name="after">
-            <value>" &gt;&lt;/span&gt;</value>
-        </property>
-    </bean>
-    <bean id="wiki.macroLabel" class="fr.paris.lutece.plugins.wiki.service.parser.TextFormatMacro">
-        <property name="name">
-            <value>label</value>
-        </property>
-        <property name="format">
-            <value>&lt;span class="label label-{0}"&gt;{1}&lt;/span&gt;</value>
-        </property>
-    </bean>
-    <bean id="wiki.macroJumbotron" class="fr.paris.lutece.plugins.wiki.service.parser.TextFormatMacro">
-        <property name="name">
-            <value>jumbotron</value>
-        </property>
-        <property name="format">
-            <value>&lt;div class="jumbotron" &gt;&lt;h1&gt;{0} &lt;small&gt;{1}&lt;/small&gt;&lt;/h1&gt;&lt;p&gt;{2}&lt;/p&gt;&lt;/div&gt;</value>
-        </property>
+    <!-- Wiki File RBAC Service -->
+    <bean id="wiki.wikiFileRBACService" class="fr.paris.lutece.plugins.wiki.service.file.WikiFileRBACService" />
+
+    <!-- Wiki File Store Service Provider -->
+    <bean id="wikiFileStoreProvider" class="fr.paris.lutece.portal.service.file.implementation.LocalDatabaseFileService">
+        <constructor-arg ref="defaultFileDownloadUrlService" />
+        <constructor-arg ref="wiki.wikiFileRBACService" />
+        <property name="default" value="false" />
+        <property name="name" value="wikiFileStoreProvider" />
     </bean>
 
-    <!-- Site properties group -->
-    <bean id="wiki.siteProperties" class="fr.paris.lutece.plugins.wiki.service.WikiSitePropertiesGroup" />
+    <!-- Wiki Role Removal Listener -->
+    <bean id="wiki.roleRemovalListener" class="fr.paris.lutece.plugins.wiki.service.listener.WikiRoleRemovalListener"
+          parent="roleRemovalService" />
+
+    <!-- REST Services -->
+    <bean id="wiki.wikiCodeValidationRest" class="fr.paris.lutece.plugins.wiki.rs.WikiCodeValidationRest" />
+    <bean id="wiki.wikiItemRest" class="fr.paris.lutece.plugins.wiki.rs.WikiItemRest" />
+
 </beans>

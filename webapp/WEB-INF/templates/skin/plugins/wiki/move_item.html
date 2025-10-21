@@ -1,0 +1,99 @@
+<#ftl output_format="HTML">
+<link href="css/plugins/wiki/tom-select/tom-select.bootstrap5.min.css" rel="stylesheet">
+
+<div class="wiki-hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <div class="wiki-hero-title">
+                        <h1 class="display-4 fw-bold">#i18n{wiki.xpage.moveItem.pageTitle}</h1>
+                        <p class="lead text-muted mb-4">#i18n{wiki.xpage.moveItem.description}</p>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-lg-6 col-md-8">
+                            <#include "commons/messages.html" />
+
+                            <div class="card" style="border-radius: 20px;">
+                                <div class="card-body p-4">
+                                    <form method="post" action="jsp/site/Portal.jsp">
+                                        <input type="hidden" name="page" value="wikiitemmanagement" />
+                                        <input type="hidden" name="action" value="doMoveItem" />
+                                        <input type="hidden" name="code" value="${item.code}" />
+                                        <input type="hidden" name="token" value="${token}" />
+
+                                        <div class="mb-3 text-start">
+                                            <label for="target_parent_id" class="form-label">
+                                                #i18n{wiki.move.destination}
+                                                <span class="text-danger">*</span>
+                                            </label>
+
+                                            <select id="target_parent_id" name="target_parent_id" placeholder="#i18n{wiki.move.searchDestination}" required></select>
+                                        </div>
+
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <button type="submit" class="btn btn-dark rounded-pill px-4">
+                                                <i class="ti ti-arrows-move me-2"></i>#i18n{wiki.action.move}
+                                            </button>
+                                            <a href="javascript:history.back()" class="btn btn-light rounded-pill px-4">
+                                                #i18n{wiki.action.cancel}
+                                            </a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/plugins/wiki/tom-select/tom-select.complete.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const itemCode = '${item.code}';
+    const typeLabels = {
+        'space': '#i18n{wiki.entity.space}',
+        'category': '#i18n{wiki.entity.category}',
+        'book': '#i18n{wiki.entity.book}',
+        'chapter': '#i18n{wiki.entity.chapter}',
+        'page': '#i18n{wiki.entity.page}'
+    };
+
+    new TomSelect('#target_parent_id', {
+        valueField: 'id',
+        labelField: 'breadcrumb',
+        searchField: 'breadcrumb',
+        dropdownParent: 'body',
+        load: function(query, callback) {
+            const url = 'rest/wiki/item/destinations/' + encodeURIComponent(itemCode) + '?search=' + encodeURIComponent(query) + '&limit=30';
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const options = data.map(item => ({
+                        id: item.id,
+                        breadcrumb: item.breadcrumb + ' (' + (typeLabels[item.type] || item.type) + ')'
+                    }));
+                    callback(options);
+                })
+                .catch(() => callback());
+        },
+        render: {
+            option: function(data, escape) {
+                return '<div class="py-2 px-3">' + escape(data.breadcrumb) + '</div>';
+            },
+            item: function(data, escape) {
+                return '<div>' + escape(data.breadcrumb) + '</div>';
+            },
+            no_results: function() {
+                return '<div class="no-results py-2 px-3 text-muted">#i18n{wiki.move.noResultsFound}</div>';
+            }
+        },
+        loadThrottle: 300,
+        preload: 'focus'
+    });
+});
+</script>

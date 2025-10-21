@@ -1,0 +1,97 @@
+<#ftl output_format="HTML">
+<div class="wiki-hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <div class="wiki-hero-title">
+                        <h1 class="display-4 fw-bold">
+                            #i18n{wiki.search.results.pageTitle}
+                        </h1>
+                        <p class="lead text-muted mb-4">#i18n{wiki.search.description}</p>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-lg-7 col-md-9">
+                            <form method="get" action="jsp/site/Portal.jsp" class="wiki-chat-form">
+                                <input type="hidden" name="page" value="wiki">
+                                <input type="hidden" name="view" value="search">
+                                <#if book_code??>
+                                    <input type="hidden" name="book" value="${book_code}">
+                                </#if>
+                                <#if space_code??>
+                                    <input type="hidden" name="space" value="${space_code}">
+                                </#if>
+                                <div class="wiki-chat-wrapper">
+                                    <div class="input-group input-group-lg wiki-chat-bar input-search">
+                                        <input type="text" name="query" class="form-control" placeholder="#i18n{wiki.search.placeholder}" value="${query!''}" required autofocus>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="ti ti-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="row justify-content-center">
+            <div class="col-lg-7 col-md-9">
+                        <#include "commons/messages.html" />
+
+                <#if results?has_content>
+                    <div class="alert alert-info mb-3">
+                        #i18n{wiki.search.results.found}: ${results?size}
+                    </div>
+
+                    <ul class="list-group">
+                        <#list results as result>
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-1">
+                                            <a href="${result.url}" class="text-decoration-none wiki-search-highlight">${result.title}</a>
+                                        </h5>
+                                        <#if result.summary??>
+                                            <p class="mb-2 text-muted wiki-search-highlight">${result.summary}</p>
+                                        </#if>
+                                    </div>
+                                    <div>
+                                        <#if result.type == "book">
+                                            <span class="badge text-primary-emphasis bg-primary-subtle">#i18n{wiki.entity.book}</span>
+                                        <#elseif result.type == "chapter">
+                                            <span class="badge text-secondary-emphasis bg-secondary-subtle">#i18n{wiki.entity.chapter}</span>
+                                        <#elseif result.type == "page">
+                                            <span class="badge text-info-emphasis bg-info-subtle">#i18n{wiki.entity.page}</span>
+                                        </#if>
+                                    </div>
+                                </div>
+                            </li>
+                        </#list>
+                    </ul>
+                <#else>
+                    <div class="alert alert-warning">
+                        #i18n{wiki.search.results.none}
+                    </div>
+                </#if>
+
+                <div class="mt-3">
+                    <button onclick="history.go(-1)" class="btn btn-light">
+                        <i class="ti ti-arrow-left"></i> #i18n{wiki.action.back}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.querySelectorAll('.wiki-search-highlight').forEach(function(el) {
+    el.innerHTML = el.innerHTML.replace(/&lt;mark&gt;/g, '<mark>').replace(/&lt;\/mark&gt;/g, '</mark>');
+});
+</script>

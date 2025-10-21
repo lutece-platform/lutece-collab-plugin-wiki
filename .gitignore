@@ -1,2 +1,15 @@
-/target/
-/nb-configuration.xml
+# .gitignore
+node_modules/
+target/
+CLAUDE.md
+.claude
+.vscode
+.token-counter
+*.py
+books/
+.project
+.factorypath
+nul
+.classpath
+.settings
+__pycache__

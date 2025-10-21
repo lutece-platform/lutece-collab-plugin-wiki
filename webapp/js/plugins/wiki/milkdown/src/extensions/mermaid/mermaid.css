@@ -1,0 +1,107 @@
+.mermaid-preview-wrapper {
+  position: relative;
+  padding: 2rem;
+  background: #fafafa;
+  border-radius: 0px 0px 15px 15px;
+  margin:1px;
+  overflow: hidden;
+}
+
+.mermaid-error-container {
+  padding: 1rem;
+  background: #fee;
+  border-radius: 0px 0px 15px 15px;
+}
+
+.mermaid-svg-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  min-height: 100px;
+  max-height: 600px;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.mermaid-svg-container svg {
+  max-width: 100%;
+  height: auto;
+  transform-origin: center;
+}
+
+/* Force text visibility in mermaid diagrams */
+.mermaid-svg-container svg text {
+  fill: #000 !important;
+  font-size: 14px !important;
+  font-family: Arial, sans-serif !important;
+}
+
+.mermaid-svg-container svg .nodeLabel,
+.mermaid-svg-container svg .edgeLabel,
+.mermaid-svg-container svg .label text,
+.mermaid-svg-container svg tspan {
+  fill: #000 !important;
+}
+
+.mermaid-svg-container svg foreignObject {
+  color: #000 !important;
+}
+
+.mermaid-svg-container svg foreignObject div {
+  color: #000 !important;
+  font-size: 14px !important;
+}
+
+/* Ensure shapes have proper fill */
+.mermaid-svg-container svg rect,
+.mermaid-svg-container svg circle,
+.mermaid-svg-container svg polygon,
+.mermaid-svg-container svg path {
+  stroke: #333;
+}
+
+.mermaid-svg-container svg rect.note,
+.mermaid-svg-container svg .cluster rect {
+  fill: #fff4dd;
+}
+
+.mermaid-svg-container svg .node rect,
+.mermaid-svg-container svg .node circle,
+.mermaid-svg-container svg .node ellipse,
+.mermaid-svg-container svg .node polygon {
+  fill: #ffffde;
+  stroke: #aaaa33;
+  stroke-width: 1px;
+}
+
+.mermaid-error {
+  color: #c00;
+  padding: 1rem;
+  background: #ffe0e0;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+}
+
+.milkdown-theme-crepe-dark .mermaid-preview-wrapper,
+.milkdown-theme-nord-dark .mermaid-preview-wrapper,
+.milkdown-theme-frame-dark .mermaid-preview-wrapper {
+  background: #1a202c;
+}
+
+.milkdown-theme-crepe-dark .mermaid-error-container,
+.milkdown-theme-nord-dark .mermaid-error-container,
+.milkdown-theme-frame-dark .mermaid-error-container {
+  background: #4a1d1d;
+}
+
+.milkdown-theme-crepe-dark .mermaid-error,
+.milkdown-theme-nord-dark .mermaid-error,
+.milkdown-theme-frame-dark .mermaid-error {
+  background: #4a1d1d;
+  color: #fca5a5;
+}

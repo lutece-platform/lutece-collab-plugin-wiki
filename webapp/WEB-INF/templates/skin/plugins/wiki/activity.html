@@ -1,0 +1,197 @@
+<#ftl output_format="HTML">
+<#if activity_context == "space">
+    <#assign on_space_activity = true>
+<#else>
+    <#assign on_book_activity = true>
+</#if>
+<div class="row">
+    <div class="wiki-sidebar-col">
+        <div class="sticky-top">
+            <#if activity_context == "space">
+                <#include "commons/sidebar_space.html">
+            <#else>
+                <#include "commons/sidebar.html">
+            </#if>
+        </div>
+    </div>
+    <div class="col px-5 pt-0 wiki-markdown-col">
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h2>#i18n{wiki.activity.pageTitle}</h2>
+                <p class="text-muted mb-0">#i18n{wiki.activity.description}</p>
+            </div>
+            <select class="form-select w-auto" onchange="window.location.href=this.value">
+                <#if activity_context == "space">
+                    <option value="jsp/site/Portal.jsp?page=wiki&view=spaceActivity&space=${space.code}&period=last_month" <#if current_period == 'last_month'>selected</#if>>#i18n{wiki.activity.period.lastMonth}</option>
+                    <option value="jsp/site/Portal.jsp?page=wiki&view=spaceActivity&space=${space.code}&period=last_6_months" <#if current_period == 'last_6_months'>selected</#if>>#i18n{wiki.activity.period.last6Months}</option>
+                    <option value="jsp/site/Portal.jsp?page=wiki&view=spaceActivity&space=${space.code}&period=last_year" <#if current_period == 'last_year'>selected</#if>>#i18n{wiki.activity.period.lastYear}</option>
+                    <option value="jsp/site/Portal.jsp?page=wiki&view=spaceActivity&space=${space.code}&period=all" <#if current_period == 'all'>selected</#if>>#i18n{wiki.activity.period.all}</option>
+                <#else>
+                    <option value="jsp/site/Portal.jsp?page=wiki&view=bookActivity&book=${book.code}&period=last_month" <#if current_period == 'last_month'>selected</#if>>#i18n{wiki.activity.period.lastMonth}</option>
+                    <option value="jsp/site/Portal.jsp?page=wiki&view=bookActivity&book=${book.code}&period=last_6_months" <#if current_period == 'last_6_months'>selected</#if>>#i18n{wiki.activity.period.last6Months}</option>
+                    <option value="jsp/site/Portal.jsp?page=wiki&view=bookActivity&book=${book.code}&period=last_year" <#if current_period == 'last_year'>selected</#if>>#i18n{wiki.activity.period.lastYear}</option>
+                    <option value="jsp/site/Portal.jsp?page=wiki&view=bookActivity&book=${book.code}&period=all" <#if current_period == 'all'>selected</#if>>#i18n{wiki.activity.period.all}</option>
+                </#if>
+            </select>
+        </div>
+
+        <#include "commons/messages.html" />
+
+        <#if activities?has_content>
+            <div class="wiki-activity-timeline">
+                <#assign previousDateTime = "">
+                <#assign activityIndex = 0>
+                <#list activities as activity>
+                    <#assign currentDateTime = activity.revision.dateCreation?string("dd/MM/yyyy HH:mm")>
+                    <#if currentDateTime != previousDateTime>
+                        <#if previousDateTime != ""></div></#if>
+                        <div class="timeline-group">
+                            <div class="timeline-date-sticky text-muted small">
+                                <span>${activity.revision.dateCreation?string("dd/MM/yyyy")}</span>
+                                <span>${activity.revision.dateCreation?string("HH:mm")}</span>
+                            </div>
+                    </#if>
+                    <div class="timeline-item">
+                        <div class="timeline-marker border border-1 <#if activity.isCreation>bg-success-subtle text-success-emphasis border-success-subtle<#else>bg-primary-subtle text-primary-emphasis border-primary-subtle</#if>">
+                            <#if activity.isCreation>
+                                <i class="ti ti-plus"></i>
+                            <#else>
+                                <i class="ti ti-pencil"></i>
+                            </#if>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <#assign itemTitle = activity.revision.title!activity.item.code>
+                                    <a href="${activity.item.viewUrl}" class="fw-semibold text-body text-decoration-none">${itemTitle}</a>
+                                    <div class="text-muted small">
+                                        <span class="<#if activity.isCreation>text-success<#else>text-primary</#if>"><#if activity.isCreation>#i18n{wiki.activity.created}<#else>#i18n{wiki.activity.modified}</#if> <#if activity.item.type.code == "space">#i18n{wiki.entity.space}<#elseif activity.item.type.code == "category">#i18n{wiki.entity.category}<#elseif activity.item.type.code == "book">#i18n{wiki.entity.book}<#elseif activity.item.type.code == "chapter">#i18n{wiki.entity.chapter}<#elseif activity.item.type.code == "page">#i18n{wiki.entity.page}</#if></span><#if activity.revision.author?has_content> #i18n{wiki.activity.by} ${activity.revision.author}</#if>
+                                    </div>
+                                    <#if activity.revision.comment?has_content>
+                                        <div class="small text-muted fst-italic">${activity.revision.comment}</div>
+                                    </#if>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <#if activity.linesAdded gt 0 || activity.linesRemoved gt 0>
+                                        <span class="badge bg-light text-dark border small">
+                                            <#if activity.linesAdded gt 0><span class="text-success">+${activity.linesAdded}</span></#if>
+                                            <#if activity.linesAdded gt 0 && activity.linesRemoved gt 0> </#if>
+                                            <#if activity.linesRemoved gt 0><span class="text-danger">-${activity.linesRemoved}</span></#if>
+                                        </span>
+                                    </#if>
+                                    <#if (activity.revision.content?has_content || activity.previousContent?has_content) && !activity.isCreation>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                onclick="showDiff(${activityIndex})" title="#i18n{wiki.activity.viewDiff}">
+                                            <i class="ti ti-git-compare"></i>
+                                        </button>
+                                    </#if>
+                                    <#if itemUrl?has_content>
+                                        <a href="${itemUrl}" class="btn btn-sm btn-outline-secondary" title="#i18n{wiki.activity.viewItem}">
+                                            <i class="ti ti-eye"></i>
+                                        </a>
+                                    </#if>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <#assign previousDateTime = currentDateTime>
+                    <#assign activityIndex = activityIndex + 1>
+                </#list>
+                </div>
+            </div>
+        <#else>
+            <div class="alert alert-info">
+                <i class="ti ti-info-circle me-2"></i>#i18n{wiki.activity.noActivity}
+            </div>
+        </#if>
+    </div>
+</div>
+
+<div class="modal fade" id="diffModal" tabindex="-1" aria-labelledby="diffModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="diffModalLabel">#i18n{wiki.activity.diffTitle}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="diffOutput" class="diff-output"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.diff-output {
+    font-family: monospace;
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+.diff-output .diff-line {
+    padding: 2px 10px;
+    border-left: 3px solid transparent;
+}
+.diff-output .diff-added {
+    background-color: var(--bs-success-bg-subtle);
+    border-left-color: var(--bs-success);
+}
+.diff-output .diff-removed {
+    background-color: var(--bs-danger-bg-subtle);
+    border-left-color: var(--bs-danger);
+}
+.diff-output .diff-context {
+    background-color: var(--bs-body-bg);
+}
+</style>
+
+<script src="js/plugins/wiki/diff/diff.min.js"></script>
+<script>
+const activityData = [
+<#if activities?has_content>
+    <#list activities as activity>
+    <#noautoesc>
+    {
+        title: "${(activity.revision.title!activity.item.code)?js_string}",
+        oldContent: "${(activity.previousContent!'')?js_string}",
+        newContent: "${(activity.revision.content!'')?js_string}"
+    }<#if activity?has_next>,</#if>
+    </#noautoesc>
+    </#list>
+</#if>
+];
+
+function showDiff(index) {
+    const data = activityData[index];
+    const diff = Diff.diffLines(data.oldContent, data.newContent);
+
+    let html = '';
+    diff.forEach(part => {
+        const lines = part.value.split('\n');
+        lines.forEach((line, i) => {
+            if (i === lines.length - 1 && line === '') return;
+
+            let cssClass = 'diff-context';
+            let prefix = ' ';
+            if (part.added) {
+                cssClass = 'diff-added';
+                prefix = '+';
+            } else if (part.removed) {
+                cssClass = 'diff-removed';
+                prefix = '-';
+            }
+            html += '<div class="diff-line ' + cssClass + '">' + prefix + ' ' + escapeHtml(line) + '</div>';
+        });
+    });
+
+    document.getElementById('diffOutput').innerHTML = html || '<div class="p-3 text-muted">#i18n{wiki.activity.noDiff}</div>';
+    document.getElementById('diffModalLabel').textContent = data.title;
+    new bootstrap.Modal(document.getElementById('diffModal')).show();
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+</script>
