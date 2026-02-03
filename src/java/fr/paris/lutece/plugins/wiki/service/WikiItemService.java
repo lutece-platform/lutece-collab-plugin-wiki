@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -47,8 +46,11 @@ import fr.paris.lutece.plugins.wiki.business.item.WikiItemHome;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
 import fr.paris.lutece.plugins.wiki.exception.WikiValidationException;
 import fr.paris.lutece.plugins.wiki.service.rbac.WikiRoleService;
+import jakarta.enterprise.inject.spi.CDI;
+
 import fr.paris.lutece.portal.business.event.ResourceEvent;
-import fr.paris.lutece.portal.service.event.ResourceEventManager;
+import fr.paris.lutece.portal.service.event.EventAction;
+import fr.paris.lutece.portal.service.event.Type.TypeQualifier;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 
@@ -203,7 +205,7 @@ public final class WikiItemService
 
         WikiItemHome.update( createdItem );
 
-        fireResourceEvent( createdItem.getId( ), createdItem.getResourceType( ), ResourceEventManager::fireAddedResource );
+        fireResourceEvent( createdItem.getId( ), createdItem.getResourceType( ), EventAction.CREATE );
         setCurrentRevision( createdItem );
         return createdItem;
     }
@@ -234,7 +236,7 @@ public final class WikiItemService
             }
         }
         WikiItemHome.update( item );
-        fireResourceEvent( item.getId( ), item.getResourceType( ), ResourceEventManager::fireUpdatedResource );
+        fireResourceEvent( item.getId( ), item.getResourceType( ), EventAction.UPDATE );
     }
 
     /**
@@ -259,7 +261,7 @@ public final class WikiItemService
 
             WikiRoleService.removeRolesForItem( item );
             WikiItemHome.remove( itemId );
-            fireResourceEvent( itemId, item.getResourceType( ), ResourceEventManager::fireDeletedResource );
+            fireResourceEvent( itemId, item.getResourceType( ), EventAction.REMOVE );
         }
     }
 
@@ -465,15 +467,16 @@ public final class WikiItemService
      *            the resource identifier
      * @param resourceType
      *            the resource type
-     * @param eventFirer
-     *            the event firer consumer
+     * @param action
+     *            the event action
      */
-    private static void fireResourceEvent( int resourceId, String resourceType, Consumer<ResourceEvent> eventFirer )
+    private static void fireResourceEvent( int resourceId, String resourceType, EventAction action )
     {
         ResourceEvent event = new ResourceEvent( );
         event.setIdResource( String.valueOf( resourceId ) );
         event.setTypeResource( resourceType );
-        eventFirer.accept( event );
+        CDI.current( ).getBeanManager( ).getEvent( )
+            .select( ResourceEvent.class, new TypeQualifier( action ) ).fire( event );
     }
 
     /**
@@ -504,7 +507,7 @@ public final class WikiItemService
             validateParentType( item, locale );
             setNextAvailableOrder( item );
             WikiItemHome.update( item );
-            fireResourceEvent( item.getId( ), item.getResourceType( ), ResourceEventManager::fireUpdatedResource );
+            fireResourceEvent( item.getId( ), item.getResourceType( ), EventAction.UPDATE );
         }
         catch( WikiValidationException e )
         {

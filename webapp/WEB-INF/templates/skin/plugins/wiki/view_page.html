@@ -1,4 +1,5 @@
 <#ftl output_format="HTML">
+<@cTpl>
 <#if chapter??><#assign current_chapter = chapter></#if>
 <#assign current_page = page>
 <div class="row">
@@ -72,3 +73,4 @@ document.addEventListener('DOMContentLoaded', async function() {
 <#if is_module_ai_present?? && is_module_ai_present>
     <#include "/skin/plugins/wiki/modules/ai/chat.html">
 </#if>
+</@cTpl>

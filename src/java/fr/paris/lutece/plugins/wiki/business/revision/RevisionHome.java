@@ -36,7 +36,7 @@ package fr.paris.lutece.plugins.wiki.business.revision;
 import fr.paris.lutece.plugins.wiki.service.cache.WikiCacheService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+import jakarta.enterprise.inject.spi.CDI;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
@@ -44,10 +44,10 @@ import java.util.Map;
 /**
  * This class provides instances management methods (create, find, ...) for Revision objects
  */
-public final class RevisionHome
+public class RevisionHome
 {
-    private static final IRevisionDAO _dao = SpringContextService.getBean( "wiki.revisionDAO" );
-    private static final WikiCacheService _cacheService = WikiCacheService.getInstance( );
+    private static IRevisionDAO _dao = CDI.current( ).select( IRevisionDAO.class ).get( );
+    private static WikiCacheService _cacheService = CDI.current( ).select( WikiCacheService.class ).get( );
     private static final Plugin _plugin = PluginService.getPlugin( "wiki" );
 
     /**
@@ -75,8 +75,8 @@ public final class RevisionHome
         }
 
         _dao.insert( revision, _plugin );
-        _cacheService.putInCache( _cacheService.getRevisionCacheKey( revision.getId( ) ), revision );
-        _cacheService.removeKey( _cacheService.getCurrentRevisionCacheKey( revision.getEntityId( ) ) );
+        _cacheService.put( _cacheService.getRevisionCacheKey( revision.getId( ) ), revision );
+        _cacheService.remove( _cacheService.getCurrentRevisionCacheKey( revision.getEntityId( ) ) );
         return revision;
     }
 
@@ -90,14 +90,14 @@ public final class RevisionHome
     public static Revision findByPrimaryKey( int nKey )
     {
         String cacheKey = _cacheService.getRevisionCacheKey( nKey );
-        Revision revision = (Revision) _cacheService.getFromCache( cacheKey );
+        Revision revision = (Revision) _cacheService.get( cacheKey );
 
         if ( revision == null )
         {
             revision = _dao.load( nKey, _plugin ).orElse( null );
             if ( revision != null )
             {
-                _cacheService.putInCache( cacheKey, revision );
+                _cacheService.put( cacheKey, revision );
                 revision = new Revision( revision );
             }
         }
@@ -119,15 +119,15 @@ public final class RevisionHome
     public static Revision getCurrentRevision( int nEntityId )
     {
         String cacheKey = _cacheService.getCurrentRevisionCacheKey( nEntityId );
-        Revision revision = (Revision) _cacheService.getFromCache( cacheKey );
+        Revision revision = (Revision) _cacheService.get( cacheKey );
 
         if ( revision == null )
         {
             revision = _dao.loadCurrentRevision( nEntityId, _plugin );
             if ( revision != null )
             {
-                _cacheService.putInCache( cacheKey, revision );
-                _cacheService.putInCache( _cacheService.getRevisionCacheKey( revision.getId( ) ), revision );
+                _cacheService.put( cacheKey, revision );
+                _cacheService.put( _cacheService.getRevisionCacheKey( revision.getId( ) ), revision );
                 revision = new Revision( revision );
             }
         }

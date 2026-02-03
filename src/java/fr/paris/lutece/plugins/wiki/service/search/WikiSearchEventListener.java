@@ -35,71 +35,38 @@ package fr.paris.lutece.plugins.wiki.service.search;
 
 import java.util.List;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
 import fr.paris.lutece.plugins.wiki.business.revision.Revision;
 import fr.paris.lutece.plugins.wiki.business.revision.RevisionHome;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
-import fr.paris.lutece.portal.business.event.EventRessourceListener;
 import fr.paris.lutece.portal.business.event.ResourceEvent;
 import fr.paris.lutece.portal.business.indexeraction.IndexerAction;
-import fr.paris.lutece.portal.service.event.ResourceEventManager;
+import fr.paris.lutece.portal.service.event.EventAction;
+import fr.paris.lutece.portal.service.event.Type;
 import fr.paris.lutece.portal.service.search.IndexationService;
 
 /**
  * Wiki search event listener for handling resource indexation events
  */
-public class WikiSearchEventListener implements EventRessourceListener
+@ApplicationScoped
+public class WikiSearchEventListener
 {
-    private static final String LISTENER_NAME = "wikiSearchEventListener";
     private static final String RESOURCE_ID_SEPARATOR = "_";
 
-    /**
-     * Private constructor for singleton pattern
-     */
-    private WikiSearchEventListener( )
+    WikiSearchEventListener( )
     {
     }
 
     /**
-     * Singleton holder
-     */
-    private static class SingletonHolder
-    {
-        static final WikiSearchEventListener INSTANCE = new WikiSearchEventListener( );
-    }
-
-    /**
-     * Gets the singleton instance of WikiSearchEventListener
+     * Handles resource creation events
      *
-     * @return the singleton instance
+     * @param event
+     *            the resource event
      */
-    public static WikiSearchEventListener getInstance( )
-    {
-        return SingletonHolder.INSTANCE;
-    }
-
-    /**
-     * Registers the listener with the ResourceEventManager
-     */
-    public void register( )
-    {
-        ResourceEventManager.register( this );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName( )
-    {
-        return LISTENER_NAME;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void addedResource( ResourceEvent event )
+    public void addedResource( @Observes @Type( EventAction.CREATE ) ResourceEvent event )
     {
         String strResourceType = event.getTypeResource( );
         if ( Revision.RESOURCE_TYPE.equals( strResourceType ) )
@@ -109,18 +76,12 @@ public class WikiSearchEventListener implements EventRessourceListener
     }
 
     /**
-     * {@inheritDoc}
+     * Handles resource deletion events
+     *
+     * @param event
+     *            the resource event
      */
-    @Override
-    public void updatedResource( ResourceEvent event )
-    {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deletedResource( ResourceEvent event )
+    public void deletedResource( @Observes @Type( EventAction.REMOVE ) ResourceEvent event )
     {
         removeFromIndex( event );
     }

@@ -117,7 +117,7 @@ public abstract class AbstractWikiResourceIdService extends ResourceIdService
         }
         catch( NumberFormatException e )
         {
-            AppLogService.error( "Invalid " + getWikiItemType( ).name( ).toLowerCase( ) + " id: " + strId, e );
+            AppLogService.error( "Invalid {} id: {}", getWikiItemType( ).name( ).toLowerCase( ), strId, e );
             return "";
         }
     }

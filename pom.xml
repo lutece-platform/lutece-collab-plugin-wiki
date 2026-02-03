@@ -2,7 +2,7 @@
     <parent>
         <artifactId>lutece-global-pom</artifactId>
         <groupId>fr.paris.lutece.tools</groupId>
-        <version>7.0.2</version>
+        <version>8.0.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -36,25 +36,25 @@
         <dependency>
             <groupId>fr.paris.lutece</groupId>
             <artifactId>lutece-core</artifactId>
-            <version>[6.0.0,7.9.9)</version>
+            <version>[8.0.0-SNAPSHOT,)</version>
             <type>lutece-core</type>
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-rest</artifactId>
-            <version>[3.3.1-alpha2]</version>
+            <version>[4.0.0-SNAPSHOT,)</version>
             <type>lutece-plugin</type>
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-mylutece-users</artifactId>
-            <version>[1.0.0-SNAPSHOT,1.9.9)</version>
+            <version>[2.0.0-SNAPSHOT,)</version>
             <type>lutece-plugin</type>
         </dependency>
     </dependencies>
 
    <properties>
-        <targetJdk>17</targetJdk>
+        <targetJdk>21</targetJdk>
         <componentName>wiki</componentName>
         <jiraProjectName>WIKI</jiraProjectName>
         <jiraComponentId>10361</jiraComponentId>

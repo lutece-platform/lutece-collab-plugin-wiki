@@ -34,13 +34,15 @@
 package fr.paris.lutece.plugins.wiki.service;
 
 import java.util.List;
-import java.util.function.Consumer;
+
+import jakarta.enterprise.inject.spi.CDI;
 
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemHome;
 import fr.paris.lutece.plugins.wiki.business.revision.Revision;
 import fr.paris.lutece.plugins.wiki.business.revision.RevisionHome;
 import fr.paris.lutece.portal.business.event.ResourceEvent;
-import fr.paris.lutece.portal.service.event.ResourceEventManager;
+import fr.paris.lutece.portal.service.event.EventAction;
+import fr.paris.lutece.portal.service.event.Type.TypeQualifier;
 
 public final class RevisionService
 {
@@ -98,7 +100,7 @@ public final class RevisionService
     {
         validateAndNormalizeContent( revision );
         Revision createdRevision = RevisionHome.create( revision );
-        fireResourceEvent( createdRevision.getId( ), ResourceEventManager::fireAddedResource );
+        fireResourceEvent( createdRevision.getId( ), EventAction.CREATE );
         return createdRevision;
     }
 
@@ -130,7 +132,7 @@ public final class RevisionService
 
         Revision createdRevision = RevisionHome.create( newRevision );
 
-        fireResourceEvent( createdRevision.getId( ), ResourceEventManager::fireAddedResource );
+        fireResourceEvent( createdRevision.getId( ), EventAction.CREATE );
     }
 
     /**
@@ -159,14 +161,15 @@ public final class RevisionService
      *
      * @param resourceId
      *            the resource identifier
-     * @param eventFirer
-     *            the event firing consumer
+     * @param action
+     *            the event action
      */
-    private static void fireResourceEvent( int resourceId, Consumer<ResourceEvent> eventFirer )
+    private static void fireResourceEvent( int resourceId, EventAction action )
     {
         ResourceEvent event = new ResourceEvent( );
         event.setIdResource( String.valueOf( resourceId ) );
         event.setTypeResource( Revision.RESOURCE_TYPE );
-        eventFirer.accept( event );
+        CDI.current( ).getBeanManager( ).getEvent( )
+            .select( ResourceEvent.class, new TypeQualifier( action ) ).fire( event );
     }
 }

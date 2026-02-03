@@ -1,3 +1,7 @@
+-- liquibase formatted sql
+-- changeset wiki:create_db_wiki.sql
+-- preconditions onFail:MARK_RAN onError:WARN
+
 CREATE TABLE wiki_item (
     id_item INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(100) NOT NULL,

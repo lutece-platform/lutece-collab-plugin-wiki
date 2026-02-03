@@ -33,30 +33,13 @@
  */
 package fr.paris.lutece.plugins.wiki.service;
 
-import java.io.Serializable;
-
-import fr.paris.lutece.plugins.wiki.service.cache.WikiCacheService;
-import fr.paris.lutece.plugins.wiki.service.search.WikiSearchEventListener;
-import fr.paris.lutece.portal.service.fileimage.FileImagePublicService;
 import fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation;
 
 /**
  * Wiki plugin implementation
  */
-public final class WikiPlugin extends PluginDefaultImplementation implements Serializable
+public final class WikiPlugin extends PluginDefaultImplementation
 {
     public static final String PLUGIN_NAME = "wiki";
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void init( )
-    {
-        WikiCacheService.getInstance( ).initCache( );
-        WikiSearchEventListener.getInstance( ).register( );
-        FileImagePublicService.init( );
-    }
 
 }

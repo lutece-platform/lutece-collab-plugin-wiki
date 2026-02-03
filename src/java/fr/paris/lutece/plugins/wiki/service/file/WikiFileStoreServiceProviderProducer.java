@@ -31,38 +31,39 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.wiki.service.listener;
+package fr.paris.lutece.plugins.wiki.service.file;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import fr.paris.lutece.portal.service.file.IFileDownloadUrlService;
+import fr.paris.lutece.portal.service.file.IFileRBACService;
+import fr.paris.lutece.portal.service.file.IFileStoreService;
+import fr.paris.lutece.portal.service.file.IFileStoreServiceProvider;
+import fr.paris.lutece.portal.service.file.implementation.FileStoreServiceProvider;
+import fr.paris.lutece.portal.service.util.CdiHelper;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Named;
 
-import fr.paris.lutece.portal.service.i18n.I18nService;
-import fr.paris.lutece.portal.service.util.RemovalListener;
-
-import java.util.Locale;
-
+/**
+ * CDI Producer for the wiki file store service provider.
+ * Replaces the Spring bean definition from wiki_context.xml.
+ */
 @ApplicationScoped
-@Named( "wiki.roleRemovalListener" )
-public class WikiRoleRemovalListener implements RemovalListener
+public class WikiFileStoreServiceProviderProducer
 {
-    private static final String PROPERTY_ROLE_CANNOT_BE_REMOVED = "wiki.role.message.roleCannotBeRemoved";
-    private static final String ROLE_PREFIX_VIEW = "WIKI_ITEM_VIEW_";
-    private static final String ROLE_PREFIX_EDIT = "WIKI_ITEM_EDIT_";
-
-    @Override
-    public boolean canBeRemoved( String strRoleKey )
+    @Produces
+    @ApplicationScoped
+    @Named( "wiki.fileStoreServiceProvider" )
+    public IFileStoreServiceProvider createWikiFileStoreProvider(
+            @ConfigProperty( name = "wiki.fileStoreServiceProvider.fileStoreService" ) String fileStoreImplName,
+            @ConfigProperty( name = "wiki.fileStoreServiceProvider.rbacService" ) String rbacImplName,
+            @ConfigProperty( name = "wiki.fileStoreServiceProvider.downloadService" ) String downloadImplName )
     {
-        if ( strRoleKey == null )
-        {
-            return true;
-        }
-
-        return !strRoleKey.startsWith( ROLE_PREFIX_VIEW ) && !strRoleKey.startsWith( ROLE_PREFIX_EDIT );
-    }
-
-    @Override
-    public String getRemovalRefusedMessage( String strRoleKey, Locale locale )
-    {
-        return I18nService.getLocalizedString( PROPERTY_ROLE_CANNOT_BE_REMOVED, locale );
+        return new FileStoreServiceProvider( "wikiFileStoreProvider",
+                CdiHelper.getReference( IFileStoreService.class, fileStoreImplName ),
+                CdiHelper.getReference( IFileDownloadUrlService.class, downloadImplName ),
+                CdiHelper.getReference( IFileRBACService.class, rbacImplName ),
+                false );
     }
 }

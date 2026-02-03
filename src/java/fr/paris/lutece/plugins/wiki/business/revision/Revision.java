@@ -35,8 +35,8 @@ package fr.paris.lutece.plugins.wiki.business.revision;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 /**
  * This is the business class for the object Revision

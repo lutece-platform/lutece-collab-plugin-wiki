@@ -43,8 +43,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 
 import fr.paris.lutece.plugins.mylutece.business.attribute.AttributeHome;
 import fr.paris.lutece.plugins.mylutece.business.attribute.IAttribute;
@@ -72,6 +75,7 @@ import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.message.SiteMessageService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
+import fr.paris.lutece.portal.service.security.ISecurityTokenService;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.SecurityService;
 import fr.paris.lutece.portal.service.security.SecurityTokenService;
@@ -80,12 +84,15 @@ import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
+import fr.paris.lutece.portal.web.cdi.mvc.Models;
 import fr.paris.lutece.portal.web.xpages.XPage;
 import fr.paris.lutece.util.ReferenceItem;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.bean.BeanUtil;
 import fr.paris.lutece.util.url.UrlItem;
 
+@RequestScoped
+@Named( "wiki.xpage.wikiitemmanagement" )
 @Controller( xpageName = "wikiitemmanagement", pageTitleI18nKey = "wiki.xpage.itemManagement.pageTitle", pagePathI18nKey = "wiki.xpage.itemManagement.pagePathLabel" )
 public class WikiItemManagementXPage extends AbstractWikiXPage
 {
@@ -98,7 +105,14 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     private static final String INVALID_SECURITY_TOKEN_MESSAGE = "Invalid security token";
     private static final String REVISION_NOT_FOUND_MESSAGE = "Revision not found";
 
-    private static final ExternalUserSearchService _externalUserSearchService = ExternalUserSearchService.getInstance( );
+    @Inject
+    private ExternalUserSearchService _externalUserSearchService;
+
+    @Inject
+    private ISecurityTokenService _securityTokenService;
+
+    @Inject
+    private Models _models;
 
     private static final String PARAMETER_ID = "id";
     private static final String PARAMETER_CODE = "code";
@@ -216,20 +230,19 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
 
         LuteceUser user = checkCreateAccess( request, itemType, parent );
 
-        Map<String, Object> model = getModel( );
-        model.put( MARK_USER, user );
-        model.put( MARK_ITEM_TYPE, itemType );
-        model.put( MARK_PARENT, parent );
-        model.put( MARK_USER_ROLES, getUserRoles( user, getLocale( request ) ) );
-        model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_CREATE_ITEM ) );
+        _models.put( MARK_USER, user );
+        _models.put( MARK_ITEM_TYPE, itemType );
+        _models.put( MARK_PARENT, parent );
+        _models.put( MARK_USER_ROLES, getUserRoles( user, getLocale( request ) ) );
+        _models.put( SecurityTokenService.MARK_TOKEN, _securityTokenService.getToken( request, ACTION_CREATE_ITEM ) );
 
         if ( parent != null )
         {
-            populateNavigationContext( model, parent );
+            populateNavigationContext( _models, parent );
         }
 
         String titleKey = getNewItemTitleKey( itemType );
-        XPage page = getXPage( TEMPLATE_CREATE_ITEM, getLocale( request ), model );
+        XPage page = getXPage( TEMPLATE_CREATE_ITEM, getLocale( request ) );
         page.setTitle( I18nService.getLocalizedString( titleKey, getLocale( request ) ) );
         return page;
     }
@@ -320,21 +333,20 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         List<MyLuteceSearchUser> viewUsers = WikiUserRoleService.getUsersWithViewPermission( item );
         List<MyLuteceSearchUser> editUsers = WikiUserRoleService.getUsersWithEditPermission( item );
 
-        Map<String, Object> model = getModel( );
-        model.put( MARK_ITEM, item );
-        model.put( MARK_ITEM_TYPE, item.getType( ) );
-        model.put( MARK_USER, user );
-        model.put( MARK_VIEW_USERS, viewUsers );
-        model.put( MARK_EDIT_USERS, editUsers );
-        model.put( MARK_USER_SEARCH_AVAILABLE, _externalUserSearchService.isAvailable( ) );
-        model.put( MARK_USER_ROLES, getUserRoles( user, getLocale( request ) ) );
-        model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_UPDATE_ITEM ) );
+        _models.put( MARK_ITEM, item );
+        _models.put( MARK_ITEM_TYPE, item.getType( ) );
+        _models.put( MARK_USER, user );
+        _models.put( MARK_VIEW_USERS, viewUsers );
+        _models.put( MARK_EDIT_USERS, editUsers );
+        _models.put( MARK_USER_SEARCH_AVAILABLE, _externalUserSearchService.isAvailable( ) );
+        _models.put( MARK_USER_ROLES, getUserRoles( user, getLocale( request ) ) );
+        _models.put( SecurityTokenService.MARK_TOKEN, _securityTokenService.getToken( request, ACTION_UPDATE_ITEM ) );
         List<Revision> revisionHistory = RevisionService.getRevisionHistory( item.getId( ) );
-        model.put( MARK_REVISION_HISTORY, revisionHistory );
+        _models.put( MARK_REVISION_HISTORY, revisionHistory );
 
-        populateNavigationContext( model, item.getParent( ) );
+        populateNavigationContext( _models, item.getParent( ) );
 
-        XPage page = getXPage( TEMPLATE_MODIFY_ITEM, getLocale( request ), model );
+        XPage page = getXPage( TEMPLATE_MODIFY_ITEM, getLocale( request ) );
         page.setTitle( I18nService.getLocalizedString( MESSAGE_MODIFY_ITEM_TITLE, getLocale( request ) ) );
         return page;
     }
@@ -417,7 +429,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         url.addParameter( PARAMETER_PAGE, XPAGE_NAME );
         url.addParameter( PARAMETER_ACTION, ACTION_REMOVE_ITEM );
         url.addParameter( PARAMETER_ID, String.valueOf( item.getId( ) ) );
-        url.addParameter( SecurityTokenService.PARAMETER_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_REMOVE_ITEM ) );
+        url.addParameter( SecurityTokenService.PARAMETER_TOKEN, _securityTokenService.getToken( request, ACTION_REMOVE_ITEM ) );
 
         String strConfirmMessage = getConfirmMessageForItemType( item );
         SiteMessageService.setMessage( request, strConfirmMessage, SiteMessage.TYPE_CONFIRMATION, url.getUrl( ) );
@@ -525,13 +537,12 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         AbstractWikiItem item = WikiItemService.findById( revision.getEntityId( ) );
         LuteceUser user = checkViewAccess( request, item );
 
-        Map<String, Object> model = getModel( );
-        model.put( MARK_REVISION, revision );
-        model.put( MARK_ITEM, item );
-        model.put( MARK_USER, user );
-        model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_RESTORE_REVISION ) );
+        _models.put( MARK_REVISION, revision );
+        _models.put( MARK_ITEM, item );
+        _models.put( MARK_USER, user );
+        _models.put( SecurityTokenService.MARK_TOKEN, _securityTokenService.getToken( request, ACTION_RESTORE_REVISION ) );
 
-        XPage page = getXPage( TEMPLATE_VIEW_REVISION, getLocale( request ), model );
+        XPage page = getXPage( TEMPLATE_VIEW_REVISION, getLocale( request ) );
         page.setTitle( I18nService.getLocalizedString( MESSAGE_VIEW_REVISION_TITLE, getLocale( request ) ) );
         return page;
     }
@@ -578,17 +589,16 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         String strChildType = primaryChildType != null ? primaryChildType.getCode( ) : null;
         List<String> childTypeCodes = childTypes.stream( ).map( WikiItemType::getCode ).collect( Collectors.toList( ) );
 
-        Map<String, Object> model = getModel( );
-        model.put( MARK_ITEM, item );
-        model.put( MARK_CHILDREN, children );
-        model.put( MARK_CHILD_TYPE, strChildType );
-        model.put( MARK_CHILD_TYPES, childTypeCodes );
-        model.put( MARK_USER, user );
-        model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_REORDER_ITEM_CHILDREN ) );
+        _models.put( MARK_ITEM, item );
+        _models.put( MARK_CHILDREN, children );
+        _models.put( MARK_CHILD_TYPE, strChildType );
+        _models.put( MARK_CHILD_TYPES, childTypeCodes );
+        _models.put( MARK_USER, user );
+        _models.put( SecurityTokenService.MARK_TOKEN, _securityTokenService.getToken( request, ACTION_REORDER_ITEM_CHILDREN ) );
 
-        populateNavigationContext( model, item.getParent( ) );
+        populateNavigationContext( _models, item.getParent( ) );
 
-        XPage page = getXPage( TEMPLATE_MANAGE_ITEM_CHILDREN, getLocale( request ), model );
+        XPage page = getXPage( TEMPLATE_MANAGE_ITEM_CHILDREN, getLocale( request ) );
         page.setTitle( I18nService.getLocalizedString( MESSAGE_MANAGE_ITEM_CHILDREN_TITLE, getLocale( request ) ) );
         return page;
     }
@@ -657,13 +667,12 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
 
         List<AbstractWikiItem> spaces = WikiItemService.getItemsByType( WikiItemType.SPACE );
 
-        Map<String, Object> model = getModel( );
-        model.put( MARK_CHILDREN, spaces );
-        model.put( MARK_CHILD_TYPE, "space" );
-        model.put( MARK_USER, user );
-        model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_REORDER_SPACES ) );
+        _models.put( MARK_CHILDREN, spaces );
+        _models.put( MARK_CHILD_TYPE, "space" );
+        _models.put( MARK_USER, user );
+        _models.put( SecurityTokenService.MARK_TOKEN, _securityTokenService.getToken( request, ACTION_REORDER_SPACES ) );
 
-        XPage page = getXPage( TEMPLATE_MANAGE_ITEM_CHILDREN, getLocale( request ), model );
+        XPage page = getXPage( TEMPLATE_MANAGE_ITEM_CHILDREN, getLocale( request ) );
         page.setTitle( I18nService.getLocalizedString( MESSAGE_MANAGE_ITEM_CHILDREN_TITLE, getLocale( request ) ) );
         return page;
     }
@@ -725,11 +734,10 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         AbstractWikiItem item = WikiItemService.findByCode( strCode );
         checkEditAccess( request, item );
 
-        Map<String, Object> model = getModel( );
-        model.put( MARK_ITEM, item );
-        model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_MOVE_ITEM ) );
+        _models.put( MARK_ITEM, item );
+        _models.put( SecurityTokenService.MARK_TOKEN, _securityTokenService.getToken( request, ACTION_MOVE_ITEM ) );
 
-        XPage page = getXPage( TEMPLATE_MOVE_ITEM, getLocale( request ), model );
+        XPage page = getXPage( TEMPLATE_MOVE_ITEM, getLocale( request ) );
         page.setTitle( I18nService.getLocalizedString( MESSAGE_MOVE_ITEM_TITLE, getLocale( request ) ) );
         return page;
     }
@@ -811,16 +819,15 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         List<AttributeMapping> listAttributeMapping = AttributeMappingHome.getAttributeMappingsList( );
         List<IAttribute> listMyLuteceAttributes = AttributeHome.findAll( getLocale( request ), myLutecePlugin );
 
-        Map<String, Object> model = getModel( );
-        model.put( MARK_ITEM, item );
-        model.put( MARK_ITEM_TYPE, item.getType( ) );
-        model.put( MARK_USER, user );
-        model.put( MARK_PERMISSION_TYPE, strPermissionType );
-        model.put( MARK_ATTRIBUTE_MAPPING_LIST, listAttributeMapping );
-        model.put( MARK_MYLUTECE_ATTRIBUTES_LIST, listMyLuteceAttributes );
-        model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_UPDATE_ITEM ) );
+        _models.put( MARK_ITEM, item );
+        _models.put( MARK_ITEM_TYPE, item.getType( ) );
+        _models.put( MARK_USER, user );
+        _models.put( MARK_PERMISSION_TYPE, strPermissionType );
+        _models.put( MARK_ATTRIBUTE_MAPPING_LIST, listAttributeMapping );
+        _models.put( MARK_MYLUTECE_ATTRIBUTES_LIST, listMyLuteceAttributes );
+        _models.put( SecurityTokenService.MARK_TOKEN, _securityTokenService.getToken( request, ACTION_UPDATE_ITEM ) );
 
-        XPage page = getXPage( TEMPLATE_SEARCH_USERS, getLocale( request ), model );
+        XPage page = getXPage( TEMPLATE_SEARCH_USERS, getLocale( request ) );
         page.setTitle( I18nService.getLocalizedString( MESSAGE_SEARCH_USERS_TITLE, getLocale( request ) ) );
         return page;
     }
@@ -881,21 +888,20 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         List<AttributeMapping> listAttributeMapping = AttributeMappingHome.getAttributeMappingsList( );
         List<IAttribute> listMyLuteceAttributes = AttributeHome.findAll( getLocale( request ), myLutecePlugin );
 
-        Map<String, Object> model = getModel( );
-        model.put( MARK_ITEM, item );
-        model.put( MARK_ITEM_TYPE, item.getType( ) );
-        model.put( MARK_USER, user );
-        model.put( MARK_SEARCH_RESULTS, searchResults );
-        model.put( MARK_PERMISSION_TYPE, strPermissionType );
-        model.put( MARK_ATTRIBUTE_MAPPING_LIST, listAttributeMapping );
-        model.put( MARK_MYLUTECE_ATTRIBUTES_LIST, listMyLuteceAttributes );
-        model.put( MARK_SEARCHED_ATTRIBUTES, searchedAttributes );
-        model.put( PARAMETER_SEARCH_LASTNAME, strLastName != null ? strLastName : "" );
-        model.put( PARAMETER_SEARCH_GIVENNAME, strGivenName != null ? strGivenName : "" );
-        model.put( PARAMETER_SEARCH_EMAIL, strEmail != null ? strEmail : "" );
-        model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_UPDATE_ITEM ) );
+        _models.put( MARK_ITEM, item );
+        _models.put( MARK_ITEM_TYPE, item.getType( ) );
+        _models.put( MARK_USER, user );
+        _models.put( MARK_SEARCH_RESULTS, searchResults );
+        _models.put( MARK_PERMISSION_TYPE, strPermissionType );
+        _models.put( MARK_ATTRIBUTE_MAPPING_LIST, listAttributeMapping );
+        _models.put( MARK_MYLUTECE_ATTRIBUTES_LIST, listMyLuteceAttributes );
+        _models.put( MARK_SEARCHED_ATTRIBUTES, searchedAttributes );
+        _models.put( PARAMETER_SEARCH_LASTNAME, strLastName != null ? strLastName : "" );
+        _models.put( PARAMETER_SEARCH_GIVENNAME, strGivenName != null ? strGivenName : "" );
+        _models.put( PARAMETER_SEARCH_EMAIL, strEmail != null ? strEmail : "" );
+        _models.put( SecurityTokenService.MARK_TOKEN, _securityTokenService.getToken( request, ACTION_UPDATE_ITEM ) );
 
-        XPage page = getXPage( TEMPLATE_SEARCH_USERS, getLocale( request ), model );
+        XPage page = getXPage( TEMPLATE_SEARCH_USERS, getLocale( request ) );
         page.setTitle( I18nService.getLocalizedString( MESSAGE_SEARCH_USERS_TITLE, getLocale( request ) ) );
         return page;
     }
@@ -1043,7 +1049,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      */
     private void validateToken( HttpServletRequest request, String action ) throws AccessDeniedException
     {
-        if ( !SecurityTokenService.getInstance( ).validate( request, action ) )
+        if ( !_securityTokenService.validate( request, action ) )
         {
             throw new AccessDeniedException( INVALID_SECURITY_TOKEN_MESSAGE );
         }

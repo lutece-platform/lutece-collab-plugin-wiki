@@ -39,8 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 import fr.paris.lutece.plugins.wiki.business.revision.Revision;
 import fr.paris.lutece.plugins.wiki.business.revision.RevisionHome;

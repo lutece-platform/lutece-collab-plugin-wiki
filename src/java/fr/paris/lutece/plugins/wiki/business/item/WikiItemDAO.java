@@ -36,12 +36,15 @@ package fr.paris.lutece.plugins.wiki.business.item;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.sql.DAOUtil;
 
+import jakarta.enterprise.context.ApplicationScoped;
+
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public final class WikiItemDAO implements IWikiItemDAO
+@ApplicationScoped
+public class WikiItemDAO implements IWikiItemDAO
 {
     private static final String SQL_QUERY_SELECT = "SELECT id_item, code, icon, is_published, view_role, edit_role, item_type, id_parent, item_order, date_creation, date_modification FROM wiki_item WHERE id_item = ?";
     private static final String SQL_QUERY_INSERT = "INSERT INTO wiki_item ( code, icon, is_published, view_role, edit_role, item_type, id_parent, item_order, date_creation, date_modification ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";

@@ -36,6 +36,9 @@ package fr.paris.lutece.plugins.wiki.service.user;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+
 import fr.paris.lutece.plugins.mylutece.service.search.MyLuteceSearchUser;
 import fr.paris.lutece.plugins.mylutece.service.search.IUserSearchProvider;
 import fr.paris.lutece.plugins.mylutece.modules.users.service.MyLuteceUserSearchService;
@@ -45,42 +48,30 @@ import fr.paris.lutece.util.ReferenceList;
 /**
  * Service for searching external users via the MyLutece user provider
  */
-public final class ExternalUserSearchService
+@ApplicationScoped
+public class ExternalUserSearchService
 {
-    private final boolean _bIsAvailable;
+    private boolean _bIsAvailable;
 
-    /**
-     * Private constructor for singleton pattern
-     */
-    private ExternalUserSearchService( )
+    ExternalUserSearchService( )
+    {
+    }
+
+    @PostConstruct
+    void init( )
     {
         boolean bAvailable = false;
         try
         {
             IUserSearchProvider provider = MyLuteceUserSearchService.getInstance( );
             bAvailable = provider != null;
-            AppLogService.info( "Using user provider: " + ( provider != null ? provider.getClass( ).getName( ) : "none" ) );
+            AppLogService.info( "Using user provider: {}", provider != null ? provider.getClass( ).getName( ) : "none" );
         }
         catch( Exception e )
         {
             AppLogService.error( "Error checking if user provider is available", e );
         }
         _bIsAvailable = bAvailable;
-    }
-
-    private static class SingletonHolder
-    {
-        static final ExternalUserSearchService INSTANCE = new ExternalUserSearchService( );
-    }
-
-    /**
-     * Gets the singleton instance of ExternalUserSearchService
-     *
-     * @return the singleton instance
-     */
-    public static ExternalUserSearchService getInstance( )
-    {
-        return SingletonHolder.INSTANCE;
     }
 
     /**

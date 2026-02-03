@@ -35,6 +35,9 @@ package fr.paris.lutece.plugins.wiki.business.revision;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.sql.DAOUtil;
+
+import jakarta.enterprise.context.ApplicationScoped;
+
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -48,7 +51,8 @@ import java.util.stream.Collectors;
 /**
  * This class provides Data Access methods for Revision objects
  */
-public final class RevisionDAO implements IRevisionDAO
+@ApplicationScoped
+public class RevisionDAO implements IRevisionDAO
 {
     private static final String SQL_QUERY_SELECT = "SELECT id_revision, entity_id, revision_number, title, description, content, comment, author, date_creation, is_current FROM wiki_revision WHERE id_revision = ?";
     private static final String SQL_QUERY_INSERT = "INSERT INTO wiki_revision ( entity_id, revision_number, title, description, content, comment, author, date_creation, is_current ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";

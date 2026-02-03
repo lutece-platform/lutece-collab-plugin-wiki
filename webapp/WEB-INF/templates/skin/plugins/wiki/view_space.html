@@ -1,4 +1,5 @@
 <#ftl output_format="HTML">
+<@cTpl>
 <div class="row">
     <div class="wiki-sidebar-col">
         <div class="sticky-top">
@@ -55,3 +56,4 @@ document.addEventListener('DOMContentLoaded', async function() {
 <#if is_module_ai_present?? && is_module_ai_present>
     <#include "/skin/plugins/wiki/modules/ai/chat.html">
 </#if>
+</@cTpl>

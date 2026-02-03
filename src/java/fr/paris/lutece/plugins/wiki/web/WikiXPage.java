@@ -38,7 +38,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
@@ -57,15 +60,25 @@ import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.SecurityService;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
+import fr.paris.lutece.portal.web.cdi.mvc.Models;
 import fr.paris.lutece.portal.web.xpages.XPage;
+
 
 /**
  * WikiXPage handles all navigation views for the wiki
  */
+@RequestScoped
+@Named( "wiki.xpage.wiki" )
 @Controller( xpageName = "wiki", pageTitleI18nKey = "wiki.xpage.wiki.pageTitle", pagePathI18nKey = "wiki.xpage.wiki.pagePathLabel" )
 public class WikiXPage extends AbstractWikiXPage
 {
     private static final long serialVersionUID = 1L;
+
+    @Inject
+    private Models _models;
+
+    @Inject
+    private WikiSearchEngine _searchEngine;
 
     protected static final String MARK_PAGE = "page";
 
@@ -133,13 +146,12 @@ public class WikiXPage extends AbstractWikiXPage
         List<AbstractWikiItem> allSpaces = WikiItemService.getItemsByType( WikiItemType.SPACE );
         List<AbstractWikiItem> spaces = allSpaces.stream( ).filter( space -> WikiAccessControlService.canView( user, space ) ).collect( Collectors.toList( ) );
 
-        Map<String, Object> model = getModel( );
-        model.put( MARK_ALL_ITEMS, spaces );
-        model.put( MARK_CAN_CREATE_SPACE, WikiAccessControlService.canCreateSpace( user ) );
-        model.put( MARK_IS_WIKI_ADMIN, WikiAccessControlService.isWikiAdmin( user ) );
-        populateCommonModel( model, user );
+        _models.put( MARK_ALL_ITEMS, spaces );
+        _models.put( MARK_CAN_CREATE_SPACE, WikiAccessControlService.canCreateSpace( user ) );
+        _models.put( MARK_IS_WIKI_ADMIN, WikiAccessControlService.isWikiAdmin( user ) );
+        populateCommonModel( _models, user );
 
-        XPage page = getXPage( TEMPLATE_LIST_SPACES, locale, model );
+        XPage page = getXPage( TEMPLATE_LIST_SPACES, locale );
         page.setTitle( I18nService.getLocalizedString( "wiki.xpage.listWiki.pageTitle", locale ) );
         return page;
     }
@@ -168,10 +180,9 @@ public class WikiXPage extends AbstractWikiXPage
             return redirectView( request, VIEW_LIST_WIKI );
         }
 
-        Map<String, Object> model = getModel( );
-        populateSpaceSidebarModel( model, user, space );
+        populateSpaceSidebarModel( _models, user, space );
 
-        XPage page = getXPage( TEMPLATE_VIEW_SPACE, locale, model );
+        XPage page = getXPage( TEMPLATE_VIEW_SPACE, locale );
         page.setTitle( I18nService.getLocalizedString( "wiki.xpage.viewSpace.pageTitle", locale ) );
         return page;
     }
@@ -200,19 +211,17 @@ public class WikiXPage extends AbstractWikiXPage
             return redirectView( request, VIEW_LIST_WIKI );
         }
 
-        Map<String, Object> model = getModel( );
-
         List<AbstractWikiItem> bookChildren = loadItemChildren( user, book );
         Map<String, Boolean> childEditRights = computeChildEditRights( user, bookChildren );
 
-        model.put( MARK_BOOK, book );
-        model.put( MARK_BOOK_CHILDREN, bookChildren );
-        model.put( MARK_CHAPTER_EDIT_RIGHTS, childEditRights );
-        model.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, book ) );
-        model.put( MARK_SPACE, findSpaceForBook( book ) );
-        populateCommonModel( model, user );
+        _models.put( MARK_BOOK, book );
+        _models.put( MARK_BOOK_CHILDREN, bookChildren );
+        _models.put( MARK_CHAPTER_EDIT_RIGHTS, childEditRights );
+        _models.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, book ) );
+        _models.put( MARK_SPACE, findSpaceForBook( book ) );
+        populateCommonModel( _models, user );
 
-        XPage page = getXPage( TEMPLATE_VIEW_BOOK, locale, model );
+        XPage page = getXPage( TEMPLATE_VIEW_BOOK, locale );
         page.setTitle( getItemTitle( book ) );
         return page;
     }
@@ -240,15 +249,14 @@ public class WikiXPage extends AbstractWikiXPage
             return redirectView( request, VIEW_LIST_WIKI );
         }
 
-        Map<String, Object> model = getModel( );
-        model.put( MARK_PAGE, page );
-        model.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, page ) );
+        _models.put( MARK_PAGE, page );
+        _models.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, page ) );
 
         AbstractWikiItem parent = page.getParent( );
-        populatePageModel( model, user, parent );
-        populateCommonModel( model, user );
+        populatePageModel( _models, user, parent );
+        populateCommonModel( _models, user );
 
-        XPage xpage = getXPage( TEMPLATE_VIEW_PAGE, locale, model );
+        XPage xpage = getXPage( TEMPLATE_VIEW_PAGE, locale );
         xpage.setTitle( getItemTitle( page ) );
         return xpage;
     }
@@ -256,54 +264,54 @@ public class WikiXPage extends AbstractWikiXPage
     /**
      * Populates the model for page view based on parent type
      *
-     * @param model
-     *            the model
+     * @param models
+     *            the models
      * @param user
      *            the user
      * @param parent
      *            the parent item
      */
-    private void populatePageModel( Map<String, Object> model, LuteceUser user, AbstractWikiItem parent )
+    private void populatePageModel( Models models, LuteceUser user, AbstractWikiItem parent )
     {
         if ( parent == null )
         {
             return;
         }
 
-        populateNavigationContext( model, parent );
+        populateNavigationContext( models, parent );
 
-        AbstractWikiItem book = (AbstractWikiItem) model.get( MARK_BOOK );
-        AbstractWikiItem space = (AbstractWikiItem) model.get( MARK_SPACE );
+        AbstractWikiItem book = (AbstractWikiItem) models.get( MARK_BOOK );
+        AbstractWikiItem space = (AbstractWikiItem) models.get( MARK_SPACE );
 
         if ( book != null )
         {
-            populateBookContext( model, user, (Book) book );
+            populateBookContext( models, user, (Book) book );
         }
         else if ( space != null )
         {
-            populateSpaceSidebarModel( model, user, (Space) space );
+            populateSpaceSidebarModel( models, user, (Space) space );
         }
     }
 
     /**
      * Populates book context in model
      *
-     * @param model
-     *            the model
+     * @param models
+     *            the models
      * @param user
      *            the user
      * @param book
      *            the book
      */
-    private void populateBookContext( Map<String, Object> model, LuteceUser user, Book book )
+    private void populateBookContext( Models models, LuteceUser user, Book book )
     {
         List<AbstractWikiItem> bookChildren = loadItemChildren( user, book );
         Map<String, Boolean> childEditRights = computeChildEditRights( user, bookChildren );
 
-        model.put( MARK_BOOK, book );
-        model.put( MARK_BOOK_CHILDREN, bookChildren );
-        model.put( MARK_CHAPTER_EDIT_RIGHTS, childEditRights );
-        model.put( MARK_SPACE, findSpaceForBook( book ) );
+        models.put( MARK_BOOK, book );
+        models.put( MARK_BOOK_CHILDREN, bookChildren );
+        models.put( MARK_CHAPTER_EDIT_RIGHTS, childEditRights );
+        models.put( MARK_SPACE, findSpaceForBook( book ) );
     }
 
     /**
@@ -325,33 +333,30 @@ public class WikiXPage extends AbstractWikiXPage
         String strBookCode = request.getParameter( PARAMETER_BOOK_CODE );
         String strSpaceCode = request.getParameter( PARAMETER_SPACE_CODE );
 
-        Map<String, Object> model = getModel( );
-
         if ( strQuery != null && !strQuery.trim( ).isEmpty( ) )
         {
-            WikiSearchEngine searchEngine = WikiSearchEngine.getInstance( );
-            List<SearchResult> listResults = searchEngine.getSearchResults( strQuery, request );
+            List<SearchResult> listResults = _searchEngine.getSearchResults( strQuery, request );
 
-            model.put( MARK_SEARCH_RESULTS, listResults );
+            _models.put( MARK_SEARCH_RESULTS, listResults );
 
             if ( strBookCode != null && !strBookCode.isEmpty( ) )
             {
-                model.put( MARK_BOOK_CODE, strBookCode );
+                _models.put( MARK_BOOK_CODE, strBookCode );
             }
             if ( strSpaceCode != null && !strSpaceCode.isEmpty( ) )
             {
-                model.put( MARK_SPACE_CODE, strSpaceCode );
+                _models.put( MARK_SPACE_CODE, strSpaceCode );
             }
         }
         else
         {
-            model.put( MARK_SEARCH_RESULTS, null );
+            _models.put( MARK_SEARCH_RESULTS, null );
         }
 
-        model.put( MARK_QUERY, strQuery );
-        populateCommonModel( model, user );
+        _models.put( MARK_QUERY, strQuery );
+        populateCommonModel( _models, user );
 
-        XPage page = getXPage( TEMPLATE_SEARCH_RESULTS, locale, model );
+        XPage page = getXPage( TEMPLATE_SEARCH_RESULTS, locale );
         page.setTitle( I18nService.getLocalizedString( "wiki.search.results.pageTitle", locale ) );
         return page;
     }
@@ -384,13 +389,12 @@ public class WikiXPage extends AbstractWikiXPage
         Period period = Period.fromCode( strPeriod );
         List<ActivityItem> activities = ActivityService.getSpaceActivities( space.getId( ), period, user );
 
-        Map<String, Object> model = getModel( );
-        populateSpaceSidebarModel( model, user, space );
-        model.put( MARK_ACTIVITIES, activities );
-        model.put( MARK_CURRENT_PERIOD, period.getCode( ) );
-        model.put( MARK_ACTIVITY_CONTEXT, "space" );
+        populateSpaceSidebarModel( _models, user, space );
+        _models.put( MARK_ACTIVITIES, activities );
+        _models.put( MARK_CURRENT_PERIOD, period.getCode( ) );
+        _models.put( MARK_ACTIVITY_CONTEXT, "space" );
 
-        XPage page = getXPage( TEMPLATE_ACTIVITY, locale, model );
+        XPage page = getXPage( TEMPLATE_ACTIVITY, locale );
         page.setTitle( I18nService.getLocalizedString( "wiki.activity.pageTitle", locale ) );
         return page;
     }
@@ -423,13 +427,12 @@ public class WikiXPage extends AbstractWikiXPage
         Period period = Period.fromCode( strPeriod );
         List<ActivityItem> activities = ActivityService.getBookActivities( book.getId( ), period, user );
 
-        Map<String, Object> model = getModel( );
-        populateBookSidebarModel( model, user, book );
-        model.put( MARK_ACTIVITIES, activities );
-        model.put( MARK_CURRENT_PERIOD, period.getCode( ) );
-        model.put( MARK_ACTIVITY_CONTEXT, "book" );
+        populateBookSidebarModel( _models, user, book );
+        _models.put( MARK_ACTIVITIES, activities );
+        _models.put( MARK_CURRENT_PERIOD, period.getCode( ) );
+        _models.put( MARK_ACTIVITY_CONTEXT, "book" );
 
-        XPage page = getXPage( TEMPLATE_ACTIVITY, locale, model );
+        XPage page = getXPage( TEMPLATE_ACTIVITY, locale );
         page.setTitle( I18nService.getLocalizedString( "wiki.activity.pageTitle", locale ) );
         return page;
     }

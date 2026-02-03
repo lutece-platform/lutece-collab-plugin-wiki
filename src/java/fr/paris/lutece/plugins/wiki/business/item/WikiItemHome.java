@@ -40,12 +40,12 @@ import java.util.stream.Collectors;
 import fr.paris.lutece.plugins.wiki.service.cache.WikiCacheService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+import jakarta.enterprise.inject.spi.CDI;
 
-public final class WikiItemHome
+public class WikiItemHome
 {
-    private static final IWikiItemDAO _dao = SpringContextService.getBean( "wiki.wikiItemDAO" );
-    private static final WikiCacheService _cacheService = WikiCacheService.getInstance( );
+    private static IWikiItemDAO _dao = CDI.current( ).select( IWikiItemDAO.class ).get( );
+    private static WikiCacheService _cacheService = CDI.current( ).select( WikiCacheService.class ).get( );
     private static final Plugin _plugin = PluginService.getPlugin( "wiki" );
 
     private WikiItemHome( )
@@ -64,7 +64,7 @@ public final class WikiItemHome
         _dao.insert( wikiItem, _plugin );
 
         String cacheKeyById = _cacheService.getWikiItemCacheKey( wikiItem.getId( ) );
-        _cacheService.putInCache( cacheKeyById, wikiItem );
+        _cacheService.put( cacheKeyById, wikiItem );
 
         invalidateListCaches( wikiItem );
 
@@ -87,20 +87,20 @@ public final class WikiItemHome
         _dao.store( wikiItem, _plugin );
 
         String cacheKeyById = _cacheService.getWikiItemCacheKey( wikiItem.getId( ) );
-        _cacheService.removeKey( cacheKeyById );
+        _cacheService.remove( cacheKeyById );
 
         if ( strOldCode != null )
         {
-            _cacheService.removeKey( _cacheService.getWikiItemByCodeCacheKey( strOldCode ) );
+            _cacheService.remove( _cacheService.getWikiItemByCodeCacheKey( strOldCode ) );
         }
         if ( !wikiItem.getCode( ).equals( strOldCode ) )
         {
-            _cacheService.removeKey( _cacheService.getWikiItemByCodeCacheKey( wikiItem.getCode( ) ) );
+            _cacheService.remove( _cacheService.getWikiItemByCodeCacheKey( wikiItem.getCode( ) ) );
         }
 
         if ( nOldParentId != null && nOldParentId != 0 && !nOldParentId.equals( wikiItem.getIdParent( ) ) )
         {
-            _cacheService.removeKey( _cacheService.getWikiItemListByParentCacheKey( nOldParentId ) );
+            _cacheService.remove( _cacheService.getWikiItemListByParentCacheKey( nOldParentId ) );
         }
 
         invalidateListCaches( wikiItem );
@@ -126,8 +126,8 @@ public final class WikiItemHome
             String cacheKeyById = _cacheService.getWikiItemCacheKey( nKey );
             String cacheKeyByCode = _cacheService.getWikiItemByCodeCacheKey( item.getCode( ) );
 
-            _cacheService.removeKey( cacheKeyById );
-            _cacheService.removeKey( cacheKeyByCode );
+            _cacheService.remove( cacheKeyById );
+            _cacheService.remove( cacheKeyByCode );
 
             invalidateListCaches( item );
         }
@@ -143,7 +143,7 @@ public final class WikiItemHome
     public static Optional<AbstractWikiItem> findByPrimaryKey( int nKey )
     {
         String cacheKey = _cacheService.getWikiItemCacheKey( nKey );
-        AbstractWikiItem cachedItem = (AbstractWikiItem) _cacheService.getFromCache( cacheKey );
+        AbstractWikiItem cachedItem = (AbstractWikiItem) _cacheService.get( cacheKey );
 
         if ( cachedItem != null )
         {
@@ -155,7 +155,7 @@ public final class WikiItemHome
         if ( optItem.isPresent( ) )
         {
             AbstractWikiItem item = optItem.get( );
-            _cacheService.putInCache( cacheKey, item );
+            _cacheService.put( cacheKey, item );
             return Optional.of( item.clone( ) );
         }
 
@@ -173,12 +173,12 @@ public final class WikiItemHome
     public static List<AbstractWikiItem> getWikiItemsByType( WikiItemType type )
     {
         String cacheKey = _cacheService.getWikiItemListByTypeCacheKey( type );
-        List<AbstractWikiItem> listItems = (List<AbstractWikiItem>) _cacheService.getFromCache( cacheKey );
+        List<AbstractWikiItem> listItems = (List<AbstractWikiItem>) _cacheService.get( cacheKey );
 
         if ( listItems == null )
         {
             listItems = _dao.selectWikiItemsByType( type, _plugin );
-            _cacheService.putInCache( cacheKey, listItems );
+            _cacheService.put( cacheKey, listItems );
         }
 
         return listItems.stream( ).map( AbstractWikiItem::clone ).collect( Collectors.toList( ) );
@@ -195,12 +195,12 @@ public final class WikiItemHome
     public static List<AbstractWikiItem> getWikiItemsByParent( int nIdParent )
     {
         String cacheKey = _cacheService.getWikiItemListByParentCacheKey( nIdParent );
-        List<AbstractWikiItem> listItems = (List<AbstractWikiItem>) _cacheService.getFromCache( cacheKey );
+        List<AbstractWikiItem> listItems = (List<AbstractWikiItem>) _cacheService.get( cacheKey );
 
         if ( listItems == null )
         {
             listItems = _dao.selectWikiItemsByParent( nIdParent, _plugin );
-            _cacheService.putInCache( cacheKey, listItems );
+            _cacheService.put( cacheKey, listItems );
         }
 
         return listItems.stream( ).map( AbstractWikiItem::clone ).collect( Collectors.toList( ) );
@@ -230,7 +230,7 @@ public final class WikiItemHome
     public static Optional<AbstractWikiItem> findByCode( String strCode )
     {
         String cacheKey = _cacheService.getWikiItemByCodeCacheKey( strCode );
-        AbstractWikiItem cachedItem = (AbstractWikiItem) _cacheService.getFromCache( cacheKey );
+        AbstractWikiItem cachedItem = (AbstractWikiItem) _cacheService.get( cacheKey );
 
         if ( cachedItem != null )
         {
@@ -242,7 +242,7 @@ public final class WikiItemHome
         if ( optItem.isPresent( ) )
         {
             AbstractWikiItem item = optItem.get( );
-            _cacheService.putInCache( cacheKey, item );
+            _cacheService.put( cacheKey, item );
             return Optional.of( item.clone( ) );
         }
 
@@ -258,12 +258,12 @@ public final class WikiItemHome
     private static void invalidateListCaches( AbstractWikiItem item )
     {
         String cacheKeyByType = _cacheService.getWikiItemListByTypeCacheKey( item.getType( ) );
-        _cacheService.removeKey( cacheKeyByType );
+        _cacheService.remove( cacheKeyByType );
 
         if ( item.getIdParent( ) != null && item.getIdParent( ) != 0 )
         {
             String cacheKeyByParent = _cacheService.getWikiItemListByParentCacheKey( item.getIdParent( ) );
-            _cacheService.removeKey( cacheKeyByParent );
+            _cacheService.remove( cacheKeyByParent );
         }
     }
 }

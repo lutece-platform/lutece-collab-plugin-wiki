@@ -1,4 +1,5 @@
 <#ftl output_format="HTML">
+<@cTpl>
 <div class="wiki-hero-section">
     <div class="container">
         <div class="row">
@@ -94,4 +95,4 @@
 document.querySelectorAll('.wiki-search-highlight').forEach(function(el) {
     el.innerHTML = el.innerHTML.replace(/&lt;mark&gt;/g, '<mark>').replace(/&lt;\/mark&gt;/g, '</mark>');
 });
-</script>
+</script></@cTpl>

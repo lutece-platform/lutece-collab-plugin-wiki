@@ -39,10 +39,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.FileItem;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemHome;
@@ -54,15 +56,20 @@ import fr.paris.lutece.portal.service.file.FileServiceException;
 import fr.paris.lutece.portal.service.file.IFileStoreServiceProvider;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.SecurityService;
+import fr.paris.lutece.portal.service.upload.MultipartItem;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.web.upload.IAsynchronousUploadHandler2;
 
+@ApplicationScoped
 public class WikiAsynchronousUploadHandler implements IAsynchronousUploadHandler2
 {
+    @Inject
+    @Named( "wiki.fileStoreServiceProvider" )
+    private IFileStoreServiceProvider _fileStoreProvider;
+
     private static final String HANDLER_NAME = "wikiAsynchronousUploadHandler";
     private static final String PARAMETER_HANDLER = "handler";
     private static final String PARAMETER_ITEM_ID = "itemId";
-    private static final String FILE_STORE_PROVIDER_NAME = "wikiFileStoreProvider";
     private static final String RESOURCE_TYPE_WIKI = "WIKI";
     private static final String JSON_KEY_FILE_ID = "fileId";
     private static final String JSON_KEY_FILE_URL = "fileUrl";
@@ -80,7 +87,7 @@ public class WikiAsynchronousUploadHandler implements IAsynchronousUploadHandler
      * {@inheritDoc}
      */
     @Override
-    public void process( HttpServletRequest request, HttpServletResponse response, Map<String, Object> mainObject, List<FileItem> fileItems )
+    public void process( HttpServletRequest request, HttpServletResponse response, Map<String, Object> mainObject, List<MultipartItem> fileItems )
     {
         String strItemId = request.getParameter( PARAMETER_ITEM_ID );
 
@@ -125,9 +132,7 @@ public class WikiAsynchronousUploadHandler implements IAsynchronousUploadHandler
             List<Map<String, String>> uploadedFiles = new ArrayList<>( );
             boolean allSuccess = true;
 
-            IFileStoreServiceProvider fileStoreProvider = FileService.getInstance( ).getFileStoreServiceProvider( FILE_STORE_PROVIDER_NAME );
-
-            for ( FileItem fileItem : fileItems )
+            for ( MultipartItem fileItem : fileItems )
             {
                 Map<String, String> fileResult = new HashMap<>( );
 
@@ -142,13 +147,13 @@ public class WikiAsynchronousUploadHandler implements IAsynchronousUploadHandler
                     physicalFile.setValue( fileItem.get( ) );
                     file.setPhysicalFile( physicalFile );
 
-                    String strFileKey = fileStoreProvider.storeFile( file );
+                    String strFileKey = _fileStoreProvider.storeFile( file );
 
                     Map<String, String> additionalData = new HashMap<>( );
                     additionalData.put( FileService.PARAMETER_RESOURCE_ID, String.valueOf( nItemId ) );
                     additionalData.put( FileService.PARAMETER_RESOURCE_TYPE, RESOURCE_TYPE_WIKI );
 
-                    String strFileUrl = fileStoreProvider.getFileDownloadUrlFO( strFileKey, additionalData );
+                    String strFileUrl = _fileStoreProvider.getFileDownloadUrlFO( strFileKey, additionalData );
 
                     fileResult.put( JSON_KEY_FILE_ID, strFileKey );
                     fileResult.put( JSON_KEY_FILE_URL, strFileUrl );
@@ -157,7 +162,7 @@ public class WikiAsynchronousUploadHandler implements IAsynchronousUploadHandler
                 }
                 catch( FileServiceException e )
                 {
-                    AppLogService.error( ERROR_MESSAGE_FAILED_STORE_FILE + fileItem.getName( ), e );
+                    AppLogService.error( "{}{}", ERROR_MESSAGE_FAILED_STORE_FILE, fileItem.getName( ), e );
                     allSuccess = false;
                     fileResult.put( JSON_KEY_ERROR, ERROR_MESSAGE_FAILED_STORE_FILE + fileItem.getName( ) );
                     uploadedFiles.add( fileResult );

@@ -33,10 +33,17 @@
  */
 package fr.paris.lutece.plugins.wiki.service.cache;
 
+import javax.cache.CacheException;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
 import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
-public class WikiCacheService extends AbstractCacheableService
+@ApplicationScoped
+public class WikiCacheService extends AbstractCacheableService<String, Object>
 {
     private static final String CACHE_NAME = "wikiCacheService";
 
@@ -49,23 +56,14 @@ public class WikiCacheService extends AbstractCacheableService
     private static final String OP_CURRENT = "current";
     private static final String ENTITY_REVISION = "revision";
 
-    private WikiCacheService( )
+    WikiCacheService( )
     {
     }
 
-    private static class SingletonHolder
+    @PostConstruct
+    public void init( )
     {
-        static final WikiCacheService INSTANCE = new WikiCacheService( );
-    }
-
-    /**
-     * Gets the singleton instance of WikiCacheService
-     * 
-     * @return the singleton instance
-     */
-    public static WikiCacheService getInstance( )
-    {
-        return SingletonHolder.INSTANCE;
+        initCache( CACHE_NAME, String.class, Object.class );
     }
 
     /**
@@ -96,6 +94,70 @@ public class WikiCacheService extends AbstractCacheableService
             keyBuilder.append( components [i] );
         }
         return keyBuilder.toString( );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void put( String key, Object value )
+    {
+        if ( isCacheEnable( ) && isCacheAvailable( ) )
+        {
+            try
+            {
+                super.put( key, value );
+            }
+            catch( CacheException | IllegalStateException e )
+            {
+                AppLogService.error( "WikiCacheService : error putting key {} in cache", key, e );
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object get( String key )
+    {
+        if ( isCacheEnable( ) && isCacheAvailable( ) )
+        {
+            try
+            {
+                return super.get( key );
+            }
+            catch( CacheException | IllegalStateException e )
+            {
+                AppLogService.error( "WikiCacheService : error getting key {} from cache", key, e );
+            }
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean remove( String key )
+    {
+        if ( isCacheEnable( ) && isCacheAvailable( ) )
+        {
+            try
+            {
+                return super.remove( key );
+            }
+            catch( CacheException | IllegalStateException e )
+            {
+                AppLogService.error( "WikiCacheService : error removing key {} from cache", key, e );
+            }
+        }
+        return false;
+    }
+
+    private boolean isCacheAvailable( )
+    {
+        return _cache != null && !_cache.isClosed( );
     }
 
     /**

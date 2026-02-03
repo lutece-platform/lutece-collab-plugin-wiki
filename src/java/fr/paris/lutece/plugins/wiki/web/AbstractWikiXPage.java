@@ -38,8 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
@@ -51,6 +51,7 @@ import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.util.mvc.xpage.MVCApplication;
+import fr.paris.lutece.portal.web.cdi.mvc.Models;
 
 /**
  * Abstract base class for Wiki XPages Provides flash message handling for messages that survive HTTP redirects
@@ -241,16 +242,16 @@ public abstract class AbstractWikiXPage extends MVCApplication
     /**
      * Populates the common model attributes for wiki XPages
      *
-     * @param model
-     *            The model map
+     * @param models
+     *            The models
      * @param user
      *            The Lutece user
      */
-    protected void populateCommonModel( Map<String, Object> model, LuteceUser user )
+    protected void populateCommonModel( Models models, LuteceUser user )
     {
-        model.put( MARK_USER, user );
-        model.put( MARK_IS_MODULE_AI_PRESENT, PluginService.isPluginEnable( PLUGIN_WIKI_AI ) );
-        model.put( MARK_IS_MODULE_QUIZ_PRESENT, PluginService.isPluginEnable( PLUGIN_WIKI_QUIZ ) );
+        models.put( MARK_USER, user );
+        models.put( MARK_IS_MODULE_AI_PRESENT, PluginService.isPluginEnable( PLUGIN_WIKI_AI ) );
+        models.put( MARK_IS_MODULE_QUIZ_PRESENT, PluginService.isPluginEnable( PLUGIN_WIKI_QUIZ ) );
     }
 
     /**
@@ -285,46 +286,46 @@ public abstract class AbstractWikiXPage extends MVCApplication
     /**
      * Populates the model with data required for the book sidebar
      *
-     * @param model
-     *            The model map
+     * @param models
+     *            The models
      * @param user
      *            The Lutece user
      * @param book
      *            The book
      */
-    protected void populateBookSidebarModel( Map<String, Object> model, LuteceUser user, Book book )
+    protected void populateBookSidebarModel( Models models, LuteceUser user, Book book )
     {
         List<AbstractWikiItem> bookChildren = loadItemChildren( user, book );
         Map<String, Boolean> childEditRights = computeChildEditRights( user, bookChildren );
 
-        model.put( MARK_BOOK, book );
-        model.put( MARK_BOOK_CHILDREN, bookChildren );
-        model.put( MARK_CHAPTER_EDIT_RIGHTS, childEditRights );
-        model.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, book ) );
-        model.put( MARK_SPACE, findSpaceForBook( book ) );
-        populateCommonModel( model, user );
+        models.put( MARK_BOOK, book );
+        models.put( MARK_BOOK_CHILDREN, bookChildren );
+        models.put( MARK_CHAPTER_EDIT_RIGHTS, childEditRights );
+        models.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, book ) );
+        models.put( MARK_SPACE, findSpaceForBook( book ) );
+        populateCommonModel( models, user );
     }
 
     /**
      * Populates the model with data required for the space sidebar
      *
-     * @param model
-     *            The model map
+     * @param models
+     *            The models
      * @param user
      *            The Lutece user
      * @param space
      *            The space
      */
-    protected void populateSpaceSidebarModel( Map<String, Object> model, LuteceUser user, Space space )
+    protected void populateSpaceSidebarModel( Models models, LuteceUser user, Space space )
     {
         List<AbstractWikiItem> spaceChildren = loadItemChildren( user, space );
         Map<String, Boolean> childEditRights = computeChildEditRights( user, spaceChildren );
 
-        model.put( MARK_SPACE, space );
-        model.put( MARK_SPACE_CHILDREN, spaceChildren );
-        model.put( MARK_SPACE_CHILDREN_EDIT_RIGHTS, childEditRights );
-        model.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, space ) );
-        populateCommonModel( model, user );
+        models.put( MARK_SPACE, space );
+        models.put( MARK_SPACE_CHILDREN, spaceChildren );
+        models.put( MARK_SPACE_CHILDREN_EDIT_RIGHTS, childEditRights );
+        models.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, space ) );
+        populateCommonModel( models, user );
     }
 
     /**
@@ -342,12 +343,12 @@ public abstract class AbstractWikiXPage extends MVCApplication
     /**
      * Populates the model with navigation context by traversing up the hierarchy. Adds the appropriate BOOK, CHAPTER, or SPACE to the model.
      *
-     * @param model
-     *            the model map
+     * @param models
+     *            the models
      * @param item
      *            the starting item (can be the item itself or its parent)
      */
-    protected void populateNavigationContext( Map<String, Object> model, AbstractWikiItem item )
+    protected void populateNavigationContext( Models models, AbstractWikiItem item )
     {
         if ( item == null )
         {
@@ -360,13 +361,13 @@ public abstract class AbstractWikiXPage extends MVCApplication
             switch( current.getType( ) )
             {
                 case CHAPTER:
-                    model.put( MARK_CHAPTER, current );
+                    models.put( MARK_CHAPTER, current );
                     break;
                 case BOOK:
-                    model.put( MARK_BOOK, current );
+                    models.put( MARK_BOOK, current );
                     return;
                 case SPACE:
-                    model.put( MARK_SPACE, current );
+                    models.put( MARK_SPACE, current );
                     return;
                 case CATEGORY:
                     break;

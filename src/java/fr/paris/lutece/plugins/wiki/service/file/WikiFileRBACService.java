@@ -35,6 +35,9 @@ package fr.paris.lutece.plugins.wiki.service.file;
 
 import java.util.Map;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
+
 import fr.paris.lutece.api.user.User;
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemHome;
@@ -46,6 +49,8 @@ import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.UserNotSignedException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
+@ApplicationScoped
+@Named( "wiki.wikiFileRBACService" )
 public class WikiFileRBACService implements IFileRBACService
 {
     private static final long serialVersionUID = 1L;
@@ -76,7 +81,7 @@ public class WikiFileRBACService implements IFileRBACService
         }
         catch( NumberFormatException e )
         {
-            AppLogService.error( MESSAGE_INVALID_RESOURCE_ID + strResourceId, e );
+            AppLogService.error( "{}{}", MESSAGE_INVALID_RESOURCE_ID, strResourceId, e );
             throw new AccessDeniedException( MESSAGE_UNAUTHORIZED );
         }
 
@@ -84,7 +89,7 @@ public class WikiFileRBACService implements IFileRBACService
 
         if ( item == null )
         {
-            AppLogService.error( MESSAGE_ITEM_NOT_FOUND + nItemId );
+            AppLogService.error( "{}{}", MESSAGE_ITEM_NOT_FOUND, nItemId );
             throw new AccessDeniedException( MESSAGE_UNAUTHORIZED );
         }
 

@@ -55,6 +55,7 @@ import fr.paris.lutece.plugins.wiki.business.revision.Revision;
 import fr.paris.lutece.plugins.wiki.business.revision.RevisionHome;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
 import fr.paris.lutece.plugins.wiki.service.WikiUrlService;
+
 import fr.paris.lutece.portal.service.message.SiteMessageException;
 import fr.paris.lutece.portal.service.search.IndexationService;
 import fr.paris.lutece.portal.service.search.SearchIndexer;
@@ -223,7 +224,7 @@ public class WikiSearchIndexer implements SearchIndexer
         }
         catch( IOException e )
         {
-            AppLogService.error( LOG_ERROR_INDEXING + item.getId( ), e );
+            AppLogService.error( "{}{}", LOG_ERROR_INDEXING, item.getId( ), e );
         }
     }
 

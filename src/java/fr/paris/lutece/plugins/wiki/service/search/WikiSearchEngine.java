@@ -40,7 +40,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
@@ -78,6 +79,7 @@ import fr.paris.lutece.portal.service.security.SecurityService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
+@ApplicationScoped
 public class WikiSearchEngine implements SearchEngine
 {
 
@@ -105,29 +107,8 @@ public class WikiSearchEngine implements SearchEngine
     private static final int MIN_RESULTS_BEFORE_FUZZY = AppPropertiesService.getPropertyInt( PROPERTY_FUZZY_MIN_RESULTS, 5 );
     private static final int FUZZY_EDIT_DISTANCE = AppPropertiesService.getPropertyInt( PROPERTY_FUZZY_EDIT_DISTANCE, 2 );
 
-    /**
-     * Private constructor for singleton pattern
-     */
-    private WikiSearchEngine( )
+    WikiSearchEngine( )
     {
-    }
-
-    /**
-     * Singleton holder pattern
-     */
-    private static class SingletonHolder
-    {
-        static final WikiSearchEngine INSTANCE = new WikiSearchEngine( );
-    }
-
-    /**
-     * Gets the singleton instance
-     *
-     * @return the singleton instance of WikiSearchEngine
-     */
-    public static WikiSearchEngine getInstance( )
-    {
-        return SingletonHolder.INSTANCE;
     }
 
     /**
@@ -356,7 +337,7 @@ public class WikiSearchEngine implements SearchEngine
             }
             catch( ParseException e )
             {
-                AppLogService.error( ERROR_PARSING_DATE + result.getId( ), e );
+                AppLogService.error( "{}{}", ERROR_PARSING_DATE, result.getId( ), e );
             }
         }
     }
