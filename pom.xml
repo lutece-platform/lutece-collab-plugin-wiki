@@ -54,7 +54,7 @@
     </dependencies>
 
    <properties>
-        <targetJdk>21</targetJdk>
+        <targetJdk>17</targetJdk>
         <componentName>wiki</componentName>
         <jiraProjectName>WIKI</jiraProjectName>
         <jiraComponentId>10361</jiraComponentId>
