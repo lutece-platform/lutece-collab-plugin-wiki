@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 </script>
 
-<#if is_module_ai_present?? && is_module_ai_present>
+<#if user?? && is_module_ai_present?? && is_module_ai_present>
     <#include "/skin/plugins/wiki/modules/ai/chat.html">
 </#if>
 </@cTpl>
