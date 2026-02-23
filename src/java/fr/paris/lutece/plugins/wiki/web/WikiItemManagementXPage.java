@@ -1161,7 +1161,27 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     }
 
     /**
-     * Populates a bean with decoded request parameters
+     * Returns the original (unwrapped) request, bypassing any filter wrappers
+     * such as XSSRequestWrapper that may sanitize parameter values.
+     *
+     * @param request
+     *            the potentially wrapped request
+     * @return the original HttpServletRequest
+     */
+    private HttpServletRequest unwrapRequest( HttpServletRequest request )
+    {
+        HttpServletRequest current = request;
+        while ( current instanceof HttpServletRequestWrapper )
+        {
+            current = (HttpServletRequest) ( (HttpServletRequestWrapper) current ).getRequest( );
+        }
+        return current;
+    }
+
+    /**
+     * Populates a bean with decoded request parameters.
+     * Reads base64 URL-safe encoded values from the raw request
+     * to bypass XSS sanitizer corruption.
      *
      * @param bean
      *            the bean to populate
@@ -1170,15 +1190,17 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      */
     private void populateWithDecode( Object bean, HttpServletRequest request )
     {
+        HttpServletRequest rawRequest = unwrapRequest( request );
+
         HttpServletRequest wrappedRequest = new HttpServletRequestWrapper( request )
         {
             @Override
             public String getParameter( String name )
             {
-                String encodedValue = super.getParameter( name + PARAMETER_ENCODED_SUFFIX );
+                String encodedValue = rawRequest.getParameter( name + PARAMETER_ENCODED_SUFFIX );
                 if ( encodedValue != null && !encodedValue.isEmpty( ) )
                 {
-                    byte [ ] decodedBytes = Base64.getDecoder( ).decode( encodedValue );
+                    byte [ ] decodedBytes = Base64.getUrlDecoder( ).decode( encodedValue );
                     return new String( decodedBytes, StandardCharsets.UTF_8 );
                 }
                 return super.getParameter( name );
@@ -1197,7 +1219,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
             public Map<String, String [ ]> getParameterMap( )
             {
                 Map<String, String [ ]> map = new HashMap<>( super.getParameterMap( ) );
-                for ( String paramName : super.getParameterMap( ).keySet( ) )
+                for ( String paramName : rawRequest.getParameterMap( ).keySet( ) )
                 {
                     if ( paramName.endsWith( PARAMETER_ENCODED_SUFFIX ) )
                     {
