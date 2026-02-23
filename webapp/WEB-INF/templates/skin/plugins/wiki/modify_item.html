@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <form method="post" action="jsp/site/Portal.jsp" class="xss-safe-form">
+    <form method="post" action="jsp/site/Portal.jsp" class="xss-safe-form" id="modifyItemForm">
         <input type="hidden" name="page" value="wikiitemmanagement">
         <input type="hidden" name="action" value="updateItem">
         <input type="hidden" name="token" value="${token}">
@@ -258,10 +258,7 @@
             );
             </#noautoesc>
 
-        const form = document.querySelector("form");
-        if (form) {
-            WikiMilkdownEditor.setupFormSubmit(form, "content");
-        }
+            WikiMilkdownEditor.setupFormSubmit("modifyItemForm", "content");
 });
     </script>
 </#if>

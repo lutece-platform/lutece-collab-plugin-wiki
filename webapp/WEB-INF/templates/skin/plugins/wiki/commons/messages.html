@@ -1,6 +1,6 @@
 <#ftl output_format="HTML">
 <@cTpl>
-<#-- Display error messages -->
+<#-- Display error messages (errors are MVCMessage objects with .message) -->
 <#if errors?has_content>
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         <#list errors as error>
@@ -10,21 +10,21 @@
     </div>
 </#if>
 
-<#-- Display warning messages -->
+<#-- Display warning messages (warnings are plain strings) -->
 <#if warnings?has_content>
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
         <#list warnings as warning>
-            <p>${warning.message}</p>
+            <p>${warning}</p>
         </#list>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 </#if>
 
-<#-- Display info messages -->
+<#-- Display info messages (infos are plain strings) -->
 <#if infos?has_content>
     <div class="alert alert-info alert-dismissible fade show" role="alert">
         <#list infos as info>
-            <p>${info.message}</p>
+            <p>${info}</p>
         </#list>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>

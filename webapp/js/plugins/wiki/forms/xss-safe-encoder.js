@@ -2,13 +2,17 @@
     'use strict';
 
     /**
-     * Encode string to Base64
+     * Encode string to URL-safe Base64 (RFC 4648 section 5).
+     * Uses - instead of + and _ instead of / to avoid issues
+     * with application/x-www-form-urlencoded form submissions.
      * @throws Error if encoding fails
      */
     function encodeToBase64(str) {
         if (!str) return '';
         try {
-            return btoa(unescape(encodeURIComponent(str)));
+            return btoa(unescape(encodeURIComponent(str)))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_');
         } catch (e) {
             console.error('Error encoding to Base64:', e);
             throw new Error('Failed to encode content safely. Please remove special characters and try again.');
@@ -20,7 +24,6 @@
      */
     function processFormSubmission(form, e) {
         const fieldsToEncode = ['title', 'description', 'content', 'comment'];
-        let hasEncodedFields = false;
 
         fieldsToEncode.forEach(fieldName => {
             const field = form.querySelector(`[name="${fieldName}"]`);
@@ -30,24 +33,16 @@
                     existingHidden.remove();
                 }
 
+                const encoded = encodeToBase64(field.value);
                 const hiddenField = document.createElement('input');
                 hiddenField.type = 'hidden';
                 hiddenField.name = fieldName + '_encoded';
-                hiddenField.value = encodeToBase64(field.value);
+                hiddenField.value = encoded;
                 form.appendChild(hiddenField);
 
-                hasEncodedFields = true;
+                field.value = '';
             }
         });
-
-        if (hasEncodedFields) {
-            fieldsToEncode.forEach(fieldName => {
-                const field = form.querySelector(`[name="${fieldName}"]`);
-                if (field && form.querySelector(`[name="${fieldName}_encoded"]`)) {
-                    field.value = '';
-                }
-            });
-        }
     }
 
     /**
