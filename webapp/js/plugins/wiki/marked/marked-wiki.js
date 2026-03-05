@@ -109,6 +109,12 @@
                         </div>`;
                 };
 
+                const originalTableRenderer = renderer.table;
+                renderer.table = function(token) {
+                    const html = originalTableRenderer.call(this, token);
+                    return '<div class="wiki-table-wrapper">' + html + '</div>';
+                };
+
                 marked.setOptions({ renderer, breaks: true, gfm: true });
 
                 if (window.markedAlert) marked.use(window.markedAlert);
@@ -129,8 +135,9 @@
             }
 
             await this.init();
-            container.innerHTML = DOMPurify.sanitize(marked.parse(content));
+            container.innerHTML = DOMPurify.sanitize(marked.parse(content)).replace(/(&nbsp;\s*){2,}/g, ' ');
             this.initCodeCopy(container);
+            this.fixTableColumns(container);
 
             if (window.renderMermaidBlocks) {
                 renderMermaidBlocks(container);
@@ -397,6 +404,32 @@
                 this._scrollSpyCleanup();
                 this._scrollSpyCleanup = null;
             }
+        },
+
+        fixTableColumns(container) {
+            container.querySelectorAll('.wiki-table-wrapper table').forEach(table => {
+                const firstRow = table.querySelector('tr');
+                if (!firstRow) return;
+                const cells = firstRow.querySelectorAll('th, td');
+                if (cells.length === 0) return;
+
+                table.style.width = 'auto';
+                table.style.tableLayout = 'auto';
+                const widths = Array.from(cells).map(cell => cell.offsetWidth);
+                const total = widths.reduce((a, b) => a + b, 0);
+                if (total === 0) return;
+
+                const dampened = widths.map(w => Math.sqrt(w));
+                const dTotal = dampened.reduce((a, b) => a + b, 0);
+                const pcts = dampened.map(d => (d / dTotal * 100));
+
+                cells.forEach((cell, i) => { cell.style.width = pcts[i].toFixed(1) + '%'; });
+                table.style.width = '100%';
+                table.style.tableLayout = 'fixed';
+                table.querySelectorAll('th, td').forEach(cell => {
+                    cell.style.overflowWrap = 'anywhere';
+                });
+            });
         },
 
         blinkElement(element) {

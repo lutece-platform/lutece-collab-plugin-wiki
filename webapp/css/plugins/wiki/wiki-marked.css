@@ -54,19 +54,44 @@
 .wiki-markdown-content a:hover {
     text-decoration: underline;
 }
-.wiki-markdown-content table {
-    width: 100%;
+.wiki-markdown-content .wiki-table-wrapper {
     margin: 12px 0;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--bs-border-color);
+}
+.wiki-markdown-content table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    max-width: 100%;
+    border: none;
+    margin: 0;
+    border-radius: 0;
+    overflow: hidden;
 }
 .wiki-markdown-content th,
 .wiki-markdown-content td {
-    padding: 8px 12px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
     text-align: left;
-    word-break: break-all;
+    border-bottom: 1px solid var(--bs-border-color);
+    border-right: 1px solid var(--bs-border-color);
+}
+.wiki-markdown-content th:last-child,
+.wiki-markdown-content td:last-child {
+    border-right: none;
+}
+.wiki-markdown-content tbody tr:last-child td {
+    border-bottom: none;
 }
 .wiki-markdown-content th {
-    background: var(--bs-tertiary-bg);
+    background-color: var(--bs-tertiary-bg);
     font-weight: 600;
+    border-bottom: 2px solid var(--bs-border-color);
+}
+.wiki-markdown-content td {
+    background-color: var(--bs-secondary-bg);
 }
 .wiki-markdown-content img,
 .wiki-markdown-content video,
