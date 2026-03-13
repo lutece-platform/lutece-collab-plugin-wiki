@@ -213,8 +213,7 @@ public abstract class AbstractWikiXPage extends MVCApplication
 
             if ( !child.getAllowedChildTypes( ).isEmpty( ) && !child.supportsContent( ) )
             {
-                List<AbstractWikiItem> visibleChildren = WikiItemService.getPublishedItemsByParent( child.getId( ) ).stream( )
-                        .filter( item -> WikiAccessControlService.canView( user, item ) ).collect( Collectors.toList( ) );
+                List<AbstractWikiItem> visibleChildren = loadItemChildren( user, child );
                 child.setChildren( visibleChildren );
             }
             result.add( child );
@@ -234,8 +233,16 @@ public abstract class AbstractWikiXPage extends MVCApplication
      */
     protected Map<String, Boolean> computeChildEditRights( LuteceUser user, List<AbstractWikiItem> children )
     {
-        return children.stream( )
-                .collect( Collectors.toMap( child -> String.valueOf( child.getId( ) ), child -> WikiAccessControlService.canEdit( user, child ) ) );
+        Map<String, Boolean> rights = new java.util.HashMap<>( );
+        for ( AbstractWikiItem child : children )
+        {
+            rights.put( String.valueOf( child.getId( ) ), WikiAccessControlService.canEdit( user, child ) );
+            if ( child.getChildren( ) != null && !child.getChildren( ).isEmpty( ) )
+            {
+                rights.putAll( computeChildEditRights( user, child.getChildren( ) ) );
+            }
+        }
+        return rights;
     }
 
     /**
@@ -262,22 +269,14 @@ public abstract class AbstractWikiXPage extends MVCApplication
      */
     protected AbstractWikiItem findSpaceForBook( Book book )
     {
-        if ( book.getIdParent( ) == null )
+        AbstractWikiItem current = book.getIdParent( ) != null ? WikiItemService.findById( book.getIdParent( ) ) : null;
+        while ( current != null )
         {
-            return null;
-        }
-        AbstractWikiItem parent = WikiItemService.findById( book.getIdParent( ) );
-        if ( parent == null )
-        {
-            return null;
-        }
-        if ( parent.getType( ) == WikiItemType.SPACE )
-        {
-            return parent;
-        }
-        if ( parent.getType( ) == WikiItemType.CATEGORY && parent.getIdParent( ) != null )
-        {
-            return WikiItemService.findById( parent.getIdParent( ) );
+            if ( current.getType( ) == WikiItemType.SPACE )
+            {
+                return current;
+            }
+            current = current.getIdParent( ) != null ? WikiItemService.findById( current.getIdParent( ) ) : null;
         }
         return null;
     }
@@ -354,13 +353,18 @@ public abstract class AbstractWikiXPage extends MVCApplication
             return;
         }
 
+        boolean chapterSet = false;
         AbstractWikiItem current = item;
         while ( current != null )
         {
             switch( current.getType( ) )
             {
                 case CHAPTER:
-                    model.put( MARK_CHAPTER, current );
+                    if ( !chapterSet )
+                    {
+                        model.put( MARK_CHAPTER, current );
+                        chapterSet = true;
+                    }
                     break;
                 case BOOK:
                     model.put( MARK_BOOK, current );

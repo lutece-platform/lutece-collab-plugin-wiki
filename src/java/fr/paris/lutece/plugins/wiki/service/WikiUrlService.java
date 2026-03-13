@@ -175,10 +175,14 @@ public final class WikiUrlService
      */
     private static String buildCategoryUrl( Category category )
     {
-        AbstractWikiItem space = category.getParent( );
-        if ( space != null )
+        AbstractWikiItem current = category.getParent( );
+        while ( current != null )
         {
-            return buildSpaceUrl( (Space) space ) + "#category-" + category.getId( );
+            if ( current instanceof Space )
+            {
+                return buildSpaceUrl( (Space) current ) + "#category-" + category.getId( );
+            }
+            current = current.getParent( );
         }
         return buildListUrl( );
     }
@@ -208,10 +212,14 @@ public final class WikiUrlService
      */
     private static String buildChapterUrl( Chapter chapter )
     {
-        AbstractWikiItem book = chapter.getParent( );
-        if ( book != null )
+        AbstractWikiItem parent = chapter.getParent( );
+        if ( parent instanceof Book )
         {
-            return buildBookUrl( (Book) book ) + "#chapter-" + chapter.getId( );
+            return buildBookUrl( (Book) parent ) + "#chapter-" + chapter.getId( );
+        }
+        else if ( parent instanceof Chapter )
+        {
+            return buildChapterUrl( (Chapter) parent ) + "#chapter-" + chapter.getId( );
         }
         return buildListUrl( );
     }
@@ -245,13 +253,18 @@ public final class WikiUrlService
      */
     private static void addNavigationParams( UrlItem url, AbstractWikiItem item )
     {
+        boolean chapterAdded = false;
         AbstractWikiItem current = item;
         while ( current != null )
         {
             switch( current.getType( ) )
             {
                 case CHAPTER:
-                    url.addParameter( PARAM_CHAPTER, current.getCode( ) );
+                    if ( !chapterAdded )
+                    {
+                        url.addParameter( PARAM_CHAPTER, current.getCode( ) );
+                        chapterAdded = true;
+                    }
                     break;
                 case BOOK:
                     url.addParameter( PARAM_BOOK, current.getCode( ) );
