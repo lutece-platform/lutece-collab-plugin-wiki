@@ -126,4 +126,15 @@ public interface IWikiItemDAO
      * @return an Optional containing the wiki item if found, empty otherwise
      */
     Optional<AbstractWikiItem> selectByCode( String strCode, Plugin plugin );
+
+    /**
+     * Select all wiki items whose parent id is in the given list
+     *
+     * @param listParentIds
+     *            the list of parent ids
+     * @param plugin
+     *            the plugin
+     * @return the list of wiki items having a parent in the specified list
+     */
+    List<AbstractWikiItem> selectWikiItemsByParentIds( List<Integer> listParentIds, Plugin plugin );
 }

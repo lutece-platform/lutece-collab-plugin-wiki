@@ -34,18 +34,20 @@
 package fr.paris.lutece.plugins.wiki.web;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
+import fr.paris.lutece.plugins.wiki.business.item.WikiItemHome;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Book;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Space;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
+import fr.paris.lutece.plugins.wiki.service.RevisionService;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -191,7 +193,7 @@ public abstract class AbstractWikiXPage extends MVCApplication
     }
 
     /**
-     * Loads the children of an item for a given user, recursively loading grandchildren for container types
+     * Loads the children of an item for a given user, using bulk-loaded descendant tree
      *
      * @param user
      *            The Lutece user
@@ -201,19 +203,38 @@ public abstract class AbstractWikiXPage extends MVCApplication
      */
     protected List<AbstractWikiItem> loadItemChildren( LuteceUser user, AbstractWikiItem parent )
     {
-        List<AbstractWikiItem> allChildren = WikiItemService.getPublishedItemsByParent( parent.getId( ) );
+        Map<Integer, List<AbstractWikiItem>> descendantsByParent = WikiItemHome.getDescendantsByParent( parent.getId( ) );
+        return buildVisibleTree( user, parent.getId( ), descendantsByParent );
+    }
+
+    /**
+     * Builds the visible tree from a pre-loaded descendants map
+     *
+     * @param user
+     *            The Lutece user
+     * @param nParentId
+     *            The parent id
+     * @param descendantsByParent
+     *            The map of parent id to children
+     * @return The list of visible children with their own children loaded
+     */
+    private List<AbstractWikiItem> buildVisibleTree( LuteceUser user, int nParentId, Map<Integer, List<AbstractWikiItem>> descendantsByParent )
+    {
+        List<AbstractWikiItem> children = descendantsByParent.getOrDefault( nParentId, Collections.emptyList( ) );
         List<AbstractWikiItem> result = new ArrayList<>( );
 
-        for ( AbstractWikiItem child : allChildren )
+        for ( AbstractWikiItem child : children )
         {
-            if ( !WikiAccessControlService.canView( user, child ) )
+            child.setCurrentRevision( RevisionService.getCurrentRevision( child.getId( ) ) );
+
+            if ( !child.isPublished( ) || !WikiAccessControlService.canView( user, child ) )
             {
                 continue;
             }
 
             if ( !child.getAllowedChildTypes( ).isEmpty( ) && !child.supportsContent( ) )
             {
-                List<AbstractWikiItem> visibleChildren = loadItemChildren( user, child );
+                List<AbstractWikiItem> visibleChildren = buildVisibleTree( user, child.getId( ), descendantsByParent );
                 child.setChildren( visibleChildren );
             }
             result.add( child );

@@ -50,6 +50,7 @@ import fr.paris.lutece.plugins.wiki.business.revision.RevisionHome;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
 import fr.paris.lutece.portal.service.security.LuteceUser;
+import java.util.stream.Collectors;
 
 /**
  * Service for managing activity timeline
@@ -112,7 +113,7 @@ public final class ActivityService
     }
 
     /**
-     * Gets all descendant IDs of an item (recursive)
+     * Gets all descendant IDs of an item using bulk loading
      *
      * @param nItemId
      *            The item ID
@@ -122,26 +123,8 @@ public final class ActivityService
     {
         List<Integer> listIds = new ArrayList<>( );
         listIds.add( nItemId );
-        collectDescendantIds( nItemId, listIds );
+        listIds.addAll( WikiItemHome.getDescendants( nItemId ).stream( ).map( AbstractWikiItem::getId ).collect( Collectors.toList( ) ) );
         return listIds;
-    }
-
-    /**
-     * Recursively collects descendant IDs
-     *
-     * @param nParentId
-     *            The parent ID
-     * @param listIds
-     *            The list to populate
-     */
-    private static void collectDescendantIds( int nParentId, List<Integer> listIds )
-    {
-        List<AbstractWikiItem> children = WikiItemHome.getWikiItemsByParent( nParentId );
-        for ( AbstractWikiItem child : children )
-        {
-            listIds.add( child.getId( ) );
-            collectDescendantIds( child.getId( ), listIds );
-        }
     }
 
     /**

@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.wiki.service.search;
 import java.util.List;
 
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
+import fr.paris.lutece.plugins.wiki.business.item.WikiItemHome;
 import fr.paris.lutece.plugins.wiki.business.revision.Revision;
 import fr.paris.lutece.plugins.wiki.business.revision.RevisionHome;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
@@ -208,25 +209,24 @@ public class WikiSearchEventListener implements EventRessourceListener
     }
 
     /**
-     * Indexes all children of a wiki item recursively
+     * Indexes all descendants of a wiki item using bulk loading
      *
      * @param item
      *            the parent wiki item
      */
     private void indexChildren( AbstractWikiItem item )
     {
-        List<AbstractWikiItem> children = WikiItemService.getItemsByParent( item.getId( ) );
+        List<AbstractWikiItem> descendants = WikiItemHome.getDescendants( item.getId( ) );
 
-        for ( AbstractWikiItem child : children )
+        for ( AbstractWikiItem descendant : descendants )
         {
-            if ( child.isPublished( ) )
+            if ( descendant.isPublished( ) )
             {
-                Revision currentRevision = RevisionHome.getCurrentRevision( child.getId( ) );
+                Revision currentRevision = RevisionHome.getCurrentRevision( descendant.getId( ) );
 
                 if ( currentRevision != null )
                 {
-                    addToIndex( child );
-                    indexChildren( child );
+                    addToIndex( descendant );
                 }
             }
         }
@@ -269,7 +269,7 @@ public class WikiSearchEventListener implements EventRessourceListener
     }
 
     /**
-     * Removes a wiki item and its children from the search index for all available languages
+     * Removes a wiki item and its descendants from the search index using bulk loading
      *
      * @param strIdResource
      *            the resource ID as string
@@ -282,11 +282,12 @@ public class WikiSearchEventListener implements EventRessourceListener
         String strId = strResourceType + RESOURCE_ID_SEPARATOR + nId;
         IndexationService.addIndexerAction( strId, WikiSearchIndexer.INDEXER_NAME, IndexerAction.TASK_DELETE );
 
-        List<AbstractWikiItem> children = WikiItemService.getItemsByParent( nId );
+        List<AbstractWikiItem> descendants = WikiItemHome.getDescendants( nId );
 
-        for ( AbstractWikiItem child : children )
+        for ( AbstractWikiItem descendant : descendants )
         {
-            removeWikiItem( String.valueOf( child.getId( ) ), child.getResourceType( ) );
+            String strDescId = descendant.getResourceType( ) + RESOURCE_ID_SEPARATOR + descendant.getId( );
+            IndexationService.addIndexerAction( strDescId, WikiSearchIndexer.INDEXER_NAME, IndexerAction.TASK_DELETE );
         }
     }
 }

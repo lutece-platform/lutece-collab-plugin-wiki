@@ -46,6 +46,7 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
+import fr.paris.lutece.plugins.wiki.business.item.WikiItemHome;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Book;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Chapter;
@@ -102,7 +103,14 @@ public class WikiSearchIndexer implements SearchIndexer
         for ( AbstractWikiItem book : listBooks )
         {
             indexItem( book );
-            indexItemChildren( book );
+            List<AbstractWikiItem> descendants = WikiItemHome.getDescendants( book.getId( ) );
+            for ( AbstractWikiItem descendant : descendants )
+            {
+                if ( descendant.isPublished( ) )
+                {
+                    indexItem( descendant );
+                }
+            }
         }
     }
 
@@ -184,25 +192,6 @@ public class WikiSearchIndexer implements SearchIndexer
     public String getSpecificSearchAppUrl( )
     {
         return PORTAL_WIKI_URL;
-    }
-
-    /**
-     * Index all children of a wiki item recursively
-     * 
-     * @param parent
-     *            the parent item
-     * @throws IOException
-     *             if an error occurs during indexing
-     */
-    private void indexItemChildren( AbstractWikiItem parent ) throws IOException
-    {
-        List<AbstractWikiItem> children = WikiItemService.getPublishedItemsByParent( parent.getId( ) );
-
-        for ( AbstractWikiItem child : children )
-        {
-            indexItem( child );
-            indexItemChildren( child );
-        }
     }
 
     /**
