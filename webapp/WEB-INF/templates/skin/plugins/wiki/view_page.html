@@ -22,7 +22,11 @@
 
 
         <#if page.currentRevision??>
-
+            <#if page.currentRevision.dateCreation??>
+                <small class="text-muted d-block mb-3">
+                    #i18n{wiki.page.lastUpdate} : ${page.currentRevision.dateCreation?string("dd/MM/yyyy")}
+                </small>
+            </#if>
 
             <#if page.currentRevision.content?has_content>
                 <div class="wiki-content wiki-markdown-content mb-4" id="wiki-content-${page.id}">
