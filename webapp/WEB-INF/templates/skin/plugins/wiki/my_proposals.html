@@ -1,0 +1,65 @@
+<#ftl output_format="HTML">
+<#--
+    Renders a Bootstrap badge matching a suggestion status.
+    PENDING = secondary, APPROVED = success, REJECTED = danger.
+-->
+<#macro statusBadge status>
+    <#if status == "APPROVED">
+        <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">#i18n{wiki.suggestion.status.approved}</span>
+    <#elseif status == "REJECTED">
+        <span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle">#i18n{wiki.suggestion.status.rejected}</span>
+    <#else>
+        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">#i18n{wiki.suggestion.status.pending}</span>
+    </#if>
+</#macro>
+
+<div class="container mb-5">
+    <div class="mb-4">
+        <h1 class="mb-2">#i18n{wiki.suggestion.mine.title}</h1>
+        <p class="text-muted">#i18n{wiki.suggestion.mine.description}</p>
+    </div>
+
+    <#include "commons/messages.html" />
+
+    <#if suggestions?? && suggestions?has_content>
+        <div class="card" style="border-radius: 20px;">
+            <ul class="list-group list-group-flush">
+                <#list suggestions as s>
+                    <#assign target = items_by_id[s.entityId?c]!>
+                    <li class="list-group-item p-4">
+                        <div class="d-flex justify-content-between align-items-center gap-3">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <h5 class="mb-0">${s.title!''}</h5>
+                                    <@statusBadge status=s.status.name() />
+                                </div>
+                                <small class="text-muted d-block">
+                                    <#if target??>
+                                        <i class="ti ti-file me-1"></i>${target.code}
+                                    </#if>
+                                    <#if s.dateCreation??>
+                                        <i class="ti ti-clock me-1 ms-3"></i>${s.dateCreation?string("dd/MM/yyyy HH:mm")}
+                                    </#if>
+                                </small>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <#if target??>
+                                    <a href="${target.viewUrl}" class="btn btn-light btn-sm rounded-pill px-3">
+                                        #i18n{wiki.suggestion.mine.viewPage}
+                                    </a>
+                                </#if>
+                                <a href="jsp/site/Portal.jsp?page=wikisuggestion&view=viewSuggestion&id=${s.id?c}" class="btn btn-dark btn-sm rounded-pill px-3">
+                                    #i18n{wiki.suggestion.mine.viewSuggestion}
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                </#list>
+            </ul>
+        </div>
+    <#else>
+        <div class="alert alert-info">
+            #i18n{wiki.suggestion.mine.empty}
+        </div>
+    </#if>
+</div>

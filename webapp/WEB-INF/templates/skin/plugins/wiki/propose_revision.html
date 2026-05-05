@@ -1,0 +1,88 @@
+<#ftl output_format="HTML">
+<div class="container mb-5">
+    <div class="mb-4">
+        <h1 class="mb-2">#i18n{wiki.suggestion.propose.title}</h1>
+        <p class="text-muted">#i18n{wiki.suggestion.propose.description}</p>
+    </div>
+
+    <#include "commons/messages.html" />
+
+    <form method="post" action="jsp/site/Portal.jsp" class="xss-safe-form">
+        <input type="hidden" name="page" value="wikisuggestion">
+        <input type="hidden" name="action" value="doPropose">
+        <input type="hidden" name="token" value="${token}">
+        <input type="hidden" name="code" value="${item.code}">
+
+        <#if item.supportsContent()>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4" style="border-radius: 20px;">
+                        <div class="card-body p-4">
+                            <div id="editor-container" class="form-control">
+                                <div class="wiki-editor-loader">
+                                    <div class="spinner-border text-secondary" role="status">
+                                        <span class="visually-hidden">#i18n{wiki.editor.loading}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <textarea class="form-control d-none" id="content" name="content" rows="15">${(current_revision.content)!''}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </#if>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <div class="mb-0">
+                            <label for="comment" class="form-label">#i18n{wiki.suggestion.proposeComment} *</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="5" maxlength="500" required
+                                placeholder="#i18n{wiki.suggestion.proposeComment.placeholder}"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-dark rounded-pill px-4">
+                <i class="ti ti-send me-2"></i>#i18n{wiki.suggestion.action.submit}
+            </button>
+            <a href="${item.viewUrl}" class="btn btn-light rounded-pill px-4">
+                #i18n{wiki.action.cancel}
+            </a>
+        </div>
+    </form>
+</div>
+
+<#if item.supportsContent()>
+    <link rel="stylesheet" href="js/plugins/wiki/milkdown/dist/milkdown-bundle.css">
+    <link rel="stylesheet" href="css/plugins/wiki/wiki-milkdown.css">
+    <script src="js/plugins/wiki/milkdown/dist/milkdown-bundle.umd.cjs"></script>
+    <script src="js/plugins/wiki/milkdown/milkdown-editor.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            <#noautoesc>
+            WikiMilkdownEditor.init(
+                "#editor-container",
+                "content",
+                "${((current_revision.content)!'')?js_string}",
+                { theme: "frame", lang: "fr", itemId: ${ item.id } }
+            );
+            </#noautoesc>
+
+            const form = document.querySelector("form");
+            if (form) {
+                WikiMilkdownEditor.setupFormSubmit(form, "content");
+            }
+        });
+    </script>
+</#if>
+
+<style>
+    #editor-container { border: none !important; }
+</style>
+
+<script src="js/plugins/wiki/forms/xss-safe-encoder.js"></script>

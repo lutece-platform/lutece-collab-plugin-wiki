@@ -52,6 +52,7 @@ public final class WikiItemDAO implements IWikiItemDAO
     private static final String SQL_QUERY_SELECT_BY_PARENT_AND_TYPE = "SELECT id_item, code, icon, is_published, view_role, edit_role, item_type, id_parent, item_order, date_creation, date_modification FROM wiki_item WHERE id_parent = ? AND item_type = ? ORDER BY item_order";
     private static final String SQL_QUERY_SELECT_BY_CODE = "SELECT id_item, code, icon, is_published, view_role, edit_role, item_type, id_parent, item_order, date_creation, date_modification FROM wiki_item WHERE code = ?";
     private static final String SQL_QUERY_SELECT_BY_PARENT_IDS_PREFIX = "SELECT id_item, code, icon, is_published, view_role, edit_role, item_type, id_parent, item_order, date_creation, date_modification FROM wiki_item WHERE id_parent IN (";
+    private static final String SQL_QUERY_SELECT_BY_IDS_PREFIX = "SELECT id_item, code, icon, is_published, view_role, edit_role, item_type, id_parent, item_order, date_creation, date_modification FROM wiki_item WHERE id_item IN (";
 
     private static final String COLUMN_ID_ITEM = "id_item";
     private static final String COLUMN_CODE = "code";
@@ -303,6 +304,49 @@ public final class WikiItemDAO implements IWikiItemDAO
             for ( Integer nParentId : listParentIds )
             {
                 daoUtil.setInt( nIndex++, nParentId );
+            }
+            daoUtil.executeQuery( );
+
+            while ( daoUtil.next( ) )
+            {
+                wikiItemList.add( dataToObject( daoUtil ) );
+            }
+        }
+
+        return wikiItemList;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<AbstractWikiItem> selectWikiItemsByIds( List<Integer> listIds, Plugin plugin )
+    {
+        List<AbstractWikiItem> wikiItemList = new ArrayList<>( );
+
+        if ( listIds == null || listIds.isEmpty( ) )
+        {
+            return wikiItemList;
+        }
+
+        StringBuilder sbPlaceholders = new StringBuilder( );
+        for ( int i = 0; i < listIds.size( ); i++ )
+        {
+            if ( i > 0 )
+            {
+                sbPlaceholders.append( ", " );
+            }
+            sbPlaceholders.append( "?" );
+        }
+
+        String strSql = SQL_QUERY_SELECT_BY_IDS_PREFIX + sbPlaceholders.toString( ) + ")";
+
+        try ( DAOUtil daoUtil = new DAOUtil( strSql, plugin ) )
+        {
+            int nIndex = 1;
+            for ( Integer nId : listIds )
+            {
+                daoUtil.setInt( nIndex++, nId );
             }
             daoUtil.executeQuery( );
 

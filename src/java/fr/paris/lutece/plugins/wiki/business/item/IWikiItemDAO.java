@@ -137,4 +137,15 @@ public interface IWikiItemDAO
      * @return the list of wiki items having a parent in the specified list
      */
     List<AbstractWikiItem> selectWikiItemsByParentIds( List<Integer> listParentIds, Plugin plugin );
+
+    /**
+     * Select all wiki items whose primary key is in the given list
+     *
+     * @param listIds
+     *            the list of wiki item ids
+     * @param plugin
+     *            the plugin
+     * @return the list of wiki items matching the given ids
+     */
+    List<AbstractWikiItem> selectWikiItemsByIds( List<Integer> listIds, Plugin plugin );
 }

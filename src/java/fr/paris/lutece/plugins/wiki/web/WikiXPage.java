@@ -45,6 +45,7 @@ import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Book;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Page;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Space;
+import fr.paris.lutece.plugins.wiki.service.SuggestedRevisionService;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
 import fr.paris.lutece.plugins.wiki.service.activity.ActivityItem;
 import fr.paris.lutece.plugins.wiki.service.activity.ActivityService;
@@ -104,6 +105,8 @@ public class WikiXPage extends AbstractWikiXPage
     protected static final String MARK_IS_WIKI_ADMIN = "is_wiki_admin";
     protected static final String MARK_ALL_ITEMS = "all_items";
     protected static final String MARK_ACTIVITIES = "activities";
+    protected static final String MARK_PENDING_SUGGESTIONS_COUNT = "pending_suggestions_count";
+    protected static final String MARK_MY_PENDING_SUGGESTION = "my_pending_suggestion";
     protected static final String MARK_CURRENT_PERIOD = "current_period";
     protected static final String MARK_ACTIVITY_CONTEXT = "activity_context";
 
@@ -241,8 +244,17 @@ public class WikiXPage extends AbstractWikiXPage
         }
 
         Map<String, Object> model = getModel( );
+        boolean canEdit = WikiAccessControlService.canEdit( user, page );
         model.put( MARK_PAGE, page );
-        model.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, page ) );
+        model.put( MARK_CAN_EDIT, canEdit );
+        if ( canEdit )
+        {
+            model.put( MARK_PENDING_SUGGESTIONS_COUNT, SuggestedRevisionService.countPendingByEntity( page.getId( ) ) );
+        }
+        if ( user != null )
+        {
+            model.put( MARK_MY_PENDING_SUGGESTION, SuggestedRevisionService.findMyPending( user, page.getId( ) ) );
+        }
 
         AbstractWikiItem parent = page.getParent( );
         populatePageModel( model, user, parent );

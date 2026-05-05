@@ -8,6 +8,7 @@
     <!-- DAO -->
     <bean id="wiki.wikiItemDAO" class="fr.paris.lutece.plugins.wiki.business.item.WikiItemDAO" />
     <bean id="wiki.revisionDAO" class="fr.paris.lutece.plugins.wiki.business.revision.RevisionDAO" />
+    <bean id="wiki.suggestedRevisionDAO" class="fr.paris.lutece.plugins.wiki.business.suggestedrevision.SuggestedRevisionDAO" />
 
     <!-- Cache Service -->
     <bean id="wiki.cacheService" class="fr.paris.lutece.plugins.wiki.service.cache.WikiCacheService"

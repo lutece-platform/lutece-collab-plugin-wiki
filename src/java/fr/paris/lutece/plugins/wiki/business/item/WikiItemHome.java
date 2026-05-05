@@ -253,6 +253,27 @@ public final class WikiItemHome
     }
 
     /**
+     * Bulk-loads wiki items matching the provided primary keys, in a single query.
+     *
+     * @param listIds
+     *            the wiki item ids
+     * @return the matching items (caches each result by id)
+     */
+    public static List<AbstractWikiItem> findByIds( List<Integer> listIds )
+    {
+        if ( listIds == null || listIds.isEmpty( ) )
+        {
+            return new ArrayList<>( );
+        }
+        List<AbstractWikiItem> items = _dao.selectWikiItemsByIds( listIds, _plugin );
+        for ( AbstractWikiItem item : items )
+        {
+            _cacheService.putInCache( _cacheService.getWikiItemCacheKey( item.getId( ) ), item );
+        }
+        return items.stream( ).map( AbstractWikiItem::clone ).collect( Collectors.toList( ) );
+    }
+
+    /**
      * Loads all descendants of the given root item using breadth-first bulk queries.
      * Returns a flat list of all descendants (excluding the root itself).
      *

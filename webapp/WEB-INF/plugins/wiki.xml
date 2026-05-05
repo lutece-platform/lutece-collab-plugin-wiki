@@ -26,6 +26,10 @@
             <application-id>wikiitemmanagement</application-id>
             <application-class>fr.paris.lutece.plugins.wiki.web.WikiItemManagementXPage</application-class>
         </application>
+        <application>
+            <application-id>wikisuggestion</application-id>
+            <application-class>fr.paris.lutece.plugins.wiki.web.WikiSuggestionXPage</application-class>
+        </application>
     </applications>
 
     <!-- Search Indexer Service -->

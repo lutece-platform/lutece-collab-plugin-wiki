@@ -1,0 +1,154 @@
+<#ftl output_format="HTML">
+<#assign status = suggestion.status.name()>
+<div class="container mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <h1 class="mb-0">#i18n{wiki.suggestion.detail.title}</h1>
+                <#if status == "APPROVED">
+                    <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">#i18n{wiki.suggestion.status.approved}</span>
+                <#elseif status == "REJECTED">
+                    <span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle">#i18n{wiki.suggestion.status.rejected}</span>
+                <#else>
+                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">#i18n{wiki.suggestion.status.pending}</span>
+                </#if>
+            </div>
+            <small class="text-muted d-block">
+                <i class="ti ti-file me-1"></i>${item.code}
+                <i class="ti ti-user me-1 ms-3"></i>${suggestion.author!''}
+                <#if suggestion.dateCreation??>
+                    <i class="ti ti-clock me-1 ms-3"></i>${suggestion.dateCreation?string("dd/MM/yyyy HH:mm")}
+                </#if>
+            </small>
+            <#if suggestion.comment?has_content>
+                <p class="mt-2 mb-0 small fst-italic">«&nbsp;${suggestion.comment}&nbsp;»</p>
+            </#if>
+        </div>
+        <a href="jsp/site/Portal.jsp?page=wikisuggestion&view=inbox" class="btn btn-light rounded-pill px-4">
+            <i class="ti ti-arrow-left me-2"></i>#i18n{wiki.action.back}
+        </a>
+    </div>
+
+    <#if status != "PENDING" && suggestion.reviewer?has_content>
+        <div class="alert <#if status == 'APPROVED'>alert-success<#else>alert-danger</#if> mb-4">
+            <strong>
+                <#if status == "APPROVED">#i18n{wiki.suggestion.status.approved}<#else>#i18n{wiki.suggestion.status.rejected}</#if>
+            </strong>
+            #i18n{wiki.suggestion.mine.reviewedBy} <strong>${suggestion.reviewer}</strong><#if suggestion.dateReview??> — ${suggestion.dateReview?string("dd/MM/yyyy HH:mm")}</#if>
+            <#if suggestion.reviewComment?has_content>
+                <p class="mb-0 mt-1 small fst-italic">«&nbsp;${suggestion.reviewComment}&nbsp;»</p>
+            </#if>
+        </div>
+    </#if>
+
+    <#include "commons/messages.html" />
+
+    <#if (current_revision.title)?? && current_revision.title?has_content>
+        <h2 class="mb-4">${current_revision.title}</h2>
+    </#if>
+
+    <div class="card mb-4" style="border-radius: 20px;">
+        <div class="card-header">
+            <strong>#i18n{wiki.suggestion.detail.diffTitle}</strong>
+        </div>
+        <div class="card-body p-0">
+            <div id="suggestionDiff" class="diff-output" style="max-height: 600px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <#if can_review?? && can_review>
+        <form method="post" action="jsp/site/Portal.jsp">
+            <input type="hidden" name="page" value="wikisuggestion">
+            <input type="hidden" name="token" value="${token}">
+            <input type="hidden" name="id" value="${suggestion.id?c}">
+
+            <div class="card mb-4" style="border-radius: 20px;">
+                <div class="card-body p-4">
+                    <div class="mb-0">
+                        <label for="review_comment" class="form-label">#i18n{wiki.suggestion.detail.reviewComment}</label>
+                        <textarea class="form-control" id="review_comment" name="review_comment" rows="3" maxlength="500"
+                            placeholder="#i18n{wiki.suggestion.detail.reviewComment.placeholder}"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" name="action" value="doApprove" class="btn btn-success rounded-pill px-4">
+                    <i class="ti ti-check me-2"></i>#i18n{wiki.suggestion.action.approve}
+                </button>
+                <button type="submit" name="action" value="doReject" class="btn btn-danger rounded-pill px-4">
+                    <i class="ti ti-x me-2"></i>#i18n{wiki.suggestion.action.reject}
+                </button>
+            </div>
+        </form>
+    <#elseif status == "PENDING">
+        <div class="alert alert-info">
+            <i class="ti ti-clock me-2"></i>#i18n{wiki.suggestion.detail.ownerWaitingMessage}
+        </div>
+    </#if>
+</div>
+
+<style>
+.diff-output {
+    font-family: monospace;
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+    padding: 0;
+}
+.diff-output .diff-line {
+    padding: 2px 10px;
+    border-left: 3px solid transparent;
+}
+.diff-output .diff-added {
+    background-color: var(--bs-success-bg-subtle);
+    border-left-color: var(--bs-success);
+}
+.diff-output .diff-removed {
+    background-color: var(--bs-danger-bg-subtle);
+    border-left-color: var(--bs-danger);
+}
+.diff-output .diff-context {
+    background-color: var(--bs-body-bg);
+}
+</style>
+
+<script src="js/plugins/wiki/diff/diff.min.js"></script>
+<script>
+(function() {
+    <#noautoesc>
+    const oldContent = "${(current_revision.content!'')?js_string}";
+    const newContent = "${(suggestion.content!'')?js_string}";
+    </#noautoesc>
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const target = document.getElementById('suggestionDiff');
+        if (!target) return;
+
+        const diff = Diff.diffLines(oldContent, newContent);
+        let html = '';
+        let hasChanges = false;
+
+        diff.forEach(part => {
+            if (part.added || part.removed) hasChanges = true;
+            const lines = part.value.split('\n');
+            lines.forEach((line, i) => {
+                if (i === lines.length - 1 && line === '') return;
+                let cssClass = 'diff-context';
+                let prefix = '  ';
+                if (part.added) { cssClass = 'diff-added'; prefix = '+ '; }
+                else if (part.removed) { cssClass = 'diff-removed'; prefix = '- '; }
+                html += '<div class="diff-line ' + cssClass + '">' + prefix + escapeHtml(line) + '</div>';
+            });
+        });
+
+        target.innerHTML = hasChanges ? html : '<div class="p-3 text-muted">#i18n{wiki.suggestion.detail.noDiff}</div>';
+    });
+})();
+</script>
