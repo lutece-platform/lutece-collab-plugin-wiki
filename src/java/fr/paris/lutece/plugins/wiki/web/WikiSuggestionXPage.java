@@ -22,6 +22,8 @@ import fr.paris.lutece.plugins.wiki.business.suggestedrevision.SuggestionStatus;
 import fr.paris.lutece.plugins.wiki.service.RevisionService;
 import fr.paris.lutece.plugins.wiki.service.SuggestedRevisionService;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
+import fr.paris.lutece.plugins.wiki.service.merge.MergeBlock;
+import fr.paris.lutece.plugins.wiki.service.merge.MergeBlocks;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.i18n.I18nService;
@@ -41,7 +43,7 @@ import fr.paris.lutece.portal.web.xpages.XPage;
  * XPage handling the suggested-revision workflow:
  * <ul>
  * <li>{@code propose} / {@code doPropose}: a user without edit rights submits a proposed modification on a wiki item</li>
- * <li>{@code inbox}: list of pending suggestions on items the current user can edit (the reviewer's inbox)</li>
+ * <li>{@code list}: unified list of every suggestion visible to the current user (own history + items they can review), populated client-side via REST</li>
  * <li>{@code viewSuggestion}: side-by-side view of the current revision vs the proposal, with approve/reject actions</li>
  * <li>{@code doApprove} / {@code doReject}: reviewer actions</li>
  * </ul>
@@ -51,21 +53,18 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
 {
     private static final long serialVersionUID = 1L;
 
-    private static final String XPAGE_NAME = "wikisuggestion";
-
     private static final String VIEW_PROPOSE = "propose";
-    private static final String VIEW_INBOX = "inbox";
+    private static final String VIEW_LIST = "list";
     private static final String VIEW_DETAIL = "viewSuggestion";
-    private static final String VIEW_MINE = "myProposals";
 
     private static final String ACTION_PROPOSE = "doPropose";
     private static final String ACTION_APPROVE = "doApprove";
     private static final String ACTION_REJECT = "doReject";
+    private static final String ACTION_DELETE = "doDelete";
 
     private static final String TEMPLATE_PROPOSE = "/skin/plugins/wiki/propose_revision.html";
-    private static final String TEMPLATE_INBOX = "/skin/plugins/wiki/suggestion_inbox.html";
+    private static final String TEMPLATE_LIST = "/skin/plugins/wiki/suggestion_list.html";
     private static final String TEMPLATE_DETAIL = "/skin/plugins/wiki/view_suggestion.html";
-    private static final String TEMPLATE_MINE = "/skin/plugins/wiki/my_proposals.html";
 
     private static final String PARAMETER_CODE = "code";
     private static final String PARAMETER_ID = "id";
@@ -76,22 +75,29 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
 
     private static final String MARK_ITEM = "item";
     private static final String MARK_CURRENT_REVISION = "current_revision";
+    private static final String MARK_DIFF_BASE_REVISION = "diff_base_revision";
     private static final String MARK_SUGGESTION = "suggestion";
-    private static final String MARK_SUGGESTIONS = "suggestions";
-    private static final String MARK_ITEMS_BY_ID = "items_by_id";
     private static final String MARK_CAN_REVIEW = "can_review";
+    private static final String MARK_IS_OWNER = "is_owner";
+    private static final String MARK_TOKEN_DELETE = "token_delete";
+    private static final String MARK_MERGE_BLOCKS = "merge_blocks";
+    private static final String MARK_MERGE_HAS_CONFLICT = "merge_has_conflict";
+
+    private static final String PARAMETER_RESOLVED_CONTENT = "resolved_content";
 
     private static final String MESSAGE_PROPOSE_TITLE = "wiki.xpage.suggestion.propose.pageTitle";
-    private static final String MESSAGE_INBOX_TITLE = "wiki.xpage.suggestion.inbox.pageTitle";
+    private static final String MESSAGE_LIST_TITLE = "wiki.xpage.suggestion.list.pageTitle";
     private static final String MESSAGE_DETAIL_TITLE = "wiki.xpage.suggestion.detail.pageTitle";
-    private static final String MESSAGE_MINE_TITLE = "wiki.xpage.suggestion.mine.pageTitle";
 
     private static final String MESSAGE_SUGGESTION_CREATED = "wiki.message.suggestionCreated";
     private static final String MESSAGE_SUGGESTION_COMMENT_REQUIRED = "wiki.message.suggestionCommentRequired";
     private static final String MESSAGE_SUGGESTION_ALREADY_PENDING = "wiki.message.suggestionAlreadyPending";
     private static final String MESSAGE_SUGGESTION_APPROVED = "wiki.message.suggestionApproved";
     private static final String MESSAGE_SUGGESTION_REJECTED = "wiki.message.suggestionRejected";
+    private static final String MESSAGE_SUGGESTION_DELETED = "wiki.message.suggestionDeleted";
     private static final String MESSAGE_SUGGESTION_NOT_PENDING = "wiki.message.suggestionNotPending";
+    private static final String MESSAGE_SUGGESTION_CONFLICT = "wiki.message.suggestionConflict";
+    private static final String MESSAGE_SUGGESTION_UNRESOLVED = "wiki.message.suggestionUnresolved";
     private static final String MESSAGE_NO_ACCESS = "wiki.message.suggestionAccessDenied";
 
     private static final String INVALID_TOKEN = "Invalid security token";
@@ -116,7 +122,7 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
         LuteceUser user = checkAuthenticated( request );
         AbstractWikiItem item = WikiItemService.findByCode( request.getParameter( PARAMETER_CODE ) );
 
-        if ( item == null || !WikiAccessControlService.canView( user, item ) )
+        if ( item == null || !WikiAccessControlService.canView( user, item ) || !SuggestedRevisionService.isSuggestible( item ) )
         {
             denyAccess( request );
         }
@@ -161,7 +167,7 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
         LuteceUser user = checkAuthenticated( request );
         AbstractWikiItem item = WikiItemService.findByCode( request.getParameter( PARAMETER_CODE ) );
 
-        if ( item == null || !WikiAccessControlService.canView( user, item ) )
+        if ( item == null || !WikiAccessControlService.canView( user, item ) || !SuggestedRevisionService.isSuggestible( item ) )
         {
             denyAccess( request );
         }
@@ -188,6 +194,7 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
 
         SuggestedRevision suggestion = new SuggestedRevision( );
         suggestion.setEntityId( item.getId( ) );
+        suggestion.setParentRevisionId( currentRevision != null ? currentRevision.getId( ) : 0 );
         suggestion.setTitle( currentRevision != null ? currentRevision.getTitle( ) : item.getCode( ) );
         suggestion.setDescription( currentRevision != null ? currentRevision.getDescription( ) : null );
         suggestion.setContent( decodedParam( request, PARAMETER_CONTENT ) );
@@ -202,7 +209,8 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
     }
 
     /**
-     * Displays the reviewer's inbox: pending suggestions on items the user can edit.
+     * Renders the unified suggestions page. The list is populated client-side by a fetch against {@code /rest/wiki/suggestion}, so this view only emits the
+     * page shell (filters + empty table). Authentication is still enforced server-side to avoid serving the shell to anonymous users.
      *
      * @param request
      *            the HTTP request
@@ -210,52 +218,19 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
      * @throws UserNotSignedException
      *             if not authenticated
      */
-    @View( VIEW_INBOX )
-    public XPage inbox( HttpServletRequest request ) throws UserNotSignedException
+    @View( VIEW_LIST )
+    public XPage list( HttpServletRequest request ) throws UserNotSignedException
     {
         applyFlashMessages( request );
 
         Locale locale = getLocale( request );
         LuteceUser user = checkAuthenticated( request );
 
-        List<SuggestedRevision> pending = SuggestedRevisionService.getPendingForReviewer( user );
-
         Map<String, Object> model = getModel( );
-        model.put( MARK_SUGGESTIONS, pending );
-        model.put( MARK_ITEMS_BY_ID, buildItemsByIdMap( pending ) );
         populateCommonModel( model, user );
 
-        XPage page = getXPage( TEMPLATE_INBOX, locale, model );
-        page.setTitle( I18nService.getLocalizedString( MESSAGE_INBOX_TITLE, locale ) );
-        return page;
-    }
-
-    /**
-     * Displays the proposer's history: every suggestion they have submitted, with current status.
-     *
-     * @param request
-     *            the HTTP request
-     * @return the XPage
-     * @throws UserNotSignedException
-     *             if not authenticated
-     */
-    @View( VIEW_MINE )
-    public XPage myProposals( HttpServletRequest request ) throws UserNotSignedException
-    {
-        applyFlashMessages( request );
-
-        Locale locale = getLocale( request );
-        LuteceUser user = checkAuthenticated( request );
-
-        List<SuggestedRevision> proposals = SuggestedRevisionService.getMyProposals( user );
-
-        Map<String, Object> model = getModel( );
-        model.put( MARK_SUGGESTIONS, proposals );
-        model.put( MARK_ITEMS_BY_ID, buildItemsByIdMap( proposals ) );
-        populateCommonModel( model, user );
-
-        XPage page = getXPage( TEMPLATE_MINE, locale, model );
-        page.setTitle( I18nService.getLocalizedString( MESSAGE_MINE_TITLE, locale ) );
+        XPage page = getXPage( TEMPLATE_LIST, locale, model );
+        page.setTitle( I18nService.getLocalizedString( MESSAGE_LIST_TITLE, locale ) );
         return page;
     }
 
@@ -294,13 +269,22 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
         boolean canReview = canEditItem && suggestion.getStatus( ) == SuggestionStatus.PENDING;
 
         Revision currentRevision = RevisionService.getCurrentRevision( item.getId( ) );
+        Revision diffBaseRevision = resolveDiffBaseRevision( suggestion, currentRevision );
+
+        List<MergeBlock> mergeBlocks = canReview ? SuggestedRevisionService.computeMergeBlocks( suggestion, currentRevision ) : List.of( );
+        boolean hasConflict = mergeBlocks.stream( ).anyMatch( MergeBlock::isConflict );
 
         Map<String, Object> model = getModel( );
         model.put( MARK_ITEM, item );
         model.put( MARK_CURRENT_REVISION, currentRevision );
+        model.put( MARK_DIFF_BASE_REVISION, diffBaseRevision );
         model.put( MARK_SUGGESTION, suggestion );
         model.put( MARK_CAN_REVIEW, canReview );
+        model.put( MARK_IS_OWNER, isOwner );
+        model.put( MARK_MERGE_BLOCKS, mergeBlocks );
+        model.put( MARK_MERGE_HAS_CONFLICT, hasConflict );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_APPROVE ) );
+        model.put( MARK_TOKEN_DELETE, SecurityTokenService.getInstance( ).getToken( request, ACTION_DELETE ) );
         populateCommonModel( model, user );
 
         XPage page = getXPage( TEMPLATE_DETAIL, locale, model );
@@ -313,7 +297,7 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
      *
      * @param request
      *            the HTTP request
-     * @return the XPage redirecting to the inbox
+     * @return the XPage redirecting to the review queue
      * @throws UserNotSignedException
      *             if not authenticated
      * @throws AccessDeniedException
@@ -331,7 +315,7 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
      *
      * @param request
      *            the HTTP request
-     * @return the XPage redirecting to the inbox
+     * @return the XPage redirecting to the review queue
      * @throws UserNotSignedException
      *             if not authenticated
      * @throws AccessDeniedException
@@ -342,6 +326,46 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
     {
         validateToken( request, ACTION_APPROVE );
         return reviewAction( request, false );
+    }
+
+    /**
+     * Deletes a pending suggestion owned by the current user. Access is restricted to the author
+     * and to suggestions still in PENDING status; approved or rejected proposals are immutable
+     * audit history.
+     *
+     * @param request
+     *            the HTTP request
+     * @return the XPage redirecting back to the suggestion list
+     * @throws UserNotSignedException
+     *             if not authenticated
+     * @throws AccessDeniedException
+     *             if the token is invalid or the user is not the owner
+     * @throws SiteMessageException
+     *             on access denial
+     */
+    @Action( ACTION_DELETE )
+    public XPage doDelete( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException, SiteMessageException
+    {
+        validateToken( request, ACTION_DELETE );
+
+        LuteceUser user = checkAuthenticated( request );
+        SuggestedRevision suggestion = loadSuggestion( request );
+        if ( suggestion == null )
+        {
+            denyAccess( request );
+        }
+
+        boolean deleted = SuggestedRevisionService.deleteByOwner( suggestion.getId( ), user.getName( ) );
+        if ( !deleted )
+        {
+            addFlashError( request, MESSAGE_NO_ACCESS );
+            Map<String, String> params = new HashMap<>( );
+            params.put( PARAMETER_ID, String.valueOf( suggestion.getId( ) ) );
+            return redirect( request, VIEW_DETAIL, params );
+        }
+
+        addFlashInfo( request, MESSAGE_SUGGESTION_DELETED );
+        return redirect( request, VIEW_LIST, new HashMap<>( ) );
     }
 
     /**
@@ -370,7 +394,7 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
         if ( suggestion.getStatus( ) != SuggestionStatus.PENDING )
         {
             addFlashError( request, MESSAGE_SUGGESTION_NOT_PENDING );
-            return redirect( request, VIEW_INBOX, new HashMap<>( ) );
+            return redirect( request, VIEW_LIST, new HashMap<>( ) );
         }
 
         String reviewer = buildDisplayName( user );
@@ -378,7 +402,22 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
 
         if ( approve )
         {
-            SuggestedRevisionService.approve( suggestion.getId( ), reviewer, reviewComment );
+            String resolvedContent = decodedParam( request, PARAMETER_RESOLVED_CONTENT );
+            if ( MergeBlocks.containsConflictMarker( resolvedContent ) )
+            {
+                addFlashError( request, MESSAGE_SUGGESTION_UNRESOLVED );
+                Map<String, String> params = new HashMap<>( );
+                params.put( PARAMETER_ID, String.valueOf( suggestion.getId( ) ) );
+                return redirect( request, VIEW_DETAIL, params );
+            }
+            SuggestedRevision result = SuggestedRevisionService.approve( suggestion.getId( ), reviewer, reviewComment, resolvedContent );
+            if ( result == null )
+            {
+                addFlashError( request, MESSAGE_SUGGESTION_CONFLICT );
+                Map<String, String> params = new HashMap<>( );
+                params.put( PARAMETER_ID, String.valueOf( suggestion.getId( ) ) );
+                return redirect( request, VIEW_DETAIL, params );
+            }
             addFlashInfo( request, MESSAGE_SUGGESTION_APPROVED );
         }
         else
@@ -386,26 +425,29 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
             SuggestedRevisionService.reject( suggestion.getId( ), reviewer, reviewComment );
             addFlashInfo( request, MESSAGE_SUGGESTION_REJECTED );
         }
-        return redirect( request, VIEW_INBOX, new HashMap<>( ) );
+        return redirect( request, VIEW_LIST, new HashMap<>( ) );
     }
 
-    /**
-     * Builds a map keyed by entity-id (as String to fit the FreeMarker context) holding the wiki item targeted by each suggestion. Items are bulk-loaded in
-     * one query.
+/**
+     * Resolves the revision to use as the base of the side-by-side diff. Prefers the revision
+     * that was current when the suggestion was created so the diff stays meaningful after
+     * approval (when the current revision becomes equal to the suggestion). Falls back to
+     * the current revision for legacy rows that have no parent reference.
      *
-     * @param suggestions
-     *            the suggestions whose targeted items must be resolved
-     * @return a map of entity id (String) to wiki item
+     * @param suggestion
+     *            the suggestion being displayed
+     * @param currentRevision
+     *            the current revision of the targeted wiki item
+     * @return the revision to diff against, or null if neither is available
      */
-    private Map<String, AbstractWikiItem> buildItemsByIdMap( List<SuggestedRevision> suggestions )
+    private Revision resolveDiffBaseRevision( SuggestedRevision suggestion, Revision currentRevision )
     {
-        Map<Integer, AbstractWikiItem> loaded = SuggestedRevisionService.loadItemsByEntityId( suggestions );
-        Map<String, AbstractWikiItem> result = new HashMap<>( loaded.size( ) );
-        for ( Map.Entry<Integer, AbstractWikiItem> entry : loaded.entrySet( ) )
+        if ( suggestion.getParentRevisionId( ) <= 0 )
         {
-            result.put( String.valueOf( entry.getKey( ) ), entry.getValue( ) );
+            return currentRevision;
         }
-        return result;
+        Revision parent = RevisionService.findById( suggestion.getParentRevisionId( ) );
+        return parent != null ? parent : currentRevision;
     }
 
     /**

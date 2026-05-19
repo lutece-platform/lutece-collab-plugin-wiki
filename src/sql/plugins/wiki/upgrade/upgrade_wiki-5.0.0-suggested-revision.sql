@@ -5,6 +5,7 @@
 CREATE TABLE IF NOT EXISTS wiki_suggested_revision (
     id_suggestion INT AUTO_INCREMENT PRIMARY KEY,
     entity_id INT NOT NULL,
+    id_parent_revision INT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     content MEDIUMTEXT,

@@ -11,6 +11,7 @@ import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -55,6 +56,17 @@ public final class SuggestedRevisionHome
     }
 
     /**
+     * Removes a suggestion by primary key.
+     *
+     * @param nKey
+     *            the suggestion id
+     */
+    public static void remove( int nKey )
+    {
+        _dao.delete( nKey, _plugin );
+    }
+
+    /**
      * Loads a suggestion by its primary key.
      *
      * @param nKey
@@ -76,6 +88,18 @@ public final class SuggestedRevisionHome
     public static int countPendingByEntity( int nEntityId )
     {
         return _dao.countPendingByEntity( nEntityId, _plugin );
+    }
+
+    /**
+     * Counts pending suggestions for a batch of entities in a single query.
+     *
+     * @param entityIds
+     *            the entity ids
+     * @return a map of entity id to pending count (entities with no pending suggestion are absent)
+     */
+    public static Map<Integer, Integer> countPendingByEntities( List<Integer> entityIds )
+    {
+        return _dao.countPendingByEntities( entityIds, _plugin );
     }
 
     /**

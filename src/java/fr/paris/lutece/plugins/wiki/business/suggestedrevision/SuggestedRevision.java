@@ -23,6 +23,7 @@ public class SuggestedRevision implements Serializable
 
     private int _nId;
     private int _nEntityId;
+    private int _nParentRevisionId;
 
     @NotEmpty( message = "#i18n{wiki.validation.revision.Title.notEmpty}" )
     @Size( max = 255, message = "#i18n{wiki.validation.revision.Title.size}" )
@@ -91,6 +92,29 @@ public class SuggestedRevision implements Serializable
     public void setEntityId( int nEntityId )
     {
         _nEntityId = nEntityId;
+    }
+
+    /**
+     * Returns the id of the revision that was current when this suggestion was
+     * created. Used as the diff base in the side-by-side view so the
+     * differences stay visible even after the suggestion has been approved.
+     *
+     * @return the parent revision id, or 0 if not set (legacy rows)
+     */
+    public int getParentRevisionId( )
+    {
+        return _nParentRevisionId;
+    }
+
+    /**
+     * Sets the parent revision id.
+     *
+     * @param nParentRevisionId
+     *            the parent revision id
+     */
+    public void setParentRevisionId( int nParentRevisionId )
+    {
+        _nParentRevisionId = nParentRevisionId;
     }
 
     /**

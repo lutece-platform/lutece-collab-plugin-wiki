@@ -8,6 +8,7 @@ package fr.paris.lutece.plugins.wiki.business.suggestedrevision;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -34,6 +35,16 @@ public interface ISuggestedRevisionDAO
      *            the wiki plugin
      */
     void updateStatus( SuggestedRevision suggestion, Plugin plugin );
+
+    /**
+     * Removes a suggestion by primary key.
+     *
+     * @param nKey
+     *            the suggestion id
+     * @param plugin
+     *            the wiki plugin
+     */
+    void delete( int nKey, Plugin plugin );
 
     /**
      * Loads a suggestion by primary key.
@@ -89,4 +100,16 @@ public interface ISuggestedRevisionDAO
      * @return the number of pending suggestions on this entity
      */
     int countPendingByEntity( int nEntityId, Plugin plugin );
+
+    /**
+     * Counts pending suggestions for a batch of entities in a single query. Entities with no
+     * pending suggestion are absent from the result.
+     *
+     * @param entityIds
+     *            the entity ids to count for
+     * @param plugin
+     *            the wiki plugin
+     * @return a map of entity id to pending count
+     */
+    Map<Integer, Integer> countPendingByEntities( List<Integer> entityIds, Plugin plugin );
 }

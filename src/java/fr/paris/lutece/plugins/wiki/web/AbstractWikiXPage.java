@@ -46,6 +46,7 @@ import fr.paris.lutece.plugins.wiki.business.item.WikiItemHome;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Book;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Space;
+import fr.paris.lutece.plugins.wiki.service.SuggestedRevisionService;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
 import fr.paris.lutece.plugins.wiki.service.RevisionService;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
@@ -68,6 +69,7 @@ public abstract class AbstractWikiXPage extends MVCApplication
     protected static final String MARK_BOOK_CHILDREN = "book_children";
     protected static final String MARK_CHAPTER = "chapter";
     protected static final String MARK_CHAPTER_EDIT_RIGHTS = "chapter_edit_rights";
+    protected static final String MARK_PENDING_COUNTS = "pending_counts";
     protected static final String MARK_CAN_EDIT = "can_edit";
     protected static final String MARK_SPACE = "space";
     protected static final String MARK_SPACE_CHILDREN = "space_children";
@@ -267,6 +269,65 @@ public abstract class AbstractWikiXPage extends MVCApplication
     }
 
     /**
+     * Bulk-loads pending suggestion counts for every editable item in the tree, in a single query.
+     * The root item itself is included when it is editable so its sidebar entry can carry a badge.
+     *
+     * @param editRights
+     *            the edit rights map produced by {@link #computeChildEditRights}
+     * @param root
+     *            the sidebar root (book or space)
+     * @param rootEditable
+     *            whether the root is editable by the current user
+     * @return a map of item id (as String, FreeMarker-friendly) to pending count
+     */
+    protected Map<String, Integer> computePendingCounts( Map<String, Boolean> editRights, AbstractWikiItem root, boolean rootEditable )
+    {
+        List<Integer> editableIds = new ArrayList<>( );
+        for ( Map.Entry<String, Boolean> entry : editRights.entrySet( ) )
+        {
+            if ( Boolean.TRUE.equals( entry.getValue( ) ) )
+            {
+                try
+                {
+                    editableIds.add( Integer.valueOf( entry.getKey( ) ) );
+                }
+                catch ( NumberFormatException ignored )
+                {
+                }
+            }
+        }
+        if ( rootEditable && root != null )
+        {
+            editableIds.add( root.getId( ) );
+        }
+        Map<Integer, Integer> raw = SuggestedRevisionService.countPendingByEntities( editableIds );
+        Map<String, Integer> result = new java.util.HashMap<>( raw.size( ) );
+        raw.forEach( ( k, v ) -> result.put( String.valueOf( k ), v ) );
+        return result;
+    }
+
+    /**
+     * Reads the pending suggestion count for a given wiki item from the pre-computed
+     * {@link #MARK_PENDING_COUNTS} map, defaulting to 0 when missing.
+     *
+     * @param model
+     *            the model populated with MARK_PENDING_COUNTS
+     * @param nItemId
+     *            the wiki item id
+     * @return the pending count for that item (0 when not in the map)
+     */
+    protected int readPendingCount( Map<String, Object> model, int nItemId )
+    {
+        Object raw = model.get( MARK_PENDING_COUNTS );
+        if ( !( raw instanceof Map ) )
+        {
+            return 0;
+        }
+        Object value = ( (Map<?, ?>) raw ).get( String.valueOf( nItemId ) );
+        return value instanceof Integer ? (Integer) value : 0;
+    }
+
+    /**
      * Populates the common model attributes for wiki XPages
      *
      * @param model
@@ -316,11 +377,13 @@ public abstract class AbstractWikiXPage extends MVCApplication
     {
         List<AbstractWikiItem> bookChildren = loadItemChildren( user, book );
         Map<String, Boolean> childEditRights = computeChildEditRights( user, bookChildren );
+        boolean canEditBook = WikiAccessControlService.canEdit( user, book );
 
         model.put( MARK_BOOK, book );
         model.put( MARK_BOOK_CHILDREN, bookChildren );
         model.put( MARK_CHAPTER_EDIT_RIGHTS, childEditRights );
-        model.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, book ) );
+        model.put( MARK_PENDING_COUNTS, computePendingCounts( childEditRights, book, canEditBook ) );
+        model.put( MARK_CAN_EDIT, canEditBook );
         model.put( MARK_SPACE, findSpaceForBook( book ) );
         populateCommonModel( model, user );
     }
@@ -340,10 +403,12 @@ public abstract class AbstractWikiXPage extends MVCApplication
         List<AbstractWikiItem> spaceChildren = loadItemChildren( user, space );
         Map<String, Boolean> childEditRights = computeChildEditRights( user, spaceChildren );
 
+        boolean canEditSpace = WikiAccessControlService.canEdit( user, space );
         model.put( MARK_SPACE, space );
         model.put( MARK_SPACE_CHILDREN, spaceChildren );
         model.put( MARK_SPACE_CHILDREN_EDIT_RIGHTS, childEditRights );
-        model.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, space ) );
+        model.put( MARK_PENDING_COUNTS, computePendingCounts( childEditRights, space, canEditSpace ) );
+        model.put( MARK_CAN_EDIT, canEditSpace );
         populateCommonModel( model, user );
     }
 

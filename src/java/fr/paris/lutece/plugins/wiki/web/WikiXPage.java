@@ -173,6 +173,16 @@ public class WikiXPage extends AbstractWikiXPage
 
         Map<String, Object> model = getModel( );
         populateSpaceSidebarModel( model, user, space );
+        boolean canEditSpace = WikiAccessControlService.canEdit( user, space );
+        model.put( MARK_CAN_EDIT, canEditSpace );
+        if ( canEditSpace )
+        {
+            model.put( MARK_PENDING_SUGGESTIONS_COUNT, readPendingCount( model, space.getId( ) ) );
+        }
+        if ( user != null )
+        {
+            model.put( MARK_MY_PENDING_SUGGESTION, SuggestedRevisionService.findMyPending( user, space.getId( ) ) );
+        }
 
         XPage page = getXPage( TEMPLATE_VIEW_SPACE, locale, model );
         page.setTitle( I18nService.getLocalizedString( "wiki.xpage.viewSpace.pageTitle", locale ) );
@@ -208,11 +218,21 @@ public class WikiXPage extends AbstractWikiXPage
         List<AbstractWikiItem> bookChildren = loadItemChildren( user, book );
         Map<String, Boolean> childEditRights = computeChildEditRights( user, bookChildren );
 
+        boolean canEditBook = WikiAccessControlService.canEdit( user, book );
         model.put( MARK_BOOK, book );
         model.put( MARK_BOOK_CHILDREN, bookChildren );
         model.put( MARK_CHAPTER_EDIT_RIGHTS, childEditRights );
-        model.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, book ) );
+        model.put( MARK_PENDING_COUNTS, computePendingCounts( childEditRights, book, canEditBook ) );
+        model.put( MARK_CAN_EDIT, canEditBook );
         model.put( MARK_SPACE, findSpaceForBook( book ) );
+        if ( canEditBook )
+        {
+            model.put( MARK_PENDING_SUGGESTIONS_COUNT, readPendingCount( model, book.getId( ) ) );
+        }
+        if ( user != null )
+        {
+            model.put( MARK_MY_PENDING_SUGGESTION, SuggestedRevisionService.findMyPending( user, book.getId( ) ) );
+        }
         populateCommonModel( model, user );
 
         XPage page = getXPage( TEMPLATE_VIEW_BOOK, locale, model );
@@ -311,10 +331,12 @@ public class WikiXPage extends AbstractWikiXPage
     {
         List<AbstractWikiItem> bookChildren = loadItemChildren( user, book );
         Map<String, Boolean> childEditRights = computeChildEditRights( user, bookChildren );
+        boolean canEditBook = WikiAccessControlService.canEdit( user, book );
 
         model.put( MARK_BOOK, book );
         model.put( MARK_BOOK_CHILDREN, bookChildren );
         model.put( MARK_CHAPTER_EDIT_RIGHTS, childEditRights );
+        model.put( MARK_PENDING_COUNTS, computePendingCounts( childEditRights, book, canEditBook ) );
         model.put( MARK_SPACE, findSpaceForBook( book ) );
     }
 

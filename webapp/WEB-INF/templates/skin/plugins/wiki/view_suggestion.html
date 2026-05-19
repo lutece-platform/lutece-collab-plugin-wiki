@@ -1,5 +1,6 @@
 <#ftl output_format="HTML">
 <#assign status = suggestion.status.name()>
+<#assign showInteractiveDiff = (can_review?? && can_review) && (merge_has_conflict?? && merge_has_conflict)>
 <div class="container mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -24,9 +25,22 @@
                 <p class="mt-2 mb-0 small fst-italic">«&nbsp;${suggestion.comment}&nbsp;»</p>
             </#if>
         </div>
-        <a href="jsp/site/Portal.jsp?page=wikisuggestion&view=inbox" class="btn btn-light rounded-pill px-4">
-            <i class="ti ti-arrow-left me-2"></i>#i18n{wiki.action.back}
-        </a>
+        <div class="d-flex gap-2">
+            <#if (is_owner!false) && status == "PENDING">
+                <form method="post" action="jsp/site/Portal.jsp" class="m-0" onsubmit="return confirm('#i18n{wiki.suggestion.action.delete.confirm}');">
+                    <input type="hidden" name="page" value="wikisuggestion">
+                    <input type="hidden" name="action" value="doDelete">
+                    <input type="hidden" name="token" value="${token_delete}">
+                    <input type="hidden" name="id" value="${suggestion.id?c}">
+                    <button type="submit" class="btn btn-outline-danger rounded-pill px-4">
+                        <i class="ti ti-trash me-2"></i>#i18n{wiki.suggestion.action.delete}
+                    </button>
+                </form>
+            </#if>
+            <a href="jsp/site/Portal.jsp?page=wikisuggestion&view=list" class="btn btn-light rounded-pill px-4">
+                <i class="ti ti-arrow-left me-2"></i>#i18n{wiki.action.back}
+            </a>
+        </div>
     </div>
 
     <#if status != "PENDING" && suggestion.reviewer?has_content>
@@ -34,7 +48,7 @@
             <strong>
                 <#if status == "APPROVED">#i18n{wiki.suggestion.status.approved}<#else>#i18n{wiki.suggestion.status.rejected}</#if>
             </strong>
-            #i18n{wiki.suggestion.mine.reviewedBy} <strong>${suggestion.reviewer}</strong><#if suggestion.dateReview??> — ${suggestion.dateReview?string("dd/MM/yyyy HH:mm")}</#if>
+            #i18n{wiki.suggestion.detail.reviewedBy} <strong>${suggestion.reviewer}</strong><#if suggestion.dateReview??> — ${suggestion.dateReview?string("dd/MM/yyyy HH:mm")}</#if>
             <#if suggestion.reviewComment?has_content>
                 <p class="mb-0 mt-1 small fst-italic">«&nbsp;${suggestion.reviewComment}&nbsp;»</p>
             </#if>
@@ -47,20 +61,35 @@
         <h2 class="mb-4">${current_revision.title}</h2>
     </#if>
 
-    <div class="card mb-4" style="border-radius: 20px;">
-        <div class="card-header">
-            <strong>#i18n{wiki.suggestion.detail.diffTitle}</strong>
+    <#if showInteractiveDiff>
+        <div class="alert alert-warning mb-4">
+            <strong>#i18n{wiki.suggestion.detail.conflictTitle}</strong>
+            <p class="mb-0 small">#i18n{wiki.suggestion.detail.conflictExplanation}</p>
         </div>
-        <div class="card-body p-0">
-            <div id="suggestionDiff" class="diff-output" style="max-height: 600px; overflow-y: auto;"></div>
-        </div>
-    </div>
 
-    <#if can_review?? && can_review>
-        <form method="post" action="jsp/site/Portal.jsp">
+        <form method="post" action="jsp/site/Portal.jsp" id="conflictForm">
             <input type="hidden" name="page" value="wikisuggestion">
             <input type="hidden" name="token" value="${token}">
             <input type="hidden" name="id" value="${suggestion.id?c}">
+            <input type="hidden" name="resolved_content" id="resolvedContent">
+
+            <div class="card mb-4" style="border-radius: 20px;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong>#i18n{wiki.suggestion.detail.diffTitle}</strong>
+                    <span class="small text-muted">#i18n{wiki.suggestion.detail.conflictHint}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div id="mergeDiff" class="diff-output">
+                        <#list merge_blocks as block>
+                            <#if block.conflict>
+                                <div class="merge-conflict" data-resolved="false"><#list block.ours as line><div class="diff-line diff-removed">- ${line}</div></#list><#list block.theirs as line><div class="diff-line diff-added">+ ${line}</div></#list><div class="merge-actions btn-group btn-group-sm" role="group"><button type="button" class="btn btn-light" data-pick="ours" data-bs-toggle="tooltip" data-bs-placement="top" title="#i18n{wiki.suggestion.detail.conflictKeepOurs}"><i class="ti ti-minus"></i></button><button type="button" class="btn btn-light" data-pick="theirs" data-bs-toggle="tooltip" data-bs-placement="top" title="#i18n{wiki.suggestion.detail.conflictKeepTheirs}"><i class="ti ti-plus"></i></button><button type="button" class="btn btn-light" data-pick="both" data-bs-toggle="tooltip" data-bs-placement="top" title="#i18n{wiki.suggestion.detail.conflictKeepBoth}"><i class="ti ti-stack-2"></i></button></div></div>
+                            <#else>
+                                <#list block.ours as line><div class="diff-line diff-context">  ${line}</div></#list>
+                            </#if>
+                        </#list>
+                    </div>
+                </div>
+            </div>
 
             <div class="card mb-4" style="border-radius: 20px;">
                 <div class="card-body p-4">
@@ -73,18 +102,50 @@
             </div>
 
             <div class="d-flex gap-2">
-                <button type="submit" name="action" value="doApprove" class="btn btn-success rounded-pill px-4">
-                    <i class="ti ti-check me-2"></i>#i18n{wiki.suggestion.action.approve}
+                <button type="submit" name="action" value="doApprove" id="conflictApproveBtn" class="btn btn-success rounded-pill px-4" disabled>
+                    <i class="ti ti-check me-2"></i>#i18n{wiki.suggestion.action.approveResolved}
                 </button>
                 <button type="submit" name="action" value="doReject" class="btn btn-danger rounded-pill px-4">
                     <i class="ti ti-x me-2"></i>#i18n{wiki.suggestion.action.reject}
                 </button>
             </div>
         </form>
-    <#elseif status == "PENDING">
-        <div class="alert alert-info">
-            <i class="ti ti-clock me-2"></i>#i18n{wiki.suggestion.detail.ownerWaitingMessage}
+    <#else>
+        <div class="card mb-4" style="border-radius: 20px;">
+            <div class="card-header">
+                <strong>#i18n{wiki.suggestion.detail.diffTitle}</strong>
+            </div>
+            <div class="card-body p-0">
+                <div id="suggestionDiff" class="diff-output" style="max-height: 600px; overflow-y: auto;"></div>
+            </div>
         </div>
+
+        <#if can_review?? && can_review>
+            <form method="post" action="jsp/site/Portal.jsp">
+                <input type="hidden" name="page" value="wikisuggestion">
+                <input type="hidden" name="token" value="${token}">
+                <input type="hidden" name="id" value="${suggestion.id?c}">
+
+                <div class="card mb-4" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <div class="mb-0">
+                            <label for="review_comment" class="form-label">#i18n{wiki.suggestion.detail.reviewComment}</label>
+                            <textarea class="form-control" id="review_comment" name="review_comment" rows="3" maxlength="500"
+                                placeholder="#i18n{wiki.suggestion.detail.reviewComment.placeholder}"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" name="action" value="doApprove" class="btn btn-success rounded-pill px-4">
+                        <i class="ti ti-check me-2"></i>#i18n{wiki.suggestion.action.approve}
+                    </button>
+                    <button type="submit" name="action" value="doReject" class="btn btn-danger rounded-pill px-4">
+                        <i class="ti ti-x me-2"></i>#i18n{wiki.suggestion.action.reject}
+                    </button>
+                </div>
+            </form>
+        </#if>
     </#if>
 </div>
 
@@ -92,13 +153,15 @@
 .diff-output {
     font-family: monospace;
     font-size: 0.875rem;
-    white-space: pre-wrap;
-    word-break: break-all;
     padding: 0;
+    line-height: 1.4;
 }
 .diff-output .diff-line {
-    padding: 2px 10px;
+    padding: 0 10px;
     border-left: 3px solid transparent;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 1.4em;
 }
 .diff-output .diff-added {
     background-color: var(--bs-success-bg-subtle);
@@ -111,13 +174,61 @@
 .diff-output .diff-context {
     background-color: var(--bs-body-bg);
 }
+.merge-conflict {
+    position: relative;
+    border-top: 1px dashed rgba(255, 193, 7, 0.5);
+    border-bottom: 1px dashed rgba(255, 193, 7, 0.5);
+}
+.merge-conflict[data-resolved="true"] {
+    border-color: rgba(25, 135, 84, 0.4);
+}
+.merge-conflict[data-resolved="true"] .diff-line:not(.diff-picked) {
+    opacity: 0.4;
+    text-decoration: line-through;
+}
+.merge-actions {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background-color: var(--bs-body-bg);
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    border-radius: 5px;
+    display: inline-flex;
+    z-index: 2;
+}
+.merge-actions .btn {
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    line-height: 1;
+    border-radius: 0;
+}
+.merge-actions .btn:first-child { border-top-left-radius: 5px; border-bottom-left-radius: 5px; }
+.merge-actions .btn:last-child  { border-top-right-radius: 5px; border-bottom-right-radius: 5px; }
+.merge-actions .btn .ti { font-size: 0.85rem; }
+.merge-actions .btn[data-pick="ours"].active {
+    background-color: var(--bs-danger);
+    border-color: var(--bs-danger);
+    color: #fff;
+}
+.merge-actions .btn[data-pick="theirs"].active {
+    background-color: var(--bs-success);
+    border-color: var(--bs-success);
+    color: #fff;
+}
+.merge-actions .btn[data-pick="both"].active {
+    background-color: var(--bs-secondary);
+    border-color: var(--bs-secondary);
+    color: #fff;
+}
 </style>
 
+<#if !showInteractiveDiff>
 <script src="js/plugins/wiki/diff/diff.min.js"></script>
 <script>
 (function() {
     <#noautoesc>
-    const oldContent = "${(current_revision.content!'')?js_string}";
+    const oldContent = "${(diff_base_revision.content!current_revision.content!'')?js_string}";
     const newContent = "${(suggestion.content!'')?js_string}";
     </#noautoesc>
 
@@ -130,11 +241,9 @@
     document.addEventListener('DOMContentLoaded', function() {
         const target = document.getElementById('suggestionDiff');
         if (!target) return;
-
         const diff = Diff.diffLines(oldContent, newContent);
         let html = '';
         let hasChanges = false;
-
         diff.forEach(part => {
             if (part.added || part.removed) hasChanges = true;
             const lines = part.value.split('\n');
@@ -147,8 +256,88 @@
                 html += '<div class="diff-line ' + cssClass + '">' + prefix + escapeHtml(line) + '</div>';
             });
         });
-
         target.innerHTML = hasChanges ? html : '<div class="p-3 text-muted">#i18n{wiki.suggestion.detail.noDiff}</div>';
     });
 })();
 </script>
+</#if>
+
+<#if showInteractiveDiff>
+<script>
+(function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        const root = document.getElementById('mergeDiff');
+        const form = document.getElementById('conflictForm');
+        const hidden = document.getElementById('resolvedContent');
+        const approveBtn = document.getElementById('conflictApproveBtn');
+        if (!root || !form || !hidden || !approveBtn) return;
+
+        if (window.bootstrap && bootstrap.Tooltip) {
+            root.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+        }
+
+        const conflicts = root.querySelectorAll('.merge-conflict');
+
+        function refresh() {
+            const allResolved = Array.from(conflicts).every(c => c.dataset.resolved === 'true');
+            approveBtn.disabled = !allResolved;
+        }
+
+        function applyPick(conflict, pick) {
+            conflict.dataset.resolved = 'true';
+            conflict.dataset.pick = pick;
+            conflict.querySelectorAll('button[data-pick]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.pick === pick);
+            });
+            conflict.querySelectorAll('.diff-line').forEach(line => {
+                const isRemoved = line.classList.contains('diff-removed');
+                const isAdded = line.classList.contains('diff-added');
+                const picked = pick === 'both'
+                    || (pick === 'ours' && isRemoved)
+                    || (pick === 'theirs' && isAdded);
+                line.classList.toggle('diff-picked', picked);
+            });
+            refresh();
+        }
+
+        conflicts.forEach(conflict => {
+            conflict.querySelectorAll('button[data-pick]').forEach(btn => {
+                btn.addEventListener('click', () => applyPick(conflict, btn.dataset.pick));
+            });
+        });
+
+        function lineText(div) {
+            return div.textContent.replace(/^(\+\s|\-\s|\s\s)/, '');
+        }
+
+        form.addEventListener('submit', function(event) {
+            const action = event.submitter && event.submitter.value;
+            if (action !== 'doApprove') return;
+            const parts = [];
+            root.childNodes.forEach(node => {
+                if (node.nodeType !== Node.ELEMENT_NODE) return;
+                if (node.classList.contains('merge-conflict')) {
+                    const pick = node.dataset.pick;
+                    const ours = Array.from(node.querySelectorAll('.diff-removed')).map(lineText);
+                    const theirs = Array.from(node.querySelectorAll('.diff-added')).map(lineText);
+                    if (pick === 'ours') parts.push(...ours);
+                    else if (pick === 'theirs') parts.push(...theirs);
+                    else if (pick === 'both') parts.push(...ours, ...theirs);
+                } else if (node.classList.contains('diff-line') && node.classList.contains('diff-context')) {
+                    parts.push(lineText(node));
+                }
+            });
+            const merged = parts.join('\n') + '\n';
+            const encoded = document.createElement('input');
+            encoded.type = 'hidden';
+            encoded.name = 'resolved_content_encoded';
+            encoded.value = btoa(unescape(encodeURIComponent(merged)));
+            form.appendChild(encoded);
+            hidden.value = '';
+        });
+
+        refresh();
+    });
+})();
+</script>
+</#if>

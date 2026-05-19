@@ -28,7 +28,7 @@
             </#if>
             <#if can_edit && pending_suggestions_count?? && (pending_suggestions_count gt 0)>
                 <#if hasPrevious> | </#if>
-                <a href="jsp/site/Portal.jsp?page=wikisuggestion&view=inbox" class="link-secondary">
+                <a href="jsp/site/Portal.jsp?page=wikisuggestion&view=list" class="link-secondary">
                     ${pending_suggestions_count} #i18n{wiki.suggestion.pending.label}
                 </a>
                 <#assign hasPrevious = true>

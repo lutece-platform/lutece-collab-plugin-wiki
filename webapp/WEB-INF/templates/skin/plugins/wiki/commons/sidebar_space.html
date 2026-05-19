@@ -1,4 +1,5 @@
 <#ftl output_format="HTML">
+<#import "sidebar_macros.html" as pending>
 <link rel="stylesheet" href="css/plugins/wiki/wiki-layout.css">
 
 <button class="btn btn-dark d-lg-none mb-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarSpaceOffcanvas" aria-controls="sidebarSpaceOffcanvas">Menu</button>
@@ -37,6 +38,7 @@
             <#macro flattenSpaceChildren children editRights depth=0>
                 <#list children as child>
                     <#assign hasEditRights = editRights?? && editRights[child.id?c]?? && editRights[child.id?c]>
+                    <#assign pendingCount = (pending_counts?? && pending_counts[child.id?c]??)?then(pending_counts[child.id?c], 0)>
                     <#if child.type.code == "category">
                         <#assign category = child>
                         <#if (category.children?? && category.children?has_content) || hasEditRights>
@@ -50,10 +52,12 @@
                                 </span>
                                 <#if hasEditRights>
                                     <div class="sidebar-tree-actions wiki-category-actions dropdown">
-                                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <button class="btn btn-light btn-sm dropdown-toggle position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="ti ti-dots-vertical"></i>
+                                            <@pending.badge count=pendingCount />
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
+                                            <@pending.menuItem count=pendingCount />
                                             <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=modifyItem&code=${category.code}"><i class="ti ti-edit me-2"></i>#i18n{wiki.action.modify}</a></li>
                                             <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=manageItemChildren&code=${category.code}"><i class="ti ti-list me-2"></i>#i18n{wiki.action.manageContent}</a></li>
                                             <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=createItem&entity_type=category&parent_code=${category.code}"><i class="ti ti-plus me-2"></i>#i18n{wiki.action.createCategory}</a></li>
@@ -80,10 +84,12 @@
                             </a>
                             <#if hasEditRights>
                                 <div class="sidebar-tree-actions wiki-book-actions dropdown">
-                                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button class="btn btn-secondary btn-sm dropdown-toggle position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="ti ti-dots-vertical"></i>
+                                        <@pending.badge count=pendingCount />
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
+                                        <@pending.menuItem count=pendingCount />
                                         <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=modifyItem&code=${child.code}"><i class="ti ti-edit me-2"></i>#i18n{wiki.action.modify}</a></li>
                                         <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=moveItem&code=${child.code}"><i class="ti ti-arrows-move me-2"></i>#i18n{wiki.action.move}</a></li>
                                         <li><hr class="dropdown-divider"></li>
@@ -103,10 +109,12 @@
                             </a>
                             <#if hasEditRights>
                                 <div class="sidebar-tree-actions wiki-page-actions dropdown">
-                                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button class="btn btn-secondary btn-sm dropdown-toggle position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="ti ti-dots-vertical"></i>
+                                        <@pending.badge count=pendingCount />
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
+                                        <@pending.menuItem count=pendingCount />
                                         <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=modifyItem&code=${child.code}"><i class="ti ti-edit me-2"></i>#i18n{wiki.action.modify}</a></li>
                                         <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=moveItem&code=${child.code}"><i class="ti ti-arrows-move me-2"></i>#i18n{wiki.action.move}</a></li>
                                         <li><hr class="dropdown-divider"></li>
@@ -121,16 +129,19 @@
             <#if space_children?has_content>
                 <div class="wiki-sidebar-tree" id="sidebarSpaceTree">
                     <#if space??>
+                    <#assign rootPendingCount = (pending_counts?? && pending_counts[space.id?c]??)?then(pending_counts[space.id?c], 0)>
                     <div class="sidebar-tree-item sidebar-tree-root" data-depth="0" data-type="space" data-code="${space.code}">
                         <a href="${space.viewUrl}" class="sidebar-tree-link">
                             <#if space.currentRevision?? && space.currentRevision.title?has_content>${space.currentRevision.title}<#else>${space.code}</#if>
                         </a>
                         <#if can_edit?? && can_edit>
                             <div class="sidebar-tree-actions wiki-space-actions dropdown">
-                                <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="btn btn-primary btn-sm dropdown-toggle position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="ti ti-dots-vertical"></i>
+                                    <@pending.badge count=rootPendingCount />
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
+                                    <@pending.menuItem count=rootPendingCount />
                                     <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=modifyItem&code=${space.code}"><i class="ti ti-edit me-2"></i>#i18n{wiki.action.modify}</a></li>
                                     <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=manageItemChildren&code=${space.code}"><i class="ti ti-list me-2"></i>#i18n{wiki.action.manageCategories}</a></li>
                                     <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=createItem&entity_type=category&parent_code=${space.code}"><i class="ti ti-plus me-2"></i>#i18n{wiki.action.createCategory}</a></li>

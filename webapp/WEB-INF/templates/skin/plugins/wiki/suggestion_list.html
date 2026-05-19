@@ -1,0 +1,159 @@
+<#ftl output_format="HTML">
+<#--
+    Unified suggestions page. Renders only the shell:
+    title, filter chips and an empty <tbody> populated client-side
+    by a fetch against /rest/wiki/suggestion.
+-->
+<div class="container mb-5">
+    <div class="mb-4">
+        <h1 class="mb-2">#i18n{wiki.suggestion.list.title}</h1>
+        <p class="text-muted">#i18n{wiki.suggestion.list.description}</p>
+    </div>
+
+    <#include "commons/messages.html" />
+
+    <div class="d-flex flex-wrap gap-2 mb-3" id="wiki-suggestion-filters" role="group" aria-label="#i18n{wiki.suggestion.filter.label}">
+        <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3 active" data-filter="all">#i18n{wiki.suggestion.filter.all} <span class="badge text-bg-light ms-1" data-count="all">0</span></button>
+        <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3" data-filter="review">#i18n{wiki.suggestion.filter.review} <span class="badge text-bg-light ms-1" data-count="review">0</span></button>
+        <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3" data-filter="pending">#i18n{wiki.suggestion.filter.pending} <span class="badge text-bg-light ms-1" data-count="pending">0</span></button>
+        <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3" data-filter="approved">#i18n{wiki.suggestion.filter.approved} <span class="badge text-bg-light ms-1" data-count="approved">0</span></button>
+        <button type="button" class="btn btn-sm btn-outline-dark rounded-pill px-3" data-filter="rejected">#i18n{wiki.suggestion.filter.rejected} <span class="badge text-bg-light ms-1" data-count="rejected">0</span></button>
+    </div>
+
+    <div class="card" style="border-radius: 20px;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>#i18n{wiki.suggestion.list.column.title}</th>
+                        <th>#i18n{wiki.suggestion.list.column.target}</th>
+                        <th>#i18n{wiki.suggestion.list.column.author}</th>
+                        <th>#i18n{wiki.suggestion.list.column.changes}</th>
+                        <th>#i18n{wiki.suggestion.list.column.status}</th>
+                        <th>#i18n{wiki.suggestion.list.column.date}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="wiki-suggestion-tbody">
+                    <tr><td colspan="7" class="text-center text-muted py-4">#i18n{wiki.suggestion.list.loading}</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    const I18N = {
+        empty: '#i18n{wiki.suggestion.list.empty}',
+        viewSuggestion: '#i18n{wiki.suggestion.list.viewSuggestion}',
+        statusPending: '#i18n{wiki.suggestion.status.pending}',
+        statusApproved: '#i18n{wiki.suggestion.status.approved}',
+        statusRejected: '#i18n{wiki.suggestion.status.rejected}',
+        conflict: '#i18n{wiki.suggestion.list.conflict}'
+    };
+
+    const STATUS_BADGE = {
+        PENDING: { label: I18N.statusPending, cls: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle' },
+        APPROVED: { label: I18N.statusApproved, cls: 'bg-success-subtle text-success-emphasis border border-success-subtle' },
+        REJECTED: { label: I18N.statusRejected, cls: 'bg-danger-subtle text-danger-emphasis border border-danger-subtle' }
+    };
+
+    const tbody = document.getElementById('wiki-suggestion-tbody');
+    const filterBar = document.getElementById('wiki-suggestion-filters');
+
+    let allSuggestions = [];
+    let activeFilter = 'all';
+
+    function esc(s) {
+        const d = document.createElement('div');
+        d.textContent = s == null ? '' : String(s);
+        return d.innerHTML;
+    }
+
+    function formatDate(ts) {
+        if (!ts) return '';
+        const d = new Date(ts);
+        const pad = n => String(n).padStart(2, '0');
+        return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear();
+    }
+
+    function matchesFilter(s, filter) {
+        if (filter === 'all') return true;
+        if (filter === 'review') return s.scope === 'review';
+        if (filter === 'pending') return s.scope === 'mine' && s.status === 'PENDING';
+        if (filter === 'approved') return s.scope === 'mine' && s.status === 'APPROVED';
+        if (filter === 'rejected') return s.scope === 'mine' && s.status === 'REJECTED';
+        return false;
+    }
+
+    function renderRow(s) {
+        const badge = STATUS_BADGE[s.status] || { label: s.status, cls: 'bg-secondary-subtle' };
+        let target;
+        if (s.targetCode && s.targetViewUrl) {
+            target = '<a href="' + esc(s.targetViewUrl) + '" class="text-decoration-none"><i class="ti ti-file me-1"></i>' + esc(s.targetCode) + '</a>';
+        } else if (s.targetCode) {
+            target = '<i class="ti ti-file me-1"></i>' + esc(s.targetCode);
+        } else {
+            target = '<span class="text-muted">—</span>';
+        }
+        const changes = '<span class="text-success fw-semibold">+' + s.additions + '</span> '
+            + '<span class="text-danger fw-semibold">−' + s.deletions + '</span>'
+            + (s.hasConflict ? ' <span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle ms-1" title="' + esc(I18N.conflict) + '"><i class="ti ti-alert-triangle"></i> ' + esc(I18N.conflict) + '</span>' : '');
+        return '<tr>'
+            + '<td>' + esc(s.title) + '</td>'
+            + '<td>' + target + '</td>'
+            + '<td>' + esc(s.author) + '</td>'
+            + '<td>' + changes + '</td>'
+            + '<td><span class="badge ' + badge.cls + '">' + esc(badge.label) + '</span></td>'
+            + '<td>' + formatDate(s.dateCreation) + '</td>'
+            + '<td class="text-end">'
+            + '<a href="jsp/site/Portal.jsp?page=wikisuggestion&view=viewSuggestion&id=' + s.id + '" class="btn btn-dark btn-sm rounded-circle" title="' + esc(I18N.viewSuggestion) + '" aria-label="' + esc(I18N.viewSuggestion) + '"><i class="ti ti-eye"></i></a>'
+            + '</td>'
+            + '</tr>';
+    }
+
+    function updateCounts() {
+        const counts = { all: allSuggestions.length, review: 0, pending: 0, approved: 0, rejected: 0 };
+        allSuggestions.forEach(s => {
+            if (s.scope === 'review') counts.review++;
+            else if (s.status === 'PENDING') counts.pending++;
+            else if (s.status === 'APPROVED') counts.approved++;
+            else if (s.status === 'REJECTED') counts.rejected++;
+        });
+        filterBar.querySelectorAll('[data-count]').forEach(el => {
+            el.textContent = counts[el.dataset.count] || 0;
+        });
+    }
+
+    function render() {
+        const filtered = allSuggestions.filter(s => matchesFilter(s, activeFilter));
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">' + esc(I18N.empty) + '</td></tr>';
+            return;
+        }
+        tbody.innerHTML = filtered.map(renderRow).join('');
+    }
+
+    filterBar.addEventListener('click', e => {
+        const btn = e.target.closest('[data-filter]');
+        if (!btn) return;
+        activeFilter = btn.dataset.filter;
+        filterBar.querySelectorAll('[data-filter]').forEach(b => b.classList.toggle('active', b === btn));
+        render();
+    });
+
+    fetch('rest/wiki/suggestion', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+        .then(r => r.ok ? r.json() : [])
+        .then(list => {
+            allSuggestions = Array.isArray(list) ? list : [];
+            updateCounts();
+            render();
+        })
+        .catch(() => {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-4">' + esc(I18N.empty) + '</td></tr>';
+        });
+})();
+</script>

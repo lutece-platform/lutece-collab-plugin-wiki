@@ -39,5 +39,6 @@
     <!-- REST Services -->
     <bean id="wiki.wikiCodeValidationRest" class="fr.paris.lutece.plugins.wiki.rs.WikiCodeValidationRest" />
     <bean id="wiki.wikiItemRest" class="fr.paris.lutece.plugins.wiki.rs.WikiItemRest" />
+    <bean id="wiki.wikiSuggestionRest" class="fr.paris.lutece.plugins.wiki.rs.WikiSuggestionRest" />
 
 </beans>

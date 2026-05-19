@@ -1,4 +1,5 @@
 <#ftl output_format="HTML">
+<#import "sidebar_macros.html" as pending>
 <link rel="stylesheet" href="css/plugins/wiki/wiki-layout.css">
 
 <button class="btn btn-dark d-lg-none mb-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">Menu</button>
@@ -39,6 +40,7 @@
         <#macro flattenBookChildren children depth=0>
             <#list children as child>
                 <#assign hasEditRights = chapter_edit_rights?? && chapter_edit_rights[child.id?c]?? && chapter_edit_rights[child.id?c]>
+                <#assign pendingCount = (pending_counts?? && pending_counts[child.id?c]??)?then(pending_counts[child.id?c], 0)>
                 <#if child.type.code == "page">
                     <div class="sidebar-tree-item <#if current_page?? && current_page.code == child.code>active</#if>" data-depth="${depth}" data-type="page" data-code="${child.code}">
                         <a href="${child.viewUrl}" class="sidebar-tree-link">
@@ -50,10 +52,12 @@
                         </a>
                         <#if hasEditRights>
                             <div class="sidebar-tree-actions wiki-page-actions dropdown">
-                                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="btn btn-secondary btn-sm dropdown-toggle position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="ti ti-dots-vertical"></i>
+                                    <@pending.badge count=pendingCount />
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
+                                    <@pending.menuItem count=pendingCount />
                                     <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=modifyItem&code=${child.code}"><i class="ti ti-edit me-2"></i>#i18n{wiki.action.modify}</a></li>
                                     <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=moveItem&code=${child.code}"><i class="ti ti-arrows-move me-2"></i>#i18n{wiki.action.move}</a></li>
                                     <li><hr class="dropdown-divider"></li>
@@ -75,10 +79,12 @@
                             </span>
                             <#if hasEditRights>
                                 <div class="sidebar-tree-actions wiki-chapter-actions dropdown">
-                                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button class="btn btn-light btn-sm dropdown-toggle position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="ti ti-dots-vertical"></i>
+                                        <@pending.badge count=pendingCount />
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
+                                        <@pending.menuItem count=pendingCount />
                                         <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=modifyItem&code=${chapter.code}"><i class="ti ti-edit me-2"></i>#i18n{wiki.action.modify}</a></li>
                                         <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=manageItemChildren&code=${chapter.code}"><i class="ti ti-list me-2"></i>#i18n{wiki.action.managePages}</a></li>
                                         <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=createItem&entity_type=chapter&parent_code=${chapter.code}"><i class="ti ti-plus me-2"></i>#i18n{wiki.action.createChapter}</a></li>
@@ -100,16 +106,19 @@
         <#if book_children?has_content>
             <div class="wiki-sidebar-tree" id="sidebarBookTree">
                 <#if book??>
+                <#assign rootPendingCount = (pending_counts?? && pending_counts[book.id?c]??)?then(pending_counts[book.id?c], 0)>
                 <div class="sidebar-tree-item sidebar-tree-root <#if on_book_home??>active</#if>" data-depth="0" data-type="book" data-code="${book.code}">
                     <a href="${book.viewUrl}" class="sidebar-tree-link">
                         <#if book.currentRevision?? && book.currentRevision.title?has_content>${book.currentRevision.title}<#else>${book.code}</#if>
                     </a>
                     <#if can_edit?? && can_edit>
                         <div class="sidebar-tree-actions wiki-book-actions dropdown">
-                            <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <button class="btn btn-primary btn-sm dropdown-toggle position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="ti ti-dots-vertical"></i>
+                                <@pending.badge count=rootPendingCount />
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
+                                <@pending.menuItem count=rootPendingCount />
                                 <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=modifyItem&code=${book.code}"><i class="ti ti-edit me-2"></i>#i18n{wiki.action.modify}</a></li>
                                 <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=manageItemChildren&code=${book.code}"><i class="ti ti-list me-2"></i>#i18n{wiki.action.manageChapters}</a></li>
                                 <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=createItem&entity_type=chapter&parent_code=${book.code}"><i class="ti ti-plus me-2"></i>#i18n{wiki.action.createChapter}</a></li>
