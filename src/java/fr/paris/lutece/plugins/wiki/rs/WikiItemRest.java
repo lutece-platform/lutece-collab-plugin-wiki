@@ -35,8 +35,10 @@ package fr.paris.lutece.plugins.wiki.rs;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -122,10 +124,7 @@ public class WikiItemRest
         Set<Integer> itemAncestorIds = getAncestorIds( item );
 
         Set<WikiItemType> allowedParentTypes = item.getAllowedParentTypes( );
-        Set<Integer> seenIds = new HashSet<>( );
-        List<AbstractWikiItem> allDestinations = new ArrayList<>( );
-
-        collectDestinations( WikiItemService.getItemsByTypes( allowedParentTypes ), allowedParentTypes, user, item.getIdParent( ), seenIds, allDestinations );
+        List<AbstractWikiItem> allDestinations = collectDestinations( allowedParentTypes, user, item.getIdParent( ) );
 
         List<DestinationOption> results = allDestinations.stream( )
                 .map( dest -> new DestinationOption( dest.getId( ), dest.getBreadcrumb( ), dest.getType( ).getCode( ),
@@ -171,29 +170,58 @@ public class WikiItemRest
     }
 
     /**
-     * Recursively collects valid destinations
+     * Collects valid destinations by loading all items of allowed types once and traversing in memory
+     *
+     * @param allowedTypes
+     *            the set of allowed destination types
+     * @param user
+     *            the user for permission checks
+     * @param currentParentId
+     *            the current parent id to exclude
+     * @return the list of valid destinations
      */
-    private void collectDestinations( List<AbstractWikiItem> items, Set<WikiItemType> allowedTypes, LuteceUser user, Integer currentParentId,
-            Set<Integer> seenIds, List<AbstractWikiItem> destinations )
+    private List<AbstractWikiItem> collectDestinations( Set<WikiItemType> allowedTypes, LuteceUser user, Integer currentParentId )
     {
-        for ( AbstractWikiItem dest : items )
+        List<AbstractWikiItem> allItems = WikiItemService.getItemsByTypes( allowedTypes );
+
+        Map<Integer, List<AbstractWikiItem>> childrenByParent = new HashMap<>( );
+        for ( AbstractWikiItem dest : allItems )
         {
-            if ( !seenIds.contains( dest.getId( ) ) && WikiAccessControlService.canEdit( user, dest )
-                    && ( currentParentId == null || dest.getId( ) != currentParentId ) )
+            if ( dest.getIdParent( ) != null )
             {
-                seenIds.add( dest.getId( ) );
-                destinations.add( dest );
-
-                Set<WikiItemType> childTypes = dest.getAllowedChildTypes( ).stream( ).filter( allowedTypes::contains ).collect( Collectors.toSet( ) );
-
-                if ( !childTypes.isEmpty( ) )
-                {
-                    List<AbstractWikiItem> children = WikiItemService.getItemsByParent( dest.getId( ) ).stream( )
-                            .filter( c -> childTypes.contains( c.getType( ) ) ).collect( Collectors.toList( ) );
-                    collectDestinations( children, allowedTypes, user, currentParentId, seenIds, destinations );
-                }
+                childrenByParent.computeIfAbsent( dest.getIdParent( ), k -> new ArrayList<>( ) ).add( dest );
             }
         }
+
+        List<AbstractWikiItem> destinations = new ArrayList<>( );
+        Set<Integer> seenIds = new HashSet<>( );
+
+        List<AbstractWikiItem> roots = allItems.stream( ).filter( i -> i.getIdParent( ) == null || !allItems.stream( ).anyMatch( p -> p.getId( ) == i.getIdParent( ) ) )
+                .collect( Collectors.toList( ) );
+
+        List<AbstractWikiItem> queue = new ArrayList<>( roots );
+        while ( !queue.isEmpty( ) )
+        {
+            AbstractWikiItem dest = queue.remove( 0 );
+            if ( seenIds.contains( dest.getId( ) ) )
+            {
+                continue;
+            }
+            seenIds.add( dest.getId( ) );
+
+            if ( WikiAccessControlService.canEdit( user, dest ) && ( currentParentId == null || dest.getId( ) != currentParentId ) )
+            {
+                destinations.add( dest );
+            }
+
+            List<AbstractWikiItem> children = childrenByParent.get( dest.getId( ) );
+            if ( children != null )
+            {
+                queue.addAll( children );
+            }
+        }
+
+        return destinations;
     }
 
     /**

@@ -117,7 +117,7 @@ public class Chapter extends AbstractWikiItem
     @Override
     public Set<WikiItemType> getAllowedChildTypes( )
     {
-        return EnumSet.of( WikiItemType.PAGE );
+        return EnumSet.of( WikiItemType.PAGE, WikiItemType.CHAPTER );
     }
 
     /**
@@ -126,7 +126,7 @@ public class Chapter extends AbstractWikiItem
     @Override
     public Set<WikiItemType> getAllowedParentTypes( )
     {
-        return EnumSet.of( WikiItemType.BOOK );
+        return EnumSet.of( WikiItemType.BOOK, WikiItemType.CHAPTER );
     }
 
     /**

@@ -50,6 +50,7 @@ public final class WikiAccessControlService
     private static final String ROLE_WIKI_ADMIN = "wiki_admin";
     public static final String ROLE_WIKI_CREATE_SPACE = "wiki_create_space";
     public static final String ROLE_WIKI_CREATE_BOOK = "wiki_create_book";
+    public static final String ROLE_WIKI_AI_FEATURES = "wiki_ai_features";
 
     /**
      * Private constructor to prevent instantiation.
@@ -126,6 +127,18 @@ public final class WikiAccessControlService
     public static boolean canCreateBook( LuteceUser user )
     {
         return hasRole( user, ROLE_WIKI_ADMIN ) || hasRole( user, ROLE_WIKI_CREATE_BOOK );
+    }
+
+    /**
+     * Checks if the user can use AI features.
+     *
+     * @param user
+     *            the Lutece user
+     * @return true if the user can use AI features, false otherwise
+     */
+    public static boolean canUseAiFeatures( LuteceUser user )
+    {
+        return hasRole( user, ROLE_WIKI_ADMIN ) || hasRole( user, ROLE_WIKI_AI_FEATURES );
     }
 
     /**

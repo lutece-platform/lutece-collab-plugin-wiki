@@ -47,7 +47,7 @@
     function renderBlocks(container) {
         var blocks = container.querySelectorAll('.wiki-mermaid-pending');
         blocks.forEach(function(wrapper) {
-            var code = wrapper.dataset.code;
+            var code = wrapper.dataset.mermaid ? decodeURIComponent(escape(atob(wrapper.dataset.mermaid))) : '';
             var id = wrapper.id + '-svg';
             var body = wrapper.querySelector('.wiki-mermaid-body');
             wrapper.classList.remove('wiki-mermaid-pending');
@@ -107,10 +107,12 @@
     var markedMermaid = {
         renderer: {
             code: function(token) {
-                if (token.lang === 'mermaid') {
+                var lang = token.lang || token.language || '';
+                var text = token.text || token.code || token.raw || '';
+                if (lang === 'mermaid' && text) {
                     var id = 'mermaid-' + Date.now() + '-' + (mermaidId++);
-                    var escapedCode = token.text.replace(/"/g, '&quot;');
-                    return '<div class="card my-3 wiki-mermaid-pending" id="' + id + '" data-code="' + escapedCode + '">' +
+                    var encodedCode = btoa(unescape(encodeURIComponent(text)));
+                    return '<div class="card my-3 wiki-mermaid-pending" id="' + id + '" data-mermaid="' + encodedCode + '">' +
                         '<div class="card-header d-flex justify-content-between align-items-center py-2">' +
                         '<small class="text-muted">mermaid</small>' +
                         '<button class="wiki-mermaid-fullscreen btn btn-sm btn-light" title="Plein écran"><i class="ti ti-arrows-maximize"></i></button>' +

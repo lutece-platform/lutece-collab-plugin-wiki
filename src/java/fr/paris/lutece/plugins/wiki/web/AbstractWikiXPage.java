@@ -34,18 +34,21 @@
 package fr.paris.lutece.plugins.wiki.web;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
+import fr.paris.lutece.plugins.wiki.business.item.WikiItemHome;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Book;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Space;
+import fr.paris.lutece.plugins.wiki.service.SuggestedRevisionService;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
+import fr.paris.lutece.plugins.wiki.service.RevisionService;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -67,6 +70,7 @@ public abstract class AbstractWikiXPage extends MVCApplication
     protected static final String MARK_BOOK_CHILDREN = "book_children";
     protected static final String MARK_CHAPTER = "chapter";
     protected static final String MARK_CHAPTER_EDIT_RIGHTS = "chapter_edit_rights";
+    protected static final String MARK_PENDING_COUNTS = "pending_counts";
     protected static final String MARK_CAN_EDIT = "can_edit";
     protected static final String MARK_SPACE = "space";
     protected static final String MARK_SPACE_CHILDREN = "space_children";
@@ -192,7 +196,7 @@ public abstract class AbstractWikiXPage extends MVCApplication
     }
 
     /**
-     * Loads the children of an item for a given user, recursively loading grandchildren for container types
+     * Loads the children of an item for a given user, using bulk-loaded descendant tree
      *
      * @param user
      *            The Lutece user
@@ -202,20 +206,38 @@ public abstract class AbstractWikiXPage extends MVCApplication
      */
     protected List<AbstractWikiItem> loadItemChildren( LuteceUser user, AbstractWikiItem parent )
     {
-        List<AbstractWikiItem> allChildren = WikiItemService.getPublishedItemsByParent( parent.getId( ) );
+        Map<Integer, List<AbstractWikiItem>> descendantsByParent = WikiItemHome.getDescendantsByParent( parent.getId( ) );
+        return buildVisibleTree( user, parent.getId( ), descendantsByParent );
+    }
+
+    /**
+     * Builds the visible tree from a pre-loaded descendants map
+     *
+     * @param user
+     *            The Lutece user
+     * @param nParentId
+     *            The parent id
+     * @param descendantsByParent
+     *            The map of parent id to children
+     * @return The list of visible children with their own children loaded
+     */
+    private List<AbstractWikiItem> buildVisibleTree( LuteceUser user, int nParentId, Map<Integer, List<AbstractWikiItem>> descendantsByParent )
+    {
+        List<AbstractWikiItem> children = descendantsByParent.getOrDefault( nParentId, Collections.emptyList( ) );
         List<AbstractWikiItem> result = new ArrayList<>( );
 
-        for ( AbstractWikiItem child : allChildren )
+        for ( AbstractWikiItem child : children )
         {
-            if ( !WikiAccessControlService.canView( user, child ) )
+            child.setCurrentRevision( RevisionService.getCurrentRevision( child.getId( ) ) );
+
+            if ( !child.isPublished( ) || !WikiAccessControlService.canView( user, child ) )
             {
                 continue;
             }
 
             if ( !child.getAllowedChildTypes( ).isEmpty( ) && !child.supportsContent( ) )
             {
-                List<AbstractWikiItem> visibleChildren = WikiItemService.getPublishedItemsByParent( child.getId( ) ).stream( )
-                        .filter( item -> WikiAccessControlService.canView( user, item ) ).collect( Collectors.toList( ) );
+                List<AbstractWikiItem> visibleChildren = buildVisibleTree( user, child.getId( ), descendantsByParent );
                 child.setChildren( visibleChildren );
             }
             result.add( child );
@@ -235,8 +257,75 @@ public abstract class AbstractWikiXPage extends MVCApplication
      */
     protected Map<String, Boolean> computeChildEditRights( LuteceUser user, List<AbstractWikiItem> children )
     {
-        return children.stream( )
-                .collect( Collectors.toMap( child -> String.valueOf( child.getId( ) ), child -> WikiAccessControlService.canEdit( user, child ) ) );
+        Map<String, Boolean> rights = new java.util.HashMap<>( );
+        for ( AbstractWikiItem child : children )
+        {
+            rights.put( String.valueOf( child.getId( ) ), WikiAccessControlService.canEdit( user, child ) );
+            if ( child.getChildren( ) != null && !child.getChildren( ).isEmpty( ) )
+            {
+                rights.putAll( computeChildEditRights( user, child.getChildren( ) ) );
+            }
+        }
+        return rights;
+    }
+
+    /**
+     * Bulk-loads pending suggestion counts for every editable item in the tree, in a single query.
+     * The root item itself is included when it is editable so its sidebar entry can carry a badge.
+     *
+     * @param editRights
+     *            the edit rights map produced by {@link #computeChildEditRights}
+     * @param root
+     *            the sidebar root (book or space)
+     * @param rootEditable
+     *            whether the root is editable by the current user
+     * @return a map of item id (as String, FreeMarker-friendly) to pending count
+     */
+    protected Map<String, Integer> computePendingCounts( Map<String, Boolean> editRights, AbstractWikiItem root, boolean rootEditable )
+    {
+        List<Integer> editableIds = new ArrayList<>( );
+        for ( Map.Entry<String, Boolean> entry : editRights.entrySet( ) )
+        {
+            if ( Boolean.TRUE.equals( entry.getValue( ) ) )
+            {
+                try
+                {
+                    editableIds.add( Integer.valueOf( entry.getKey( ) ) );
+                }
+                catch ( NumberFormatException ignored )
+                {
+                }
+            }
+        }
+        if ( rootEditable && root != null )
+        {
+            editableIds.add( root.getId( ) );
+        }
+        Map<Integer, Integer> raw = SuggestedRevisionService.countPendingByEntities( editableIds );
+        Map<String, Integer> result = new java.util.HashMap<>( raw.size( ) );
+        raw.forEach( ( k, v ) -> result.put( String.valueOf( k ), v ) );
+        return result;
+    }
+
+    /**
+     * Reads the pending suggestion count for a given wiki item from the pre-computed
+     * {@link #MARK_PENDING_COUNTS} map, defaulting to 0 when missing.
+     *
+     * @param model
+     *            the model populated with MARK_PENDING_COUNTS
+     * @param nItemId
+     *            the wiki item id
+     * @return the pending count for that item (0 when not in the map)
+     */
+    protected int readPendingCount( Models models, int nItemId )
+    {
+        Object raw = models.get( MARK_PENDING_COUNTS );
+        if ( !( raw instanceof Map ) )
+        {
+            return 0;
+        }
+        Object value = ( (Map<?, ?>) raw ).get( String.valueOf( nItemId ) );
+        return value instanceof Integer ? (Integer) value : 0;
     }
 
     /**
@@ -263,22 +352,14 @@ public abstract class AbstractWikiXPage extends MVCApplication
      */
     protected AbstractWikiItem findSpaceForBook( Book book )
     {
-        if ( book.getIdParent( ) == null )
+        AbstractWikiItem current = book.getIdParent( ) != null ? WikiItemService.findById( book.getIdParent( ) ) : null;
+        while ( current != null )
         {
-            return null;
-        }
-        AbstractWikiItem parent = WikiItemService.findById( book.getIdParent( ) );
-        if ( parent == null )
-        {
-            return null;
-        }
-        if ( parent.getType( ) == WikiItemType.SPACE )
-        {
-            return parent;
-        }
-        if ( parent.getType( ) == WikiItemType.CATEGORY && parent.getIdParent( ) != null )
-        {
-            return WikiItemService.findById( parent.getIdParent( ) );
+            if ( current.getType( ) == WikiItemType.SPACE )
+            {
+                return current;
+            }
+            current = current.getIdParent( ) != null ? WikiItemService.findById( current.getIdParent( ) ) : null;
         }
         return null;
     }
@@ -297,11 +378,13 @@ public abstract class AbstractWikiXPage extends MVCApplication
     {
         List<AbstractWikiItem> bookChildren = loadItemChildren( user, book );
         Map<String, Boolean> childEditRights = computeChildEditRights( user, bookChildren );
+        boolean canEditBook = WikiAccessControlService.canEdit( user, book );
 
         models.put( MARK_BOOK, book );
         models.put( MARK_BOOK_CHILDREN, bookChildren );
         models.put( MARK_CHAPTER_EDIT_RIGHTS, childEditRights );
-        models.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, book ) );
+        models.put( MARK_PENDING_COUNTS, computePendingCounts( childEditRights, book, canEditBook ) );
+        models.put( MARK_CAN_EDIT, canEditBook );
         models.put( MARK_SPACE, findSpaceForBook( book ) );
         populateCommonModel( models, user );
     }
@@ -321,10 +404,12 @@ public abstract class AbstractWikiXPage extends MVCApplication
         List<AbstractWikiItem> spaceChildren = loadItemChildren( user, space );
         Map<String, Boolean> childEditRights = computeChildEditRights( user, spaceChildren );
 
+        boolean canEditSpace = WikiAccessControlService.canEdit( user, space );
         models.put( MARK_SPACE, space );
         models.put( MARK_SPACE_CHILDREN, spaceChildren );
         models.put( MARK_SPACE_CHILDREN_EDIT_RIGHTS, childEditRights );
-        models.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, space ) );
+        models.put( MARK_PENDING_COUNTS, computePendingCounts( childEditRights, space, canEditSpace ) );
+        models.put( MARK_CAN_EDIT, canEditSpace );
         populateCommonModel( models, user );
     }
 
@@ -355,13 +440,18 @@ public abstract class AbstractWikiXPage extends MVCApplication
             return;
         }
 
+        boolean chapterSet = false;
         AbstractWikiItem current = item;
         while ( current != null )
         {
             switch( current.getType( ) )
             {
                 case CHAPTER:
-                    models.put( MARK_CHAPTER, current );
+                    if ( !chapterSet )
+                    {
+                        models.put( MARK_CHAPTER, current );
+                        chapterSet = true;
+                    }
                     break;
                 case BOOK:
                     models.put( MARK_BOOK, current );

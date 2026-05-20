@@ -29,6 +29,9 @@
         <application>
             <application-id>wikiitemmanagement</application-id>
         </application>
+        <application>
+            <application-id>wikisuggestion</application-id>
+        </application>
     </applications>
 
     <!-- Search Indexer Service -->

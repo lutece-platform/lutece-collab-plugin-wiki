@@ -33,7 +33,10 @@
  */
 package fr.paris.lutece.plugins.wiki.business.item;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -247,6 +250,86 @@ public class WikiItemHome
         }
 
         return Optional.empty( );
+    }
+
+    /**
+     * Bulk-loads wiki items matching the provided primary keys, in a single query.
+     *
+     * @param listIds
+     *            the wiki item ids
+     * @return the matching items (caches each result by id)
+     */
+    public static List<AbstractWikiItem> findByIds( List<Integer> listIds )
+    {
+        if ( listIds == null || listIds.isEmpty( ) )
+        {
+            return new ArrayList<>( );
+        }
+        List<AbstractWikiItem> items = _dao.selectWikiItemsByIds( listIds, _plugin );
+        for ( AbstractWikiItem item : items )
+        {
+            _cacheService.putInCache( _cacheService.getWikiItemCacheKey( item.getId( ) ), item );
+        }
+        return items.stream( ).map( AbstractWikiItem::clone ).collect( Collectors.toList( ) );
+    }
+
+    /**
+     * Loads all descendants of the given root item using breadth-first bulk queries.
+     * Returns a flat list of all descendants (excluding the root itself).
+     *
+     * @param nRootId
+     *            the root item id
+     * @return the flat list of all descendants
+     */
+    public static List<AbstractWikiItem> getDescendants( int nRootId )
+    {
+        List<AbstractWikiItem> allDescendants = new ArrayList<>( );
+        List<Integer> currentParentIds = new ArrayList<>( );
+        currentParentIds.add( nRootId );
+
+        int depth = 0;
+        int maxDepth = 50;
+
+        while ( !currentParentIds.isEmpty( ) && depth < maxDepth )
+        {
+            List<AbstractWikiItem> children = _dao.selectWikiItemsByParentIds( currentParentIds, _plugin );
+
+            for ( AbstractWikiItem child : children )
+            {
+                String cacheKeyById = _cacheService.getWikiItemCacheKey( child.getId( ) );
+                _cacheService.putInCache( cacheKeyById, child );
+            }
+
+            allDescendants.addAll( children );
+
+            currentParentIds = children.stream( ).map( AbstractWikiItem::getId ).collect( Collectors.toList( ) );
+            depth++;
+        }
+
+        return allDescendants.stream( ).map( AbstractWikiItem::clone ).collect( Collectors.toList( ) );
+    }
+
+    /**
+     * Loads all descendants of the given root item and returns them grouped by parent id.
+     *
+     * @param nRootId
+     *            the root item id
+     * @return a map of parent id to list of children
+     */
+    public static Map<Integer, List<AbstractWikiItem>> getDescendantsByParent( int nRootId )
+    {
+        List<AbstractWikiItem> allDescendants = getDescendants( nRootId );
+        Map<Integer, List<AbstractWikiItem>> mapByParent = new HashMap<>( );
+
+        for ( AbstractWikiItem item : allDescendants )
+        {
+            if ( item.getIdParent( ) != null )
+            {
+                mapByParent.computeIfAbsent( item.getIdParent( ), k -> new ArrayList<>( ) ).add( item );
+            }
+        }
+
+        return mapByParent;
     }
 
     /**

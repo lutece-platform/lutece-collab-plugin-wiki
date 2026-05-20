@@ -48,6 +48,7 @@ import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Book;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Page;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Space;
+import fr.paris.lutece.plugins.wiki.service.SuggestedRevisionService;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
 import fr.paris.lutece.plugins.wiki.service.activity.ActivityItem;
 import fr.paris.lutece.plugins.wiki.service.activity.ActivityService;
@@ -117,6 +118,8 @@ public class WikiXPage extends AbstractWikiXPage
     protected static final String MARK_IS_WIKI_ADMIN = "is_wiki_admin";
     protected static final String MARK_ALL_ITEMS = "all_items";
     protected static final String MARK_ACTIVITIES = "activities";
+    protected static final String MARK_PENDING_SUGGESTIONS_COUNT = "pending_suggestions_count";
+    protected static final String MARK_MY_PENDING_SUGGESTION = "my_pending_suggestion";
     protected static final String MARK_CURRENT_PERIOD = "current_period";
     protected static final String MARK_ACTIVITY_CONTEXT = "activity_context";
 
@@ -181,6 +184,15 @@ public class WikiXPage extends AbstractWikiXPage
         }
 
         populateSpaceSidebarModel( _models, user, space );
+        boolean canEditSpace = WikiAccessControlService.canEdit( user, space );
+        if ( canEditSpace )
+        {
+            _models.put( MARK_PENDING_SUGGESTIONS_COUNT, readPendingCount( _models, space.getId( ) ) );
+        }
+        if ( user != null )
+        {
+            _models.put( MARK_MY_PENDING_SUGGESTION, SuggestedRevisionService.findMyPending( user, space.getId( ) ) );
+        }
 
         XPage page = getXPage( TEMPLATE_VIEW_SPACE, locale );
         page.setTitle( I18nService.getLocalizedString( "wiki.xpage.viewSpace.pageTitle", locale ) );
@@ -214,11 +226,21 @@ public class WikiXPage extends AbstractWikiXPage
         List<AbstractWikiItem> bookChildren = loadItemChildren( user, book );
         Map<String, Boolean> childEditRights = computeChildEditRights( user, bookChildren );
 
+        boolean canEditBook = WikiAccessControlService.canEdit( user, book );
         _models.put( MARK_BOOK, book );
         _models.put( MARK_BOOK_CHILDREN, bookChildren );
         _models.put( MARK_CHAPTER_EDIT_RIGHTS, childEditRights );
-        _models.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, book ) );
+        _models.put( MARK_PENDING_COUNTS, computePendingCounts( childEditRights, book, canEditBook ) );
+        _models.put( MARK_CAN_EDIT, canEditBook );
         _models.put( MARK_SPACE, findSpaceForBook( book ) );
+        if ( canEditBook )
+        {
+            _models.put( MARK_PENDING_SUGGESTIONS_COUNT, readPendingCount( _models, book.getId( ) ) );
+        }
+        if ( user != null )
+        {
+            _models.put( MARK_MY_PENDING_SUGGESTION, SuggestedRevisionService.findMyPending( user, book.getId( ) ) );
+        }
         populateCommonModel( _models, user );
 
         XPage page = getXPage( TEMPLATE_VIEW_BOOK, locale );
@@ -249,8 +271,17 @@ public class WikiXPage extends AbstractWikiXPage
             return redirectView( request, VIEW_LIST_WIKI );
         }
 
+        boolean canEdit = WikiAccessControlService.canEdit( user, page );
         _models.put( MARK_PAGE, page );
-        _models.put( MARK_CAN_EDIT, WikiAccessControlService.canEdit( user, page ) );
+        _models.put( MARK_CAN_EDIT, canEdit );
+        if ( canEdit )
+        {
+            _models.put( MARK_PENDING_SUGGESTIONS_COUNT, SuggestedRevisionService.countPendingByEntity( page.getId( ) ) );
+        }
+        if ( user != null )
+        {
+            _models.put( MARK_MY_PENDING_SUGGESTION, SuggestedRevisionService.findMyPending( user, page.getId( ) ) );
+        }
 
         AbstractWikiItem parent = page.getParent( );
         populatePageModel( _models, user, parent );
@@ -307,10 +338,12 @@ public class WikiXPage extends AbstractWikiXPage
     {
         List<AbstractWikiItem> bookChildren = loadItemChildren( user, book );
         Map<String, Boolean> childEditRights = computeChildEditRights( user, bookChildren );
+        boolean canEditBook = WikiAccessControlService.canEdit( user, book );
 
         models.put( MARK_BOOK, book );
         models.put( MARK_BOOK_CHILDREN, bookChildren );
         models.put( MARK_CHAPTER_EDIT_RIGHTS, childEditRights );
+        models.put( MARK_PENDING_COUNTS, computePendingCounts( childEditRights, book, canEditBook ) );
         models.put( MARK_SPACE, findSpaceForBook( book ) );
     }
 

@@ -56,6 +56,119 @@
     color: var(--bs-primary);
 }
 
+/* Sidebar tree lines (TOC-inspired) */
+.wiki-sidebar-tree {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.wiki-sidebar-tree .sidebar-tree-item {
+    position: relative;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--bs-secondary-color);
+    padding: 5px 8px;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.wiki-sidebar-tree .sidebar-tree-item:hover {
+    color: var(--bs-emphasis-color);
+}
+
+.wiki-sidebar-tree .sidebar-tree-item.active,
+.wiki-sidebar-tree .sidebar-tree-item.active .sidebar-tree-link {
+    color: var(--bs-link-color);
+}
+
+.wiki-sidebar-tree .sidebar-tree-link {
+    color: inherit;
+    text-decoration: none;
+    flex: 1;
+    min-width: 0;
+}
+
+.wiki-sidebar-tree .sidebar-tree-link:hover {
+    color: var(--bs-emphasis-color);
+    text-decoration: none;
+}
+
+.wiki-sidebar-tree .sidebar-tree-item.sidebar-tree-header {
+    font-weight: 600;
+    color: var(--bs-body-color);
+    padding-top: 8px;
+    padding-bottom: 4px;
+}
+
+.wiki-sidebar-tree .sidebar-tree-item.sidebar-tree-root {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--bs-primary);
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.wiki-sidebar-tree .sidebar-tree-vertical-line {
+    position: absolute;
+    inset-block: 0;
+    width: 1px;
+    background: var(--bs-border-color);
+}
+
+.wiki-sidebar-tree .sidebar-tree-line-top-cut {
+    top: 6px;
+}
+
+.wiki-sidebar-tree .sidebar-tree-line-bottom-cut {
+    bottom: 6px;
+}
+
+.wiki-sidebar-tree .sidebar-tree-connector {
+    position: absolute;
+    top: -6px;
+    inset-inline-start: 0;
+    pointer-events: none;
+}
+
+.wiki-sidebar-tree .sidebar-tree-connector line {
+    stroke: var(--bs-border-color);
+    stroke-width: 1;
+}
+
+.wiki-sidebar-tree .sidebar-tree-item > span {
+    flex: 1;
+    min-width: 0;
+}
+
+.wiki-sidebar-tree .sidebar-tree-item .sidebar-tree-actions {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.sidebar-pending-dot {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background-color: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--bs-border-color);
+    pointer-events: none;
+}
+
 /* Activity Timeline */
 .wiki-activity-timeline {
     position: relative;

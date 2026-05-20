@@ -87,7 +87,7 @@ public class Category extends AbstractWikiItem
     @Override
     public Set<WikiItemType> getAllowedChildTypes( )
     {
-        return EnumSet.of( WikiItemType.BOOK, WikiItemType.PAGE );
+        return EnumSet.of( WikiItemType.CATEGORY, WikiItemType.BOOK, WikiItemType.PAGE );
     }
 
     /**
@@ -96,7 +96,7 @@ public class Category extends AbstractWikiItem
     @Override
     public Set<WikiItemType> getAllowedParentTypes( )
     {
-        return EnumSet.of( WikiItemType.SPACE );
+        return EnumSet.of( WikiItemType.SPACE, WikiItemType.CATEGORY );
     }
 
     /**

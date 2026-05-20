@@ -59,8 +59,6 @@ public final class WikiItemService
     private static final String MESSAGE_VALIDATION_CODE_DUPLICATE = "wiki.validation.wikiitem.code.duplicate";
     private static final String MESSAGE_VALIDATION_CODE_PATTERN = "wiki.validation.wikiitem.code.pattern";
     private static final Pattern CODE_PATTERN = Pattern.compile( "^[a-zA-Z0-9-]+$" );
-    private static final int MAX_HIERARCHY_DEPTH = 50;
-
     private WikiItemService( )
     {
     }
@@ -266,44 +264,15 @@ public final class WikiItemService
     }
 
     /**
-     * Recursively gets all descendants of an item
+     * Gets all descendants of an item using bulk loading
      *
      * @param item
      *            the wiki item
-     * @return the list of all descendants
+     * @return the flat list of all descendants
      */
     private static List<AbstractWikiItem> getAllDescendants( AbstractWikiItem item )
     {
-        return getAllDescendantsWithDepth( item, 0 );
-    }
-
-    /**
-     * Recursively gets all descendants of an item with depth tracking
-     *
-     * @param item
-     *            the wiki item
-     * @param currentDepth
-     *            the current recursion depth
-     * @return the list of all descendants
-     */
-    private static List<AbstractWikiItem> getAllDescendantsWithDepth( AbstractWikiItem item, int currentDepth )
-    {
-        List<AbstractWikiItem> descendants = new ArrayList<>( );
-
-        if ( currentDepth >= MAX_HIERARCHY_DEPTH )
-        {
-            return descendants;
-        }
-
-        List<AbstractWikiItem> children = WikiItemHome.getWikiItemsByParent( item.getId( ) );
-
-        for ( AbstractWikiItem child : children )
-        {
-            descendants.add( child );
-            descendants.addAll( getAllDescendantsWithDepth( child, currentDepth + 1 ) );
-        }
-
-        return descendants;
+        return WikiItemHome.getDescendants( item.getId( ) );
     }
 
     private static void setCurrentRevision( AbstractWikiItem item )

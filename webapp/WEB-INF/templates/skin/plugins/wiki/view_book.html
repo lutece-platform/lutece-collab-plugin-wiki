@@ -16,6 +16,36 @@
 
         <#include "commons/messages.html" />
 
+        <small class="text-muted d-block mb-3">
+            <#assign hasPrevious = false>
+            <#if book.currentRevision?? && book.currentRevision.dateCreation??>
+                #i18n{wiki.page.lastUpdate} : ${book.currentRevision.dateCreation?string("dd/MM/yyyy")}
+                <#assign hasPrevious = true>
+            </#if>
+            <#if can_edit && pending_suggestions_count?? && (pending_suggestions_count gt 0)>
+                <#if hasPrevious> | </#if>
+                <a href="jsp/site/Portal.jsp?page=wikisuggestion&view=list" class="link-secondary">
+                    ${pending_suggestions_count} #i18n{wiki.suggestion.pending.label}
+                </a>
+                <#assign hasPrevious = true>
+            </#if>
+            <#if user?? && !my_pending_suggestion??>
+                <#if hasPrevious> | </#if>
+                <a href="jsp/site/Portal.jsp?page=wikisuggestion&view=propose&code=${book.code}" class="link-secondary">
+                    #i18n{wiki.suggestion.action.propose}
+                </a>
+            </#if>
+        </small>
+
+        <#if my_pending_suggestion??>
+            <div class="alert alert-warning d-flex align-items-center mb-3">
+                <div class="flex-grow-1">#i18n{wiki.suggestion.myPending.message}</div>
+                <a href="jsp/site/Portal.jsp?page=wikisuggestion&view=viewSuggestion&id=${my_pending_suggestion.id?c}" class="btn btn-sm btn-warning rounded-pill ms-3">
+                    #i18n{wiki.suggestion.myPending.viewLink}
+                </a>
+            </div>
+        </#if>
+
         <#if book.currentRevision??>
             <#if book.currentRevision.content?has_content>
                 <div class="wiki-content wiki-markdown-content mb-4" id="wiki-content-${book.id}">

@@ -1,0 +1,11 @@
+<#ftl output_format="HTML">
+<#macro badge count>
+    <#if count gt 0><span class="sidebar-pending-dot">${count}</span></#if>
+</#macro>
+
+<#macro menuItem count>
+    <#if count gt 0>
+        <li><a class="dropdown-item" href="jsp/site/Portal.jsp?page=wikisuggestion&view=list"><i class="ti ti-inbox me-2"></i>${count} #i18n{wiki.suggestion.pending.label}</a></li>
+        <li><hr class="dropdown-divider"></li>
+    </#if>
+</#macro>

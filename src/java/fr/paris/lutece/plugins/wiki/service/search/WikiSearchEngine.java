@@ -380,7 +380,7 @@ public class WikiSearchEngine implements SearchEngine
                     result.setSummary( getTruncatedContent( content ) );
                 }
             }
-            catch( IOException | InvalidTokenOffsetsException e )
+            catch( IOException | InvalidTokenOffsetsException | RuntimeException e )
             {
                 AppLogService.error( ERROR_HIGHLIGHTING, e );
                 result.setSummary( getTruncatedContent( content ) );
