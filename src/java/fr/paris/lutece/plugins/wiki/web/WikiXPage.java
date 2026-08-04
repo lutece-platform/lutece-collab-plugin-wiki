@@ -52,6 +52,7 @@ import fr.paris.lutece.plugins.wiki.service.activity.ActivityService;
 import fr.paris.lutece.plugins.wiki.service.activity.ActivityService.Period;
 import fr.paris.lutece.plugins.wiki.service.search.WikiSearchEngine;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
+import fr.paris.lutece.plugins.wiki.service.security.WikiUserPermissions;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.search.SearchResult;
 import fr.paris.lutece.portal.service.security.LuteceUser;
@@ -134,7 +135,9 @@ public class WikiXPage extends AbstractWikiXPage
         LuteceUser user = SecurityService.getInstance( ).getRegisteredUser( request );
 
         List<AbstractWikiItem> allSpaces = WikiItemService.getItemsByType( WikiItemType.SPACE );
-        List<AbstractWikiItem> spaces = allSpaces.stream( ).filter( space -> WikiAccessControlService.canView( user, space ) ).collect( Collectors.toList( ) );
+        WikiUserPermissions permissions = WikiUserPermissions.forUser( user );
+        List<AbstractWikiItem> spaces = allSpaces.stream( ).filter( space -> WikiAccessControlService.canView( permissions, space ) )
+                .collect( Collectors.toList( ) );
 
         Map<String, Object> model = getModel( );
         model.put( MARK_ALL_ITEMS, spaces );
@@ -173,9 +176,7 @@ public class WikiXPage extends AbstractWikiXPage
 
         Map<String, Object> model = getModel( );
         populateSpaceSidebarModel( model, user, space );
-        boolean canEditSpace = WikiAccessControlService.canEdit( user, space );
-        model.put( MARK_CAN_EDIT, canEditSpace );
-        if ( canEditSpace )
+        if ( Boolean.TRUE.equals( model.get( MARK_CAN_EDIT ) ) )
         {
             model.put( MARK_PENDING_SUGGESTIONS_COUNT, readPendingCount( model, space.getId( ) ) );
         }
@@ -214,18 +215,8 @@ public class WikiXPage extends AbstractWikiXPage
         }
 
         Map<String, Object> model = getModel( );
-
-        List<AbstractWikiItem> bookChildren = loadItemChildren( user, book );
-        Map<String, Boolean> childEditRights = computeChildEditRights( user, bookChildren );
-
-        boolean canEditBook = WikiAccessControlService.canEdit( user, book );
-        model.put( MARK_BOOK, book );
-        model.put( MARK_BOOK_CHILDREN, bookChildren );
-        model.put( MARK_CHAPTER_EDIT_RIGHTS, childEditRights );
-        model.put( MARK_PENDING_COUNTS, computePendingCounts( childEditRights, book, canEditBook ) );
-        model.put( MARK_CAN_EDIT, canEditBook );
-        model.put( MARK_SPACE, findSpaceForBook( book ) );
-        if ( canEditBook )
+        populateBookSidebarModel( model, user, book );
+        if ( Boolean.TRUE.equals( model.get( MARK_CAN_EDIT ) ) )
         {
             model.put( MARK_PENDING_SUGGESTIONS_COUNT, readPendingCount( model, book.getId( ) ) );
         }
@@ -233,7 +224,6 @@ public class WikiXPage extends AbstractWikiXPage
         {
             model.put( MARK_MY_PENDING_SUGGESTION, SuggestedRevisionService.findMyPending( user, book.getId( ) ) );
         }
-        populateCommonModel( model, user );
 
         XPage page = getXPage( TEMPLATE_VIEW_BOOK, locale, model );
         page.setTitle( getItemTitle( book ) );
@@ -329,9 +319,10 @@ public class WikiXPage extends AbstractWikiXPage
      */
     private void populateBookContext( Map<String, Object> model, LuteceUser user, Book book )
     {
-        List<AbstractWikiItem> bookChildren = loadItemChildren( user, book );
-        Map<String, Boolean> childEditRights = computeChildEditRights( user, bookChildren );
-        boolean canEditBook = WikiAccessControlService.canEdit( user, book );
+        WikiUserPermissions permissions = WikiUserPermissions.forUser( user );
+        List<AbstractWikiItem> bookChildren = loadItemChildren( permissions, book );
+        Map<String, Boolean> childEditRights = computeChildEditRights( permissions, bookChildren );
+        boolean canEditBook = WikiAccessControlService.canEdit( permissions, book );
 
         model.put( MARK_BOOK, book );
         model.put( MARK_BOOK_CHILDREN, bookChildren );

@@ -38,8 +38,7 @@ import java.util.List;
 
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemHome;
-import fr.paris.lutece.plugins.wiki.service.rbac.WikiRoleService;
-import fr.paris.lutece.portal.service.rbac.RBACService;
+import fr.paris.lutece.plugins.wiki.service.permission.WikiPermissionService;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 
 /**
@@ -70,12 +69,29 @@ public final class WikiAccessControlService
      */
     public static boolean canView( LuteceUser user, AbstractWikiItem item )
     {
+        return canView( WikiUserPermissions.forUser( user ), item );
+    }
+
+    /**
+     * Checks if the user can view the specified wiki item, against already loaded permissions.
+     *
+     * Callers checking many items in a row should load the permissions once and use this method,
+     * so the permissions are read from the database only once.
+     *
+     * @param permissions
+     *            the permissions of the user
+     * @param item
+     *            the wiki item to check
+     * @return true if the user can view the item, false otherwise
+     */
+    public static boolean canView( WikiUserPermissions permissions, AbstractWikiItem item )
+    {
         if ( item == null )
         {
             return false;
         }
 
-        if ( hasRole( user, ROLE_WIKI_ADMIN ) )
+        if ( permissions.hasRole( ROLE_WIKI_ADMIN ) )
         {
             return true;
         }
@@ -84,7 +100,7 @@ public final class WikiAccessControlService
 
         for ( AbstractWikiItem ancestor : hierarchy )
         {
-            if ( !canViewOwn( user, ancestor, hierarchy ) )
+            if ( !canViewOwn( permissions, ancestor, hierarchy ) )
             {
                 return false;
             }
@@ -152,12 +168,26 @@ public final class WikiAccessControlService
      */
     public static boolean canEdit( LuteceUser user, AbstractWikiItem item )
     {
+        return canEdit( WikiUserPermissions.forUser( user ), item );
+    }
+
+    /**
+     * Checks if the user can edit the specified wiki item, against already loaded permissions.
+     *
+     * @param permissions
+     *            the permissions of the user
+     * @param item
+     *            the wiki item to check
+     * @return true if the user can edit the item, false otherwise
+     */
+    public static boolean canEdit( WikiUserPermissions permissions, AbstractWikiItem item )
+    {
         if ( item == null )
         {
             return false;
         }
 
-        if ( hasRole( user, ROLE_WIKI_ADMIN ) )
+        if ( permissions.hasRole( ROLE_WIKI_ADMIN ) )
         {
             return true;
         }
@@ -166,82 +196,59 @@ public final class WikiAccessControlService
 
         for ( int i = 0; i < hierarchy.size( ) - 1; i++ )
         {
-            if ( !canViewOwn( user, hierarchy.get( i ), hierarchy ) )
+            if ( !canViewOwn( permissions, hierarchy.get( i ), hierarchy ) )
             {
                 return false;
             }
         }
 
-        return hierarchy.stream( ).anyMatch( ancestor -> canEditOwn( user, ancestor ) );
+        return hierarchy.stream( ).anyMatch( ancestor -> canEditOwn( permissions, ancestor ) );
     }
 
     /**
      * Checks if the user can view their own wiki item based on publication status and RBAC permissions.
      *
-     * @param user
-     *            the Lutece user
+     * @param permissions
+     *            the permissions of the user
      * @param item
      *            the wiki item to check
      * @param hierarchy
      *            the hierarchy of wiki items
      * @return true if the user can view their own item, false otherwise
      */
-    private static boolean canViewOwn( LuteceUser user, AbstractWikiItem item, List<AbstractWikiItem> hierarchy )
+    private static boolean canViewOwn( WikiUserPermissions permissions, AbstractWikiItem item, List<AbstractWikiItem> hierarchy )
     {
         if ( !item.isPublished( ) )
         {
-            return hierarchy.stream( ).anyMatch( ancestor -> canEditOwn( user, ancestor ) );
+            return hierarchy.stream( ).anyMatch( ancestor -> canEditOwn( permissions, ancestor ) );
         }
 
         String viewRole = item.getViewRole( );
-        if ( viewRole == null || viewRole.isBlank( ) || "none".equalsIgnoreCase( viewRole ) )
+        if ( viewRole == null || viewRole.isBlank( ) || WikiPermissionService.ROLE_NONE.equalsIgnoreCase( viewRole ) )
         {
             return true;
         }
 
-        if ( user != null )
-        {
-            if ( RBACService.isAuthorized( item, WikiRoleService.PERMISSION_VIEW, user ) )
-            {
-                return true;
-            }
-
-            if ( RBACService.isAuthorized( item, WikiRoleService.PERMISSION_EDIT, user ) )
-            {
-                return true;
-            }
-        }
-
-        if ( hasRole( user, viewRole ) )
+        if ( permissions.isAllowedToView( item ) || permissions.isAllowedToEdit( item ) )
         {
             return true;
         }
 
-        String editRole = item.getEditRole( );
-        return editRole != null && !editRole.isBlank( ) && hasRole( user, editRole );
+        return permissions.hasRole( viewRole ) || permissions.hasRole( item.getEditRole( ) );
     }
 
     /**
      * Checks if the user can edit their own wiki item based on RBAC permissions.
      *
-     * @param user
-     *            the Lutece user
+     * @param permissions
+     *            the permissions of the user
      * @param item
      *            the wiki item to check
      * @return true if the user can edit their own item, false otherwise
      */
-    private static boolean canEditOwn( LuteceUser user, AbstractWikiItem item )
+    private static boolean canEditOwn( WikiUserPermissions permissions, AbstractWikiItem item )
     {
-        if ( user != null )
-        {
-            if ( RBACService.isAuthorized( item, WikiRoleService.PERMISSION_EDIT, user ) )
-            {
-                return true;
-            }
-        }
-
-        String editRole = item.getEditRole( );
-        return editRole != null && !editRole.isBlank( ) && hasRole( user, editRole );
+        return permissions.isAllowedToEdit( item ) || permissions.hasRole( item.getEditRole( ) );
     }
 
     /**
@@ -255,12 +262,7 @@ public final class WikiAccessControlService
      */
     private static boolean hasRole( LuteceUser user, String role )
     {
-        if ( role == null || role.isBlank( ) || user == null )
-        {
-            return false;
-        }
-
-        return java.util.Arrays.asList( user.getRoles( ) ).contains( role );
+        return WikiUserPermissions.forUser( user ).hasRole( role );
     }
 
     /**

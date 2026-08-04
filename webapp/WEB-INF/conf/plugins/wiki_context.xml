@@ -9,6 +9,7 @@
     <bean id="wiki.wikiItemDAO" class="fr.paris.lutece.plugins.wiki.business.item.WikiItemDAO" />
     <bean id="wiki.revisionDAO" class="fr.paris.lutece.plugins.wiki.business.revision.RevisionDAO" />
     <bean id="wiki.suggestedRevisionDAO" class="fr.paris.lutece.plugins.wiki.business.suggestedrevision.SuggestedRevisionDAO" />
+    <bean id="wiki.wikiItemUserPermissionDAO" class="fr.paris.lutece.plugins.wiki.business.permission.WikiItemUserPermissionDAO" />
 
     <!-- Cache Service -->
     <bean id="wiki.cacheService" class="fr.paris.lutece.plugins.wiki.service.cache.WikiCacheService"
@@ -31,10 +32,6 @@
         <property name="default" value="false" />
         <property name="name" value="wikiFileStoreProvider" />
     </bean>
-
-    <!-- Wiki Role Removal Listener -->
-    <bean id="wiki.roleRemovalListener" class="fr.paris.lutece.plugins.wiki.service.listener.WikiRoleRemovalListener"
-          parent="roleRemovalService" />
 
     <!-- REST Services -->
     <bean id="wiki.wikiCodeValidationRest" class="fr.paris.lutece.plugins.wiki.rs.WikiCodeValidationRest" />

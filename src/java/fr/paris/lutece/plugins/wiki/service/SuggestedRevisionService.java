@@ -16,6 +16,7 @@ import fr.paris.lutece.plugins.wiki.business.suggestedrevision.SuggestionStatus;
 import fr.paris.lutece.plugins.wiki.service.merge.MergeBlock;
 import fr.paris.lutece.plugins.wiki.service.merge.MergeBlocks;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
+import fr.paris.lutece.plugins.wiki.service.security.WikiUserPermissions;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
@@ -160,11 +161,13 @@ public final class SuggestedRevisionService
         List<SuggestedRevision> pending = SuggestedRevisionHome.getAllPending( );
         Map<Integer, AbstractWikiItem> itemsById = loadItemsByEntityId( pending );
 
+        WikiUserPermissions permissions = WikiUserPermissions.forUser( user );
+
         List<SuggestedRevision> result = new ArrayList<>( pending.size( ) );
         for ( SuggestedRevision s : pending )
         {
             AbstractWikiItem item = itemsById.get( s.getEntityId( ) );
-            if ( item != null && WikiAccessControlService.canEdit( user, item ) )
+            if ( item != null && WikiAccessControlService.canEdit( permissions, item ) )
             {
                 result.add( s );
             }

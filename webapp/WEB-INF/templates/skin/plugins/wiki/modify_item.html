@@ -154,8 +154,8 @@
                                 <ul class="list-group list-group-flush">
                                     <#list view_users as viewUser>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span class="text-truncate">${viewUser.givenName} ${viewUser.lastName}</span>
-                                            <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&action=removeUserPermission&code=${item.code}&user_guid=${viewUser.providerUserId}&permission_type=VIEW&token=${token}"
+                                            <span class="text-truncate">${viewUser.userDisplayName}</span>
+                                            <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&action=removeUserPermission&code=${item.code}&user_guid=${viewUser.userGuid}&permission_type=VIEW&token=${token}"
                                                 class="btn btn-sm btn-outline-danger">
                                                 <i class="ti ti-x"></i>
                                             </a>
@@ -183,8 +183,8 @@
                                 <ul class="list-group list-group-flush">
                                     <#list edit_users as editUser>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span class="text-truncate">${editUser.givenName} ${editUser.lastName}</span>
-                                            <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&action=removeUserPermission&code=${item.code}&user_guid=${editUser.providerUserId}&permission_type=EDIT&token=${token}"
+                                            <span class="text-truncate">${editUser.userDisplayName}</span>
+                                            <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&action=removeUserPermission&code=${item.code}&user_guid=${editUser.userGuid}&permission_type=EDIT&token=${token}"
                                                 class="btn btn-sm btn-outline-danger">
                                                 <i class="ti ti-x"></i>
                                             </a>

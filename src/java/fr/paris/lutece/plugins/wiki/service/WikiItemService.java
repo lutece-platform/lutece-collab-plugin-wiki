@@ -46,7 +46,7 @@ import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemHome;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
 import fr.paris.lutece.plugins.wiki.exception.WikiValidationException;
-import fr.paris.lutece.plugins.wiki.service.rbac.WikiRoleService;
+import fr.paris.lutece.plugins.wiki.service.permission.WikiPermissionService;
 import fr.paris.lutece.portal.business.event.ResourceEvent;
 import fr.paris.lutece.portal.service.event.ResourceEventManager;
 import fr.paris.lutece.portal.service.i18n.I18nService;
@@ -188,18 +188,9 @@ public final class WikiItemService
         validateParentType( item, locale );
         setNextAvailableOrder( item );
 
-        handlePrivateRole( item, user );
-
         AbstractWikiItem createdItem = WikiItemHome.create( item );
 
-        WikiRoleService.createRolesForItem( createdItem );
-
-        if ( user != null )
-        {
-            assignPrivateRolePermissions( createdItem, user );
-        }
-
-        WikiItemHome.update( createdItem );
+        WikiPermissionService.grantCreatorPermissions( createdItem, user );
 
         fireResourceEvent( createdItem.getId( ), createdItem.getResourceType( ), ResourceEventManager::fireAddedResource );
         setCurrentRevision( createdItem );
@@ -248,29 +239,9 @@ public final class WikiItemService
         {
             AbstractWikiItem item = optItem.get( );
 
-            List<AbstractWikiItem> allDescendants = getAllDescendants( item );
-
-            for ( AbstractWikiItem descendant : allDescendants )
-            {
-                WikiRoleService.removeRolesForItem( descendant );
-            }
-
-            WikiRoleService.removeRolesForItem( item );
             WikiItemHome.remove( itemId );
             fireResourceEvent( itemId, item.getResourceType( ), ResourceEventManager::fireDeletedResource );
         }
-    }
-
-    /**
-     * Gets all descendants of an item using bulk loading
-     *
-     * @param item
-     *            the wiki item
-     * @return the flat list of all descendants
-     */
-    private static List<AbstractWikiItem> getAllDescendants( AbstractWikiItem item )
-    {
-        return WikiItemHome.getDescendants( item.getId( ) );
     }
 
     private static void setCurrentRevision( AbstractWikiItem item )
@@ -479,61 +450,6 @@ public final class WikiItemService
         {
             item.setIdParent( originalParentId );
             throw e;
-        }
-    }
-
-    /**
-     * Handles the "private" role by converting it to a user-specific technical role
-     *
-     * @param item
-     *            the wiki item
-     * @param user
-     *            the user
-     */
-    private static void handlePrivateRole( AbstractWikiItem item, LuteceUser user )
-    {
-        if ( user != null && user.getName( ) != null )
-        {
-            String strProviderUserId = user.getName( );
-
-            if ( "private".equals( item.getViewRole( ) ) )
-            {
-                String strUserRole = WikiRoleService.ensureUserRole( strProviderUserId );
-                item.setViewRole( strUserRole );
-            }
-
-            if ( "private".equals( item.getEditRole( ) ) )
-            {
-                String strUserRole = WikiRoleService.ensureUserRole( strProviderUserId );
-                item.setEditRole( strUserRole );
-            }
-        }
-    }
-
-    /**
-     * Assigns permissions to the user's private role for the item
-     *
-     * @param item
-     *            the wiki item
-     * @param user
-     *            the user
-     */
-    private static void assignPrivateRolePermissions( AbstractWikiItem item, LuteceUser user )
-    {
-        if ( user != null && user.getName( ) != null )
-        {
-            String strProviderUserId = user.getName( );
-            String strUserRole = WikiRoleService.ROLE_PREFIX_USER + strProviderUserId;
-
-            if ( item.getViewRole( ) != null && item.getViewRole( ).equals( strUserRole ) )
-            {
-                WikiRoleService.assignUserRoleToItem( strProviderUserId, item, WikiRoleService.PERMISSION_VIEW );
-            }
-
-            if ( item.getEditRole( ) != null && item.getEditRole( ).equals( strUserRole ) )
-            {
-                WikiRoleService.assignUserRoleToItem( strProviderUserId, item, WikiRoleService.PERMISSION_EDIT );
-            }
         }
     }
 

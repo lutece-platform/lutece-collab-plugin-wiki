@@ -56,6 +56,7 @@ import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
+import fr.paris.lutece.plugins.wiki.service.security.WikiUserPermissions;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.SecurityService;
 
@@ -197,6 +198,8 @@ public class WikiItemRest
         List<AbstractWikiItem> roots = allItems.stream( ).filter( i -> i.getIdParent( ) == null || !allItems.stream( ).anyMatch( p -> p.getId( ) == i.getIdParent( ) ) )
                 .collect( Collectors.toList( ) );
 
+        WikiUserPermissions permissions = WikiUserPermissions.forUser( user );
+
         List<AbstractWikiItem> queue = new ArrayList<>( roots );
         while ( !queue.isEmpty( ) )
         {
@@ -207,7 +210,7 @@ public class WikiItemRest
             }
             seenIds.add( dest.getId( ) );
 
-            if ( WikiAccessControlService.canEdit( user, dest ) && ( currentParentId == null || dest.getId( ) != currentParentId ) )
+            if ( WikiAccessControlService.canEdit( permissions, dest ) && ( currentParentId == null || dest.getId( ) != currentParentId ) )
             {
                 destinations.add( dest );
             }

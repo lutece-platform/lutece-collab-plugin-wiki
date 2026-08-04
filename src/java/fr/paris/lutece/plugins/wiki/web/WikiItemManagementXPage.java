@@ -50,19 +50,20 @@ import fr.paris.lutece.plugins.mylutece.business.attribute.AttributeHome;
 import fr.paris.lutece.plugins.mylutece.business.attribute.IAttribute;
 import fr.paris.lutece.plugins.mylutece.modules.users.business.AttributeMapping;
 import fr.paris.lutece.plugins.mylutece.modules.users.business.AttributeMappingHome;
-import fr.paris.lutece.plugins.mylutece.modules.users.business.MyLuteceSearchUserHome;
 import fr.paris.lutece.plugins.mylutece.service.MyLutecePlugin;
 import fr.paris.lutece.plugins.mylutece.service.search.MyLuteceSearchUser;
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemFactory;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
+import fr.paris.lutece.plugins.wiki.business.permission.WikiItemUserPermission;
 import fr.paris.lutece.plugins.wiki.business.revision.Revision;
 import fr.paris.lutece.plugins.wiki.exception.WikiValidationException;
 import fr.paris.lutece.plugins.wiki.service.RevisionService;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
+import fr.paris.lutece.plugins.wiki.service.permission.WikiPermissionService;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
 import fr.paris.lutece.plugins.wiki.service.user.ExternalUserSearchService;
-import fr.paris.lutece.plugins.wiki.service.user.WikiUserRoleService;
+import fr.paris.lutece.plugins.wiki.service.user.WikiUserDisplayName;
 import fr.paris.lutece.portal.business.role.Role;
 import fr.paris.lutece.portal.business.role.RoleHome;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
@@ -271,7 +272,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
             String strTitleEncoded = request.getParameter( "title_encoded" );
             if ( strTitleEncoded != null && !strTitleEncoded.trim( ).isEmpty( ) )
             {
-                String strAuthor = user.getFirstName( ) + " " + user.getLastName( );
+                String strAuthor = WikiUserDisplayName.of( user );
 
                 Revision revision = new Revision( );
                 revision.setEntityId( item.getId( ) );
@@ -317,8 +318,8 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         AbstractWikiItem item = WikiItemService.findByCode( strCode );
         LuteceUser user = checkEditAccess( request, item );
 
-        List<MyLuteceSearchUser> viewUsers = WikiUserRoleService.getUsersWithViewPermission( item );
-        List<MyLuteceSearchUser> editUsers = WikiUserRoleService.getUsersWithEditPermission( item );
+        List<WikiItemUserPermission> viewUsers = WikiPermissionService.getUsersWithPermission( item, WikiItemUserPermission.PERMISSION_VIEW );
+        List<WikiItemUserPermission> editUsers = WikiPermissionService.getUsersWithPermission( item, WikiItemUserPermission.PERMISSION_EDIT );
 
         Map<String, Object> model = getModel( );
         model.put( MARK_ITEM, item );
@@ -370,7 +371,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
             String strTitleEncoded = request.getParameter( "title_encoded" );
             if ( strTitleEncoded != null && !strTitleEncoded.trim( ).isEmpty( ) )
             {
-                String strAuthor = user.getFirstName( ) + " " + user.getLastName( );
+                String strAuthor = WikiUserDisplayName.of( user );
 
                 Revision revision = new Revision( );
                 revision.setEntityId( item.getId( ) );
@@ -495,7 +496,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         AbstractWikiItem item = WikiItemService.findById( revision.getEntityId( ) );
         LuteceUser user = checkEditAccess( request, item );
 
-        RevisionService.restoreRevision( nRevisionId, user.getFirstName( ) + " " + user.getLastName( ) );
+        RevisionService.restoreRevision( nRevisionId, WikiUserDisplayName.of( user ) );
         addFlashInfo( request, MESSAGE_REVISION_RESTORED );
 
         return redirectToView( request, item );
@@ -934,27 +935,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
 
             if ( externalUser != null )
             {
-                MyLuteceSearchUser localUser = MyLuteceSearchUserHome.findByConnectId( strUserGuid );
-
-                if ( localUser == null )
-                {
-                    localUser = new MyLuteceSearchUser( );
-                    localUser.setLogin( externalUser.getLogin( ) );
-                    localUser.setGivenName( externalUser.getGivenName( ) );
-                    localUser.setLastName( externalUser.getLastName( ) );
-                    localUser.setEmail( externalUser.getEmail( ) );
-                    localUser.setProviderUserId( strUserGuid );
-                    MyLuteceSearchUserHome.create( localUser );
-                }
-
-                if ( "VIEW".equals( strPermissionType ) )
-                {
-                    WikiUserRoleService.assignViewPermission( strUserGuid, item );
-                }
-                else if ( "EDIT".equals( strPermissionType ) )
-                {
-                    WikiUserRoleService.assignEditPermission( strUserGuid, item );
-                }
+                WikiPermissionService.grant( item, strUserGuid, WikiUserDisplayName.of( externalUser ), strPermissionType );
             }
         }
 
@@ -993,19 +974,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
 
         if ( strPermissionType != null && strUserGuid != null && !strUserGuid.isEmpty( ) )
         {
-            MyLuteceSearchUser localUser = MyLuteceSearchUserHome.findByConnectId( strUserGuid );
-
-            if ( localUser != null )
-            {
-                if ( "VIEW".equals( strPermissionType ) )
-                {
-                    WikiUserRoleService.removeViewPermission( strUserGuid, item );
-                }
-                else if ( "EDIT".equals( strPermissionType ) )
-                {
-                    WikiUserRoleService.removeEditPermission( strUserGuid, item );
-                }
-            }
+            WikiPermissionService.revoke( item, strUserGuid, strPermissionType );
         }
 
         Map<String, String> params = new HashMap<>( );
@@ -1275,8 +1244,8 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     private ReferenceList getUserRoles( LuteceUser user, Locale locale )
     {
         ReferenceList userRoles = new ReferenceList( );
-        userRoles.addItem( "none", I18nService.getLocalizedString( "wiki.role.none", locale ) );
-        userRoles.addItem( "private", I18nService.getLocalizedString( "wiki.role.private", locale ) );
+        userRoles.addItem( WikiPermissionService.ROLE_NONE, I18nService.getLocalizedString( "wiki.role.none", locale ) );
+        userRoles.addItem( WikiPermissionService.ROLE_PRIVATE, I18nService.getLocalizedString( "wiki.role.private", locale ) );
 
         if ( user != null && user.getRoles( ) != null )
         {

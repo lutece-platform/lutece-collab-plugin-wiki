@@ -49,6 +49,7 @@ import fr.paris.lutece.plugins.wiki.business.revision.Revision;
 import fr.paris.lutece.plugins.wiki.business.revision.RevisionHome;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
+import fr.paris.lutece.plugins.wiki.service.security.WikiUserPermissions;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import java.util.stream.Collectors;
 
@@ -226,6 +227,8 @@ public final class ActivityService
 
         Map<String, Revision> previousRevisions = RevisionHome.getBatchByEntityAndRevisionNumber( previousRevisionPairs );
 
+        WikiUserPermissions permissions = WikiUserPermissions.forUser( user );
+
         List<ActivityItem> activities = new ArrayList<>( );
         for ( Revision revision : revisions )
         {
@@ -239,7 +242,7 @@ public final class ActivityService
                 }
             }
 
-            if ( item != null && WikiAccessControlService.canView( user, item ) )
+            if ( item != null && WikiAccessControlService.canView( permissions, item ) )
             {
                 boolean bIsCreation = revision.getRevisionNumber( ) == 1;
                 ActivityItem activityItem = new ActivityItem( revision, item, bIsCreation );

@@ -25,6 +25,7 @@ import fr.paris.lutece.plugins.wiki.service.WikiItemService;
 import fr.paris.lutece.plugins.wiki.service.merge.MergeBlock;
 import fr.paris.lutece.plugins.wiki.service.merge.MergeBlocks;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
+import fr.paris.lutece.plugins.wiki.service.user.WikiUserDisplayName;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.SiteMessage;
@@ -199,7 +200,7 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
         suggestion.setDescription( currentRevision != null ? currentRevision.getDescription( ) : null );
         suggestion.setContent( decodedParam( request, PARAMETER_CONTENT ) );
         suggestion.setComment( strComment );
-        suggestion.setAuthor( buildDisplayName( user ) );
+        suggestion.setAuthor( WikiUserDisplayName.of( user ) );
         suggestion.setAuthorGuid( user.getName( ) );
 
         SuggestedRevisionService.create( suggestion );
@@ -397,7 +398,7 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
             return redirect( request, VIEW_LIST, new HashMap<>( ) );
         }
 
-        String reviewer = buildDisplayName( user );
+        String reviewer = WikiUserDisplayName.of( user );
         String reviewComment = request.getParameter( PARAMETER_REVIEW_COMMENT );
 
         if ( approve )
@@ -545,16 +546,4 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
         return request.getParameter( name );
     }
 
-    /**
-     * Builds a human-readable display name from a lutece user. Falls back to the lutece login when no first/last name is set.
-     *
-     * @param user
-     *            the lutece user
-     * @return the display name
-     */
-    private String buildDisplayName( LuteceUser user )
-    {
-        String fullName = ( ( user.getFirstName( ) == null ? "" : user.getFirstName( ) ) + " " + ( user.getLastName( ) == null ? "" : user.getLastName( ) ) ).trim( );
-        return fullName.isEmpty( ) ? user.getName( ) : fullName;
-    }
 }
