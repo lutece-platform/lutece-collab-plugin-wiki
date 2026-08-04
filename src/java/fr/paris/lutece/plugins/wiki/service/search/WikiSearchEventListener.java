@@ -269,7 +269,8 @@ public class WikiSearchEventListener implements EventRessourceListener
     }
 
     /**
-     * Removes a wiki item and its descendants from the search index using bulk loading
+     * Removes a wiki item from the search index. Descendants are covered by the deletion event
+     * fired for each of them, since they are already gone from the database by the time this runs.
      *
      * @param strIdResource
      *            the resource ID as string
@@ -278,16 +279,7 @@ public class WikiSearchEventListener implements EventRessourceListener
      */
     private void removeWikiItem( String strIdResource, String strResourceType )
     {
-        int nId = Integer.parseInt( strIdResource );
-        String strId = strResourceType + RESOURCE_ID_SEPARATOR + nId;
+        String strId = strResourceType + RESOURCE_ID_SEPARATOR + Integer.parseInt( strIdResource );
         IndexationService.addIndexerAction( strId, WikiSearchIndexer.INDEXER_NAME, IndexerAction.TASK_DELETE );
-
-        List<AbstractWikiItem> descendants = WikiItemHome.getDescendants( nId );
-
-        for ( AbstractWikiItem descendant : descendants )
-        {
-            String strDescId = descendant.getResourceType( ) + RESOURCE_ID_SEPARATOR + descendant.getId( );
-            IndexationService.addIndexerAction( strDescId, WikiSearchIndexer.INDEXER_NAME, IndexerAction.TASK_DELETE );
-        }
     }
 }
