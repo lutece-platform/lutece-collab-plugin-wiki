@@ -112,28 +112,37 @@ public final class WikiItemHome
     }
 
     /**
-     * Remove a wiki item by its key
+     * Remove a wiki item by its key. The database cascade removes its descendants along with it,
+     * so their caches are invalidated too and they are returned to the caller.
      *
      * @param nKey
      *            the wiki item key
+     * @return every item actually removed, the item itself first, empty when it did not exist
      */
-    public static void remove( int nKey )
+    public static List<AbstractWikiItem> remove( int nKey )
     {
         Optional<AbstractWikiItem> optItem = findByPrimaryKey( nKey );
 
+        if ( !optItem.isPresent( ) )
+        {
+            return new ArrayList<>( );
+        }
+
+        List<AbstractWikiItem> listRemoved = new ArrayList<>( );
+        listRemoved.add( optItem.get( ) );
+        listRemoved.addAll( getDescendants( nKey ) );
+
         _dao.delete( nKey, _plugin );
 
-        if ( optItem.isPresent( ) )
+        for ( AbstractWikiItem item : listRemoved )
         {
-            AbstractWikiItem item = optItem.get( );
-            String cacheKeyById = _cacheService.getWikiItemCacheKey( nKey );
-            String cacheKeyByCode = _cacheService.getWikiItemByCodeCacheKey( item.getCode( ) );
-
-            _cacheService.removeKey( cacheKeyById );
-            _cacheService.removeKey( cacheKeyByCode );
+            _cacheService.removeKey( _cacheService.getWikiItemCacheKey( item.getId( ) ) );
+            _cacheService.removeKey( _cacheService.getWikiItemByCodeCacheKey( item.getCode( ) ) );
 
             invalidateListCaches( item );
         }
+
+        return listRemoved;
     }
 
     /**

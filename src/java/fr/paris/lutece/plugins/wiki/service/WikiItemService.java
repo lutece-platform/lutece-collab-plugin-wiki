@@ -227,20 +227,18 @@ public final class WikiItemService
     }
 
     /**
-     * Deletes a wiki item by its identifier
+     * Deletes a wiki item by its identifier. The database cascade removes its descendants along
+     * with it, so one deletion event is fired per removed item, letting every listener drop the
+     * whole subtree from its index.
      *
      * @param itemId
      *            the item identifier
      */
     public static void delete( int itemId )
     {
-        Optional<AbstractWikiItem> optItem = WikiItemHome.findByPrimaryKey( itemId );
-        if ( optItem.isPresent( ) )
+        for ( AbstractWikiItem removed : WikiItemHome.remove( itemId ) )
         {
-            AbstractWikiItem item = optItem.get( );
-
-            WikiItemHome.remove( itemId );
-            fireResourceEvent( itemId, item.getResourceType( ), ResourceEventManager::fireDeletedResource );
+            fireResourceEvent( removed.getId( ), removed.getResourceType( ), ResourceEventManager::fireDeletedResource );
         }
     }
 
