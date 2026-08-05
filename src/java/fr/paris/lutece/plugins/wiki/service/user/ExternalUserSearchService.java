@@ -36,6 +36,8 @@ package fr.paris.lutece.plugins.wiki.service.user;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import fr.paris.lutece.plugins.mylutece.service.search.MyLuteceSearchUser;
 import fr.paris.lutece.plugins.mylutece.service.search.IUserSearchProvider;
 import fr.paris.lutece.plugins.mylutece.modules.users.service.MyLuteceUserSearchService;
@@ -100,7 +102,8 @@ public final class ExternalUserSearchService
     }
 
     /**
-     * Search for users matching the given criteria including additional attributes
+     * Search for users matching the given criteria including additional attributes. Null criteria
+     * are passed to the provider as empty strings: some providers, LDAP among them, reject null.
      *
      * @param strLastName
      *            the last name (can be null or empty)
@@ -124,7 +127,8 @@ public final class ExternalUserSearchService
             IUserSearchProvider provider = MyLuteceUserSearchService.getInstance( );
             if ( provider != null )
             {
-                List<MyLuteceSearchUser> users = provider.findUsers( strLastName, strGivenName, strEmail, listProviderAttributes );
+                List<MyLuteceSearchUser> users = provider.findUsers( StringUtils.defaultString( strLastName ), StringUtils.defaultString( strGivenName ),
+                        StringUtils.defaultString( strEmail ), listProviderAttributes != null ? listProviderAttributes : new ReferenceList( ) );
                 return users != null ? users : new ArrayList<>( );
             }
             else
