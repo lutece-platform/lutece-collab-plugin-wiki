@@ -10,6 +10,7 @@
     <bean id="wiki.revisionDAO" class="fr.paris.lutece.plugins.wiki.business.revision.RevisionDAO" />
     <bean id="wiki.suggestedRevisionDAO" class="fr.paris.lutece.plugins.wiki.business.suggestedrevision.SuggestedRevisionDAO" />
     <bean id="wiki.wikiItemUserPermissionDAO" class="fr.paris.lutece.plugins.wiki.business.permission.WikiItemUserPermissionDAO" />
+    <bean id="wiki.wikiItemAttributePermissionDAO" class="fr.paris.lutece.plugins.wiki.business.permission.WikiItemAttributePermissionDAO" />
 
     <!-- Cache Service -->
     <bean id="wiki.cacheService" class="fr.paris.lutece.plugins.wiki.service.cache.WikiCacheService"

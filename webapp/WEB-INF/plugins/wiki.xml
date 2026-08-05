@@ -16,6 +16,16 @@
     <!-- DB pool -->
     <db-pool-required>1</db-pool-required>
 
+    <!-- Daemons -->
+    <daemons>
+        <daemon>
+            <daemon-id>wikiUserAttributeValuesDaemon</daemon-id>
+            <daemon-name>Wiki User Attribute Values Daemon</daemon-name>
+            <daemon-description>Refreshes the values suggested for the searchable user attributes of the permission panel</daemon-description>
+            <daemon-class>fr.paris.lutece.plugins.wiki.service.user.WikiUserAttributeValuesDaemon</daemon-class>
+        </daemon>
+    </daemons>
+
     <!-- XPages -->
     <applications>
         <application>

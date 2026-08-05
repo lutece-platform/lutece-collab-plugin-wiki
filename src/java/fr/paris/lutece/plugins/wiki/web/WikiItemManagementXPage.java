@@ -121,6 +121,8 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     private static final String MARK_USER_SEARCH_AVAILABLE = "user_search_available";
     private static final String MARK_USER_ROLES = "user_roles";
     private static final String MARK_PERMISSION_SEARCH_FIELDS = "permission_search_fields";
+    private static final String MARK_VIEW_POPULATIONS = "view_populations";
+    private static final String MARK_EDIT_POPULATIONS = "edit_populations";
 
     private static final String NAV_VIEW_SPACE = "viewSpace";
     private static final String NAV_VIEW_BOOK = "viewBook";
@@ -316,6 +318,8 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         model.put( MARK_USER, user );
         model.put( MARK_VIEW_USERS, viewUsers );
         model.put( MARK_EDIT_USERS, editUsers );
+        model.put( MARK_VIEW_POPULATIONS, WikiPermissionService.getAttributesWithPermission( item, WikiItemUserPermission.PERMISSION_VIEW ) );
+        model.put( MARK_EDIT_POPULATIONS, WikiPermissionService.getAttributesWithPermission( item, WikiItemUserPermission.PERMISSION_EDIT ) );
         model.put( MARK_USER_SEARCH_AVAILABLE, _externalUserSearchService.isAvailable( ) );
         model.put( MARK_PERMISSION_SEARCH_FIELDS, getProviderSearchFields( getLocale( request ) ) );
         model.put( MARK_USER_ROLES, getUserRoles( user, getLocale( request ) ) );
@@ -1109,7 +1113,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
             IAttribute attribute = mapAttributesById.get( mapping.getId( ) );
             if ( attribute != null )
             {
-                listFields.addItem( mapping.getIdProviderAttribute( ), attribute.getTitle( ) );
+                listFields.addItem( mapping.getIdProviderAttribute( ).trim( ), attribute.getTitle( ) );
             }
         }
 

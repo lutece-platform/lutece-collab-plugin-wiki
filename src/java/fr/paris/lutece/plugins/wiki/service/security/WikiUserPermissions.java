@@ -8,8 +8,11 @@ package fr.paris.lutece.plugins.wiki.service.security;
 
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
+import fr.paris.lutece.plugins.wiki.business.permission.WikiItemAttributePermission;
+import fr.paris.lutece.plugins.wiki.business.permission.WikiItemAttributePermissionHome;
 import fr.paris.lutece.plugins.wiki.business.permission.WikiItemUserPermission;
 import fr.paris.lutece.plugins.wiki.business.permission.WikiItemUserPermissionHome;
+import fr.paris.lutece.plugins.wiki.service.user.WikiUserAttributes;
 import fr.paris.lutece.portal.business.rbac.RBAC;
 import fr.paris.lutece.portal.business.rbac.RBACHome;
 import fr.paris.lutece.portal.service.security.LuteceUser;
@@ -17,15 +20,16 @@ import fr.paris.lutece.portal.service.security.LuteceUser;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * Snapshot of everything that grants a user access to wiki items: the roles carried by the
- * session, the permissions granted to the user individually, and the RBAC permissions granted
- * to the roles the user carries.
+ * session, the permissions granted to the user individually or to a population they belong to,
+ * and the RBAC permissions granted to the roles the user carries.
  *
- * The roles come from the session, so building a snapshot costs nothing. The two queries reading
- * the granted permissions are issued on the first item check and never again, so a single build
+ * The roles come from the session, so building a snapshot costs nothing. The reads gathering the
+ * granted permissions are issued on the first item check and never again, so a single build
  * serves any number of checks, and a role-only check costs no query at all.
  */
 public final class WikiUserPermissions
@@ -38,18 +42,20 @@ public final class WikiUserPermissions
     private final Set<String> _setViewKeys = new HashSet<>( );
     private final Set<String> _setEditKeys = new HashSet<>( );
 
+    private final LuteceUser _user;
     private final String _strUserGuid;
     private boolean _bGrantsLoaded;
 
     /**
      * Private constructor, use {@link #forUser(LuteceUser)}.
      *
-     * @param strUserGuid
-     *            the user guid, null for an anonymous visitor
+     * @param user
+     *            the Lutece user, null for an anonymous visitor
      */
-    private WikiUserPermissions( String strUserGuid )
+    private WikiUserPermissions( LuteceUser user )
     {
-        _strUserGuid = strUserGuid;
+        _user = user;
+        _strUserGuid = user != null ? user.getName( ) : null;
     }
 
     /**
@@ -66,7 +72,7 @@ public final class WikiUserPermissions
             return new WikiUserPermissions( null );
         }
 
-        WikiUserPermissions permissions = new WikiUserPermissions( user.getName( ) );
+        WikiUserPermissions permissions = new WikiUserPermissions( user );
 
         if ( user.getRoles( ) != null )
         {
@@ -146,6 +152,7 @@ public final class WikiUserPermissions
         }
 
         loadUserPermissions( );
+        loadAttributePermissions( );
         loadRbacPermissions( );
 
         _bGrantsLoaded = true;
@@ -158,10 +165,42 @@ public final class WikiUserPermissions
     {
         for ( WikiItemUserPermission permission : WikiItemUserPermissionHome.findByUser( _strUserGuid ) )
         {
-            String strPermission = permission.getPermissionType( );
-            addKey( KEY_PREFIX_ITEM + permission.getIdItem( ), WikiItemUserPermission.PERMISSION_VIEW.equals( strPermission ),
-                    WikiItemUserPermission.PERMISSION_EDIT.equals( strPermission ) );
+            addItemGrant( permission.getIdItem( ), permission.getPermissionType( ) );
         }
+    }
+
+    /**
+     * Loads the permissions granted to whole populations the user belongs to, such as everyone
+     * sharing their direction. The rules are matched on the directory attribute values the user
+     * carries, resolved here so a snapshot serving only role checks never pays for them.
+     */
+    private void loadAttributePermissions( )
+    {
+        Map<String, String> mapAttributes = WikiUserAttributes.getValues( _user );
+
+        if ( mapAttributes.isEmpty( ) )
+        {
+            return;
+        }
+
+        for ( WikiItemAttributePermission permission : WikiItemAttributePermissionHome.findByAttributeValues( mapAttributes ) )
+        {
+            addItemGrant( permission.getIdItem( ), permission.getPermissionType( ) );
+        }
+    }
+
+    /**
+     * Adds the grant an item permission row carries to the view keys, the edit keys, or none.
+     *
+     * @param nIdItem
+     *            the item identifier
+     * @param strPermissionType
+     *            the permission type of the row
+     */
+    private void addItemGrant( int nIdItem, String strPermissionType )
+    {
+        addKey( KEY_PREFIX_ITEM + nIdItem, WikiItemUserPermission.PERMISSION_VIEW.equals( strPermissionType ),
+                WikiItemUserPermission.PERMISSION_EDIT.equals( strPermissionType ) );
     }
 
     /**

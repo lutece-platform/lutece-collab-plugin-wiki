@@ -7,8 +7,11 @@
 package fr.paris.lutece.plugins.wiki.service.permission;
 
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
+import fr.paris.lutece.plugins.wiki.business.permission.WikiItemAttributePermission;
+import fr.paris.lutece.plugins.wiki.business.permission.WikiItemAttributePermissionHome;
 import fr.paris.lutece.plugins.wiki.business.permission.WikiItemUserPermission;
 import fr.paris.lutece.plugins.wiki.business.permission.WikiItemUserPermissionHome;
+import fr.paris.lutece.plugins.wiki.service.user.WikiUserAttributeValuesService;
 import fr.paris.lutece.plugins.wiki.service.user.WikiUserDisplayName;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 
@@ -102,6 +105,84 @@ public final class WikiPermissionService
     }
 
     /**
+     * Grants a permission to everyone carrying a directory attribute value, rather than to named
+     * users. A population such as everyone in a direction changes as people join and leave, so
+     * listing its members would go stale the day it is written.
+     *
+     * Does nothing when the permission type is unknown, when the attribute holds no such value in the
+     * directory, or when the rule already exists.
+     *
+     * @param item
+     *            the wiki item
+     * @param strAttributeName
+     *            the directory attribute
+     * @param strAttributeValue
+     *            the value its holders must carry
+     * @param strAttributeLabel
+     *            the attribute label, as shown to whoever granted the rule
+     * @param strPermissionType
+     *            VIEW or EDIT
+     * @return true when the rule was applied
+     */
+    public static boolean grantToAttribute( AbstractWikiItem item, String strAttributeName, String strAttributeValue, String strAttributeLabel,
+            String strPermissionType )
+    {
+        if ( !isApplicable( item, strAttributeName, strPermissionType ) || strAttributeValue == null || strAttributeValue.isBlank( ) )
+        {
+            return false;
+        }
+
+        String strCanonical = WikiUserAttributeValuesService.canonicalValue( strAttributeName.trim( ), strAttributeValue.trim( ) );
+
+        if ( strCanonical == null )
+        {
+            return false;
+        }
+
+        WikiItemAttributePermissionHome.create( item.getId( ), strAttributeName.trim( ), strCanonical, strAttributeLabel, strPermissionType );
+        return true;
+    }
+
+    /**
+     * Revokes a permission granted to the holders of an attribute value.
+     *
+     * @param item
+     *            the wiki item
+     * @param strAttributeName
+     *            the directory attribute
+     * @param strAttributeValue
+     *            the value
+     * @param strPermissionType
+     *            VIEW or EDIT
+     */
+    public static void revokeFromAttribute( AbstractWikiItem item, String strAttributeName, String strAttributeValue, String strPermissionType )
+    {
+        if ( isApplicable( item, strAttributeName, strPermissionType ) && strAttributeValue != null && !strAttributeValue.isBlank( ) )
+        {
+            WikiItemAttributePermissionHome.remove( item.getId( ), strAttributeName.trim( ), strAttributeValue.trim( ), strPermissionType );
+        }
+    }
+
+    /**
+     * Returns the populations holding a permission on an item, as attribute rules.
+     *
+     * @param item
+     *            the wiki item
+     * @param strPermissionType
+     *            VIEW or EDIT
+     * @return the rules, ordered by label
+     */
+    public static List<WikiItemAttributePermission> getAttributesWithPermission( AbstractWikiItem item, String strPermissionType )
+    {
+        if ( item == null || !isValidPermissionType( strPermissionType ) )
+        {
+            return Collections.emptyList( );
+        }
+
+        return WikiItemAttributePermissionHome.findByItemAndType( item.getId( ), strPermissionType );
+    }
+
+    /**
      * Returns the users holding a permission on an item.
      *
      * @param item
@@ -137,15 +218,15 @@ public final class WikiPermissionService
      *
      * @param item
      *            the wiki item
-     * @param strUserGuid
-     *            the user identifier
+     * @param strKey
+     *            the identifier the grant is keyed on, a user guid or an attribute name
      * @param strPermissionType
      *            the permission type
      * @return true when the request carries everything needed
      */
-    private static boolean isApplicable( AbstractWikiItem item, String strUserGuid, String strPermissionType )
+    private static boolean isApplicable( AbstractWikiItem item, String strKey, String strPermissionType )
     {
-        return item != null && strUserGuid != null && !strUserGuid.isBlank( ) && isValidPermissionType( strPermissionType );
+        return item != null && strKey != null && !strKey.isBlank( ) && isValidPermissionType( strPermissionType );
     }
 
     /**

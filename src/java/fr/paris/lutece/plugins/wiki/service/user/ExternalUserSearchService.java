@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.wiki.service.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -182,6 +183,39 @@ public final class ExternalUserSearchService
         }
 
         return null;
+    }
+
+    /**
+     * Get the distinct combinations of values the given attributes take in the user directory.
+     * Providers unable to enumerate them return an empty list, in which case the attributes simply
+     * get no suggestion.
+     *
+     * @param listAttributeNames
+     *            the provider attribute names to enumerate together
+     * @return the distinct combinations, empty when unavailable
+     */
+    public List<Map<String, String>> getAttributeValues( List<String> listAttributeNames )
+    {
+        if ( !_bIsAvailable || listAttributeNames == null || listAttributeNames.isEmpty( ) )
+        {
+            return new ArrayList<>( );
+        }
+
+        try
+        {
+            IUserSearchProvider provider = MyLuteceUserSearchService.getInstance( );
+            if ( provider != null )
+            {
+                List<Map<String, String>> values = provider.getAttributeValues( listAttributeNames );
+                return values != null ? values : new ArrayList<>( );
+            }
+        }
+        catch( Exception e )
+        {
+            AppLogService.error( "Error while getting the values of attributes " + listAttributeNames, e );
+        }
+
+        return new ArrayList<>( );
     }
 
     /**
