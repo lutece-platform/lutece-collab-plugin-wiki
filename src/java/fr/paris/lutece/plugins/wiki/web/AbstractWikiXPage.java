@@ -366,6 +366,22 @@ public abstract class AbstractWikiXPage extends MVCApplication
     }
 
     /**
+     * Populates the model with data required for the book sidebar, building the permission
+     * snapshot itself. Kept for callers holding no snapshot, the wiki modules in particular.
+     *
+     * @param model
+     *            The model map
+     * @param user
+     *            The Lutece user
+     * @param book
+     *            The book
+     */
+    protected void populateBookSidebarModel( Map<String, Object> model, LuteceUser user, Book book )
+    {
+        populateBookSidebarModel( model, user, book, WikiUserPermissions.forUser( user ) );
+    }
+
+    /**
      * Populates the model with data required for the book sidebar
      *
      * @param model
@@ -392,6 +408,22 @@ public abstract class AbstractWikiXPage extends MVCApplication
         model.put( MARK_SPACE, findSpaceForBook( book ) );
         populateCommonModel( model, user );
         return canEditBook;
+    }
+
+    /**
+     * Populates the model with data required for the space sidebar, building the permission
+     * snapshot itself. Kept for callers holding no snapshot, the wiki modules in particular.
+     *
+     * @param model
+     *            The model map
+     * @param user
+     *            The Lutece user
+     * @param space
+     *            The space
+     */
+    protected void populateSpaceSidebarModel( Map<String, Object> model, LuteceUser user, Space space )
+    {
+        populateSpaceSidebarModel( model, user, space, WikiUserPermissions.forUser( user ) );
     }
 
     /**
