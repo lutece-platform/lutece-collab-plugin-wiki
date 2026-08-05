@@ -374,10 +374,12 @@ public abstract class AbstractWikiXPage extends MVCApplication
      *            The Lutece user
      * @param book
      *            The book
+     * @param permissions
+     *            The permissions of the user, loaded once for the whole request
+     * @return whether the user can edit the book
      */
-    protected void populateBookSidebarModel( Map<String, Object> model, LuteceUser user, Book book )
+    protected boolean populateBookSidebarModel( Map<String, Object> model, LuteceUser user, Book book, WikiUserPermissions permissions )
     {
-        WikiUserPermissions permissions = WikiUserPermissions.forUser( user );
         List<AbstractWikiItem> bookChildren = loadItemChildren( permissions, book );
         Map<String, Boolean> childEditRights = computeChildEditRights( permissions, bookChildren );
         boolean canEditBook = WikiAccessControlService.canEdit( permissions, book );
@@ -389,6 +391,7 @@ public abstract class AbstractWikiXPage extends MVCApplication
         model.put( MARK_CAN_EDIT, canEditBook );
         model.put( MARK_SPACE, findSpaceForBook( book ) );
         populateCommonModel( model, user );
+        return canEditBook;
     }
 
     /**
@@ -400,10 +403,12 @@ public abstract class AbstractWikiXPage extends MVCApplication
      *            The Lutece user
      * @param space
      *            The space
+     * @param permissions
+     *            The permissions of the user, loaded once for the whole request
+     * @return whether the user can edit the space
      */
-    protected void populateSpaceSidebarModel( Map<String, Object> model, LuteceUser user, Space space )
+    protected boolean populateSpaceSidebarModel( Map<String, Object> model, LuteceUser user, Space space, WikiUserPermissions permissions )
     {
-        WikiUserPermissions permissions = WikiUserPermissions.forUser( user );
         List<AbstractWikiItem> spaceChildren = loadItemChildren( permissions, space );
         Map<String, Boolean> childEditRights = computeChildEditRights( permissions, spaceChildren );
 
@@ -414,6 +419,7 @@ public abstract class AbstractWikiXPage extends MVCApplication
         model.put( MARK_PENDING_COUNTS, computePendingCounts( childEditRights, space, canEditSpace ) );
         model.put( MARK_CAN_EDIT, canEditSpace );
         populateCommonModel( model, user );
+        return canEditSpace;
     }
 
     /**

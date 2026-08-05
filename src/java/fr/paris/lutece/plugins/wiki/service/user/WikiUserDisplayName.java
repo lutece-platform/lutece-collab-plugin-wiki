@@ -6,6 +6,8 @@
  */
 package fr.paris.lutece.plugins.wiki.service.user;
 
+import org.apache.commons.lang3.StringUtils;
+
 import fr.paris.lutece.plugins.mylutece.service.search.MyLuteceSearchUser;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 
@@ -38,7 +40,7 @@ public final class WikiUserDisplayName
             return null;
         }
 
-        return firstNonBlank( join( user.getFirstName( ), user.getLastName( ) ), user.getEmail( ), user.getName( ) );
+        return StringUtils.firstNonBlank( join( user.getFirstName( ), user.getLastName( ) ), user.getEmail( ), user.getName( ) );
     }
 
     /**
@@ -55,7 +57,7 @@ public final class WikiUserDisplayName
             return null;
         }
 
-        return firstNonBlank( join( user.getGivenName( ), user.getLastName( ) ), user.getEmail( ), user.getLogin( ) );
+        return StringUtils.firstNonBlank( join( user.getGivenName( ), user.getLastName( ) ), user.getEmail( ), user.getLogin( ) );
     }
 
     /**
@@ -69,26 +71,6 @@ public final class WikiUserDisplayName
      */
     private static String join( String strFirstName, String strLastName )
     {
-        return ( ( strFirstName != null ? strFirstName : "" ) + " " + ( strLastName != null ? strLastName : "" ) ).trim( );
-    }
-
-    /**
-     * Returns the first candidate that carries something readable.
-     *
-     * @param strCandidates
-     *            the candidates, in order of preference
-     * @return the first non blank candidate, null when they are all blank
-     */
-    private static String firstNonBlank( String... strCandidates )
-    {
-        for ( String strCandidate : strCandidates )
-        {
-            if ( strCandidate != null && !strCandidate.isBlank( ) )
-            {
-                return strCandidate;
-            }
-        }
-
-        return null;
+        return StringUtils.trim( StringUtils.joinWith( " ", strFirstName, strLastName ) );
     }
 }
