@@ -155,7 +155,7 @@ public final class WikiPermissionService
      *            the permission type to check
      * @return true when VIEW or EDIT
      */
-    private static boolean isValidPermissionType( String strPermissionType )
+    public static boolean isValidPermissionType( String strPermissionType )
     {
         return WikiItemUserPermission.PERMISSION_VIEW.equals( strPermissionType ) || WikiItemUserPermission.PERMISSION_EDIT.equals( strPermissionType );
     }

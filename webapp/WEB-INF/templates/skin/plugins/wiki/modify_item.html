@@ -134,7 +134,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-lg-4" id="userPermissions">
             <#if user_search_available?? && user_search_available>
                 <div class="alert alert-info mb-3">
                     <strong>#i18n{wiki.item.permissions.info.title}</strong>
@@ -144,10 +144,10 @@
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0">#i18n{wiki.item.viewUsers}</h5>
-                            <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=searchUsers&code=${item.code}&permission_type=VIEW"
-                                class="btn btn-dark btn-sm rounded-pill px-3">
+                            <button type="button" class="btn btn-dark btn-sm rounded-pill px-3 js-add-users" data-bs-toggle="modal" data-bs-target="#addUsersModal"
+                                data-permission-type="VIEW" data-permission-label="#i18n{wiki.item.viewUsers}">
                                 #i18n{wiki.action.add}
-                            </a>
+                            </button>
                         </div>
                         <div style="max-height: 300px; overflow-y: auto;">
                             <#if view_users?? && view_users?size gt 0>
@@ -173,10 +173,10 @@
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0">#i18n{wiki.item.editUsers}</h5>
-                            <a href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=searchUsers&code=${item.code}&permission_type=EDIT"
-                                class="btn btn-dark btn-sm rounded-pill px-3">
+                            <button type="button" class="btn btn-dark btn-sm rounded-pill px-3 js-add-users" data-bs-toggle="modal" data-bs-target="#addUsersModal"
+                                data-permission-type="EDIT" data-permission-label="#i18n{wiki.item.editUsers}">
                                 #i18n{wiki.action.add}
-                            </a>
+                            </button>
                         </div>
                         <div style="max-height: 300px; overflow-y: auto;">
                             <#if edit_users?? && edit_users?size gt 0>
@@ -202,6 +202,76 @@
     </div>
     </form>
 </div>
+
+<#if user_search_available?? && user_search_available>
+<div class="modal fade" id="addUsersModal" tabindex="-1" aria-labelledby="addUsersModalLabel" aria-hidden="true"
+    data-code="${item.code}" data-token="${token}"
+    data-label-no-results="#i18n{wiki.search.noResults}"
+    data-label-criteria-required="#i18n{wiki.permission.criteriaRequired}"
+    data-label-already-granted="#i18n{wiki.permission.alreadyGranted}"
+    data-label-results="#i18n{wiki.permission.results}"
+    data-label-error="#i18n{wiki.permission.searchError}"
+    data-label-confirm-bulk="#i18n{wiki.permission.confirmBulk}"
+    data-label-add="#i18n{wiki.action.add}">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUsersModalLabel">#i18n{wiki.action.add}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="#i18n{wiki.action.cancel}"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2 mb-2">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="permSearchLastname" placeholder="#i18n{wiki.search.lastname}">
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="permSearchGivenname" placeholder="#i18n{wiki.search.givenname}">
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="permSearchEmail" placeholder="#i18n{wiki.search.email}">
+                    </div>
+                    <#if permission_search_fields??>
+                        <#list permission_search_fields as field>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control js-provider-attribute" data-attribute-code="${field.code}"
+                                    placeholder="${field.name}">
+                            </div>
+                        </#list>
+                    </#if>
+                </div>
+
+                <div class="d-flex gap-2 align-items-center mb-3">
+                    <button type="button" class="btn btn-dark rounded-pill px-4" id="permSearchButton">
+                        <i class="ti ti-search me-2"></i>#i18n{wiki.action.search}
+                    </button>
+                    <span class="text-muted small" id="permSearchFeedback"></span>
+                </div>
+
+                <div id="permResultsHeader" class="table-responsive d-none">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th style="width: 1%;">
+                                    <input class="form-check-input m-0" type="checkbox" id="permSelectAll"
+                                        aria-label="#i18n{wiki.permission.selectAll}">
+                                </th>
+                                <th>#i18n{wiki.search.lastname}</th>
+                                <th>#i18n{wiki.search.givenname}</th>
+                                <th>#i18n{wiki.search.user.email}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="permResults"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">#i18n{wiki.action.cancel}</button>
+                <button type="button" class="btn btn-dark rounded-pill px-4" id="permAddButton" disabled>#i18n{wiki.action.add}</button>
+            </div>
+        </div>
+    </div>
+</div>
+</#if>
 
 <!-- Revision History Offcanvas -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="revisionHistory" aria-labelledby="revisionHistoryLabel"
@@ -282,3 +352,7 @@
 
 <script src="js/plugins/wiki/forms/xss-safe-encoder.js"></script>
 <script src="js/plugins/wiki/forms/wiki-code-validation.js"></script>
+
+<#if user_search_available?? && user_search_available>
+<script src="js/plugins/wiki/forms/wiki-user-permissions.js"></script>
+</#if>

@@ -180,4 +180,35 @@ public final class ExternalUserSearchService
         return null;
     }
 
+    /**
+     * Get several users by provider user IDs, in a single provider call
+     *
+     * @param listProviderUserIds
+     *            the provider user IDs
+     * @return the users found, empty when none matches or the service is unavailable
+     */
+    public List<MyLuteceSearchUser> getUsersByProviderUserIds( List<String> listProviderUserIds )
+    {
+        if ( !_bIsAvailable || listProviderUserIds == null || listProviderUserIds.isEmpty( ) )
+        {
+            return new ArrayList<>( );
+        }
+
+        try
+        {
+            IUserSearchProvider provider = MyLuteceUserSearchService.getInstance( );
+            if ( provider != null )
+            {
+                List<MyLuteceSearchUser> users = provider.getUsersByIds( listProviderUserIds );
+                return users != null ? users : new ArrayList<>( );
+            }
+        }
+        catch( Exception e )
+        {
+            AppLogService.error( "Error while getting users by provider user IDs", e );
+        }
+
+        return new ArrayList<>( );
+    }
+
 }

@@ -35,7 +35,6 @@ package fr.paris.lutece.plugins.wiki.web;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -51,7 +50,6 @@ import fr.paris.lutece.plugins.mylutece.business.attribute.IAttribute;
 import fr.paris.lutece.plugins.mylutece.modules.users.business.AttributeMapping;
 import fr.paris.lutece.plugins.mylutece.modules.users.business.AttributeMappingHome;
 import fr.paris.lutece.plugins.mylutece.service.MyLutecePlugin;
-import fr.paris.lutece.plugins.mylutece.service.search.MyLuteceSearchUser;
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemFactory;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
@@ -82,7 +80,6 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
 import fr.paris.lutece.portal.web.xpages.XPage;
-import fr.paris.lutece.util.ReferenceItem;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.bean.BeanUtil;
 import fr.paris.lutece.util.url.UrlItem;
@@ -111,10 +108,6 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     private static final String PARAMETER_CHILD_ID = "child_id";
     private static final String PARAMETER_USER_GUID = "user_guid";
     private static final String PARAMETER_PERMISSION_TYPE = "permission_type";
-    private static final String PARAMETER_SEARCH_LASTNAME = "search_lastname";
-    private static final String PARAMETER_SEARCH_GIVENNAME = "search_givenname";
-    private static final String PARAMETER_SEARCH_EMAIL = "search_email";
-    private static final String PREFIX_PROVIDER_ATTRIBUTE = "provider_attribute_";
     private static final String MARK_REVISION = "revision";
     private static final String MARK_REVISION_HISTORY = "revision_history";
     private static final String MARK_ITEM_TYPE = "item_type";
@@ -125,13 +118,9 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     private static final String MARK_CHILD_TYPES = "child_types";
     private static final String MARK_VIEW_USERS = "view_users";
     private static final String MARK_EDIT_USERS = "edit_users";
-    private static final String MARK_SEARCH_RESULTS = "search_results";
     private static final String MARK_USER_SEARCH_AVAILABLE = "user_search_available";
-    private static final String MARK_PERMISSION_TYPE = "permission_type";
     private static final String MARK_USER_ROLES = "user_roles";
-    private static final String MARK_ATTRIBUTE_MAPPING_LIST = "attribute_mapping_list";
-    private static final String MARK_MYLUTECE_ATTRIBUTES_LIST = "mylutece_attributes_list";
-    private static final String MARK_SEARCHED_ATTRIBUTES = "searched_attributes";
+    private static final String MARK_PERMISSION_SEARCH_FIELDS = "permission_search_fields";
 
     private static final String NAV_VIEW_SPACE = "viewSpace";
     private static final String NAV_VIEW_BOOK = "viewBook";
@@ -146,18 +135,20 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     private static final String VIEW_MANAGE_ITEM_CHILDREN = "manageItemChildren";
     private static final String VIEW_MANAGE_SPACES = "manageSpaces";
     private static final String VIEW_MOVE_ITEM = "moveItem";
-    private static final String VIEW_SEARCH_USERS = "searchUsers";
+
+    /**
+     * Token action of the item modification form, shared with the permission REST endpoints that
+     * carry the same token.
+     */
+    public static final String ACTION_UPDATE_ITEM = "updateItem";
 
     private static final String ACTION_CREATE_ITEM = "createItem";
-    private static final String ACTION_UPDATE_ITEM = "updateItem";
     private static final String ACTION_CONFIRM_REMOVE_ITEM = "confirmRemoveItem";
     private static final String ACTION_REMOVE_ITEM = "removeItem";
     private static final String ACTION_RESTORE_REVISION = "restoreRevision";
     private static final String ACTION_REORDER_ITEM_CHILDREN = "doReorderItemChildren";
     private static final String ACTION_REORDER_SPACES = "doReorderSpaces";
     private static final String ACTION_MOVE_ITEM = "doMoveItem";
-    private static final String ACTION_SEARCH_USERS = "searchUsers";
-    private static final String ACTION_ADD_USER_PERMISSION = "addUserPermission";
     private static final String ACTION_REMOVE_USER_PERMISSION = "removeUserPermission";
 
     private static final String TEMPLATE_CREATE_ITEM = "/skin/plugins/wiki/create_item.html";
@@ -165,7 +156,6 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     private static final String TEMPLATE_VIEW_REVISION = "/skin/plugins/wiki/view_revision.html";
     private static final String TEMPLATE_MANAGE_ITEM_CHILDREN = "/skin/plugins/wiki/manage_item_children.html";
     private static final String TEMPLATE_MOVE_ITEM = "/skin/plugins/wiki/move_item.html";
-    private static final String TEMPLATE_SEARCH_USERS = "/skin/plugins/wiki/search_users.html";
     private static final String MESSAGE_NEW_CATEGORY_TITLE = "wiki.xpage.newCategory.pageTitle";
     private static final String MESSAGE_NEW_BOOK_TITLE = "wiki.xpage.newBook.pageTitle";
     private static final String MESSAGE_NEW_CHAPTER_TITLE = "wiki.xpage.newChapter.pageTitle";
@@ -185,7 +175,6 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     private static final String MESSAGE_CHILDREN_REORDERED = "wiki.message.childrenReordered";
     private static final String MESSAGE_MOVE_ITEM_TITLE = "wiki.xpage.moveItem.pageTitle";
     private static final String MESSAGE_ITEM_MOVED = "wiki.message.itemMoved";
-    private static final String MESSAGE_SEARCH_USERS_TITLE = "wiki.xpage.searchUsers.pageTitle";
 
     private static final String PARAMETER_TARGET_PARENT_ID = "target_parent_id";
 
@@ -328,6 +317,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         model.put( MARK_VIEW_USERS, viewUsers );
         model.put( MARK_EDIT_USERS, editUsers );
         model.put( MARK_USER_SEARCH_AVAILABLE, _externalUserSearchService.isAvailable( ) );
+        model.put( MARK_PERMISSION_SEARCH_FIELDS, getProviderSearchFields( getLocale( request ) ) );
         model.put( MARK_USER_ROLES, getUserRoles( user, getLocale( request ) ) );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_UPDATE_ITEM ) );
         List<Revision> revisionHistory = RevisionService.getRevisionHistory( item.getId( ) );
@@ -784,167 +774,6 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     }
 
     /**
-     * Displays the user search page
-     *
-     * @param request
-     *            the HTTP request
-     * @return the XPage
-     * @throws UserNotSignedException
-     *             if user is not signed in
-     * @throws AccessDeniedException
-     *             if access is denied
-     */
-    @View( VIEW_SEARCH_USERS )
-    public XPage searchUsers( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
-    {
-        String strCode = request.getParameter( PARAMETER_CODE );
-        AbstractWikiItem item = WikiItemService.findByCode( strCode );
-        LuteceUser user = checkEditAccess( request, item );
-
-        if ( !_externalUserSearchService.isAvailable( ) )
-        {
-            throw new AccessDeniedException( "User search service is not available" );
-        }
-
-        String strPermissionType = request.getParameter( PARAMETER_PERMISSION_TYPE );
-
-        Plugin myLutecePlugin = PluginService.getPlugin( MyLutecePlugin.PLUGIN_NAME );
-        List<AttributeMapping> listAttributeMapping = AttributeMappingHome.getAttributeMappingsList( );
-        List<IAttribute> listMyLuteceAttributes = AttributeHome.findAll( getLocale( request ), myLutecePlugin );
-
-        Map<String, Object> model = getModel( );
-        model.put( MARK_ITEM, item );
-        model.put( MARK_ITEM_TYPE, item.getType( ) );
-        model.put( MARK_USER, user );
-        model.put( MARK_PERMISSION_TYPE, strPermissionType );
-        model.put( MARK_ATTRIBUTE_MAPPING_LIST, listAttributeMapping );
-        model.put( MARK_MYLUTECE_ATTRIBUTES_LIST, listMyLuteceAttributes );
-        model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_UPDATE_ITEM ) );
-
-        XPage page = getXPage( TEMPLATE_SEARCH_USERS, getLocale( request ), model );
-        page.setTitle( I18nService.getLocalizedString( MESSAGE_SEARCH_USERS_TITLE, getLocale( request ) ) );
-        return page;
-    }
-
-    /**
-     * Search for external users
-     *
-     * @param request
-     *            the HTTP request
-     * @return the XPage
-     * @throws UserNotSignedException
-     *             if user is not signed in
-     * @throws AccessDeniedException
-     *             if access is denied
-     */
-    @Action( ACTION_SEARCH_USERS )
-    public XPage doSearchUsers( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
-    {
-        String strCode = request.getParameter( PARAMETER_CODE );
-        AbstractWikiItem item = WikiItemService.findByCode( strCode );
-        LuteceUser user = checkEditAccess( request, item );
-
-        if ( !_externalUserSearchService.isAvailable( ) )
-        {
-            throw new AccessDeniedException( "User search service is not available" );
-        }
-
-        String strPermissionType = request.getParameter( PARAMETER_PERMISSION_TYPE );
-
-        String strLastName = request.getParameter( PARAMETER_SEARCH_LASTNAME );
-        String strGivenName = request.getParameter( PARAMETER_SEARCH_GIVENNAME );
-        String strEmail = request.getParameter( PARAMETER_SEARCH_EMAIL );
-
-        ReferenceList listProviderAttributes = new ReferenceList( );
-        Map<String, String> searchedAttributes = new HashMap<>( );
-        Enumeration<String> parameterNames = request.getParameterNames( );
-        while ( parameterNames.hasMoreElements( ) )
-        {
-            String parameterName = parameterNames.nextElement( );
-            if ( parameterName.startsWith( PREFIX_PROVIDER_ATTRIBUTE ) )
-            {
-                String strAttributeName = parameterName.substring( PREFIX_PROVIDER_ATTRIBUTE.length( ) );
-                String strAttributeValue = request.getParameter( parameterName );
-                if ( strAttributeValue != null && !strAttributeValue.isEmpty( ) )
-                {
-                    ReferenceItem providerAttribute = new ReferenceItem( );
-                    providerAttribute.setName( strAttributeName );
-                    providerAttribute.setCode( strAttributeValue );
-                    listProviderAttributes.add( providerAttribute );
-                }
-                searchedAttributes.put( strAttributeName, strAttributeValue != null ? strAttributeValue : "" );
-            }
-        }
-
-        List<MyLuteceSearchUser> searchResults = _externalUserSearchService.searchUsers( strLastName, strGivenName, strEmail, listProviderAttributes );
-
-        Plugin myLutecePlugin = PluginService.getPlugin( MyLutecePlugin.PLUGIN_NAME );
-        List<AttributeMapping> listAttributeMapping = AttributeMappingHome.getAttributeMappingsList( );
-        List<IAttribute> listMyLuteceAttributes = AttributeHome.findAll( getLocale( request ), myLutecePlugin );
-
-        Map<String, Object> model = getModel( );
-        model.put( MARK_ITEM, item );
-        model.put( MARK_ITEM_TYPE, item.getType( ) );
-        model.put( MARK_USER, user );
-        model.put( MARK_SEARCH_RESULTS, searchResults );
-        model.put( MARK_PERMISSION_TYPE, strPermissionType );
-        model.put( MARK_ATTRIBUTE_MAPPING_LIST, listAttributeMapping );
-        model.put( MARK_MYLUTECE_ATTRIBUTES_LIST, listMyLuteceAttributes );
-        model.put( MARK_SEARCHED_ATTRIBUTES, searchedAttributes );
-        model.put( PARAMETER_SEARCH_LASTNAME, strLastName != null ? strLastName : "" );
-        model.put( PARAMETER_SEARCH_GIVENNAME, strGivenName != null ? strGivenName : "" );
-        model.put( PARAMETER_SEARCH_EMAIL, strEmail != null ? strEmail : "" );
-        model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_UPDATE_ITEM ) );
-
-        XPage page = getXPage( TEMPLATE_SEARCH_USERS, getLocale( request ), model );
-        page.setTitle( I18nService.getLocalizedString( MESSAGE_SEARCH_USERS_TITLE, getLocale( request ) ) );
-        return page;
-    }
-
-    /**
-     * Add a user permission
-     *
-     * @param request
-     *            the HTTP request
-     * @return the XPage
-     * @throws UserNotSignedException
-     *             if user is not signed in
-     * @throws AccessDeniedException
-     *             if access is denied
-     */
-    @Action( ACTION_ADD_USER_PERMISSION )
-    public XPage doAddUserPermission( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
-    {
-        validateToken( request, ACTION_UPDATE_ITEM );
-
-        String strCode = request.getParameter( PARAMETER_CODE );
-        AbstractWikiItem item = WikiItemService.findByCode( strCode );
-        checkEditAccess( request, item );
-
-        if ( !_externalUserSearchService.isAvailable( ) )
-        {
-            throw new AccessDeniedException( "User search service is not available" );
-        }
-
-        String strUserGuid = request.getParameter( PARAMETER_USER_GUID );
-        String strPermissionType = request.getParameter( PARAMETER_PERMISSION_TYPE );
-
-        if ( strPermissionType != null && strUserGuid != null && !strUserGuid.isEmpty( ) )
-        {
-            MyLuteceSearchUser externalUser = _externalUserSearchService.getUserByProviderUserId( strUserGuid );
-
-            if ( externalUser != null )
-            {
-                WikiPermissionService.grant( item, strUserGuid, WikiUserDisplayName.of( externalUser ), strPermissionType );
-            }
-        }
-
-        Map<String, String> params = new HashMap<>( );
-        params.put( PARAMETER_CODE, strCode );
-        return redirect( request, VIEW_MODIFY_ITEM, params );
-    }
-
-    /**
      * Remove a user permission
      *
      * @param request
@@ -977,9 +806,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
             WikiPermissionService.revoke( item, strUserGuid, strPermissionType );
         }
 
-        Map<String, String> params = new HashMap<>( );
-        params.put( PARAMETER_CODE, strCode );
-        return redirect( request, VIEW_MODIFY_ITEM, params );
+        return redirectToPermissions( request, strCode );
     }
 
     /**
@@ -1181,13 +1008,32 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     }
 
     /**
-     * Redirects to the item view
+     * Redirects to the modification page of an item. The page itself puts the view back on the user
+     * permission panel: an anchor would do it too, but the browser animates that jump because
+     * Bootstrap sets a smooth scroll behaviour.
+     *
+     * @param request
+     *            the HTTP request
+     * @param strCode
+     *            the item code
+     * @return the redirection
+     */
+    private XPage redirectToPermissions( HttpServletRequest request, String strCode )
+    {
+        Map<String, String> params = new HashMap<>( );
+        params.put( PARAMETER_CODE, strCode );
+
+        return redirect( request, VIEW_MODIFY_ITEM, params );
+    }
+
+    /**
+     * Redirects to the public view of an item.
      *
      * @param request
      *            the HTTP request
      * @param item
      *            the wiki item
-     * @return the XPage
+     * @return the redirection
      */
     private XPage redirectToView( HttpServletRequest request, AbstractWikiItem item )
     {
@@ -1230,6 +1076,44 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
             default:
                 return MESSAGE_NEW_BOOK_TITLE;
         }
+    }
+
+    /**
+     * Resolves the searchable provider attributes into labelled criteria, so a template can render
+     * the search fields without joining the mappings itself. The set depends on the authentication
+     * provider configuration, so it is read at each call.
+     *
+     * @param locale
+     *            the locale for the attribute labels
+     * @return the criteria, code being the provider attribute id and name its label
+     */
+    private ReferenceList getProviderSearchFields( Locale locale )
+    {
+        ReferenceList listFields = new ReferenceList( );
+
+        if ( !_externalUserSearchService.isAvailable( ) )
+        {
+            return listFields;
+        }
+
+        Plugin myLutecePlugin = PluginService.getPlugin( MyLutecePlugin.PLUGIN_NAME );
+
+        Map<Integer, IAttribute> mapAttributesById = new HashMap<>( );
+        for ( IAttribute attribute : AttributeHome.findAll( locale, myLutecePlugin ) )
+        {
+            mapAttributesById.put( attribute.getIdAttribute( ), attribute );
+        }
+
+        for ( AttributeMapping mapping : AttributeMappingHome.getAttributeMappingsList( ) )
+        {
+            IAttribute attribute = mapAttributesById.get( mapping.getId( ) );
+            if ( attribute != null )
+            {
+                listFields.addItem( mapping.getIdProviderAttribute( ), attribute.getTitle( ) );
+            }
+        }
+
+        return listFields;
     }
 
     /**
