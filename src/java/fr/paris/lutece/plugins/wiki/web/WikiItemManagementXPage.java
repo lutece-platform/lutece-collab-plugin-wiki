@@ -92,9 +92,9 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
 
     private static final String XPAGE_NAME = "wikiitemmanagement";
     private static final String PARAMETER_ID_REVISION = "id_revision";
-    private static final String ACCESS_DENIED_MESSAGE = "Access denied";
     private static final String INVALID_SECURITY_TOKEN_MESSAGE = "Invalid security token";
-    private static final String REVISION_NOT_FOUND_MESSAGE = "Revision not found";
+    private static final String MESSAGE_ACCESS_DENIED = "wiki.message.accessDenied";
+    private static final String MESSAGE_REVISION_NOT_FOUND = "wiki.message.revisionNotFound";
 
     private static final ExternalUserSearchService _externalUserSearchService = ExternalUserSearchService.getInstance( );
 
@@ -190,11 +190,11 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
      */
     @View( value = VIEW_CREATE_ITEM, defaultView = true )
-    public XPage createItem( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
+    public XPage createItem( HttpServletRequest request ) throws UserNotSignedException, SiteMessageException
     {
         String strItemType = request.getParameter( PARAMETER_ENTITY_TYPE );
         WikiItemType itemType = WikiItemType.valueOf( strItemType.toUpperCase( ) );
@@ -234,11 +234,13 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
+     * @throws AccessDeniedException
+     *             if the security token is invalid
      */
     @Action( ACTION_CREATE_ITEM )
-    public XPage doCreateItem( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
+    public XPage doCreateItem( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException, SiteMessageException
     {
         validateToken( request, ACTION_CREATE_ITEM );
 
@@ -299,11 +301,11 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
      */
     @View( VIEW_MODIFY_ITEM )
-    public XPage modifyItem( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
+    public XPage modifyItem( HttpServletRequest request ) throws UserNotSignedException, SiteMessageException
     {
         String strCode = request.getParameter( PARAMETER_CODE );
         AbstractWikiItem item = WikiItemService.findByCode( strCode );
@@ -342,11 +344,13 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
+     * @throws AccessDeniedException
+     *             if the security token is invalid
      */
     @Action( ACTION_UPDATE_ITEM )
-    public XPage doUpdateItem( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
+    public XPage doUpdateItem( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException, SiteMessageException
     {
         validateToken( request, ACTION_UPDATE_ITEM );
 
@@ -396,13 +400,11 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
-     *             if access is denied
      * @throws SiteMessageException
-     *             if site message error occurs
+     *             if access is denied, or to display the confirmation message
      */
     @Action( ACTION_CONFIRM_REMOVE_ITEM )
-    public XPage confirmRemoveItem( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException, SiteMessageException
+    public XPage confirmRemoveItem( HttpServletRequest request ) throws UserNotSignedException, SiteMessageException
     {
         String strCode = request.getParameter( PARAMETER_CODE );
         AbstractWikiItem item = WikiItemService.findByCode( strCode );
@@ -446,11 +448,13 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
+     * @throws AccessDeniedException
+     *             if the security token is invalid
      */
     @Action( ACTION_REMOVE_ITEM )
-    public XPage doRemoveItem( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
+    public XPage doRemoveItem( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException, SiteMessageException
     {
         validateToken( request, ACTION_REMOVE_ITEM );
 
@@ -472,11 +476,13 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
+     * @throws AccessDeniedException
+     *             if the security token is invalid
      */
     @Action( ACTION_RESTORE_REVISION )
-    public XPage doRestoreRevision( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
+    public XPage doRestoreRevision( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException, SiteMessageException
     {
         validateToken( request, ACTION_RESTORE_REVISION );
 
@@ -484,7 +490,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         Revision revision = RevisionService.findById( nRevisionId );
         if ( revision == null )
         {
-            throw new AccessDeniedException( REVISION_NOT_FOUND_MESSAGE );
+            SiteMessageService.setMessage( request, MESSAGE_REVISION_NOT_FOUND, SiteMessage.TYPE_ERROR );
         }
 
         AbstractWikiItem item = WikiItemService.findById( revision.getEntityId( ) );
@@ -504,17 +510,17 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
      */
     @View( VIEW_VIEW_REVISION )
-    public XPage viewRevision( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
+    public XPage viewRevision( HttpServletRequest request ) throws UserNotSignedException, SiteMessageException
     {
         int nRevisionId = Integer.parseInt( request.getParameter( PARAMETER_ID ) );
         Revision revision = RevisionService.findById( nRevisionId );
         if ( revision == null )
         {
-            throw new AccessDeniedException( REVISION_NOT_FOUND_MESSAGE );
+            SiteMessageService.setMessage( request, MESSAGE_REVISION_NOT_FOUND, SiteMessage.TYPE_ERROR );
         }
 
         AbstractWikiItem item = WikiItemService.findById( revision.getEntityId( ) );
@@ -555,11 +561,11 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
      */
     @View( VIEW_MANAGE_ITEM_CHILDREN )
-    public XPage manageItemChildren( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
+    public XPage manageItemChildren( HttpServletRequest request ) throws UserNotSignedException, SiteMessageException
     {
         applyFlashMessages( request );
 
@@ -596,13 +602,16 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
      * @throws WikiValidationException
      *             if validation error occurs
+     * @throws AccessDeniedException
+     *             if the security token is invalid
      */
     @Action( ACTION_REORDER_ITEM_CHILDREN )
-    public XPage doReorderItemChildren( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException, WikiValidationException
+    public XPage doReorderItemChildren( HttpServletRequest request )
+            throws UserNotSignedException, AccessDeniedException, WikiValidationException, SiteMessageException
     {
         validateToken( request, ACTION_REORDER_ITEM_CHILDREN );
 
@@ -640,11 +649,11 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
      */
     @View( VIEW_MANAGE_SPACES )
-    public XPage manageSpaces( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
+    public XPage manageSpaces( HttpServletRequest request ) throws UserNotSignedException, SiteMessageException
     {
         applyFlashMessages( request );
 
@@ -671,13 +680,16 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
      * @throws WikiValidationException
      *             if validation error occurs
+     * @throws AccessDeniedException
+     *             if the security token is invalid
      */
     @Action( ACTION_REORDER_SPACES )
-    public XPage doReorderSpaces( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException, WikiValidationException
+    public XPage doReorderSpaces( HttpServletRequest request )
+            throws UserNotSignedException, AccessDeniedException, WikiValidationException, SiteMessageException
     {
         validateToken( request, ACTION_REORDER_SPACES );
         checkAdminAccess( request );
@@ -710,11 +722,11 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
      */
     @View( VIEW_MOVE_ITEM )
-    public XPage moveItem( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
+    public XPage moveItem( HttpServletRequest request ) throws UserNotSignedException, SiteMessageException
     {
         String strCode = request.getParameter( PARAMETER_CODE );
         AbstractWikiItem item = WikiItemService.findByCode( strCode );
@@ -737,11 +749,13 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
+     * @throws AccessDeniedException
+     *             if the security token is invalid
      */
     @Action( ACTION_MOVE_ITEM )
-    public XPage doMoveItem( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
+    public XPage doMoveItem( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException, SiteMessageException
     {
         validateToken( request, ACTION_MOVE_ITEM );
 
@@ -785,11 +799,13 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      * @return the XPage
      * @throws UserNotSignedException
      *             if user is not signed in
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
+     * @throws AccessDeniedException
+     *             if the security token is invalid
      */
     @Action( ACTION_REMOVE_USER_PERMISSION )
-    public XPage doRemoveUserPermission( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
+    public XPage doRemoveUserPermission( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException, SiteMessageException
     {
         validateToken( request, ACTION_UPDATE_ITEM );
 
@@ -850,21 +866,35 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     }
 
     /**
+     * Aborts the request with a site message page. The portal handles the thrown {@link SiteMessageException} natively, while an {@link AccessDeniedException}
+     * leaves the front office dispatcher as an HTTP 500.
+     *
+     * @param request
+     *            the HTTP request
+     * @throws SiteMessageException
+     *             always, to interrupt the request
+     */
+    private void denyAccess( HttpServletRequest request ) throws SiteMessageException
+    {
+        SiteMessageService.setMessage( request, MESSAGE_ACCESS_DENIED, SiteMessage.TYPE_STOP );
+    }
+
+    /**
      * Checks if user has edit access to the item
      *
      * @param request
      *            the HTTP request
      * @param item
      *            the wiki item
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
      */
-    private LuteceUser checkEditAccess( HttpServletRequest request, AbstractWikiItem item ) throws UserNotSignedException, AccessDeniedException
+    private LuteceUser checkEditAccess( HttpServletRequest request, AbstractWikiItem item ) throws UserNotSignedException, SiteMessageException
     {
         LuteceUser user = checkAuthentication( request );
         if ( item == null || !WikiAccessControlService.canEdit( user, item ) )
         {
-            throw new AccessDeniedException( ACCESS_DENIED_MESSAGE );
+            denyAccess( request );
         }
         return user;
     }
@@ -878,11 +908,11 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      *            the type of item to create
      * @param parent
      *            the parent item (can be null for top-level items)
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if user doesn't have permission to create this type of item
      */
     private LuteceUser checkCreateAccess( HttpServletRequest request, WikiItemType itemType, AbstractWikiItem parent )
-            throws UserNotSignedException, AccessDeniedException
+            throws UserNotSignedException, SiteMessageException
     {
         LuteceUser user = checkAuthentication( request );
         switch( itemType )
@@ -890,28 +920,22 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
             case SPACE:
                 if ( !WikiAccessControlService.canCreateSpace( user ) )
                 {
-                    throw new AccessDeniedException( ACCESS_DENIED_MESSAGE );
+                    denyAccess( request );
                 }
                 break;
 
             case BOOK:
-                if ( !WikiAccessControlService.canCreateBook( user ) )
-                {
-                    throw new AccessDeniedException( ACCESS_DENIED_MESSAGE );
-                }
-                break;
-
             case CATEGORY:
             case CHAPTER:
             case PAGE:
                 if ( parent == null || !WikiAccessControlService.canEdit( user, parent ) )
                 {
-                    throw new AccessDeniedException( ACCESS_DENIED_MESSAGE );
+                    denyAccess( request );
                 }
                 break;
 
             default:
-                throw new AccessDeniedException( ACCESS_DENIED_MESSAGE );
+                denyAccess( request );
         }
         return user;
     }
@@ -923,15 +947,15 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      *            the HTTP request
      * @param item
      *            the wiki item
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
      */
-    private LuteceUser checkViewAccess( HttpServletRequest request, AbstractWikiItem item ) throws UserNotSignedException, AccessDeniedException
+    private LuteceUser checkViewAccess( HttpServletRequest request, AbstractWikiItem item ) throws UserNotSignedException, SiteMessageException
     {
         LuteceUser user = checkAuthentication( request );
         if ( item == null || !WikiAccessControlService.canView( user, item ) )
         {
-            throw new AccessDeniedException( ACCESS_DENIED_MESSAGE );
+            denyAccess( request );
         }
         return user;
     }
@@ -941,15 +965,15 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
      *
      * @param request
      *            the HTTP request
-     * @throws AccessDeniedException
+     * @throws SiteMessageException
      *             if access is denied
      */
-    private LuteceUser checkAdminAccess( HttpServletRequest request ) throws UserNotSignedException, AccessDeniedException
+    private LuteceUser checkAdminAccess( HttpServletRequest request ) throws UserNotSignedException, SiteMessageException
     {
         LuteceUser user = checkAuthentication( request );
         if ( !WikiAccessControlService.isWikiAdmin( user ) )
         {
-            throw new AccessDeniedException( ACCESS_DENIED_MESSAGE );
+            denyAccess( request );
         }
         return user;
     }

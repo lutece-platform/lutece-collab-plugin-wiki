@@ -4,5 +4,4 @@ INSERT INTO wiki_item (code, is_published, view_role, edit_role, item_type) VALU
 
 INSERT INTO core_role VALUES
 ( 'wiki_admin' , 'Wiki Administrator (can remove content)', '' ),
-( 'wiki_create_space' , 'Wiki Space Creator (can create new spaces)', '' ),
-( 'wiki_create_book' , 'Wiki Book Creator (can create new books)', '' );
+( 'wiki_create_space' , 'Wiki Space Creator (can create new spaces)', '' );
