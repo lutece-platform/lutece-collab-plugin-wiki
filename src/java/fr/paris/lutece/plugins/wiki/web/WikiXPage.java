@@ -55,6 +55,7 @@ import fr.paris.lutece.plugins.wiki.service.activity.ActivityService;
 import fr.paris.lutece.plugins.wiki.service.activity.ActivityService.Period;
 import fr.paris.lutece.plugins.wiki.service.search.WikiSearchEngine;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
+import fr.paris.lutece.plugins.wiki.service.security.WikiUserPermissions;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.search.SearchResult;
 import fr.paris.lutece.portal.service.security.LuteceUser;
@@ -147,7 +148,9 @@ public class WikiXPage extends AbstractWikiXPage
         LuteceUser user = SecurityService.getInstance( ).getRegisteredUser( request );
 
         List<AbstractWikiItem> allSpaces = WikiItemService.getItemsByType( WikiItemType.SPACE );
-        List<AbstractWikiItem> spaces = allSpaces.stream( ).filter( space -> WikiAccessControlService.canView( user, space ) ).collect( Collectors.toList( ) );
+        WikiUserPermissions permissions = WikiUserPermissions.forUser( user );
+        List<AbstractWikiItem> spaces = allSpaces.stream( ).filter( space -> WikiAccessControlService.canView( permissions, space ) )
+                .collect( Collectors.toList( ) );
 
         _models.put( MARK_ALL_ITEMS, spaces );
         _models.put( MARK_CAN_CREATE_SPACE, WikiAccessControlService.canCreateSpace( user ) );
@@ -176,16 +179,15 @@ public class WikiXPage extends AbstractWikiXPage
         LuteceUser user = SecurityService.getInstance( ).getRegisteredUser( request );
 
         Space space = (Space) WikiItemService.findByCode( strSpaceCode );
+        WikiUserPermissions permissions = WikiUserPermissions.forUser( user );
 
-        if ( space == null || !WikiAccessControlService.canView( user, space ) )
+        if ( space == null || !WikiAccessControlService.canView( permissions, space ) )
         {
             addError( MESSAGE_NO_VIEW_RIGHTS, locale );
             return redirectView( request, VIEW_LIST_WIKI );
         }
 
-        populateSpaceSidebarModel( _models, user, space );
-        boolean canEditSpace = WikiAccessControlService.canEdit( user, space );
-        if ( canEditSpace )
+        if ( populateSpaceSidebarModel( _models, user, space, permissions ) )
         {
             _models.put( MARK_PENDING_SUGGESTIONS_COUNT, readPendingCount( _models, space.getId( ) ) );
         }
@@ -216,24 +218,15 @@ public class WikiXPage extends AbstractWikiXPage
         LuteceUser user = SecurityService.getInstance( ).getRegisteredUser( request );
 
         Book book = (Book) WikiItemService.findByCode( strBookCode );
+        WikiUserPermissions permissions = WikiUserPermissions.forUser( user );
 
-        if ( book == null || !WikiAccessControlService.canView( user, book ) )
+        if ( book == null || !WikiAccessControlService.canView( permissions, book ) )
         {
             addError( MESSAGE_NO_VIEW_RIGHTS, locale );
             return redirectView( request, VIEW_LIST_WIKI );
         }
 
-        List<AbstractWikiItem> bookChildren = loadItemChildren( user, book );
-        Map<String, Boolean> childEditRights = computeChildEditRights( user, bookChildren );
-
-        boolean canEditBook = WikiAccessControlService.canEdit( user, book );
-        _models.put( MARK_BOOK, book );
-        _models.put( MARK_BOOK_CHILDREN, bookChildren );
-        _models.put( MARK_CHAPTER_EDIT_RIGHTS, childEditRights );
-        _models.put( MARK_PENDING_COUNTS, computePendingCounts( childEditRights, book, canEditBook ) );
-        _models.put( MARK_CAN_EDIT, canEditBook );
-        _models.put( MARK_SPACE, findSpaceForBook( book ) );
-        if ( canEditBook )
+        if ( populateBookSidebarModel( _models, user, book, permissions ) )
         {
             _models.put( MARK_PENDING_SUGGESTIONS_COUNT, readPendingCount( _models, book.getId( ) ) );
         }
@@ -241,7 +234,6 @@ public class WikiXPage extends AbstractWikiXPage
         {
             _models.put( MARK_MY_PENDING_SUGGESTION, SuggestedRevisionService.findMyPending( user, book.getId( ) ) );
         }
-        populateCommonModel( _models, user );
 
         XPage page = getXPage( TEMPLATE_VIEW_BOOK, locale );
         page.setTitle( getItemTitle( book ) );
@@ -265,13 +257,15 @@ public class WikiXPage extends AbstractWikiXPage
         LuteceUser user = SecurityService.getInstance( ).getRegisteredUser( request );
 
         Page page = (Page) WikiItemService.findByCode( strPageCode );
-        if ( page == null || !WikiAccessControlService.canView( user, page ) )
+        WikiUserPermissions permissions = WikiUserPermissions.forUser( user );
+
+        if ( page == null || !WikiAccessControlService.canView( permissions, page ) )
         {
             addError( MESSAGE_NO_VIEW_RIGHTS, locale );
             return redirectView( request, VIEW_LIST_WIKI );
         }
 
-        boolean canEdit = WikiAccessControlService.canEdit( user, page );
+        boolean canEdit = WikiAccessControlService.canEdit( permissions, page );
         _models.put( MARK_PAGE, page );
         _models.put( MARK_CAN_EDIT, canEdit );
         if ( canEdit )
@@ -284,7 +278,7 @@ public class WikiXPage extends AbstractWikiXPage
         }
 
         AbstractWikiItem parent = page.getParent( );
-        populatePageModel( _models, user, parent );
+        populatePageModel( _models, user, parent, permissions );
         populateCommonModel( _models, user );
 
         XPage xpage = getXPage( TEMPLATE_VIEW_PAGE, locale );
@@ -301,8 +295,10 @@ public class WikiXPage extends AbstractWikiXPage
      *            the user
      * @param parent
      *            the parent item
+     * @param permissions
+     *            the permissions of the user, loaded once for the whole request
      */
-    private void populatePageModel( Models models, LuteceUser user, AbstractWikiItem parent )
+    private void populatePageModel( Models models, LuteceUser user, AbstractWikiItem parent, WikiUserPermissions permissions )
     {
         if ( parent == null )
         {
@@ -316,11 +312,11 @@ public class WikiXPage extends AbstractWikiXPage
 
         if ( book != null )
         {
-            populateBookContext( models, user, (Book) book );
+            populateBookContext( models, permissions, (Book) book );
         }
         else if ( space != null )
         {
-            populateSpaceSidebarModel( models, user, (Space) space );
+            populateSpaceSidebarModel( models, user, (Space) space, permissions );
         }
     }
 
@@ -329,16 +325,16 @@ public class WikiXPage extends AbstractWikiXPage
      *
      * @param models
      *            the models
-     * @param user
-     *            the user
+     * @param permissions
+     *            the permissions of the user, loaded once for the whole request
      * @param book
      *            the book
      */
-    private void populateBookContext( Models models, LuteceUser user, Book book )
+    private void populateBookContext( Models models, WikiUserPermissions permissions, Book book )
     {
-        List<AbstractWikiItem> bookChildren = loadItemChildren( user, book );
-        Map<String, Boolean> childEditRights = computeChildEditRights( user, bookChildren );
-        boolean canEditBook = WikiAccessControlService.canEdit( user, book );
+        List<AbstractWikiItem> bookChildren = loadItemChildren( permissions, book );
+        Map<String, Boolean> childEditRights = computeChildEditRights( permissions, bookChildren );
+        boolean canEditBook = WikiAccessControlService.canEdit( permissions, book );
 
         models.put( MARK_BOOK, book );
         models.put( MARK_BOOK_CHILDREN, bookChildren );
@@ -412,8 +408,9 @@ public class WikiXPage extends AbstractWikiXPage
         LuteceUser user = SecurityService.getInstance( ).getRegisteredUser( request );
 
         Space space = (Space) WikiItemService.findByCode( strSpaceCode );
+        WikiUserPermissions permissions = WikiUserPermissions.forUser( user );
 
-        if ( space == null || !WikiAccessControlService.canView( user, space ) )
+        if ( space == null || !WikiAccessControlService.canView( permissions, space ) )
         {
             addError( MESSAGE_NO_VIEW_RIGHTS, locale );
             return redirectView( request, VIEW_LIST_WIKI );
@@ -422,7 +419,7 @@ public class WikiXPage extends AbstractWikiXPage
         Period period = Period.fromCode( strPeriod );
         List<ActivityItem> activities = ActivityService.getSpaceActivities( space.getId( ), period, user );
 
-        populateSpaceSidebarModel( _models, user, space );
+        populateSpaceSidebarModel( _models, user, space, permissions );
         _models.put( MARK_ACTIVITIES, activities );
         _models.put( MARK_CURRENT_PERIOD, period.getCode( ) );
         _models.put( MARK_ACTIVITY_CONTEXT, "space" );
@@ -450,8 +447,9 @@ public class WikiXPage extends AbstractWikiXPage
         LuteceUser user = SecurityService.getInstance( ).getRegisteredUser( request );
 
         Book book = (Book) WikiItemService.findByCode( strBookCode );
+        WikiUserPermissions permissions = WikiUserPermissions.forUser( user );
 
-        if ( book == null || !WikiAccessControlService.canView( user, book ) )
+        if ( book == null || !WikiAccessControlService.canView( permissions, book ) )
         {
             addError( MESSAGE_NO_VIEW_RIGHTS, locale );
             return redirectView( request, VIEW_LIST_WIKI );
@@ -460,7 +458,7 @@ public class WikiXPage extends AbstractWikiXPage
         Period period = Period.fromCode( strPeriod );
         List<ActivityItem> activities = ActivityService.getBookActivities( book.getId( ), period, user );
 
-        populateBookSidebarModel( _models, user, book );
+        populateBookSidebarModel( _models, user, book, permissions );
         _models.put( MARK_ACTIVITIES, activities );
         _models.put( MARK_CURRENT_PERIOD, period.getCode( ) );
         _models.put( MARK_ACTIVITY_CONTEXT, "book" );

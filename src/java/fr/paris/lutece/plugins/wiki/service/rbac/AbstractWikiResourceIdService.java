@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.wiki.service.rbac;
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemHome;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
+import fr.paris.lutece.plugins.wiki.business.permission.WikiItemUserPermission;
 import fr.paris.lutece.plugins.wiki.service.WikiPlugin;
 import fr.paris.lutece.portal.service.rbac.Permission;
 import fr.paris.lutece.portal.service.rbac.ResourceIdService;
@@ -50,9 +51,6 @@ import java.util.Locale;
 
 public abstract class AbstractWikiResourceIdService extends ResourceIdService
 {
-    public static final String PERMISSION_VIEW = "VIEW";
-    public static final String PERMISSION_EDIT = "EDIT";
-
     private static final String PROPERTY_LABEL_VIEW = "wiki.permission.label.view";
     private static final String PROPERTY_LABEL_EDIT = "wiki.permission.label.edit";
 
@@ -78,12 +76,12 @@ public abstract class AbstractWikiResourceIdService extends ResourceIdService
         resourceType.setResourceTypeLabelKey( getResourceTypeLabelKey( ) );
 
         Permission permissionView = new Permission( );
-        permissionView.setPermissionKey( PERMISSION_VIEW );
+        permissionView.setPermissionKey( WikiItemUserPermission.PERMISSION_VIEW );
         permissionView.setPermissionTitleKey( PROPERTY_LABEL_VIEW );
         resourceType.registerPermission( permissionView );
 
         Permission permissionEdit = new Permission( );
-        permissionEdit.setPermissionKey( PERMISSION_EDIT );
+        permissionEdit.setPermissionKey( WikiItemUserPermission.PERMISSION_EDIT );
         permissionEdit.setPermissionTitleKey( PROPERTY_LABEL_EDIT );
         resourceType.registerPermission( permissionEdit );
 

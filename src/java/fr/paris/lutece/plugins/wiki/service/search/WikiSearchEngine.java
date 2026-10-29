@@ -70,6 +70,7 @@ import fr.paris.lutece.plugins.wiki.business.item.impl.Book;
 import fr.paris.lutece.plugins.wiki.business.item.impl.Page;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
+import fr.paris.lutece.plugins.wiki.service.security.WikiUserPermissions;
 import fr.paris.lutece.portal.service.search.IndexationService;
 import fr.paris.lutece.portal.service.search.SearchEngine;
 import fr.paris.lutece.portal.service.search.SearchItem;
@@ -146,11 +147,13 @@ public class WikiSearchEngine implements SearchEngine
 
                 Highlighter exactHighlighter = createHighlighter( exactQuery );
 
+                WikiUserPermissions permissions = WikiUserPermissions.forUser( SecurityService.getInstance( ).getRegisteredUser( request ) );
+
                 for ( ScoreDoc scoreDoc : exactTopDocs.scoreDocs )
                 {
                     Document doc = searcher.doc( scoreDoc.doc );
                     WikiSearchResult result = createSearchResult( doc, exactHighlighter, analyzer );
-                    if ( result != null && hasHierarchicalAccess( result, request ) )
+                    if ( result != null && hasHierarchicalAccess( result, permissions ) )
                     {
                         listResults.add( result );
                     }
@@ -158,7 +161,7 @@ public class WikiSearchEngine implements SearchEngine
 
                 if ( FUZZY_SEARCH_ENABLED && listResults.size( ) < MIN_RESULTS_BEFORE_FUZZY && !containsFuzzyOperator( strQuery ) )
                 {
-                    addFuzzyResults( searcher, strQuery, strBookCode, strSpaceCode, request, analyzer, listResults );
+                    addFuzzyResults( searcher, strQuery, strBookCode, strSpaceCode, request, analyzer, listResults, permissions );
                 }
             }
         }
@@ -438,19 +441,17 @@ public class WikiSearchEngine implements SearchEngine
      *
      * @param result
      *            the search result to check
-     * @param request
-     *            the HTTP request containing user information
+     * @param permissions
+     *            the permissions of the user, loaded once for the whole result set
      * @return true if the user has access, false otherwise
      */
-    private boolean hasHierarchicalAccess( WikiSearchResult result, HttpServletRequest request )
+    private boolean hasHierarchicalAccess( WikiSearchResult result, WikiUserPermissions permissions )
     {
         String entityType = result.getType( );
         if ( entityType == null )
         {
             return false;
         }
-
-        LuteceUser user = SecurityService.getInstance( ).getRegisteredUser( request );
 
         String itemCode = getItemCodeByType( result, entityType );
         if ( itemCode == null )
@@ -464,7 +465,7 @@ public class WikiSearchEngine implements SearchEngine
             return false;
         }
 
-        return WikiAccessControlService.canView( user, item );
+        return WikiAccessControlService.canView( permissions, item );
     }
 
     /**
@@ -495,7 +496,8 @@ public class WikiSearchEngine implements SearchEngine
     }
 
     private void addFuzzyResults( IndexSearcher searcher, String strQuery, String strBookCode, String strSpaceCode, HttpServletRequest request,
-            Analyzer analyzer, List<SearchResult> existingResults ) throws IOException, org.apache.lucene.queryparser.classic.ParseException
+            Analyzer analyzer, List<SearchResult> existingResults, WikiUserPermissions permissions )
+            throws IOException, org.apache.lucene.queryparser.classic.ParseException
     {
 
         String fuzzyQuery = buildFuzzyQuery( strQuery );
@@ -523,7 +525,7 @@ public class WikiSearchEngine implements SearchEngine
             if ( !existingIds.contains( docId ) )
             {
                 WikiSearchResult result = createSearchResult( doc, fuzzyHighlighter, analyzer );
-                if ( result != null && hasHierarchicalAccess( result, request ) )
+                if ( result != null && hasHierarchicalAccess( result, permissions ) )
                 {
                     existingResults.add( result );
                     existingIds.add( docId );
