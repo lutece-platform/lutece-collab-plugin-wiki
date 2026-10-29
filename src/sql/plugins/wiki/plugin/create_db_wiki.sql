@@ -75,3 +75,22 @@ CREATE TABLE wiki_suggested_revision (
     CONSTRAINT fk_suggestion_entity FOREIGN KEY (entity_id) REFERENCES wiki_item(id_item) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+
+
+-- Permissions granted to everyone sharing a directory attribute value, rather than to named users
+-- changeset wiki:create_db_wiki-rev1.sql
+-- preconditions onFail:MARK_RAN onError:WARN
+-- precondition-sql-check expectedResult:0 SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = database() AND table_name = 'wiki_item_attribute_permission'
+CREATE TABLE IF NOT EXISTS wiki_item_attribute_permission (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_item INT NOT NULL,
+    attribute_name VARCHAR(255) NOT NULL,
+    attribute_value VARCHAR(255) NOT NULL,
+    attribute_label VARCHAR(255) NOT NULL,
+    permission_type VARCHAR(10) NOT NULL,
+    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_item_attribute_permission (id_item, attribute_name, attribute_value, permission_type),
+    INDEX idx_item_attribute_permission (id_item, permission_type),
+    INDEX idx_attribute_permission (attribute_name, attribute_value, permission_type),
+    CONSTRAINT fk_attribute_permission_item FOREIGN KEY (id_item) REFERENCES wiki_item(id_item) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

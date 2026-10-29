@@ -35,6 +35,9 @@ package fr.paris.lutece.plugins.wiki.service.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -91,7 +94,8 @@ public class ExternalUserSearchService
     }
 
     /**
-     * Search for users matching the given criteria including additional attributes
+     * Search for users matching the given criteria including additional attributes. Null criteria
+     * are passed to the provider as empty strings: some providers, LDAP among them, reject null.
      *
      * @param strLastName
      *            the last name (can be null or empty)
@@ -115,7 +119,8 @@ public class ExternalUserSearchService
             IUserSearchProvider provider = MyLuteceUserSearchService.getInstance( );
             if ( provider != null )
             {
-                List<MyLuteceSearchUser> users = provider.findUsers( strLastName, strGivenName, strEmail, listProviderAttributes );
+                List<MyLuteceSearchUser> users = provider.findUsers( StringUtils.defaultString( strLastName ), StringUtils.defaultString( strGivenName ),
+                        StringUtils.defaultString( strEmail ), listProviderAttributes != null ? listProviderAttributes : new ReferenceList( ) );
                 return users != null ? users : new ArrayList<>( );
             }
             else
@@ -169,6 +174,70 @@ public class ExternalUserSearchService
         }
 
         return null;
+    }
+
+    /**
+     * Get the distinct combinations of values the given attributes take in the user directory.
+     * Providers unable to enumerate them return an empty list, in which case the attributes simply
+     * get no suggestion.
+     *
+     * @param listAttributeNames
+     *            the provider attribute names to enumerate together
+     * @return the distinct combinations, empty when unavailable
+     */
+    public List<Map<String, String>> getAttributeValues( List<String> listAttributeNames )
+    {
+        if ( !_bIsAvailable || listAttributeNames == null || listAttributeNames.isEmpty( ) )
+        {
+            return new ArrayList<>( );
+        }
+
+        try
+        {
+            IUserSearchProvider provider = MyLuteceUserSearchService.getInstance( );
+            if ( provider != null )
+            {
+                List<Map<String, String>> values = provider.getAttributeValues( listAttributeNames );
+                return values != null ? values : new ArrayList<>( );
+            }
+        }
+        catch( Exception e )
+        {
+            AppLogService.error( "Error while getting the values of attributes " + listAttributeNames, e );
+        }
+
+        return new ArrayList<>( );
+    }
+
+    /**
+     * Get several users by provider user IDs, in a single provider call
+     *
+     * @param listProviderUserIds
+     *            the provider user IDs
+     * @return the users found, empty when none matches or the service is unavailable
+     */
+    public List<MyLuteceSearchUser> getUsersByProviderUserIds( List<String> listProviderUserIds )
+    {
+        if ( !_bIsAvailable || listProviderUserIds == null || listProviderUserIds.isEmpty( ) )
+        {
+            return new ArrayList<>( );
+        }
+
+        try
+        {
+            IUserSearchProvider provider = MyLuteceUserSearchService.getInstance( );
+            if ( provider != null )
+            {
+                List<MyLuteceSearchUser> users = provider.getUsersByIds( listProviderUserIds );
+                return users != null ? users : new ArrayList<>( );
+            }
+        }
+        catch( Exception e )
+        {
+            AppLogService.error( "Error while getting users by provider user IDs", e );
+        }
+
+        return new ArrayList<>( );
     }
 
 }

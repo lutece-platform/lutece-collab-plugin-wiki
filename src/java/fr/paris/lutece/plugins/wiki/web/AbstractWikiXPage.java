@@ -50,6 +50,7 @@ import fr.paris.lutece.plugins.wiki.service.SuggestedRevisionService;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
 import fr.paris.lutece.plugins.wiki.service.RevisionService;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
+import fr.paris.lutece.plugins.wiki.service.security.WikiUserPermissions;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.security.LuteceUser;
@@ -198,30 +199,31 @@ public abstract class AbstractWikiXPage extends MVCApplication
     /**
      * Loads the children of an item for a given user, using bulk-loaded descendant tree
      *
-     * @param user
-     *            The Lutece user
+     * @param permissions
+     *            The permissions of the user, loaded once for the whole tree
      * @param parent
      *            The parent item
      * @return The list of visible children with their own children loaded
      */
-    protected List<AbstractWikiItem> loadItemChildren( LuteceUser user, AbstractWikiItem parent )
+    protected List<AbstractWikiItem> loadItemChildren( WikiUserPermissions permissions, AbstractWikiItem parent )
     {
         Map<Integer, List<AbstractWikiItem>> descendantsByParent = WikiItemHome.getDescendantsByParent( parent.getId( ) );
-        return buildVisibleTree( user, parent.getId( ), descendantsByParent );
+        return buildVisibleTree( permissions, parent.getId( ), descendantsByParent );
     }
 
     /**
      * Builds the visible tree from a pre-loaded descendants map
      *
-     * @param user
-     *            The Lutece user
+     * @param permissions
+     *            The permissions of the user, loaded once for the whole tree
      * @param nParentId
      *            The parent id
      * @param descendantsByParent
      *            The map of parent id to children
      * @return The list of visible children with their own children loaded
      */
-    private List<AbstractWikiItem> buildVisibleTree( LuteceUser user, int nParentId, Map<Integer, List<AbstractWikiItem>> descendantsByParent )
+    private List<AbstractWikiItem> buildVisibleTree( WikiUserPermissions permissions, int nParentId,
+            Map<Integer, List<AbstractWikiItem>> descendantsByParent )
     {
         List<AbstractWikiItem> children = descendantsByParent.getOrDefault( nParentId, Collections.emptyList( ) );
         List<AbstractWikiItem> result = new ArrayList<>( );
@@ -230,14 +232,14 @@ public abstract class AbstractWikiXPage extends MVCApplication
         {
             child.setCurrentRevision( RevisionService.getCurrentRevision( child.getId( ) ) );
 
-            if ( !child.isPublished( ) || !WikiAccessControlService.canView( user, child ) )
+            if ( !child.isPublished( ) || !WikiAccessControlService.canView( permissions, child ) )
             {
                 continue;
             }
 
             if ( !child.getAllowedChildTypes( ).isEmpty( ) && !child.supportsContent( ) )
             {
-                List<AbstractWikiItem> visibleChildren = buildVisibleTree( user, child.getId( ), descendantsByParent );
+                List<AbstractWikiItem> visibleChildren = buildVisibleTree( permissions, child.getId( ), descendantsByParent );
                 child.setChildren( visibleChildren );
             }
             result.add( child );
@@ -249,21 +251,21 @@ public abstract class AbstractWikiXPage extends MVCApplication
     /**
      * Computes the edit rights for a list of children (chapters and pages) for a given user
      *
-     * @param user
-     *            The Lutece user
+     * @param permissions
+     *            The permissions of the user, loaded once for the whole tree
      * @param children
      *            The list of children
      * @return A map of item IDs to edit rights (true if the user can edit the item)
      */
-    protected Map<String, Boolean> computeChildEditRights( LuteceUser user, List<AbstractWikiItem> children )
+    protected Map<String, Boolean> computeChildEditRights( WikiUserPermissions permissions, List<AbstractWikiItem> children )
     {
         Map<String, Boolean> rights = new java.util.HashMap<>( );
         for ( AbstractWikiItem child : children )
         {
-            rights.put( String.valueOf( child.getId( ) ), WikiAccessControlService.canEdit( user, child ) );
+            rights.put( String.valueOf( child.getId( ) ), WikiAccessControlService.canEdit( permissions, child ) );
             if ( child.getChildren( ) != null && !child.getChildren( ).isEmpty( ) )
             {
-                rights.putAll( computeChildEditRights( user, child.getChildren( ) ) );
+                rights.putAll( computeChildEditRights( permissions, child.getChildren( ) ) );
             }
         }
         return rights;
@@ -311,8 +313,8 @@ public abstract class AbstractWikiXPage extends MVCApplication
      * Reads the pending suggestion count for a given wiki item from the pre-computed
      * {@link #MARK_PENDING_COUNTS} map, defaulting to 0 when missing.
      *
-     * @param model
-     *            the model populated with MARK_PENDING_COUNTS
+     * @param models
+     *            the models populated with MARK_PENDING_COUNTS
      * @param nItemId
      *            the wiki item id
      * @return the pending count for that item (0 when not in the map)
@@ -365,7 +367,8 @@ public abstract class AbstractWikiXPage extends MVCApplication
     }
 
     /**
-     * Populates the model with data required for the book sidebar
+     * Populates the model with data required for the book sidebar, building the permission
+     * snapshot itself. Kept for callers holding no snapshot, the wiki modules in particular.
      *
      * @param models
      *            The models
@@ -376,9 +379,27 @@ public abstract class AbstractWikiXPage extends MVCApplication
      */
     protected void populateBookSidebarModel( Models models, LuteceUser user, Book book )
     {
-        List<AbstractWikiItem> bookChildren = loadItemChildren( user, book );
-        Map<String, Boolean> childEditRights = computeChildEditRights( user, bookChildren );
-        boolean canEditBook = WikiAccessControlService.canEdit( user, book );
+        populateBookSidebarModel( models, user, book, WikiUserPermissions.forUser( user ) );
+    }
+
+    /**
+     * Populates the model with data required for the book sidebar
+     *
+     * @param models
+     *            The models
+     * @param user
+     *            The Lutece user
+     * @param book
+     *            The book
+     * @param permissions
+     *            The permissions of the user, loaded once for the whole request
+     * @return whether the user can edit the book
+     */
+    protected boolean populateBookSidebarModel( Models models, LuteceUser user, Book book, WikiUserPermissions permissions )
+    {
+        List<AbstractWikiItem> bookChildren = loadItemChildren( permissions, book );
+        Map<String, Boolean> childEditRights = computeChildEditRights( permissions, bookChildren );
+        boolean canEditBook = WikiAccessControlService.canEdit( permissions, book );
 
         models.put( MARK_BOOK, book );
         models.put( MARK_BOOK_CHILDREN, bookChildren );
@@ -387,6 +408,23 @@ public abstract class AbstractWikiXPage extends MVCApplication
         models.put( MARK_CAN_EDIT, canEditBook );
         models.put( MARK_SPACE, findSpaceForBook( book ) );
         populateCommonModel( models, user );
+        return canEditBook;
+    }
+
+    /**
+     * Populates the model with data required for the space sidebar, building the permission
+     * snapshot itself. Kept for callers holding no snapshot, the wiki modules in particular.
+     *
+     * @param models
+     *            The models
+     * @param user
+     *            The Lutece user
+     * @param space
+     *            The space
+     */
+    protected void populateSpaceSidebarModel( Models models, LuteceUser user, Space space )
+    {
+        populateSpaceSidebarModel( models, user, space, WikiUserPermissions.forUser( user ) );
     }
 
     /**
@@ -398,19 +436,23 @@ public abstract class AbstractWikiXPage extends MVCApplication
      *            The Lutece user
      * @param space
      *            The space
+     * @param permissions
+     *            The permissions of the user, loaded once for the whole request
+     * @return whether the user can edit the space
      */
-    protected void populateSpaceSidebarModel( Models models, LuteceUser user, Space space )
+    protected boolean populateSpaceSidebarModel( Models models, LuteceUser user, Space space, WikiUserPermissions permissions )
     {
-        List<AbstractWikiItem> spaceChildren = loadItemChildren( user, space );
-        Map<String, Boolean> childEditRights = computeChildEditRights( user, spaceChildren );
+        List<AbstractWikiItem> spaceChildren = loadItemChildren( permissions, space );
+        Map<String, Boolean> childEditRights = computeChildEditRights( permissions, spaceChildren );
 
-        boolean canEditSpace = WikiAccessControlService.canEdit( user, space );
+        boolean canEditSpace = WikiAccessControlService.canEdit( permissions, space );
         models.put( MARK_SPACE, space );
         models.put( MARK_SPACE_CHILDREN, spaceChildren );
         models.put( MARK_SPACE_CHILDREN_EDIT_RIGHTS, childEditRights );
         models.put( MARK_PENDING_COUNTS, computePendingCounts( childEditRights, space, canEditSpace ) );
         models.put( MARK_CAN_EDIT, canEditSpace );
         populateCommonModel( models, user );
+        return canEditSpace;
     }
 
     /**
