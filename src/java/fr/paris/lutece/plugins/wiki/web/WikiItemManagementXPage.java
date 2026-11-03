@@ -102,6 +102,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     private static final String INVALID_SECURITY_TOKEN_MESSAGE = "Invalid security token";
     private static final String MESSAGE_ACCESS_DENIED = "wiki.message.accessDenied";
     private static final String MESSAGE_REVISION_NOT_FOUND = "wiki.message.revisionNotFound";
+    private static final String MESSAGE_ITEM_TYPE_NOT_FOUND = "wiki.message.itemTypeNotFound";
 
     @Inject
     private ExternalUserSearchService _externalUserSearchService;
@@ -210,8 +211,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     @View( value = VIEW_CREATE_ITEM, defaultView = true )
     public XPage createItem( HttpServletRequest request ) throws UserNotSignedException, SiteMessageException
     {
-        String strItemType = request.getParameter( PARAMETER_ENTITY_TYPE );
-        WikiItemType itemType = WikiItemType.valueOf( strItemType.toUpperCase( ) );
+        WikiItemType itemType = getItemType( request );
 
         String strParentCode = request.getParameter( PARAMETER_PARENT_CODE );
         AbstractWikiItem parent = null;
@@ -257,8 +257,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     {
         validateToken( request, ACTION_CREATE_ITEM );
 
-        String strItemType = request.getParameter( PARAMETER_ENTITY_TYPE );
-        WikiItemType itemType = WikiItemType.valueOf( strItemType.toUpperCase( ) );
+        WikiItemType itemType = getItemType( request );
 
         String strParentId = request.getParameter( "id_parent" );
         AbstractWikiItem parent = null;
@@ -297,7 +296,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         {
             addError( e.getMessage( ) );
             Map<String, String> params = new HashMap<>( );
-            params.put( PARAMETER_ENTITY_TYPE, strItemType );
+            params.put( PARAMETER_ENTITY_TYPE, itemType.getCode( ) );
             if ( parent != null )
             {
                 params.put( PARAMETER_PARENT_CODE, parent.getCode( ) );
@@ -885,6 +884,32 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     private void denyAccess( HttpServletRequest request ) throws SiteMessageException
     {
         SiteMessageService.setMessage( request, MESSAGE_ACCESS_DENIED, SiteMessage.TYPE_STOP );
+    }
+
+    /**
+     * Reads the wiki item type from the request parameter, compared case-insensitively with the type codes.
+     *
+     * @param request
+     *            the HTTP request
+     * @return the wiki item type
+     * @throws SiteMessageException
+     *             if the parameter is missing or matches no wiki item type
+     */
+    private WikiItemType getItemType( HttpServletRequest request ) throws SiteMessageException
+    {
+        String strItemType = request.getParameter( PARAMETER_ENTITY_TYPE );
+        if ( strItemType != null )
+        {
+            for ( WikiItemType itemType : WikiItemType.values( ) )
+            {
+                if ( itemType.getCode( ).equalsIgnoreCase( strItemType ) )
+                {
+                    return itemType;
+                }
+            }
+        }
+        SiteMessageService.setMessage( request, MESSAGE_ITEM_TYPE_NOT_FOUND, SiteMessage.TYPE_ERROR );
+        return null;
     }
 
     /**
