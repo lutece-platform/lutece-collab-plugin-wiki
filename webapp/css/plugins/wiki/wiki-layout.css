@@ -149,6 +149,69 @@
     flex-shrink: 0;
 }
 
+.wiki-sidebar-tree .sidebar-tree-item.sidebar-tree-hidden {
+    display: none;
+}
+
+.wiki-sidebar-tree .sidebar-tree-toggle {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 6px;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+
+.wiki-sidebar-tree .sidebar-tree-toggle .ti {
+    flex-shrink: 0;
+    margin-top: 0.15em;
+    margin-inline-end: 4px;
+    font-size: 0.875rem;
+    color: var(--bs-secondary-color);
+    transition: transform 0.15s ease;
+}
+
+.wiki-sidebar-tree .sidebar-tree-header.collapsed .sidebar-tree-toggle .ti {
+    transform: rotate(-90deg);
+}
+
+.wiki-sidebar-tree .sidebar-tree-hit {
+    padding: 0;
+    background: var(--bs-warning-bg-subtle);
+    color: inherit;
+}
+
+.wiki-sidebar-filter {
+    padding: 0 8px 8px 14px;
+}
+
+.wiki-sidebar-filter-empty {
+    padding: 6px 14px;
+    font-size: 0.875rem;
+    color: var(--bs-secondary-color);
+}
+
+@media (hover: hover) {
+    .wiki-sidebar-tree .sidebar-tree-item .sidebar-tree-actions {
+        opacity: 0;
+        transition: opacity 0.15s ease;
+    }
+
+    .wiki-sidebar-tree .sidebar-tree-item:hover .sidebar-tree-actions,
+    .wiki-sidebar-tree .sidebar-tree-item:focus-within .sidebar-tree-actions,
+    .wiki-sidebar-tree .sidebar-tree-actions:has(.show),
+    .wiki-sidebar-tree .sidebar-tree-actions:has(.sidebar-pending-dot),
+    .wiki-sidebar-tree .sidebar-tree-root .sidebar-tree-actions {
+        opacity: 1;
+    }
+}
+
 .sidebar-pending-dot {
     position: absolute;
     top: -6px;
