@@ -21,11 +21,13 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 
 import fr.paris.lutece.plugins.mylutece.service.search.MyLuteceSearchUser;
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
@@ -106,14 +108,23 @@ public class WikiUserPermissionRest
      * Read only, so no security token is required: an authenticated user holding edit rights on the
      * target item is enough.
      *
+     * @param strCode
+     *            the code of the target item
+     * @param strAttribute
+     *            the provider attribute
+     * @param strQuery
+     *            what the user typed so far
+     * @param uriInfo
+     *            the request URI, holding the values of the other search fields
      * @return the matching values
      */
     @GET
     @Path( "attribute-values" )
     @Produces( MediaType.APPLICATION_JSON )
-    public Response attributeValues( )
+    public Response attributeValues( @QueryParam( PARAMETER_CODE ) String strCode, @QueryParam( PARAMETER_ATTRIBUTE ) String strAttribute,
+            @QueryParam( PARAMETER_QUERY ) String strQuery, @Context UriInfo uriInfo )
     {
-        AbstractWikiItem item = WikiItemService.findByCode( _request.getParameter( PARAMETER_CODE ) );
+        AbstractWikiItem item = WikiItemService.findByCode( strCode );
         Response refusal = checkReadAccess( item );
         if ( refusal != null )
         {
@@ -121,16 +132,15 @@ public class WikiUserPermissionRest
         }
 
         Map<String, String> mapContext = new HashMap<>( );
-        for ( Map.Entry<String, String [ ]> entry : _request.getParameterMap( ).entrySet( ) )
+        for ( Map.Entry<String, List<String>> entry : uriInfo.getQueryParameters( ).entrySet( ) )
         {
-            if ( entry.getKey( ).startsWith( PREFIX_PROVIDER_ATTRIBUTE ) && entry.getValue( ).length > 0 )
+            if ( entry.getKey( ).startsWith( PREFIX_PROVIDER_ATTRIBUTE ) && !entry.getValue( ).isEmpty( ) )
             {
-                mapContext.put( entry.getKey( ).substring( PREFIX_PROVIDER_ATTRIBUTE.length( ) ).trim( ), entry.getValue( ) [0] );
+                mapContext.put( entry.getKey( ).substring( PREFIX_PROVIDER_ATTRIBUTE.length( ) ).trim( ), entry.getValue( ).get( 0 ) );
             }
         }
 
-        List<String> listValues = WikiUserAttributeValuesService.suggest( _request.getParameter( PARAMETER_ATTRIBUTE ),
-                _request.getParameter( PARAMETER_QUERY ), mapContext, SUGGESTION_LIMIT );
+        List<String> listValues = WikiUserAttributeValuesService.suggest( strAttribute, strQuery, mapContext, SUGGESTION_LIMIT );
 
         return Response.ok( new SuggestionDto( listValues ) ).build( );
     }
@@ -143,22 +153,28 @@ public class WikiUserPermissionRest
      *
      * Read only, so no security token is required, for the same reason as the suggestions.
      *
+     * @param strCode
+     *            the code of the target item
+     * @param strAttribute
+     *            the provider attribute
+     * @param strValue
+     *            the attribute value
      * @return the directory spelling and the matching agent count, the spelling null when unknown
      */
     @GET
     @Path( "population-count" )
     @Produces( MediaType.APPLICATION_JSON )
-    public Response populationCount( )
+    public Response populationCount( @QueryParam( PARAMETER_CODE ) String strCode, @QueryParam( PARAMETER_ATTRIBUTE ) String strAttribute,
+            @QueryParam( PARAMETER_VALUE ) String strValue )
     {
-        AbstractWikiItem item = WikiItemService.findByCode( _request.getParameter( PARAMETER_CODE ) );
+        AbstractWikiItem item = WikiItemService.findByCode( strCode );
         Response refusal = checkReadAccess( item );
         if ( refusal != null )
         {
             return refusal;
         }
 
-        String strAttribute = _request.getParameter( PARAMETER_ATTRIBUTE );
-        String strCanonical = WikiUserAttributeValuesService.canonicalValue( strAttribute, _request.getParameter( PARAMETER_VALUE ) );
+        String strCanonical = WikiUserAttributeValuesService.canonicalValue( strAttribute, strValue );
 
         if ( strCanonical == null )
         {
