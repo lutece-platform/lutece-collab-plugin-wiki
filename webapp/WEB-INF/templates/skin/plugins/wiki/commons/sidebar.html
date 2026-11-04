@@ -103,7 +103,7 @@
                 </#if>
             </#list>
         </#macro>
-        <#if book_children?has_content>
+        <#if book_children?has_content || book??>
             <div class="wiki-sidebar-tree" id="sidebarBookTree">
                 <#if book??>
                 <#assign rootPendingCount = (pending_counts?? && pending_counts[book.id?c]??)?then(pending_counts[book.id?c], 0)>
@@ -142,9 +142,12 @@
                     </a>
                 </div>
                 </#if>
+                <#if book_children?has_content>
                 <@flattenBookChildren children=book_children depth=1 />
+                </#if>
             </div>
-        <#elseif can_edit?? && can_edit && book??>
+        </#if>
+        <#if !book_children?has_content && can_edit?? && can_edit && book??>
             <div class="card p-3 small mb-0">
                 <strong>#i18n{wiki.sidebar.emptyBook.title}</strong>
                 #i18n{wiki.sidebar.emptyBook.message}
