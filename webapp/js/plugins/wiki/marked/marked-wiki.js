@@ -17,10 +17,25 @@
     const TOC_LINE_OFFSET_PER_DEPTH = 10;
     const TOC_ITEM_BASE_OFFSET = 14;
     const TOC_ITEM_OFFSET_PER_DEPTH = 12;
+    const PURIFY_OPTIONS = { ADD_ATTR: ['target'] };
 
     const MarkedWiki = {
         _initPromise: null,
         _scrollSpyCleanup: null,
+
+        /**
+         * Tells whether a link leaves the wiki: an absolute http(s) URL on another host.
+         * @param {string} href the link target
+         * @returns {boolean} true for an external link
+         */
+        isExternal(href) {
+            try {
+                const url = new URL(href, window.location.href);
+                return /^https?:$/.test(url.protocol) && url.host !== window.location.host;
+            } catch (e) {
+                return false;
+            }
+        },
 
         escapeHtml(text) {
             const div = document.createElement('div');
@@ -78,7 +93,7 @@
                         return token.text || '';
                     }
                     const html = originalLinkRenderer.call(this, token);
-                    return html.replace(/^<a /, '<a target="_blank" rel="noopener noreferrer" ');
+                    return MarkedWiki.isExternal(href) ? html.replace(/^<a /, '<a target="_blank" rel="noopener noreferrer" ') : html;
                 };
 
                 const self = this;
@@ -135,7 +150,7 @@
             }
 
             await this.init();
-            container.innerHTML = DOMPurify.sanitize(marked.parse(content)).replace(/(&nbsp;\s*){2,}/g, ' ');
+            container.innerHTML = DOMPurify.sanitize(marked.parse(content), PURIFY_OPTIONS).replace(/(&nbsp;\s*){2,}/g, ' ');
             this.initCodeCopy(container);
             this.fixTableColumns(container);
 
@@ -151,7 +166,7 @@
 
         async parse(content) {
             await this.init();
-            return DOMPurify.sanitize(marked.parse(content));
+            return DOMPurify.sanitize(marked.parse(content), PURIFY_OPTIONS);
         },
 
         getLineOffset(depth) {
