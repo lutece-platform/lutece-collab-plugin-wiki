@@ -117,12 +117,24 @@ export const translations = {
 
     // AI Assistant
     aiAssistant: {
-      buttonLabel: 'Demander à l\'IA',
-      remainingLabel: 'Restant',
-      processing: 'Traitement en cours',
-      success: 'Action IA réussie',
-      error: 'Erreur lors de l\'action IA',
-      noSelectionError: 'Veuillez sélectionner du texte d\'abord',
+      buttonLabel: 'IA',
+      dialogLabel: 'Assistant IA',
+      placeholder: 'Dites à l\'IA quoi modifier…',
+      refinePlaceholder: 'Demander une modification…',
+      send: 'Envoyer',
+      more: 'Plus…',
+      writing: 'L\'IA écrit…',
+      replace: 'Remplacer',
+      insertAfter: 'Insérer dessous',
+      insertBefore: 'Insérer au-dessus',
+      retry: 'Réessayer',
+      discard: 'Annuler',
+      stop: 'Arrêter',
+      emptyAnswer: 'L\'IA n\'a rien proposé, reformulez la demande.',
+      remaining: 'Encore {n} demandes à l\'IA aujourd\'hui',
+      limitReached: 'Vous avez atteint le nombre de demandes à l\'IA pour aujourd\'hui.',
+      error: 'L\'IA n\'a pas pu répondre, réessayez.',
+      connectionError: 'La connexion à l\'IA a été perdue, réessayez.',
     },
 
     // File Upload
@@ -267,12 +279,24 @@ export const translations = {
 
     // AI Assistant
     aiAssistant: {
-      buttonLabel: 'Ask AI',
-      remainingLabel: 'Remaining',
-      processing: 'Processing',
-      success: 'AI action completed successfully',
-      error: 'AI action failed',
-      noSelectionError: 'Please select text first',
+      buttonLabel: 'AI',
+      dialogLabel: 'AI assistant',
+      placeholder: 'Tell the AI what to change…',
+      refinePlaceholder: 'Ask for a change…',
+      send: 'Send',
+      more: 'More…',
+      writing: 'The AI is writing…',
+      replace: 'Replace',
+      insertAfter: 'Insert below',
+      insertBefore: 'Insert above',
+      retry: 'Try again',
+      discard: 'Discard',
+      stop: 'Stop',
+      emptyAnswer: 'The AI proposed nothing, rephrase the request.',
+      remaining: '{n} AI requests left today',
+      limitReached: 'You have reached the number of AI requests for today.',
+      error: 'The AI could not answer, try again.',
+      connectionError: 'The connection to the AI was lost, try again.',
     },
 
     // File Upload

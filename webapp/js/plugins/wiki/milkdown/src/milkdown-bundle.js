@@ -11,13 +11,14 @@ import { clearTextInCurrentBlockCommand, wrapInBlockTypeCommand, blockquoteSchem
 import { translations, getTranslation } from './translations.js';
 import { githubAlertsEditablePlugin } from './extensions/github-alerts/github-alerts-editable.js';
 import { createHeadingStyleToolbarButton } from './extensions/heading-style-dropdown/heading-style-toolbar-button.js';
-import { createAiAssistantToolbarButton, aiProcessingPlugin } from './extensions/ai-assistant/ai-assistant-toolbar-button.js';
+import { createAiAssistantToolbarButton, createAiAssistantPlugin } from './extensions/ai-assistant/ai-assistant-toolbar-button.js';
 import { createFindReplaceToolbarButton, findReplacePlugin } from './extensions/find-replace/find-replace-toolbar-button.js';
 import { renderMermaidPreview } from './extensions/mermaid/mermaid-render-preview.js';
 import { createFileUploadMenuItem } from './extensions/file-upload/file-upload.js';
 import { videoPlugin, createVideoUploadMenuItem } from './extensions/video-player/video-player.js';
 import { createListToolbarButtons } from './extensions/list-toolbar/list-toolbar-buttons.js';
 import { createPasteSanitizerPlugin } from './extensions/paste-sanitizer/paste-sanitizer.js';
+import { selectAllTextPlugin } from './extensions/select-all/select-all-text.js';
 
 import './milkdown-themes.css';
 import './extensions/paste-sanitizer/paste-sanitizer.css';
@@ -381,10 +382,11 @@ class MilkdownBundle {
 
     editor.editor.use(githubAlertsEditablePlugin);
     editor.editor.use(findReplacePlugin);
+    editor.editor.use(selectAllTextPlugin);
     editor.editor.use(createPasteSanitizerPlugin(t));
 
     if (aiConfig && aiConfig.length > 0) {
-      editor.editor.use(aiProcessingPlugin);
+      editor.editor.use(createAiAssistantPlugin(t, aiConfig));
     }
 
     editor.editor.use(videoPlugin);
