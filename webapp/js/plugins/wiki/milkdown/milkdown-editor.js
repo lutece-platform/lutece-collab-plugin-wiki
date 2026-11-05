@@ -5,6 +5,10 @@
 window.WikiMilkdownEditor = {
     editors: new Map(),
     aiFeatures: null,
+    maxUploadSize: 0,
+    uploadMinInterval: 2100,
+    uploadRetryDelay: 2500,
+    lastUploadAt: 0,
 
     showEditorOverlay: function(message = 'Traitement en cours...') {
         const container = document.getElementById('editor-container');
@@ -104,6 +108,7 @@ window.WikiMilkdownEditor = {
      * Initialize a Milkdown editor
      */
     init: async function(selector, textareaId, content = '', options = {}) {
+        this.maxUploadSize = options.maxUploadSize || this.maxUploadSize;
         let aiConfig = options.aiConfig || [];
         if (aiConfig.length === 0) {
             aiConfig = await this.loadAiFeatures();
@@ -115,7 +120,7 @@ window.WikiMilkdownEditor = {
         const defaultOptions = {
             theme: 'frame',
             lang: 'fr',
-            onUpload: (file) => this.uploadFile(file, options.itemId),
+            onUpload: (file, onProgress) => this.uploadFile(file, options.itemId, onProgress),
             aiConfig: dropdownFeatures
         };
 
@@ -293,57 +298,111 @@ window.WikiMilkdownEditor = {
     },
 
     /**
-     * Upload file to server
+     * Builds an upload error carrying a reason code for the editor messages.
+     * @param {string} code tooLarge, refused, network or server
+     * @param {Object} details the values shown in the message
+     * @returns {Error} the error
      */
-    uploadFile: async function(file, itemId) {
-        const results = await this.uploadMultipleFiles([file], itemId);
-        if (results && results.length > 0 && results[0].fileUrl) {
-            return results[0].fileUrl;
+    uploadError: function(code, details = {}) {
+        const error = new Error(details.message || code);
+        error.code = code;
+        error.details = details;
+        return error;
+    },
+
+    /**
+     * Waits until the previous upload is old enough for the server upload guard.
+     * @returns {Promise<void>} resolved when an upload may start
+     */
+    waitUploadSlot: async function() {
+        const wait = this.lastUploadAt + this.uploadMinInterval - Date.now();
+        if (wait > 0) {
+            await new Promise(resolve => setTimeout(resolve, wait));
         }
-        throw new Error('Upload failed');
+        this.lastUploadAt = Date.now();
+    },
+
+    /**
+     * Sends the upload request, reporting the progress.
+     * @param {FormData} formData the files and parameters
+     * @param {Function} onProgress called with the sent percentage
+     * @returns {Promise<Object|null>} the JSON answer, or null when the server refused the request
+     */
+    sendUpload: function(formData, onProgress) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'jsp/site/upload');
+            xhr.upload.onprogress = (event) => {
+                if (onProgress && event.lengthComputable) {
+                    onProgress(Math.round(event.loaded * 100 / event.total));
+                }
+            };
+            xhr.onload = () => {
+                try {
+                    resolve(xhr.status === 200 ? JSON.parse(xhr.responseText) : null);
+                } catch (e) {
+                    resolve(null);
+                }
+            };
+            xhr.onerror = () => reject(this.uploadError('network'));
+            xhr.send(formData);
+        });
+    },
+
+    /**
+     * Upload file to server
+     * @param {File} file the file
+     * @param {number} itemId the wiki item
+     * @param {Function} onProgress called with the sent percentage
+     * @returns {Promise<string>} the file URL
+     */
+    uploadFile: async function(file, itemId, onProgress) {
+        const results = await this.uploadMultipleFiles([file], itemId, onProgress);
+        return results[0].fileUrl;
     },
 
     /**
      * Upload multiple files to server
+     * @param {Array<File>} files the files
+     * @param {number} itemId the wiki item
+     * @param {Function} onProgress called with the sent percentage
+     * @returns {Promise<Array<Object>>} the uploaded files
      */
-    uploadMultipleFiles: async function(files, itemId) {
-        try {
-            const formData = new FormData();
-
-            files.forEach(file => {
-                formData.append('file', file);
-            });
-
-            formData.append('handler', 'wikiAsynchronousUploadHandler');
-
-            if (itemId) {
-                formData.append('itemId', itemId);
-            }
-
-            const response = await fetch('jsp/site/upload', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error('Upload failed');
-            }
-
-            const result = await response.json();
-
-            if (result.success && result.uploadedFiles) {
-                return result.uploadedFiles.map(file => ({
-                    fileId: file.fileId,
-                    fileUrl: file.fileUrl ? file.fileUrl.replace(/&#38;/g, '&') : null,
-                    fileName: file.fileName
-                }));
-            } else {
-                throw new Error(result.error || 'Upload failed');
-            }
-        } catch (error) {
-            console.error('Upload error:', error);
-            throw error;
+    uploadMultipleFiles: async function(files, itemId, onProgress) {
+        const tooLarge = this.maxUploadSize ? files.find(file => file.size > this.maxUploadSize) : null;
+        if (tooLarge) {
+            throw this.uploadError('tooLarge', { size: tooLarge.size, max: this.maxUploadSize });
         }
+
+        const formData = new FormData();
+        files.forEach(file => formData.append('file', file));
+        formData.append('handler', 'wikiAsynchronousUploadHandler');
+        if (itemId) {
+            formData.append('itemId', itemId);
+        }
+
+        await this.waitUploadSlot();
+        let result = await this.sendUpload(formData, onProgress);
+        if (!result) {
+            await new Promise(resolve => setTimeout(resolve, this.uploadRetryDelay));
+            this.lastUploadAt = Date.now();
+            result = await this.sendUpload(formData, onProgress);
+        }
+        if (!result) {
+            throw this.uploadError('refused');
+        }
+
+        const uploaded = result.uploadedFiles || [];
+        const failed = uploaded.find(file => file.error);
+        if (!result.success || failed || uploaded.length === 0) {
+            throw this.uploadError('server', { message: (failed && failed.error) || result.error });
+        }
+
+        return uploaded.map(file => ({
+            fileId: file.fileId,
+            fileUrl: file.fileUrl ? file.fileUrl.replace(/&#38;/g, '&') : null,
+            fileName: file.fileName
+        }));
     },
 
     /**

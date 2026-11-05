@@ -128,8 +128,15 @@ export const translations = {
     // File Upload
     fileUpload: {
       uploading: 'Téléchargement en cours',
-      uploadFailed: 'Échec du téléchargement',
       selectFile: 'Sélectionner un fichier',
+      progress: 'Envoi de « {name} »… {percent} %',
+      failedWithReason: 'Échec de l’envoi de « {name} » : {reason}',
+      reasons: {
+        tooLarge: 'fichier trop volumineux ({size} Mo, maximum {max} Mo)',
+        refused: 'envoi refusé par le serveur, réessayez dans quelques secondes',
+        network: 'connexion interrompue',
+        unknown: 'erreur inattendue du serveur',
+      },
     },
 
     // Find & Replace
@@ -271,8 +278,15 @@ export const translations = {
     // File Upload
     fileUpload: {
       uploading: 'Uploading',
-      uploadFailed: 'Upload failed',
       selectFile: 'Select file',
+      progress: 'Uploading "{name}"… {percent} %',
+      failedWithReason: 'Upload of "{name}" failed: {reason}',
+      reasons: {
+        tooLarge: 'file too large ({size} MB, maximum {max} MB)',
+        refused: 'upload refused by the server, try again in a few seconds',
+        network: 'connection lost',
+        unknown: 'unexpected server error',
+      },
     },
 
     // Find & Replace

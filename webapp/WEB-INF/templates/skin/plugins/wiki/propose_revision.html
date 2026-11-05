@@ -69,7 +69,7 @@
                 "#editor-container",
                 "content",
                 "${((current_revision.content)!'')?js_string}",
-                { theme: "frame", lang: "fr", itemId: ${ item.id } }
+                { theme: "frame", lang: "fr", itemId: ${ item.id }, maxUploadSize: ${ upload_max_size?c } }
             );
             </#noautoesc>
 
