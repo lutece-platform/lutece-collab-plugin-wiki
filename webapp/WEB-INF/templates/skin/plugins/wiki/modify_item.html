@@ -96,9 +96,58 @@
                             <select class="form-control form-select" id="viewRole" name="viewRole" required>
                                 <#list user_roles as role>
                                     <option value="${role.code}" <#if role.code==item.viewRole>selected</#if>
+                                        data-short="${role_labels[role.code]}"
                                         >${role.name}</option>
                                 </#list>
                             </select>
+                            <#assign itemNoun = i18n("wiki.access.this." + item.type.code)>
+                            <#assign boxTag = ancestors?has_content?then("details", "div")>
+                            <#assign summaryTag = ancestors?has_content?then("summary", "div")>
+                            <${boxTag} class="wiki-access mt-2" id="wikiAccess"
+                                data-noun="${itemNoun}"
+                                data-label-and="#i18n{wiki.access.and}"
+                                data-label-public="#i18n{wiki.access.hint.public}"
+                                data-label-inherited="#i18n{wiki.access.hint.inherited}"
+                                data-label-restricted="<#if item.type.code != 'page'>#i18n{wiki.access.hint.restrictedContainer}<#else>#i18n{wiki.access.hint.restricted}</#if>"
+                                data-label-both="#i18n{wiki.access.hint.both}"
+                                data-label-unpublished-parent="#i18n{wiki.access.hint.unpublishedParent}"
+                                data-label-unpublished="#i18n{wiki.access.hint.unpublished}">
+                                <${summaryTag} class="wiki-access-summary">
+                                    <span class="wiki-access-text">
+                                        <span class="d-block fw-semibold">${i18n("wiki.access.title", itemNoun)}</span>
+                                        <span class="wiki-access-hint d-block" id="wikiAccessHint" aria-live="polite"></span>
+                                    </span>
+                                    <#if ancestors?has_content><i class="ti ti-chevron-down wiki-access-chevron" aria-hidden="true"></i></#if>
+                                </${summaryTag}>
+                                <#if ancestors?has_content>
+                                    <ol class="wiki-access-path list-unstyled mt-2 mb-0">
+                                        <#list ancestors as ancestor>
+                                            <#assign ancestorId = ancestor.id?c>
+                                            <#assign ancestorRole = (ancestor.viewRole?has_content)?then(ancestor.viewRole, 'none')>
+                                            <#assign ancestorTitle = (ancestor.currentRevision.title)!ancestor.code>
+                                            <#assign ancestorPeople = ancestor_people[ancestorId]!0>
+                                            <#assign ancestorPopulations = ancestor_populations[ancestorId]!0>
+                                            <li class="wiki-access-step" style="--wiki-access-depth: ${ancestor?index}"
+                                                data-title="${ancestorTitle}" data-restricted="${(ancestorRole != 'none')?c}" data-published="${ancestor.published?c}">
+                                                <i class="ti ti-<#if ancestorRole != 'none'>lock<#else>world</#if>" aria-hidden="true"></i>
+                                                <@accessAncestorLink ancestor ancestorTitle />
+                                                <#if ancestorRole != 'none'>
+                                                    <#assign grantLabels = accessGrantLabels(ancestorPeople, ancestorPopulations)>
+                                                    <span class="wiki-access-meta" title="#i18n{wiki.access.restricted.help}">${role_labels[ancestorRole]!ancestorRole}<#if grantLabels?has_content> · ${grantLabels?join(", ")}</#if></span>
+                                                <#else>
+                                                    <span class="wiki-access-meta">${role_labels[ancestorRole]!ancestorRole}</span>
+                                                </#if>
+                                                <#if !ancestor.published><span class="wiki-access-meta">· #i18n{wiki.access.unpublished}</span></#if>
+                                            </li>
+                                        </#list>
+                                        <li class="wiki-access-step wiki-access-current" style="--wiki-access-depth: ${ancestors?size}">
+                                            <i class="ti ti-world" aria-hidden="true" id="wikiAccessIcon"></i>
+                                            <strong>${itemNoun?cap_first}</strong>
+                                            <span class="wiki-access-meta" id="wikiAccessRole"></span>
+                                        </li>
+                                    </ol>
+                                </#if>
+                            </${boxTag}>
                         </div>
 
                         <div class="mb-3">
@@ -106,10 +155,56 @@
                             <select class="form-control form-select" id="editRole" name="editRole" required>
                                 <#list user_roles as role>
                                     <#if role.code !="none">
-                                        <option value="${role.code}" <#if role.code==item.editRole>selected</#if>>${role.name}</option>
+                                        <option value="${role.code}" <#if role.code==item.editRole>selected</#if>
+                                            data-short="${role_labels[role.code]}">${role.name}</option>
                                     </#if>
                                 </#list>
                             </select>
+                            <#assign parentEditors = []>
+                            <#list ancestors![] as ancestor>
+                                <#assign ancestorEditRole = (ancestor.editRole?has_content)?then(ancestor.editRole, 'private')>
+                                <#if ancestorEditRole != 'private' || (ancestor_editors[ancestor.id?c]!0) gt 0 || (ancestor_editor_populations[ancestor.id?c]!0) gt 0>
+                                    <#assign parentEditors = parentEditors + ['«\xA0' + ((ancestor.currentRevision.title)!ancestor.code) + '\xA0»']>
+                                </#if>
+                            </#list>
+                            <#if parentEditors?has_content>
+                                <#assign editorNames = (parentEditors?size gt 1)?then(parentEditors[0..parentEditors?size - 2]?join(", ") + " " + i18n("wiki.access.and") + " " + parentEditors?last, parentEditors?first)>
+                                <#assign editHint = i18n("wiki.access.hint.edit", editorNames, itemNoun)>
+                            <#else>
+                                <#assign editHint = i18n("wiki.access.hint.editOnly", itemNoun)>
+                            </#if>
+                            <${boxTag} class="wiki-access mt-2">
+                                <${summaryTag} class="wiki-access-summary">
+                                    <span class="wiki-access-text">
+                                        <span class="d-block fw-semibold">${i18n("wiki.access.editTitle", itemNoun)}</span>
+                                        <span class="wiki-access-hint d-block">${editHint}</span>
+                                    </span>
+                                    <#if ancestors?has_content><i class="ti ti-chevron-down wiki-access-chevron" aria-hidden="true"></i></#if>
+                                </${summaryTag}>
+                                <#if ancestors?has_content>
+                                    <ol class="wiki-access-path list-unstyled mt-2 mb-0">
+                                        <#list ancestors as ancestor>
+                                            <#assign ancestorId = ancestor.id?c>
+                                            <#assign ancestorEditRole = (ancestor.editRole?has_content)?then(ancestor.editRole, 'private')>
+                                            <#assign ancestorTitle = (ancestor.currentRevision.title)!ancestor.code>
+                                            <#assign ancestorEditors = ancestor_editors[ancestorId]!0>
+                                            <#assign ancestorEditorPopulations = ancestor_editor_populations[ancestorId]!0>
+                                            <#assign editLabels = accessGrantLabels(ancestorEditors, ancestorEditorPopulations)>
+                                            <#assign grantsEdit = ancestorEditRole != 'private' || editLabels?has_content>
+                                            <li class="wiki-access-step" style="--wiki-access-depth: ${ancestor?index}">
+                                                <i class="ti ti-<#if grantsEdit>pencil<#else>pencil-off</#if>" aria-hidden="true"></i>
+                                                <@accessAncestorLink ancestor ancestorTitle />
+                                                <span class="wiki-access-meta" title="#i18n{wiki.access.editors.help}">${role_labels[ancestorEditRole]!ancestorEditRole}<#if editLabels?has_content> · ${editLabels?join(", ")}</#if></span>
+                                            </li>
+                                        </#list>
+                                        <li class="wiki-access-step wiki-access-current" style="--wiki-access-depth: ${ancestors?size}">
+                                            <i class="ti ti-pencil" aria-hidden="true"></i>
+                                            <strong>${itemNoun?cap_first}</strong>
+                                            <span class="wiki-access-meta" id="wikiEditRole"></span>
+                                        </li>
+                                    </ol>
+                                </#if>
+                            </${boxTag}>
                         </div>
 
                         <div class="mb-4">
@@ -133,6 +228,15 @@
                     </div>
                 </div>
             </div>
+
+            <#function accessGrantLabels people populations>
+                <#local labels = []>
+                <#if people gt 0><#local labels = labels + [i18n((people gt 1)?then("wiki.access.people", "wiki.access.person"), people)]></#if>
+                <#if populations gt 0><#local labels = labels + [i18n((populations gt 1)?then("wiki.access.populations", "wiki.access.population"), populations)]></#if>
+                <#return labels>
+            </#function>
+
+            <#macro accessAncestorLink ancestor title><#if ancestor_editable[ancestor.id?c]!false><a href="jsp/site/Portal.jsp?page=wikiitemmanagement&view=modifyItem&code=${ancestor.code}">${title}</a><#else><span>${title}</span></#if></#macro>
 
             <#macro accessCard title permissionType populations users noUsersLabel cardClass="">
                 <div class="card ${cardClass}" style="border-radius: 20px;">
@@ -278,6 +382,8 @@
     }
     </style>
 
+<link rel="stylesheet" href="css/plugins/wiki/wiki-layout.css">
+<script src="js/plugins/wiki/access/wiki-access-hint.js"></script>
 <script src="js/plugins/wiki/forms/xss-safe-encoder.js"></script>
 <script src="js/plugins/wiki/forms/wiki-code-validation.js"></script>
 

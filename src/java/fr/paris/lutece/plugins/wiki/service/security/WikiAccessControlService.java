@@ -240,6 +240,19 @@ public final class WikiAccessControlService
     }
 
     /**
+     * Returns the ancestors of an item, from the root to its direct parent.
+     *
+     * @param item
+     *            the wiki item
+     * @return the ancestors, empty for a root item
+     */
+    public static List<AbstractWikiItem> getAncestors( AbstractWikiItem item )
+    {
+        List<AbstractWikiItem> hierarchy = getHierarchy( item );
+        return hierarchy.subList( 0, hierarchy.size( ) - 1 );
+    }
+
+    /**
      * Retrieves the hierarchy of wiki items from the specified item to the root.
      *
      * @param item

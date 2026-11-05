@@ -47,6 +47,7 @@ import fr.paris.lutece.plugins.wiki.business.item.WikiItemHome;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
 import fr.paris.lutece.plugins.wiki.exception.WikiValidationException;
 import fr.paris.lutece.plugins.wiki.service.permission.WikiPermissionService;
+import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
 import fr.paris.lutece.portal.business.event.ResourceEvent;
 import fr.paris.lutece.portal.service.event.ResourceEventManager;
 import fr.paris.lutece.portal.service.i18n.I18nService;
@@ -97,6 +98,20 @@ public final class WikiItemService
             return item;
         }
         return null;
+    }
+
+    /**
+     * Gets the ancestors of an item, from the root to its direct parent, with their current revision.
+     *
+     * @param item
+     *            the wiki item
+     * @return the ancestors, empty for a root item
+     */
+    public static List<AbstractWikiItem> findAncestors( AbstractWikiItem item )
+    {
+        List<AbstractWikiItem> ancestors = WikiAccessControlService.getAncestors( item );
+        ancestors.forEach( WikiItemService::setCurrentRevision );
+        return ancestors;
     }
 
     /**

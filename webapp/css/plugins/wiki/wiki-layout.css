@@ -284,3 +284,76 @@
     font-size: 0.65rem;
     z-index: 1;
 }
+
+/* Inherited access on the item settings */
+.wiki-access {
+    padding: 12px 14px;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 12px;
+}
+
+.wiki-access-path .wiki-access-step {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 0 2px calc(var(--wiki-access-depth, 0) * 14px);
+    font-size: 0.875rem;
+    color: var(--bs-secondary-color);
+}
+
+.wiki-access-path .wiki-access-step + .wiki-access-step::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    margin-top: -8px;
+    border-inline-start: 1px solid var(--bs-border-color);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.wiki-access-path .wiki-access-step a {
+    color: inherit;
+}
+
+.wiki-access-path .wiki-access-step a:hover {
+    color: var(--bs-link-color);
+}
+
+.wiki-access-path .wiki-access-current {
+    color: var(--bs-body-color);
+}
+
+.wiki-access-path .wiki-access-meta {
+    color: var(--bs-secondary-color);
+}
+
+.wiki-access .wiki-access-hint {
+    color: var(--bs-secondary-color);
+}
+
+.wiki-access-summary {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    list-style: none;
+}
+
+.wiki-access-summary::-webkit-details-marker {
+    display: none;
+}
+
+summary.wiki-access-summary {
+    cursor: pointer;
+}
+
+.wiki-access-chevron {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--bs-secondary-color);
+    transition: transform 0.15s ease;
+}
+
+details[open] > .wiki-access-summary .wiki-access-chevron {
+    transform: rotate(180deg);
+}
