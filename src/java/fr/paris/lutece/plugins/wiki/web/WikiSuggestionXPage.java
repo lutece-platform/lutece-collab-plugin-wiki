@@ -22,6 +22,7 @@ import fr.paris.lutece.plugins.wiki.business.suggestedrevision.SuggestionStatus;
 import fr.paris.lutece.plugins.wiki.service.RevisionService;
 import fr.paris.lutece.plugins.wiki.service.SuggestedRevisionService;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
+import fr.paris.lutece.plugins.wiki.service.file.WikiUploadService;
 import fr.paris.lutece.plugins.wiki.service.merge.MergeBlock;
 import fr.paris.lutece.plugins.wiki.service.merge.MergeBlocks;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
@@ -75,6 +76,7 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
     private static final String ENCODED_SUFFIX = "_encoded";
 
     private static final String MARK_ITEM = "item";
+    private static final String MARK_UPLOAD_MAX_SIZE = "upload_max_size";
     private static final String MARK_CURRENT_REVISION = "current_revision";
     private static final String MARK_DIFF_BASE_REVISION = "diff_base_revision";
     private static final String MARK_SUGGESTION = "suggestion";
@@ -142,6 +144,7 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
         model.put( MARK_ITEM, item );
         model.put( MARK_CURRENT_REVISION, currentRevision );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_PROPOSE ) );
+        model.put( MARK_UPLOAD_MAX_SIZE, WikiUploadService.getMaxSize( ) );
         populateCommonModel( model, user );
 
         XPage page = getXPage( TEMPLATE_PROPOSE, locale, model );

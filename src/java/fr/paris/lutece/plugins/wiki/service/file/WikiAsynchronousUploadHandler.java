@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.wiki.service.file;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -52,6 +53,7 @@ import fr.paris.lutece.portal.business.physicalfile.PhysicalFile;
 import fr.paris.lutece.portal.service.file.FileService;
 import fr.paris.lutece.portal.service.file.FileServiceException;
 import fr.paris.lutece.portal.service.file.IFileStoreServiceProvider;
+import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.SecurityService;
 import fr.paris.lutece.portal.service.util.AppLogService;
@@ -75,6 +77,8 @@ public class WikiAsynchronousUploadHandler implements IAsynchronousUploadHandler
     private static final String ERROR_MESSAGE_NO_ITEM_ID = "No item ID provided";
     private static final String ERROR_MESSAGE_ITEM_NOT_FOUND = "Wiki item not found";
     private static final String ERROR_MESSAGE_ACCESS_DENIED = "Access denied: you do not have permission to upload files to this item";
+    private static final String MESSAGE_FILE_TOO_LARGE = "wiki.message.upload.tooLarge";
+    private static final double BYTES_PER_MB = 1024d * 1024d;
 
     /**
      * {@inheritDoc}
@@ -131,6 +135,15 @@ public class WikiAsynchronousUploadHandler implements IAsynchronousUploadHandler
             {
                 Map<String, String> fileResult = new HashMap<>( );
 
+                if ( WikiUploadService.isTooLarge( fileItem.getSize( ) ) )
+                {
+                    allSuccess = false;
+                    fileResult.put( JSON_KEY_FILE_NAME, fileItem.getName( ) );
+                    fileResult.put( JSON_KEY_ERROR, getTooLargeMessage( fileItem.getSize( ), request ) );
+                    uploadedFiles.add( fileResult );
+                    continue;
+                }
+
                 try
                 {
                     File file = new File( );
@@ -172,6 +185,24 @@ public class WikiAsynchronousUploadHandler implements IAsynchronousUploadHandler
             mainObject.put( JSON_KEY_SUCCESS, false );
             mainObject.put( JSON_KEY_ERROR, ERROR_MESSAGE_NO_FILE );
         }
+    }
+
+    /**
+     * Builds the message telling that a file exceeds the maximum upload size.
+     *
+     * @param lSize
+     *            the file size, in bytes
+     * @param request
+     *            the HTTP request, for the locale
+     * @return the localized message
+     */
+    private static String getTooLargeMessage( long lSize, HttpServletRequest request )
+    {
+        Locale locale = request.getLocale( );
+        Object [ ] args = {
+                String.format( locale, "%.1f", lSize / BYTES_PER_MB ), String.format( locale, "%.0f", WikiUploadService.getMaxSize( ) / BYTES_PER_MB )
+        };
+        return I18nService.getLocalizedString( MESSAGE_FILE_TOO_LARGE, args, locale );
     }
 
     /**

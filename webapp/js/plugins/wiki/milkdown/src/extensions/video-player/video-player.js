@@ -2,6 +2,8 @@ import { $node, $command, $inputRule, $remark, $view } from '@milkdown/utils';
 import { editorViewCtx, commandsCtx, parserCtx, schemaCtx } from '@milkdown/core';
 import { clearTextInCurrentBlockCommand } from '@milkdown/preset-commonmark';
 import { InputRule } from '@milkdown/kit/prose/inputrules';
+import { TextSelection } from '@milkdown/kit/prose/state';
+import { uploadWithProgress } from '../upload-progress.js';
 import directive from 'remark-directive';
 import { visit } from 'unist-util-visit';
 
@@ -170,28 +172,15 @@ export function createVideoUploadMenuItem(uploadHandlerRef, t) {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        try {
-          const url = await uploadHandlerRef.handler(file);
-
+        await uploadWithProgress(view, uploadHandlerRef, file, t, (tr, from, to, url) => {
           const videoNodeType = schema.nodes.video;
-          if (videoNodeType) {
-            const node = videoNodeType.create({
-              src: url
-            });
-            const tr = view.state.tr.replaceSelectionWith(node);
-            view.dispatch(tr);
-            view.focus();
-          } else {
-            const videoDirective = `::video{src="${url}"}`;
-            const tr = view.state.tr.insertText(videoDirective);
-            view.dispatch(tr);
+          if (!videoNodeType) {
+            return tr.insertText(`::video{src="${url}"}`, from, to);
           }
-        } catch (error) {
-          console.error('Failed to upload video:', error);
-          const errorText = `❌ ${t.fileUpload?.uploadFailed || 'Upload failed'}: ${file.name}`;
-          const tr = view.state.tr.insertText(errorText);
-          view.dispatch(tr);
-        }
+          tr.delete(from, to);
+          tr.setSelection(TextSelection.create(tr.doc, from));
+          return tr.replaceSelectionWith(videoNodeType.create({ src: url }));
+        });
       };
 
       input.click();

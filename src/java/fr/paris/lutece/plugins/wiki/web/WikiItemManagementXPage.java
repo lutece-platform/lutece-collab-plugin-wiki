@@ -60,6 +60,7 @@ import fr.paris.lutece.plugins.wiki.business.revision.Revision;
 import fr.paris.lutece.plugins.wiki.exception.WikiValidationException;
 import fr.paris.lutece.plugins.wiki.service.RevisionService;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
+import fr.paris.lutece.plugins.wiki.service.file.WikiUploadService;
 import fr.paris.lutece.plugins.wiki.service.permission.WikiPermissionService;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
 import fr.paris.lutece.plugins.wiki.service.security.WikiUserPermissions;
@@ -114,6 +115,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     private static final String PARAMETER_USER_GUID = "user_guid";
     private static final String PARAMETER_PERMISSION_TYPE = "permission_type";
     private static final String MARK_REVISION = "revision";
+    private static final String MARK_UPLOAD_MAX_SIZE = "upload_max_size";
     private static final String MARK_REVISION_HISTORY = "revision_history";
     private static final String MARK_ITEM_TYPE = "item_type";
     private static final String MARK_ITEM = "item";
@@ -338,6 +340,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         model.put( MARK_PERMISSION_SEARCH_FIELDS, getProviderSearchFields( getLocale( request ) ) );
         ReferenceList userRoles = getUserRoles( user, getLocale( request ) );
         model.put( MARK_USER_ROLES, userRoles );
+        model.put( MARK_UPLOAD_MAX_SIZE, WikiUploadService.getMaxSize( ) );
         putAccessPath( model, item, user, userRoles, getLocale( request ) );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_UPDATE_ITEM ) );
         List<Revision> revisionHistory = RevisionService.getRevisionHistory( item.getId( ) );
