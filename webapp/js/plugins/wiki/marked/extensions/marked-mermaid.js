@@ -70,7 +70,7 @@
         }
         if (window.mermaid) {
             mermaidLoaded = true;
-            mermaid.initialize({ startOnLoad: false, theme: 'default' });
+            mermaid.initialize({ startOnLoad: false });
             callback();
             return;
         }
@@ -84,7 +84,7 @@
         script.onload = function() {
             mermaidLoaded = true;
             mermaidLoading = false;
-            mermaid.initialize({ startOnLoad: false, theme: 'default' });
+            mermaid.initialize({ startOnLoad: false });
             callback();
             pendingContainers.forEach(function(cb) { cb(); });
             pendingContainers = [];

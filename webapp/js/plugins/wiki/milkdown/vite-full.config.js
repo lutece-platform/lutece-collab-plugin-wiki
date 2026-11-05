@@ -12,11 +12,9 @@ export default defineConfig({
       fileName: 'milkdown-bundle',
       formats: ['umd']
     },
-    rollupOptions: {
+    rolldownOptions: {
       output: {
         assetFileNames: 'milkdown-bundle.[ext]',
-        manualChunks: undefined,
-        inlineDynamicImports: true,
         exports: 'named'
       }
     },
