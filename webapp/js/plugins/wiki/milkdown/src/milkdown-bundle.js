@@ -88,15 +88,12 @@ function createConfig(t = getTranslation('en'), uploadHandlerRef = null, aiConfi
         theme: oneDark,
         searchPlaceholder: t.codeMirror.searchPlaceholder,
         noResultText: t.codeMirror.noResultText,
-        previewOnlyByDefault: (language) => {
-          return language?.toLowerCase() === 'mermaid';
-        },
+        previewOnlyByDefault: true,
         renderPreview: (language, code, applyPreview) => {
-          if (language?.toLowerCase() === 'mermaid') {
-            renderMermaidPreview(code, applyPreview);
-            return true;
+          if (language?.toLowerCase() !== 'mermaid') {
+            return null;
           }
-          return false;
+          renderMermaidPreview(code, applyPreview);
         },
       },
       [Crepe.Feature.ImageBlock]: {
