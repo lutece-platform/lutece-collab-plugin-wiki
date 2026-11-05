@@ -41,6 +41,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -56,6 +57,7 @@ import fr.paris.lutece.plugins.mylutece.service.MyLutecePlugin;
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemFactory;
 import fr.paris.lutece.plugins.wiki.business.item.WikiItemType;
+import fr.paris.lutece.plugins.wiki.business.permission.WikiItemAttributePermission;
 import fr.paris.lutece.plugins.wiki.business.permission.WikiItemUserPermission;
 import fr.paris.lutece.plugins.wiki.business.revision.Revision;
 import fr.paris.lutece.plugins.wiki.exception.WikiValidationException;
@@ -63,6 +65,7 @@ import fr.paris.lutece.plugins.wiki.service.RevisionService;
 import fr.paris.lutece.plugins.wiki.service.WikiItemService;
 import fr.paris.lutece.plugins.wiki.service.permission.WikiPermissionService;
 import fr.paris.lutece.plugins.wiki.service.security.WikiAccessControlService;
+import fr.paris.lutece.plugins.wiki.service.security.WikiUserPermissions;
 import fr.paris.lutece.plugins.wiki.service.user.ExternalUserSearchService;
 import fr.paris.lutece.plugins.wiki.service.user.WikiUserDisplayName;
 import fr.paris.lutece.portal.business.role.Role;
@@ -85,6 +88,7 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
 import fr.paris.lutece.portal.web.cdi.mvc.Models;
 import fr.paris.lutece.portal.web.xpages.XPage;
+import fr.paris.lutece.util.ReferenceItem;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.bean.BeanUtil;
 import fr.paris.lutece.util.url.UrlItem;
@@ -138,6 +142,15 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     private static final String MARK_PERMISSION_SEARCH_FIELDS = "permission_search_fields";
     private static final String MARK_VIEW_POPULATIONS = "view_populations";
     private static final String MARK_EDIT_POPULATIONS = "edit_populations";
+    private static final String MARK_ANCESTORS = "ancestors";
+    private static final String MARK_ANCESTOR_PEOPLE = "ancestor_people";
+    private static final String MARK_ANCESTOR_POPULATIONS = "ancestor_populations";
+    private static final String MARK_ANCESTOR_EDITORS = "ancestor_editors";
+    private static final String MARK_ANCESTOR_EDITOR_POPULATIONS = "ancestor_editor_populations";
+    private static final String MARK_ROLE_LABELS = "role_labels";
+    private static final String MARK_ANCESTOR_EDITABLE = "ancestor_editable";
+    private static final String MESSAGE_ACCESS_PUBLIC = "wiki.access.public";
+    private static final String MESSAGE_ACCESS_PRIVATE = "wiki.access.private";
 
     private static final String NAV_VIEW_SPACE = "viewSpace";
     private static final String NAV_VIEW_BOOK = "viewBook";
@@ -335,7 +348,9 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         _models.put( MARK_EDIT_POPULATIONS, WikiPermissionService.getAttributesWithPermission( item, WikiItemUserPermission.PERMISSION_EDIT ) );
         _models.put( MARK_USER_SEARCH_AVAILABLE, _externalUserSearchService.isAvailable( ) );
         _models.put( MARK_PERMISSION_SEARCH_FIELDS, getProviderSearchFields( getLocale( request ) ) );
-        _models.put( MARK_USER_ROLES, getUserRoles( user, getLocale( request ) ) );
+        ReferenceList userRoles = getUserRoles( user, getLocale( request ) );
+        _models.put( MARK_USER_ROLES, userRoles );
+        putAccessPath( _models, item, user, userRoles, getLocale( request ) );
         _models.put( SecurityTokenService.MARK_TOKEN, _securityTokenService.getToken( request, ACTION_UPDATE_ITEM ) );
         List<Revision> revisionHistory = RevisionService.getRevisionHistory( item.getId( ) );
         _models.put( MARK_REVISION_HISTORY, revisionHistory );
@@ -1200,6 +1215,137 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
     }
 
     /**
+     * Puts in the model the ancestors of an item, the people and populations allowed to see and to edit each, whether the user can
+     * edit each and the short labels of the roles of the user and of the ancestors.
+     *
+     * @param model
+     *            the model
+     * @param item
+     *            the wiki item
+     * @param user
+     *            the signed-in user
+     * @param userRoles
+     *            the roles of the user
+     * @param locale
+     *            the locale
+     */
+    private static void putAccessPath( Models model, AbstractWikiItem item, LuteceUser user, ReferenceList userRoles, Locale locale )
+    {
+        List<AbstractWikiItem> ancestors = WikiItemService.findAncestors( item );
+        WikiUserPermissions permissions = WikiUserPermissions.forUser( user );
+        Map<String, Integer> people = new HashMap<>( );
+        Map<String, Integer> populations = new HashMap<>( );
+        Map<String, Integer> editors = new HashMap<>( );
+        Map<String, Integer> editorPopulations = new HashMap<>( );
+        Map<String, String> roleLabels = new HashMap<>( );
+        Map<String, Boolean> editable = new HashMap<>( );
+
+        for ( ReferenceItem role : userRoles )
+        {
+            roleLabels.put( role.getCode( ), getRoleShortLabel( role.getCode( ), role.getName( ), locale ) );
+        }
+
+        for ( AbstractWikiItem ancestor : ancestors )
+        {
+            String strId = String.valueOf( ancestor.getId( ) );
+            List<WikiItemUserPermission> viewUsers = WikiPermissionService.getUsersWithPermission( ancestor, WikiItemUserPermission.PERMISSION_VIEW );
+            List<WikiItemUserPermission> editUsers = WikiPermissionService.getUsersWithPermission( ancestor, WikiItemUserPermission.PERMISSION_EDIT );
+            List<WikiItemAttributePermission> viewPopulations = WikiPermissionService.getAttributesWithPermission( ancestor,
+                    WikiItemUserPermission.PERMISSION_VIEW );
+            List<WikiItemAttributePermission> editPopulations = WikiPermissionService.getAttributesWithPermission( ancestor,
+                    WikiItemUserPermission.PERMISSION_EDIT );
+            people.put( strId, countPeople( Stream.concat( viewUsers.stream( ), editUsers.stream( ) ) ) );
+            populations.put( strId, countPopulations( Stream.concat( viewPopulations.stream( ), editPopulations.stream( ) ) ) );
+            editors.put( strId, countPeople( editUsers.stream( ) ) );
+            editorPopulations.put( strId, countPopulations( editPopulations.stream( ) ) );
+            editable.put( strId, WikiAccessControlService.canEdit( permissions, ancestor ) );
+            roleLabels.computeIfAbsent( roleCode( ancestor.getViewRole( ) ), code -> getRoleShortLabel( code, getRoleDescription( code ), locale ) );
+            roleLabels.computeIfAbsent( roleCode( ancestor.getEditRole( ) ), code -> getRoleShortLabel( code, getRoleDescription( code ), locale ) );
+        }
+
+        model.put( MARK_ANCESTORS, ancestors );
+        model.put( MARK_ANCESTOR_PEOPLE, people );
+        model.put( MARK_ANCESTOR_POPULATIONS, populations );
+        model.put( MARK_ANCESTOR_EDITORS, editors );
+        model.put( MARK_ANCESTOR_EDITOR_POPULATIONS, editorPopulations );
+        model.put( MARK_ROLE_LABELS, roleLabels );
+        model.put( MARK_ANCESTOR_EDITABLE, editable );
+    }
+
+    /**
+     * Counts the distinct people of user permissions.
+     *
+     * @param permissions
+     *            the user permissions
+     * @return the count of people
+     */
+    private static int countPeople( Stream<WikiItemUserPermission> permissions )
+    {
+        return (int) permissions.map( WikiItemUserPermission::getUserGuid ).distinct( ).count( );
+    }
+
+    /**
+     * Counts the distinct populations of attribute permissions.
+     *
+     * @param permissions
+     *            the attribute permissions
+     * @return the count of populations
+     */
+    private static int countPopulations( Stream<WikiItemAttributePermission> permissions )
+    {
+        return (int) permissions.map( population -> population.getAttributeName( ) + '=' + population.getAttributeValue( ) ).distinct( ).count( );
+    }
+
+    /**
+     * Returns a role code, the public one when the role is not set.
+     *
+     * @param strRole
+     *            the role of an item
+     * @return the role code
+     */
+    private static String roleCode( String strRole )
+    {
+        return strRole == null || strRole.isBlank( ) ? WikiPermissionService.ROLE_NONE : strRole;
+    }
+
+    /**
+     * Returns the short label of a role: Public, Private or the given role name.
+     *
+     * @param strRole
+     *            the role code
+     * @param strName
+     *            the role name
+     * @param locale
+     *            the locale
+     * @return the label
+     */
+    private static String getRoleShortLabel( String strRole, String strName, Locale locale )
+    {
+        if ( WikiPermissionService.ROLE_NONE.equalsIgnoreCase( strRole ) )
+        {
+            return I18nService.getLocalizedString( MESSAGE_ACCESS_PUBLIC, locale );
+        }
+        if ( WikiPermissionService.ROLE_PRIVATE.equalsIgnoreCase( strRole ) )
+        {
+            return I18nService.getLocalizedString( MESSAGE_ACCESS_PRIVATE, locale );
+        }
+        return strName;
+    }
+
+    /**
+     * Returns the description of a role, or its code when the role does not exist.
+     *
+     * @param strRole
+     *            the role code
+     * @return the description
+     */
+    private static String getRoleDescription( String strRole )
+    {
+        Role role = RoleHome.findByPrimaryKey( strRole );
+        return role != null ? role.getRoleDescription( ) : strRole;
+    }
+
+    /**
      * Gets the list of available roles for the user
      *
      * @param user
@@ -1218,15 +1364,7 @@ public class WikiItemManagementXPage extends AbstractWikiXPage
         {
             for ( String strRole : user.getRoles( ) )
             {
-                Role role = RoleHome.findByPrimaryKey( strRole );
-                if ( role != null )
-                {
-                    userRoles.addItem( strRole, role.getRoleDescription( ) );
-                }
-                else
-                {
-                    userRoles.addItem( strRole, strRole );
-                }
+                userRoles.addItem( strRole, getRoleDescription( strRole ) );
             }
         }
         return userRoles;
