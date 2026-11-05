@@ -194,10 +194,13 @@
     }
 
     /**
-     * Initializes every sidebar tree of the page and scrolls to the active item.
+     * Initializes every sidebar tree of the page, lets its action menus overflow the scrolling sidebar and scrolls to
+     * the active item.
      */
     function init() {
         document.querySelectorAll('.wiki-sidebar-tree').forEach(initTree);
+        document.querySelectorAll('.wiki-sidebar-tree [data-bs-toggle="dropdown"]')
+            .forEach(toggle => toggle.setAttribute('data-bs-popper-config', '{"strategy":"fixed"}'));
         const active = document.querySelector('.wiki-sidebar-tree .sidebar-tree-item.active');
         if (active) active.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
