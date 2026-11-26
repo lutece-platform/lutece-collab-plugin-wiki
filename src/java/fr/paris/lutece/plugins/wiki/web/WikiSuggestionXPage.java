@@ -17,6 +17,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 
 import fr.paris.lutece.plugins.wiki.business.item.AbstractWikiItem;
 import fr.paris.lutece.plugins.wiki.business.revision.Revision;
@@ -546,13 +547,29 @@ public class WikiSuggestionXPage extends AbstractWikiXPage
      */
     private String decodedParam( HttpServletRequest request, String name )
     {
-        String encoded = request.getParameter( name + ENCODED_SUFFIX );
+        String encoded = unwrapRequest( request ).getParameter( name + ENCODED_SUFFIX );
         if ( encoded != null && !encoded.isEmpty( ) )
         {
-            byte [ ] decodedBytes = Base64.getDecoder( ).decode( encoded );
+            byte [ ] decodedBytes = Base64.getUrlDecoder( ).decode( encoded );
             return new String( decodedBytes, StandardCharsets.UTF_8 );
         }
         return request.getParameter( name );
     }
 
+    /**
+     * Returns the original (unwrapped) request, bypassing any filter wrappers such as the XSS sanitizing wrapper.
+     *
+     * @param request
+     *            the potentially wrapped request
+     * @return the original HttpServletRequest
+     */
+    private HttpServletRequest unwrapRequest( HttpServletRequest request )
+    {
+        HttpServletRequest current = request;
+        while ( current instanceof HttpServletRequestWrapper )
+        {
+            current = (HttpServletRequest) ( (HttpServletRequestWrapper) current ).getRequest( );
+        }
+        return current;
+    }
 }

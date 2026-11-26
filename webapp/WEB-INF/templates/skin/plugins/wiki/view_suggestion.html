@@ -331,7 +331,7 @@
             const encoded = document.createElement('input');
             encoded.type = 'hidden';
             encoded.name = 'resolved_content_encoded';
-            encoded.value = btoa(unescape(encodeURIComponent(merged)));
+            encoded.value = btoa(unescape(encodeURIComponent(merged))).replace(/\+/g, '-').replace(/\//g, '_');
             form.appendChild(encoded);
             hidden.value = '';
         });
